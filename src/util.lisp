@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Mon Aug 23 18:25:33 2010
-;; Last Revision: Mon Aug 23 18:27:32 2010
+;; Last Revision: Tue Aug 24 00:39:57 2010
 
 ;; This file is part of Declt.
 
@@ -32,14 +32,22 @@
 
 (in-package :com.dvlsoft.declt)
 
-
-(defun escape (string)
-  "Escape all @ characters in STRING."
-  (when string
-    (coerce (loop :for char :across string
-		  :collect char
-		  :if (char= char #\@) :collect #\@)
-	    'string)))
+(defun current-time-string ()
+  "Return the current time as a string."
+  (multiple-value-bind
+	(second minute hour date month year day-of-week dst-p tz)
+      (get-decoded-time)
+    (declare (ignore dst-p))
+    (format nil "~A ~A ~2,'0D ~2,'0D:~2,'0D:~2,'0D ~D GMT~@D"
+      (nth day-of-week '("Mon" "Tue" "Wed" "Thu" "Fri" "Sat" "Sun"))
+      (nth (1- month) '("Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"
+			"Sep" "Oct" "Nov" "Dec"))
+      date
+      hour
+      minute
+      second
+      year
+      (- tz))))
 
 ;; Originally stolen from Tinaa.
 (defun parse-author-string (string)
@@ -52,6 +60,23 @@ STRING should look like \"NAME <EMAIL>\"."
 	(values (subseq string 0 (1- pos-<))
 		(subseq string (1+ pos-<) pos->))
       string)))
+
+(defun escape (string)
+  "Escape all @ characters in STRING."
+  (when string
+    (coerce (loop :for char :across string
+		  :collect char
+		  :if (char= char #\@) :collect #\@)
+	    'string)))
+
+(defun write-docstring (docstring)
+  "Output DOCSTRING."
+  (when docstring
+    (write-string (coerce (loop :for char :across (escape docstring)
+				:if (char= char #\Newline)
+				  :collect #\@ :and :collect #\*
+				:collect char)
+			  'string))))
 
 
 ;;; util.lisp ends here
