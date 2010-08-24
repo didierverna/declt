@@ -34,9 +34,9 @@
 (in-package :com.dvlsoft.declt)
 
 
-(defun begin-texi-file (library-name texi-name info-file subtitle version
-			author email copyright-date current-time-string)
-  "Write the header of the Texinfo file."
+(defun render-header (library-name texi-name info-file subtitle version
+		      author email copyright-date current-time-string)
+  "Render the header of the Texinfo file."
   (format t "\\input texinfo
 
 @c ~A --- Reference manual
@@ -224,8 +224,8 @@ version ~A on ~A.
 	    year)))
   (setq *top-node*
 	(make-node :name "Top"
-		   :section-name (format nil
-				     "The ~A Reference Manual" library-name)
+		   :section-name (format nil "The ~A Reference Manual"
+				   library-name)
 		   :section-type :unnumbered
 		   :before-menu-contents (format nil
 "This is the ~A Reference Manual~@[, version ~A~],
@@ -290,8 +290,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		   :direction :output
 		   :if-exists :supersede
 		   :if-does-not-exist :create)
-    (begin-texi-file library-name texi-name info-file subtitle version author
-		     email copyright-date current-time-string)
+    (render-header library-name texi-name info-file subtitle version author
+		   email copyright-date current-time-string)
     (render-nodes)
     (format t "~%@bye~%~%@c ~A ends here" texi-name))
   (values))

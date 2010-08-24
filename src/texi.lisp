@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Tue Aug 24 11:48:19 2010
-;; Last Revision: Tue Aug 24 15:25:49 2010
+;; Last Revision: Tue Aug 24 15:29:38 2010
 
 ;; This file is part of Declt.
 
@@ -92,7 +92,7 @@
 	  'string))
 
 (defun render-node (node level)
-  "Render NODE and all its children at LEVEL."
+  "Render NODE at LEVEL and all its children at LEVEL+1."
   (cond ((<= level 1)
 	 (format t
 	     "
