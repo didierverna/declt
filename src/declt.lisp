@@ -207,16 +207,17 @@ version ~A on ~A.
 - COPYRIGHT-DATE defaults to the current year."
   (unless subtitlep
     (setq subtitle (asdf:system-description system)))
-  (when (and subtitlep
-	     (char= (aref subtitle (1- (length subtitle))) #\.))
-    (setq subtitle (subseq subtitle 0 (1- (length subtitle)))))
+  (when subtitlep
+    (when (char= (aref subtitle (1- (length subtitle))) #\.)
+      (setq subtitle (subseq subtitle 0 (1- (length subtitle)))))
+    (setq subtitle (texify subtitle)))
   (unless versionp
     (setq version (asdf:component-version system)))
   (multiple-value-bind (system-author system-email)
       (parse-author-string (asdf:system-author system))
     (unless authorp
       (setq author system-author))
-    (setq email (escape (if emailp email system-email))))
+    (setq email (texify (if emailp email system-email))))
   (unless copyright-date-p
     (setq copyright-date
 	  (multiple-value-bind (second minute hour date month year)
