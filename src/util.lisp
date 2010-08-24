@@ -79,4 +79,33 @@ STRING should look like \"NAME <EMAIL>\"."
 			  'string))))
 
 
+(defun write-node (node next previous top sectionning &optional contents)
+  "Write a new NODE."
+  (cond ((eq sectionning :chapter)
+	 (format t
+	     "
+
+
+@c ====================================================================
+@c ~A
+@c ====================================================================~%"
+	   node))
+	((eq sectionning :section)
+	 (let ((separator (make-string (length node) :initial-element #\-)))
+	   (format t
+	       "
+
+@c ~A
+@c ~A
+@c ~A~%"
+	     separator node separator))))
+  (format t "@node ~A, ~@[~A~], ~A, ~A~%" node next (or previous top) top)
+  (format t "@~A ~A~%~:[~;~%~]"
+    (string-downcase sectionning)
+    node
+    (member sectionning '(:chapter :section)))
+  (when contents
+    (write-string contents)))
+
+
 ;;; util.lisp ends here

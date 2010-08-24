@@ -35,7 +35,7 @@
 
 
 (defun begin-texi-file (library-name texi-name info-file subtitle version
-			author email copyright-date introduction
+			author email copyright-date
 			&aux (current-time-string (current-time-string)))
   "Write the header of the Texinfo file."
   (format t "\\input texinfo
@@ -200,15 +200,6 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 675 Mass Ave, Cambridge, MA 02139, USA.
 @end quotation
-
-
-
-@c ====================================================================
-@c Introduction
-@c ====================================================================
-@node Introduction, Reference, Copying, Top
-@chapter Introduction
-
 "
     texi-name ;; @c ~A --- Reference manual
     (if (or copyright-date author) ;; ~A
@@ -241,49 +232,30 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     (version :long) current-time-string ;; generated automatically...
     library-name ;; * Introduction:: What ~A is all about
     library-name ;; ~A is free software...
-    library-name) ;; ~A is distributed...
-  (write-docstring introduction)
-  (write-string "
-
-
-@c ====================================================================
-@c Reference
-@c ====================================================================
-@node Reference, Indexes, Introduction, Top
-@chapter Reference
-
-"))
+    library-name)) ;; ~A is distributed...
 
 (defun end-texi-file (texi-name)
   "Write the footer of the Texinfo file.
 - TEXI-NAME is the Texinfo file name sans directory."
-  (format t "@node Indexes
-@chapter Indexes
-
-@menu
+  (write-node "Indexes" nil "Reference" "Top" :chapter
+	      "@menu
 * Function Index::
 * Variable Index::
 * Data Type Index::
-@end menu
-
-@node Function Index, Variable Index, Indexes, Indexes
-@section Functions
-@printindex fn
+@end menu")
+  (write-node "Function Index" "Variable Index" nil "Indexes" :section
+	      "@printindex fn
 @page
-
-@node Variable Index, Data Type Index, Function Index, Indexes
-@section Variables
-@printindex vr
+")
+  (write-node "Variable Index" "Data Type Index" "Function Index" "Indexes"
+	      :section
+	      "@printindex vr
 @page
-
-@node Data Type Index, , Variable Index, Indexes
-@section Data Types
-@printindex tp
-
-@bye
-
-@c ~A ends here"
-    texi-name))
+")
+  (write-node "Data Type Index" nil "Variable Index" "Indexes" :section
+	      "@printindex tp
+")
+  (format t "~%@bye~%~%@c ~A ends here" texi-name))
 
 (defun declt (system-name
 	      &key (library-name (string-downcase (symbol-name system-name)))
@@ -329,8 +301,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		   :if-exists :supersede
 		   :if-does-not-exist :create)
     (begin-texi-file library-name texi-name info-file subtitle version author
-		     email copyright-date
-		     (asdf:system-long-description system))
+		     email copyright-date)
+    (write-node "Introduction" "Reference" "Copying" "Top" :chapter)
+    (write-docstring (asdf:system-long-description system))
+    (write-node "Reference" "Indexes" "Introduction" "Top" :chapter)
     (end-texi-file texi-name))
   (values))
 
