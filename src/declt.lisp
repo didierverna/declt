@@ -206,9 +206,10 @@ version ~A on ~A.
 - AUTHOR and EMAIL are extracted from the system author.
 - COPYRIGHT-DATE defaults to the current year."
   (unless subtitlep
-    (setq subtitle (asdf:system-description system))
-    (when (char= (aref subtitle (1- (length subtitle))) #\.)
-      (setq subtitle (subseq subtitle 0 (1- (length subtitle))))))
+    (setq subtitle (asdf:system-description system)))
+  (when (and subtitlep
+	     (char= (aref subtitle (1- (length subtitle))) #\.))
+    (setq subtitle (subseq subtitle 0 (1- (length subtitle)))))
   (unless versionp
     (setq version (asdf:component-version system)))
   (multiple-value-bind (system-author system-email)
