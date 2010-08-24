@@ -140,6 +140,10 @@ approved by the Free Software Foundation.
 @title The ~A Reference Manual
 ~A~A
 @page
+@quotation
+This manual was generated automatically by Declt
+version ~A on ~A.
+@end quotation
 @vskip 0pt plus 1filll
 @insertcopying
 @end titlepage
@@ -231,6 +235,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	(format nil "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	  author (and author email) email)
       "")
+    (version :long) current-time-string ;; This manual was...
     library-name ;; @top...
     library-name version ;; This is the...
     (version :long) current-time-string ;; generated automatically...
