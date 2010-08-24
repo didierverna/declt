@@ -35,8 +35,7 @@
 
 
 (defun begin-texi-file (library-name texi-name info-file subtitle version
-			author email copyright-date
-			&aux (current-time-string (current-time-string)))
+			author email copyright-date current-time-string)
   "Write the header of the Texinfo file."
   (format t "\\input texinfo
 
@@ -63,6 +62,7 @@
 @c Generated automatically by Declt version ~A
 @c on ~A.
 
+
 @c ====================================================================
 @c Header
 @c ====================================================================
@@ -80,7 +80,7 @@
 @setchapternewpage odd
 @setcontentsaftertitlepage
 @documentdescription
-The ~A Reference Manual~@[ for version ~A~].
+The ~A Reference Manual~@[, version ~A~].
 @end documentdescription
 
 
@@ -154,52 +154,6 @@ version ~A on ~A.
 @c Table of Contents
 @c ====================================================================
 @contents
-
-
-
-@c ====================================================================
-@c Master Menu
-@c ====================================================================
-@ifnottex
-@node Top, Copying, (dir), (dir)
-@top The ~A Reference Manual
-
-This is the ~A Reference Manual~@[ for version ~A~],
-generated automatically by Declt version ~A
-on ~A.
-
-@menu
-* Copying::     The GNU General Public License
-* Introducton:: What ~A is all about
-* Reference::	The reference manual
-* Indexes::	Functions, variables and data types
-@end menu
-
-@insertcopying
-@end ifnottex
-
-
-
-@c ====================================================================
-@c Copying
-@c ====================================================================
-@node Copying, Introduction, Top, Top
-@unnumbered Copying
-
-@quotation
-~A is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License version 3,
-as published by the Software Foundation.
-
-~A is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-675 Mass Ave, Cambridge, MA 02139, USA.
-@end quotation
 "
     texi-name ;; @c ~A --- Reference manual
     (if (or copyright-date author) ;; ~A
@@ -226,36 +180,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	(format nil "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	  author (and author email) email)
       "")
-    (version :long) current-time-string ;; This manual was...
-    library-name ;; @top...
-    library-name version ;; This is the...
-    (version :long) current-time-string ;; generated automatically...
-    library-name ;; * Introduction:: What ~A is all about
-    library-name ;; ~A is free software...
-    library-name)) ;; ~A is distributed...
-
-(defun end-texi-file (texi-name)
-  "Write the footer of the Texinfo file.
-- TEXI-NAME is the Texinfo file name sans directory."
-  (write-node "Indexes" nil "Reference" "Top" :chapter
-	      "@menu
-* Function Index::
-* Variable Index::
-* Data Type Index::
-@end menu")
-  (write-node "Function Index" "Variable Index" nil "Indexes" :section
-	      "@printindex fn
-@page
-")
-  (write-node "Variable Index" "Data Type Index" "Function Index" "Indexes"
-	      :section
-	      "@printindex vr
-@page
-")
-  (write-node "Data Type Index" nil "Variable Index" "Indexes" :section
-	      "@printindex tp
-")
-  (format t "~%@bye~%~%@c ~A ends here" texi-name))
+    (version :long) current-time-string)) ;; This manual was...
 
 (defun declt (system-name
 	      &key (library-name (string-downcase (symbol-name system-name)))
@@ -268,7 +193,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		   (copyright-date nil copyright-date-p)
 	      &aux (system (asdf:find-system system-name))
 		   (texi-name (make-pathname :name (pathname-name texi-file)
-					     :type (pathname-type texi-file))))
+					     :type (pathname-type texi-file)))
+		   (current-time-string (current-time-string)))
   "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
 - LIBRARY-NAME defaults to SYSTEM-NAME.
 - TEXI-FILE is the full path to the Texinfo file.
@@ -296,16 +222,78 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	      (get-decoded-time)
 	    (declare (ignore second minute hour date month))
 	    year)))
+  (setq *top-node*
+	(make-node :name "Top"
+		   :section-name (format nil
+				     "The ~A Reference Manual" library-name)
+		   :section-type :unnumbered
+		   :before-menu-contents (format nil
+"This is the ~A Reference Manual~@[, version ~A~],
+generated automatically by Declt version ~A
+on ~A."
+					   library-name
+					   version
+					   (version :long)
+					   current-time-string)
+		   :after-menu-contents "@insertcopying"))
+  (add-child *top-node*
+	     (make-node :name "Copying"
+			:synopsis "The GNU General Public License"
+			:section-type :unnumbered
+			:before-menu-contents (format nil
+"@quotation
+~A is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License version 3,
+as published by the Software Foundation.
+
+~A is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+675 Mass Ave, Cambridge, MA 02139, USA.
+@end quotation"
+						library-name
+						library-name)))
+  (when (asdf:system-long-description system)
+    (add-child *top-node*
+	       (make-node :name "Introduction"
+			  :synopsis (format nil "What ~A is all about"
+				      library-name)
+			  :before-menu-contents
+			  (pretty-texify
+			   (asdf:system-long-description system)))))
+  (add-child *top-node* (make-node :name "Reference"))
+  (let ((indexes-node (add-child *top-node*
+				 (make-node :name "Indexes"
+					    :section-type :appendix))))
+    (add-child indexes-node
+	       (make-node :name "Function Index"
+			  :section-type :appendix
+			  :section-name "Functions"
+			  :before-menu-contents "@printindex fn"
+			  :after-menu-contents "@page"))
+    (add-child indexes-node
+	       (make-node :name "Variable Index"
+			  :section-type :appendix
+			  :section-name "Variables"
+			  :before-menu-contents "@printindex vr"
+			  :after-menu-contents "@page"))
+    (add-child indexes-node
+	       (make-node :name "Data Type Index"
+			  :section-type :appendix
+			  :section-name "Data Types"
+			  :before-menu-contents "@printindex tp")))
   (with-open-file (*standard-output* texi-file
 		   :direction :output
 		   :if-exists :supersede
 		   :if-does-not-exist :create)
     (begin-texi-file library-name texi-name info-file subtitle version author
-		     email copyright-date)
-    (write-node "Introduction" "Reference" "Copying" "Top" :chapter)
-    (write-docstring (asdf:system-long-description system))
-    (write-node "Reference" "Indexes" "Introduction" "Top" :chapter)
-    (end-texi-file texi-name))
+		     email copyright-date current-time-string)
+    (render-nodes)
+    (format t "~%@bye~%~%@c ~A ends here" texi-name))
   (values))
 
 

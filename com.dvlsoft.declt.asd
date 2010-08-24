@@ -129,7 +129,7 @@ version, a patchlevel of 0 is ignored in the output."
 	    +release-name+))
 
 (defsystem :com.dvlsoft.declt
-  :description "A Documentation Extractor from Common Lisp to Texinfo."
+  :description "Documentation Extractor from Common Lisp to Texinfo."
   :long-description "Declt is a reference manual generator for Common Lisp.
 Reference manuals are generated in Texinfo format which can further be
 converted into info, HTML, DVI, PostScript or PDF."
@@ -141,7 +141,8 @@ converted into info, HTML, DVI, PostScript or PDF."
 	       (module "src"
 		 :depends-on ("package")
 		 :components ((:file "util")
-			      (:file "declt" :depends-on ("util"))))))
+			      (:file "texi" :depends-on ("util"))
+			      (:file "declt" :depends-on ("texi"))))))
 
 
 ;;; com.dvlsoft.declt.asd ends here

@@ -32,6 +32,10 @@
 
 (in-package :com.dvlsoft.declt)
 
+(defmacro endpush (object place)
+  "Like push, but at the end."
+  `(setf ,place (nconc ,place (list ,object))))
+
 (defun current-time-string ()
   "Return the current time as a string."
   (multiple-value-bind
@@ -60,52 +64,5 @@ STRING should look like \"NAME <EMAIL>\"."
 	(values (subseq string 0 (1- pos-<))
 		(subseq string (1+ pos-<) pos->))
       string)))
-
-(defun escape (string)
-  "Escape all @ characters in STRING."
-  (when string
-    (coerce (loop :for char :across string
-		  :collect char
-		  :if (char= char #\@) :collect #\@)
-	    'string)))
-
-(defun write-docstring (docstring)
-  "Output DOCSTRING."
-  (when docstring
-    (write-string (coerce (loop :for char :across (escape docstring)
-				:if (char= char #\Newline)
-				  :collect #\@ :and :collect #\*
-				:collect char)
-			  'string))))
-
-
-(defun write-node (node next previous top sectionning &optional contents)
-  "Write a new NODE."
-  (cond ((eq sectionning :chapter)
-	 (format t
-	     "
-
-
-@c ====================================================================
-@c ~A
-@c ====================================================================~%"
-	   node))
-	((eq sectionning :section)
-	 (let ((separator (make-string (length node) :initial-element #\-)))
-	   (format t
-	       "
-
-@c ~A
-@c ~A
-@c ~A~%"
-	     separator node separator))))
-  (format t "@node ~A, ~@[~A~], ~A, ~A~%" node next (or previous top) top)
-  (format t "@~A ~A~%~:[~;~%~]"
-    (string-downcase sectionning)
-    node
-    (member sectionning '(:chapter :section)))
-  (when contents
-    (write-string contents)))
-
 
 ;;; util.lisp ends here
