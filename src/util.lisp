@@ -65,4 +65,13 @@ STRING should look like \"NAME <EMAIL>\"."
 		(subseq string (1+ pos-<) pos->))
       string)))
 
+(defun list-to-string (list &key (key #'identity) (separator ", "))
+  "Return a SEPARATOR-separated string of all LIST elements.
+- KEY should provide a way to get a string from each LIST element.
+- SEPARATOR is the string to insert between elements."
+  (reduce (lambda (str1 str2) (concatenate 'string str1 separator str2))
+	  list
+	  :key key))
+
+
 ;;; util.lisp ends here
