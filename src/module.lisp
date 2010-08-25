@@ -53,8 +53,36 @@
   (write-string "module" stream))
 
 
-(defun add-modules-node (node system)
+
+;; ==========================================================================
+;; Module Nodes
+;; ==========================================================================
+
+(defun module-node (module)
+  "Create and return a MODULE node."
+  (make-node :name (format nil "The ~A module"
+		     (asdf:component-name module))
+	     :section-name (format nil "@t{~A}"
+			     (asdf:component-name module))))
+
+(defun collect-modules (components)
+  (loop :for component :in components
+	:when (eq (type-of component) 'asdf:module)
+	  :collect component
+	  :and :nconc (collect-modules (asdf:module-components component))))
+
+
+(defun add-modules-node (node components)
   "Add SYSTEM's modules node to NODE."
-  )
+  (let ((modules (collect-modules components)))
+    (when modules
+      (let ((modules-node
+	     (add-child node (make-node :name "Modules"
+					:synopsis "The system's modules"
+					 :before-menu-contents
+"Modules are listed depth-first from the system modules tree."))))
+	(dolist (module modules)
+	  (add-child modules-node (module-node module)))))))
+
 
 ;;; module.lisp ends here

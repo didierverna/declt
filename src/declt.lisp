@@ -324,7 +324,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 			  (pretty-texify
 			   (asdf:system-long-description system)))))
   (add-system-node *top-node* system)
-  (add-modules-node *top-node* system)
+  (add-modules-node *top-node* (asdf:module-components system))
   (let ((indexes-node (add-child *top-node*
 				 (make-node :name "Indexes"
 					    :section-type :appendix))))
