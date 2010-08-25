@@ -46,28 +46,36 @@
 	     (with-output-to-string (str)
 	       (format str "@table @strong~%")
 	       (format str "@item Name~%@t{~A}~%" (asdf:component-name system))
-	       (when (asdf:component-version system)
+	       (when (and (slot-boundp system 'asdf:version)
+			  (asdf:component-version system))
 		 (format str "@item Version~%~A~%"
 		   (asdf:component-version system)))
-	       (when (asdf:system-description system)
+	       (when (and (slot-boundp system 'asdf::description)
+			  (asdf:system-description system))
 		 (format str "@item Description~%~A~%"
 		   (pretty-texify (asdf:system-description system))))
-	       (when (asdf:system-long-description system)
+	       (when (and (slot-boundp system 'asdf::long-description)
+			  (asdf:system-long-description system))
 		 (format str "@item Long Description~%~A~%"
 		   (pretty-texify (asdf:system-long-description system))))
 	       (multiple-value-bind (author email)
-		   (parse-author-string (asdf:system-author system))
+		   (when (slot-boundp system 'asdf::author)
+		     (parse-author-string (asdf:system-author system)))
 		 (when (or author email)
 		   (format str
 		       "@item Author~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 		     author (and author email) (texify email))))
 	       (multiple-value-bind (maintainer email)
-		   (parse-author-string (asdf:system-maintainer system))
+		   (when (slot-boundp system 'asdf::maintainer)
+		     (parse-author-string (asdf:system-maintainer system)))
 		 (when (or maintainer email)
 		   (format str
 		       "@item Maintainer~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 		     maintainer (and maintainer email) (texify email))))
-	       (when (asdf:system-license system)
+	       ;; #### NOTE: yes, the slot is licenCe, but licenSe accessors
+	       ;; are also available.
+	       (when (and (slot-boundp system 'asdf::licence)
+			  (asdf:system-license system))
 		 (format str "@item License~%~A~%"
 		   (asdf:system-license system)))
 	       ;; #### NOTE: currently, we simply extract all the dependencies
