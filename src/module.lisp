@@ -58,7 +58,7 @@
 ;; Module Nodes
 ;; ==========================================================================
 
-(defun module-node (module)
+(defun module-node (module system-directory)
   "Create and return a MODULE node."
   (make-node :name (format nil "The ~A module"
 		     (asdf:component-name module))
@@ -93,13 +93,14 @@
 	       (format str "@t{~A}~%"
 		 (asdf:component-name (asdf:component-parent module)))
 	       (format str "@item Location~%@t{~A}~%"
-		 (asdf:component-relative-pathname module))
+		 (enough-namestring (asdf:component-pathname module)
+				    system-directory))
 	       (format str "@item Components~%@itemize @bullet~%")
 	       (dolist (component (asdf:module-components module))
 		 (itemize str component))
 	       (format str "@end itemize~%@end table"))))
 
-(defun add-modules-node (node components)
+(defun add-modules-node (node components system-directory)
   "Add COMPONENTS modules node to NODE."
   (let ((modules (collect-components components 'asdf:module)))
     (when modules
@@ -109,7 +110,7 @@
 					 :before-menu-contents
 "Modules are listed depth-first from the system components tree."))))
 	(dolist (module modules)
-	  (add-child modules-node (module-node module)))))))
+	  (add-child modules-node (module-node module system-directory)))))))
 
 
 ;;; module.lisp ends here
