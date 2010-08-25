@@ -1,0 +1,5 @@
+                                                             -*- outline -*-
+
+* Index dependencies
+ASDF maintains dependencies as a list of names only, so this makes it harder
+to find the corresponding component.
