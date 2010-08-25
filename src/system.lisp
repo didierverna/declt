@@ -85,7 +85,7 @@
 			      dependencies)))))
 	       (format str "@item Components~%@itemize @bullet~%")
 	       (dolist (component (asdf:module-components system))
-		 (itemize-component str component))
+		 (itemize str component))
 	       (format str "@end itemize~%@end table"))))
 
 (defun add-system-node (node system)

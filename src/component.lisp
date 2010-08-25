@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Wed Aug 25 16:06:07 2010
-;; Last Revision: Wed Aug 25 16:07:21 2010
+;; Last Revision: Wed Aug 25 16:20:42 2010
 
 ;; This file is part of Declt.
 
@@ -32,12 +32,13 @@
 (in-package :com.dvlsoft.declt)
 
 
+;; ==========================================================================
+;; The Indexing Protocol
+;; ==========================================================================
+
 (defgeneric index (stream component)
   (:documentation "Write an index command for COMPONENT to STREAM.")
   (:method (stream component))
-  (:method (stream (module asdf:module))
-    (format stream "@moduleindex{~A}@c~%"
-      (asdf:component-name module)))
   (:method (stream (cl-source-file asdf:cl-source-file))
     (format stream "@lispfileindex{~A}@c~%"
       (asdf:component-name cl-source-file)))
@@ -57,15 +58,17 @@
     (format stream "@htmlfileindex{~A}@c~%"
       (asdf:component-name html-file))))
 
-(defgeneric itemize-component (stream component)
+;; ==========================================================================
+;; The Itemization Protocol
+;; ==========================================================================
+
+(defgeneric itemize (stream component)
   (:documentation "Write an itemized description of COMPONENT to STREAM.")
   (:method :before (stream component)
     (format stream "@item~%")
     (index stream component)
     (format stream "@t{~A} ("
       (asdf:component-name component)))
-  (:method (stream (module asdf:module))
-    (write-string "module" stream))
   (:method (stream (cl-source-file asdf:cl-source-file))
     (write-string "Lisp source file" stream))
   (:method (stream (c-source-file asdf:c-source-file))
