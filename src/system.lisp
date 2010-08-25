@@ -70,11 +70,10 @@
 	       (when (asdf:system-license system)
 		 (format str "@item License~%~A~%"
 		   (asdf:system-license system)))
-	       ;; #### NOTE: currently, we simply extract all the
-	       ;; dependencies regardless of the operations involved.
-	       ;; We also assume that dependencies are of the form
-	       ;; (OP (OP DEP...) ...), but I'm not sure this is always the
-	       ;; case.
+	       ;; #### NOTE: currently, we simply extract all the dependencies
+	       ;; regardless of the operations involved. We also assume that
+	       ;; dependencies are of the form (OP (OP DEP...) ...), but I'm
+	       ;; not sure this is always the case.
 	       (let ((in-order-tos (slot-value system 'asdf::in-order-to))
 		     dependencies)
 		 (when in-order-tos
