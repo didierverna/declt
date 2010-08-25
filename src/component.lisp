@@ -33,6 +33,21 @@
 
 
 ;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
+(defun collect-components (components type)
+  "Collect all components of TYPE in COMPONENTS."
+  (loop :for component :in components
+	:if (eq (type-of component) type)
+	  :collect component
+	:if (eq (type-of component) 'asdf:module)
+	  :nconc (collect-components (asdf:module-components component)
+				     type)))
+
+
+
+;; ==========================================================================
 ;; Rendering Protocols
 ;; ==========================================================================
 

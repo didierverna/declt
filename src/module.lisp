@@ -99,16 +99,9 @@
 		 (itemize str component))
 	       (format str "@end itemize~%@end table"))))
 
-(defun collect-modules (components)
-  (loop :for component :in components
-	:when (eq (type-of component) 'asdf:module)
-	  :collect component
-	  :and :nconc (collect-modules (asdf:module-components component))))
-
-
 (defun add-modules-node (node components)
   "Add COMPONENTS modules node to NODE."
-  (let ((modules (collect-modules components)))
+  (let ((modules (collect-components components 'asdf:module)))
     (when modules
       (let ((modules-node
 	     (add-child node (make-node :name "Modules"
