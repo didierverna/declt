@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Wed Aug 25 16:04:44 2010
-;; Last Revision: Wed Aug 25 17:02:26 2010
+;; Last Revision: Wed Aug 25 17:40:40 2010
 
 ;; This file is part of Declt.
 
@@ -63,7 +63,39 @@
   (make-node :name (format nil "The ~A module"
 		     (asdf:component-name module))
 	     :section-name (format nil "@t{~A}"
-			     (asdf:component-name module))))
+			     (asdf:component-name module))
+	     :before-menu-contents
+	     (with-output-to-string (str)
+	       (index str module)
+	       (format str "@table @strong~%")
+	       (when (and (slot-boundp module 'asdf:version)
+			  (asdf:component-version module))
+		 (format str "@item Version~%~A~%"
+		   (asdf:component-version module)))
+	       ;; #### NOTE: currently, we simply extract all the dependencies
+	       ;; regardless of the operations involved. We also assume that
+	       ;; dependencies are of the form (OP (OP DEP...) ...), but I'm
+	       ;; not sure this is always the case.
+	       (let ((in-order-tos (slot-value module 'asdf::in-order-to))
+		     dependencies)
+		 (when in-order-tos
+		   (dolist (in-order-to in-order-tos)
+		     (dolist (op-dependency (cdr in-order-to))
+		       (dolist (dependency (cdr op-dependency))
+			 (pushnew dependency dependencies))))
+		   (format str "@item Dependencies~%~A~%"
+		     (list-to-string
+		      (mapcar (lambda (dep)
+				(format nil "@t{~A}" (string-downcase dep)))
+			      dependencies)))))
+	       (format str "@item Parent~%")
+	       (index str (asdf:component-parent module))
+	       (format str "@t{~A}~%"
+		 (asdf:component-name (asdf:component-parent module)))
+	       (format str "@item Components~%@itemize @bullet~%")
+	       (dolist (component (asdf:module-components module))
+		 (itemize str component))
+	       (format str "@end itemize~%@end table"))))
 
 (defun collect-modules (components)
   (loop :for component :in components
