@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Tue Aug 24 16:00:04 2010
-;; Last Revision: Tue Aug 24 19:26:58 2010
+;; Last Revision: Tue Aug 24 19:54:16 2010
 
 ;; This file is part of Declt.
 
@@ -33,6 +33,30 @@
 
 (in-package :com.dvlsoft.declt)
 
+
+(defgeneric itemize-component (stream component)
+  (:documentation "Write an itemized description of COMPONENT to STREAM.")
+  (:method :before (stream component)
+    (format stream "@item~%@t{~A} ("
+      (asdf:component-name component)))
+  (:method (stream (component asdf:module))
+    (write-string "module" stream))
+  (:method (stream (component asdf:cl-source-file))
+    (write-string "Lisp source file" stream))
+  (:method (stream (component asdf:c-source-file))
+    (write-string "C source file" stream))
+  (:method (stream (component asdf:java-source-file))
+    (write-string "Java source file" stream))
+  (:method (stream (component asdf:static-file))
+    (write-string "file" stream))
+  (:method (stream (component asdf:doc-file))
+    (write-string "doc file" stream))
+  (:method (stream (component asdf:html-file))
+    (write-string "HTML file" stream))
+  (:method :after (stream component)
+    (format stream "~@[, version ~A~])~%"
+      (and (slot-boundp component 'asdf:version )
+	   (asdf:component-version component)))))
 
 (defun system-node (system)
   "Create and return the SYSTEM node."
@@ -83,7 +107,10 @@
 		      (mapcar (lambda (dep)
 				(format nil "@t{~A}" (string-downcase dep)))
 			      dependencies)))))
-	       (format str "@end table"))))
+	       (format str "@item Components~%@itemize @bullet~%")
+	       (dolist (component (asdf:module-components system))
+		 (itemize-component str component))
+	       (format str "@end itemize~%@end table"))))
 
 
 ;;; system.lisp ends here
