@@ -128,7 +128,7 @@ The ~A Reference Manual~@[, version ~A~].
 @end macro
 
 @c Doc files
-@macro otherfileindex{name}
+@macro docfileindex{name}
 @cindex @t{\\name\\}
 @cindex Doc File, @t{\\name\\}
 @cindex File, doc, @t{\\name\\}
