@@ -107,14 +107,14 @@
 
 
 (defun add-modules-node (node components)
-  "Add SYSTEM's modules node to NODE."
+  "Add COMPONENTS modules node to NODE."
   (let ((modules (collect-modules components)))
     (when modules
       (let ((modules-node
 	     (add-child node (make-node :name "Modules"
 					:synopsis "The system's modules"
 					 :before-menu-contents
-"Modules are listed depth-first from the system modules tree."))))
+"Modules are listed depth-first from the system components tree."))))
 	(dolist (module modules)
 	  (add-child modules-node (module-node module)))))))
 
