@@ -34,6 +34,10 @@
 (in-package :com.dvlsoft.declt)
 
 
+;; ==========================================================================
+;; System Node
+;; ==========================================================================
+
 (defun system-node (system)
   "Create and return the SYSTEM node."
   (make-node :name "System"

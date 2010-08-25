@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Wed Aug 25 16:04:44 2010
-;; Last Revision: Wed Aug 25 16:20:32 2010
+;; Last Revision: Wed Aug 25 17:02:26 2010
 
 ;; This file is part of Declt.
 
@@ -32,6 +32,10 @@
 
 (in-package :com.dvlsoft.declt)
 
+
+;; ==========================================================================
+;; Rendering Protocols
+;; ==========================================================================
 
 ;; -----------------
 ;; Indexing protocol

@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Wed Aug 25 16:06:07 2010
-;; Last Revision: Wed Aug 25 16:20:42 2010
+;; Last Revision: Wed Aug 25 16:54:11 2010
 
 ;; This file is part of Declt.
 
@@ -33,11 +33,15 @@
 
 
 ;; ==========================================================================
-;; The Indexing Protocol
+;; Rendering Protocols
 ;; ==========================================================================
 
+;; -----------------
+;; Indexing protocol
+;; -----------------
+
 (defgeneric index (stream component)
-  (:documentation "Write an index command for COMPONENT to STREAM.")
+  (:documentation "Render an index command for COMPONENT to STREAM.")
   (:method (stream component))
   (:method (stream (cl-source-file asdf:cl-source-file))
     (format stream "@lispfileindex{~A}@c~%"
@@ -58,12 +62,12 @@
     (format stream "@htmlfileindex{~A}@c~%"
       (asdf:component-name html-file))))
 
-;; ==========================================================================
-;; The Itemization Protocol
-;; ==========================================================================
+;; --------------------
+;; Itemization protocol
+;; --------------------
 
 (defgeneric itemize (stream component)
-  (:documentation "Write an itemized description of COMPONENT to STREAM.")
+  (:documentation "Render an itemized description of COMPONENT to STREAM.")
   (:method :before (stream component)
     (format stream "@item~%")
     (index stream component)
