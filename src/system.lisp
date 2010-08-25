@@ -88,5 +88,9 @@
 		 (itemize-component str component))
 	       (format str "@end itemize~%@end table"))))
 
+(defun add-system-node (node system)
+  "Add the SYSTEM node to NODE."
+  (add-child node (system-node system)))
+
 
 ;;; system.lisp ends here

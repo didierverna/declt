@@ -323,7 +323,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 			  :before-menu-contents
 			  (pretty-texify
 			   (asdf:system-long-description system)))))
-  (add-child *top-node* (system-node system))
+  (add-system-node *top-node* system)
   (let ((indexes-node (add-child *top-node*
 				 (make-node :name "Indexes"
 					    :section-type :appendix))))
