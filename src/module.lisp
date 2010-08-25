@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Wed Aug 25 16:04:44 2010
-;; Last Revision: Wed Aug 25 17:40:40 2010
+;; Last Revision: Wed Aug 25 17:48:29 2010
 
 ;; This file is part of Declt.
 
@@ -92,6 +92,8 @@
 	       (index str (asdf:component-parent module))
 	       (format str "@t{~A}~%"
 		 (asdf:component-name (asdf:component-parent module)))
+	       (format str "@item Location~%@t{~A}~%"
+		 (asdf:component-relative-pathname module))
 	       (format str "@item Components~%@itemize @bullet~%")
 	       (dolist (component (asdf:module-components module))
 		 (itemize str component))
