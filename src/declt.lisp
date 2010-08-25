@@ -89,6 +89,58 @@ The ~A Reference Manual~@[, version ~A~].
 @c New Commands
 @c ====================================================================
 
+@c ---------------
+@c Indexing macros
+@c ---------------
+
+@c Modules
+@macro moduleindex{name}
+@cindex @t{\\name\\}
+@cindex Module, @t{\\name\\}
+@end macro
+
+@c Lisp files
+@macro lispfileindex{name}
+@cindex @t{\\name\\}
+@cindex Lisp File, @t{\\name\\}
+@cindex File, Lisp, @t{\\name\\}
+@end macro
+
+@c C files
+@macro cfileindex{name}
+@cindex @t{\\name\\}
+@cindex C File, @t{\\name\\}
+@cindex File, C, @t{\\name\\}
+@end macro
+
+@c Java files
+@macro javafileindex{name}
+@cindex @t{\\name\\}
+@cindex Java File, @t{\\name\\}
+@cindex File, Java, @t{\\name\\}
+@end macro
+
+@c Other files
+@macro otherfileindex{name}
+@cindex @t{\\name\\}
+@cindex Other File, @t{\\name\\}
+@cindex File, other, @t{\\name\\}
+@end macro
+
+@c Doc files
+@macro otherfileindex{name}
+@cindex @t{\\name\\}
+@cindex Doc File, @t{\\name\\}
+@cindex File, doc, @t{\\name\\}
+@end macro
+
+@c HTML files
+@macro htmlfileindex{name}
+@cindex @t{\\name\\}
+@cindex HTML File, @t{\\name\\}
+@cindex File, html, @t{\\name\\}
+@end macro
+
 
 
 @c ====================================================================
@@ -275,6 +327,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   (let ((indexes-node (add-child *top-node*
 				 (make-node :name "Indexes"
 					    :section-type :appendix))))
+    (add-child indexes-node
+	       (make-node :name "Concept Index"
+			  :section-type :appendix
+			  :section-name "Concepts"
+			  :before-menu-contents "@printindex cp"
+			  :after-menu-contents "@page"))
     (add-child indexes-node
 	       (make-node :name "Function Index"
 			  :section-type :appendix

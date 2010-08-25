@@ -34,10 +34,37 @@
 (in-package :com.dvlsoft.declt)
 
 
+(defgeneric index (stream component)
+  (:documentation "Write an index command for COMPONENT on STREAM.")
+  (:method (stream component))
+  (:method (stream (module asdf:module))
+    (format stream "@moduleindex{~A}@c~%"
+      (asdf:component-name module)))
+  (:method (stream (cl-source-file asdf:cl-source-file))
+    (format stream "@lispfileindex{~A}@c~%"
+      (asdf:component-name cl-source-file)))
+  (:method (stream (c-source-file asdf:c-source-file))
+    (format stream "@cfileindex{~A}@c~%"
+      (asdf:component-name c-source-file)))
+  (:method (stream (java-source-file asdf:java-source-file))
+    (format stream "@javafileindex{~A}@c~%"
+      (asdf:component-name java-source-file)))
+  (:method (stream (static-file asdf:static-file))
+    (format stream "@otherfileindex{~A}@c~%"
+      (asdf:component-name static-file)))
+  (:method (stream (doc-file asdf:doc-file))
+    (format stream "@docfileindex{~A}@c~%"
+      (asdf:component-name doc-file)))
+  (:method (stream (html-file asdf:html-file))
+    (format stream "@htmlfileindex{~A}@c~%"
+      (asdf:component-name html-file))))
+
 (defgeneric itemize-component (stream component)
   (:documentation "Write an itemized description of COMPONENT to STREAM.")
   (:method :before (stream component)
-    (format stream "@item~%@t{~A} ("
+    (format stream "@item~%")
+    (index stream component)
+    (format stream "@t{~A} ("
       (asdf:component-name component)))
   (:method (stream (component asdf:module))
     (write-string "module" stream))
