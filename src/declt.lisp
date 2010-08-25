@@ -206,15 +206,18 @@ version ~A on ~A.
 - AUTHOR and EMAIL are extracted from the system author.
 - COPYRIGHT-DATE defaults to the current year."
   (unless subtitlep
-    (setq subtitle (asdf:system-description system)))
+    (setq subtitle (when (slot-boundp system 'asdf::description)
+		     (asdf:system-description system))))
   (when subtitlep
     (when (char= (aref subtitle (1- (length subtitle))) #\.)
       (setq subtitle (subseq subtitle 0 (1- (length subtitle)))))
     (setq subtitle (texify subtitle)))
   (unless versionp
-    (setq version (asdf:component-version system)))
+    (setq version (when (slot-boundp system 'asdf:version)
+		    (asdf:component-version system))))
   (multiple-value-bind (system-author system-email)
-      (parse-author-string (asdf:system-author system))
+      (when (slot-boundp system 'asdf::author)
+	(parse-author-string (asdf:system-author system)))
     (unless authorp
       (setq author system-author))
     (setq email (texify (if emailp email system-email))))
@@ -259,7 +262,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 @end quotation"
 						library-name
 						library-name)))
-  (when (asdf:system-long-description system)
+  (when (and (slot-boundp system 'asdf::long-description)
+	     (asdf:system-long-description system))
     (add-child *top-node*
 	       (make-node :name "Introduction"
 			  :synopsis (format nil "What ~A is all about"
