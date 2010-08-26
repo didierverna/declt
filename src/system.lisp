@@ -68,6 +68,40 @@
 
 
 ;; ==========================================================================
+;; Rendering Protocols
+;; ==========================================================================
+
+;; ---------------------
+;; Tableization protocol
+;; ---------------------
+
+(defmethod tableize (stream (system asdf:system) relative-to)
+  "Also describe SYSTEM's descriptions, author, maintainer and license."
+  (format stream "@item Name~%@t{~A}~%" (asdf:component-name system))
+  (when (system-description system)
+    (format stream "@item Description~%~A~%"
+      (pretty-texify (system-description system))))
+  (when (system-long-description system)
+    (format stream "@item Long Description~%~A~%"
+      (pretty-texify (system-long-description system))))
+  (multiple-value-bind (author email)
+      (parse-author-string (system-author system))
+    (when (or author email)
+      (format stream "@item Author~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
+	author (and author email) (texify email))))
+  (multiple-value-bind (maintainer email)
+      (parse-author-string (system-maintainer system))
+    (when (or maintainer email)
+      (format stream "@item Maintainer~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
+	maintainer (and maintainer email) (texify email))))
+  (when (system-license system)
+    (format stream "@item License~%~A~%"
+      (system-license system)))
+  (call-next-method))
+
+
+
+;; ==========================================================================
 ;; System Node
 ;; ==========================================================================
 
@@ -77,52 +111,8 @@
 	     :synopsis "The ASDF system documentation"
 	     :before-menu-contents
 	     (with-output-to-string (str)
-	       (format str "@table @strong~%")
-	       (format str "@item Name~%@t{~A}~%" (asdf:component-name system))
-	       (when (component-version system)
-		 (format str "@item Version~%~A~%"
-		   (component-version system)))
-	       (when (system-description system)
-		 (format str "@item Description~%~A~%"
-		   (pretty-texify (system-description system))))
-	       (when (system-long-description system)
-		 (format str "@item Long Description~%~A~%"
-		   (pretty-texify (system-long-description system))))
-	       (multiple-value-bind (author email)
-		   (parse-author-string (system-author system))
-		 (when (or author email)
-		   (format str
-		       "@item Author~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-		     author (and author email) (texify email))))
-	       (multiple-value-bind (maintainer email)
-		   (parse-author-string (system-maintainer system))
-		 (when (or maintainer email)
-		   (format str
-		       "@item Maintainer~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-		     maintainer (and maintainer email) (texify email))))
-	       (when (system-license system)
-		 (format str "@item License~%~A~%"
-		   (system-license system)))
-	       ;; #### NOTE: currently, we simply extract all the dependencies
-	       ;; regardless of the operations involved. We also assume that
-	       ;; dependencies are of the form (OP (OP DEP...) ...), but I'm
-	       ;; not sure this is always the case.
-	       (let ((in-order-tos (slot-value system 'asdf::in-order-to))
-		     dependencies)
-		 (when in-order-tos
-		   (dolist (in-order-to in-order-tos)
-		     (dolist (op-dependency (cdr in-order-to))
-		       (dolist (dependency (cdr op-dependency))
-			 (pushnew dependency dependencies))))
-		   (format str "@item Dependencies~%~A~%"
-		     (list-to-string
-		      (mapcar (lambda (dep)
-				(format nil "@t{~A}" (string-downcase dep)))
-			      dependencies)))))
-	       (format str "@item Components~%@itemize @bullet~%")
-	       (dolist (component (asdf:module-components system))
-		 (itemize str component))
-	       (format str "@end itemize~%@end table"))))
+	       (tableize str system
+			 (asdf:component-relative-pathname system)))))
 
 (defun add-system-node (node system)
   "Add the SYSTEM node to NODE."

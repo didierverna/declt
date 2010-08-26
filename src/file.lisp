@@ -95,41 +95,13 @@
 ;; File Nodes
 ;; ==========================================================================
 
-(defun file-node (file system-directory)
+(defun file-node (file relative-to)
   "Create and return a FILE node."
   (make-node :name (format nil "The ~A file" (asdf:component-name file))
 	     :section-name (format nil "@t{~A}" (asdf:component-name file))
-	     :before-menu-contents
-	     (with-output-to-string (str)
-	       (index str file)
-	       (format str "@table @strong~%")
-	       (when (component-version file)
-		 (format str "@item Version~%~A~%"
-		   (component-version file)))
-	       ;; #### NOTE: currently, we simply extract all the dependencies
-	       ;; regardless of the operations involved. We also assume that
-	       ;; dependencies are of the form (OP (OP DEP...) ...), but I'm
-	       ;; not sure this is always the case.
-	       (let ((in-order-tos (slot-value file 'asdf::in-order-to))
-		     dependencies)
-		 (when in-order-tos
-		   (dolist (in-order-to in-order-tos)
-		     (dolist (op-dependency (cdr in-order-to))
-		       (dolist (dependency (cdr op-dependency))
-			 (pushnew dependency dependencies))))
-		   (format str "@item Dependencies~%~A~%"
-		     (list-to-string
-		      (mapcar (lambda (dep)
-				(format nil "@t{~A}" (string-downcase dep)))
-			      dependencies)))))
-	       (format str "@item Parent~%")
-	       (index str (asdf:component-parent file))
-	       (format str "@t{~A}~%"
-		 (asdf:component-name (asdf:component-parent file)))
-	       (format str "@item Location~%@t{~A}~%"
-		 (enough-namestring (asdf:component-pathname file)
-				    system-directory))
-	       (format str "@end table"))))
+	     :before-menu-contents (with-output-to-string (str)
+				     (index str file)
+				     (tableize str file relative-to))))
 
 (defun add-files-node (node components system-directory)
   "Add COMPONENTS files node to NODE."

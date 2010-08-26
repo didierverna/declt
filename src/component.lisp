@@ -80,5 +80,44 @@
       (and (slot-boundp component 'asdf:version )
 	   (asdf:component-version component)))))
 
+;; ---------------------
+;; Tableization protocol
+;; ---------------------
+
+(defgeneric tableize (stream component relative-to)
+  (:documentation "Render a tableized description of COMPONENT to STREAM.
+COMPONENT's location is displayed RELATIVE-TO.")
+  (:method :before (stream component relative-to)
+    (format stream "@table @strong~%"))
+  (:method (stream component relative-to)
+    (when (component-version component)
+      (format stream "@item Version~%~A~%"
+	(component-version component)))
+    ;; #### NOTE: currently, we simply extract all the dependencies regardless
+    ;; of the operations involved. We also assume that dependencies are of the
+    ;; form (OP (OP DEP...) ...), but I'm not sure this is always the case.
+    (let ((in-order-tos (slot-value component 'asdf::in-order-to))
+	  dependencies)
+      (when in-order-tos
+	(dolist (in-order-to in-order-tos)
+	  (dolist (op-dependency (cdr in-order-to))
+	    (dolist (dependency (cdr op-dependency))
+	      (pushnew dependency dependencies))))
+	(format stream "@item Dependencies~%~A~%"
+	  (list-to-string
+	   (mapcar (lambda (dep) (format nil "@t{~A}" (string-downcase dep)))
+		   dependencies)))))
+    (when (asdf:component-parent component)
+      (format stream "@item Parent~%")
+      (index stream (asdf:component-parent component))
+      (format stream "@t{~A}~%"
+	(asdf:component-name (asdf:component-parent component))))
+    (let ((path (enough-namestring (asdf:component-pathname component)
+				   relative-to)))
+      (unless (zerop (length path))
+	(format stream "@item Location~%@t{~A}~%" path))))
+  (:method :after (stream component relative-to)
+    (format stream "@end table~%")))
+
 
 ;;; component.lisp ends here

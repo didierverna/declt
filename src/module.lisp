@@ -53,51 +53,31 @@
   (write-string "module" stream))
 
 
+;; ---------------------
+;; Tableization protocol
+;; ---------------------
+
+(defmethod tableize (stream (module asdf:module) relative-to)
+  "Also describe MODULE's components."
+  (call-next-method)
+  (format stream "@item Components~%@itemize @bullet~%")
+  (dolist (component (asdf:module-components module))
+    (itemize stream component))
+  (format stream "@end itemize~%"))
+
+
 
 ;; ==========================================================================
 ;; Module Nodes
 ;; ==========================================================================
 
-(defun module-node (module system-directory)
+(defun module-node (module relative-to)
   "Create and return a MODULE node."
-  (make-node :name (format nil "The ~A module"
-		     (asdf:component-name module))
-	     :section-name (format nil "@t{~A}"
-			     (asdf:component-name module))
-	     :before-menu-contents
-	     (with-output-to-string (str)
-	       (index str module)
-	       (format str "@table @strong~%")
-	       (when (component-version module)
-		 (format str "@item Version~%~A~%"
-		   (component-version module)))
-	       ;; #### NOTE: currently, we simply extract all the dependencies
-	       ;; regardless of the operations involved. We also assume that
-	       ;; dependencies are of the form (OP (OP DEP...) ...), but I'm
-	       ;; not sure this is always the case.
-	       (let ((in-order-tos (slot-value module 'asdf::in-order-to))
-		     dependencies)
-		 (when in-order-tos
-		   (dolist (in-order-to in-order-tos)
-		     (dolist (op-dependency (cdr in-order-to))
-		       (dolist (dependency (cdr op-dependency))
-			 (pushnew dependency dependencies))))
-		   (format str "@item Dependencies~%~A~%"
-		     (list-to-string
-		      (mapcar (lambda (dep)
-				(format nil "@t{~A}" (string-downcase dep)))
-			      dependencies)))))
-	       (format str "@item Parent~%")
-	       (index str (asdf:component-parent module))
-	       (format str "@t{~A}~%"
-		 (asdf:component-name (asdf:component-parent module)))
-	       (format str "@item Location~%@t{~A}~%"
-		 (enough-namestring (asdf:component-pathname module)
-				    system-directory))
-	       (format str "@item Components~%@itemize @bullet~%")
-	       (dolist (component (asdf:module-components module))
-		 (itemize str component))
-	       (format str "@end itemize~%@end table"))))
+  (make-node :name (format nil "The ~A module" (asdf:component-name module))
+	     :section-name (format nil "@t{~A}" (asdf:component-name module))
+	     :before-menu-contents (with-output-to-string (str)
+				     (index str module)
+				     (tableize str module relative-to))))
 
 (defun add-modules-node (node components system-directory)
   "Add COMPONENTS modules node to NODE."
