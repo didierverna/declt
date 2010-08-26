@@ -33,7 +33,7 @@
 (in-package :cl-user)
 
 (defpackage :com.dvlsoft.declt.asdf
-    (:use :cl :asdf)
+    (:use :cl)
   (:export :define-constant
 	   :+release-major-level+
 	   :+release-minor-level+
@@ -128,7 +128,7 @@ version, a patchlevel of 0 is ignored in the output."
 	    +release-status+ +release-status-level+
 	    +release-name+))
 
-(defsystem :com.dvlsoft.declt
+(asdf:defsystem :com.dvlsoft.declt
   :description "Documentation Extractor from Common Lisp to Texinfo."
   :long-description "Declt is a reference manual generator for Common Lisp.
 Reference manuals are generated in Texinfo format which can further be
