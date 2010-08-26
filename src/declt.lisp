@@ -259,7 +259,7 @@ version ~A on ~A.
 - COPYRIGHT-DATE defaults to the current year."
   (unless subtitlep
     (setq subtitle (system-description system)))
-  (when subtitlep
+  (when subtitle
     (when (char= (aref subtitle (1- (length subtitle))) #\.)
       (setq subtitle (subseq subtitle 0 (1- (length subtitle)))))
     (setq subtitle (texify subtitle)))
