@@ -281,8 +281,8 @@ version ~A on ~A.
 		   :section-name (format nil "The ~A Reference Manual"
 				   library-name)
 		   :section-type :unnumbered
-		   :before-menu-contents (format nil
-"This is the ~A Reference Manual~@[, version ~A~],
+		   :before-menu-contents (format nil "~
+This is the ~A Reference Manual~@[, version ~A~],
 generated automatically by Declt version ~A
 on ~A."
 					   library-name
@@ -294,8 +294,7 @@ on ~A."
 	     (make-node :name "Copying"
 			:synopsis "The GNU General Public License"
 			:section-type :unnumbered
-			:before-menu-contents (format nil
-"@quotation
+			:before-menu-contents (format nil "@quotation
 ~A is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License version 3,
 as published by the Software Foundation.

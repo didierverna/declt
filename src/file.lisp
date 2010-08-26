@@ -117,9 +117,9 @@
       (let ((all-files-node
 	     (add-child node (make-node :name "Files"
 					:synopsis "The system's files"
-					:before-menu-contents
-"Files are sorted by type and then listed depth-first from the system
-components tree."))))
+					:before-menu-contents (format nil "~
+Files are sorted by type and then listed depth-first from the system
+components tree.")))))
 	(loop :with files-node
 	      :for files :in all-files
 	      :for name :in '("Lisp Files" "C Files" "Java Files" "Doc Files"

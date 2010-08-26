@@ -93,8 +93,7 @@
 (defun render-node (node level)
   "Render NODE at LEVEL and all its children at LEVEL+1."
   (cond ((<= level 1)
-	 (format t
-	     "
+	 (format t "~
 
 
 @c ====================================================================
