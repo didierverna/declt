@@ -68,10 +68,9 @@
 	     (with-output-to-string (str)
 	       (index str module)
 	       (format str "@table @strong~%")
-	       (when (and (slot-boundp module 'asdf:version)
-			  (asdf:component-version module))
+	       (when (component-version module)
 		 (format str "@item Version~%~A~%"
-		   (asdf:component-version module)))
+		   (component-version module)))
 	       ;; #### NOTE: currently, we simply extract all the dependencies
 	       ;; regardless of the operations involved. We also assume that
 	       ;; dependencies are of the form (OP (OP DEP...) ...), but I'm

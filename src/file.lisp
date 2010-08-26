@@ -103,10 +103,9 @@
 	     (with-output-to-string (str)
 	       (index str file)
 	       (format str "@table @strong~%")
-	       (when (and (slot-boundp file 'asdf:version)
-			  (asdf:component-version file))
+	       (when (component-version file)
 		 (format str "@item Version~%~A~%"
-		   (asdf:component-version file)))
+		   (component-version file)))
 	       ;; #### NOTE: currently, we simply extract all the dependencies
 	       ;; regardless of the operations involved. We also assume that
 	       ;; dependencies are of the form (OP (OP DEP...) ...), but I'm

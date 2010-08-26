@@ -36,6 +36,11 @@
 ;; Utilities
 ;; ==========================================================================
 
+(defun component-version (component)
+  "Return ASDF COMPONENT's version or nil."
+  (when (slot-boundp component 'asdf:version)
+    (asdf:component-version component)))
+
 (defun collect-components (components type)
   "Collect all components of TYPE in COMPONENTS."
   (loop :for component :in components

@@ -35,6 +35,39 @@
 
 
 ;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
+(defun system-description (system)
+  "Return ASDF SYSTEM's description or nil."
+  (when (slot-boundp system 'asdf::description)
+    (asdf:system-description system)))
+
+(defun system-long-description (system)
+  "Return ASDF SYSTEM's long description or nil."
+  (when (slot-boundp system 'asdf::long-description)
+    (asdf:system-long-description system)))
+
+(defun system-author (system)
+  "Return ASDF SYSTEM's author or nil."
+  (when (slot-boundp system 'asdf::author)
+    (asdf:system-author system)))
+
+(defun system-maintainer (system)
+  "Return ASDF SYSTEM's maintainer or nil."
+  (when (slot-boundp system 'asdf::maintainer)
+    (asdf:system-maintainer system)))
+
+(defun system-license (system)
+  "Return ASDF SYSTEM's license or nil."
+  ;; #### NOTE: yes, the slot is licenCe, but licenSe accessors are also
+  ;; available.
+  (when (slot-boundp system 'asdf::licence)
+    (asdf:system-license system)))
+
+
+
+;; ==========================================================================
 ;; System Node
 ;; ==========================================================================
 
@@ -46,38 +79,30 @@
 	     (with-output-to-string (str)
 	       (format str "@table @strong~%")
 	       (format str "@item Name~%@t{~A}~%" (asdf:component-name system))
-	       (when (and (slot-boundp system 'asdf:version)
-			  (asdf:component-version system))
+	       (when (component-version system)
 		 (format str "@item Version~%~A~%"
-		   (asdf:component-version system)))
-	       (when (and (slot-boundp system 'asdf::description)
-			  (asdf:system-description system))
+		   (component-version system)))
+	       (when (system-description system)
 		 (format str "@item Description~%~A~%"
-		   (pretty-texify (asdf:system-description system))))
-	       (when (and (slot-boundp system 'asdf::long-description)
-			  (asdf:system-long-description system))
+		   (pretty-texify (system-description system))))
+	       (when (system-long-description system)
 		 (format str "@item Long Description~%~A~%"
-		   (pretty-texify (asdf:system-long-description system))))
+		   (pretty-texify (system-long-description system))))
 	       (multiple-value-bind (author email)
-		   (when (slot-boundp system 'asdf::author)
-		     (parse-author-string (asdf:system-author system)))
+		   (parse-author-string (system-author system))
 		 (when (or author email)
 		   (format str
 		       "@item Author~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 		     author (and author email) (texify email))))
 	       (multiple-value-bind (maintainer email)
-		   (when (slot-boundp system 'asdf::maintainer)
-		     (parse-author-string (asdf:system-maintainer system)))
+		   (parse-author-string (system-maintainer system))
 		 (when (or maintainer email)
 		   (format str
 		       "@item Maintainer~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 		     maintainer (and maintainer email) (texify email))))
-	       ;; #### NOTE: yes, the slot is licenCe, but licenSe accessors
-	       ;; are also available.
-	       (when (and (slot-boundp system 'asdf::licence)
-			  (asdf:system-license system))
+	       (when (system-license system)
 		 (format str "@item License~%~A~%"
-		   (asdf:system-license system)))
+		   (system-license system)))
 	       ;; #### NOTE: currently, we simply extract all the dependencies
 	       ;; regardless of the operations involved. We also assume that
 	       ;; dependencies are of the form (OP (OP DEP...) ...), but I'm
