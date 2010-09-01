@@ -243,7 +243,7 @@ version ~A on ~A.
 		   (author nil authorp)
 		   (email nil emailp)
 		   (copyright-date nil copyright-date-p)
-		   (location-style *location-style*)
+		   (link-components *link-components*)
 	      &aux (system (asdf:find-system system-name))
 		   (texi-name (make-pathname :name (pathname-name texi-file)
 					     :type (pathname-type texi-file)))
@@ -319,7 +319,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 			  :before-menu-contents
 			  (pretty-texify
 			   (asdf:system-long-description system)))))
-  (let ((*location-style* location-style))
+  (let ((*link-components* link-components))
     (add-system-node   *top-node* system)
     (add-modules-node  *top-node* system)
     (add-files-node    *top-node* system)

@@ -32,15 +32,13 @@
 (in-package :com.dvlsoft.declt)
 
 
-(defvar *location-style* :absolute
-  "The location style for system components.
-Possible values are:
-- :relative
-  Pathnames are shown relative to the system's root directory.
-  This setting is handy for creating reference manuals meant to put online,
-  and hence independent of any specific installation.
-- :absolute (the default)
-  Pathnames are shown in full. The result is hence installation-sepcific.")
+(defvar *link-components* t
+  "Whether to create links to components in the reference manual.
+When true (the default), pathnames are made clickable but the links are
+specific to this particular installation.
+
+Setting this to NIL is preferable for creating reference manuals meant to put
+online, and hence independent of any specific installation.")
 
 
 
@@ -125,17 +123,25 @@ COMPONENT's location is displayed RELATIVE-TO.")
       (format stream "@t{~A}~%"
 	(asdf:component-name (asdf:component-parent component))))
     (if (eq (type-of component) 'asdf:system) ;; Yuck!
-	(when (eq *location-style* :absolute)
-	  (format stream "@item Location~%@t{~A}~%"
+	(when *link-components*
+	  (format stream "@item Location~%@url{file://~A, ignore, ~A}~%"
+	    (asdf:component-pathname component)
 	    (asdf:component-pathname component))
-	  (format stream "@item Installation~%@t{~A}~%"
-	    (make-pathname
-	     :directory (pathname-directory
-			 (asdf:system-definition-pathname component)))))
-      (format stream "@item Location~%@t{~A}~%"
-	(ecase *location-style*
-	  (:absolute (asdf:component-pathname component))
-	  (:relative (asdf:component-relative-pathname component))))))
+	  (let ((pathname
+		 (make-pathname
+		  :directory (pathname-directory
+			      (asdf:system-definition-pathname component)))))
+	    (format stream "@item Installation~%@url{file://~A, ignore, ~A}~%"
+	      pathname pathname)))
+      (let ((pathname (enough-namestring (asdf:component-pathname component)
+					 relative-to)))
+	(format stream "@item Location~%~:[@t{~;@url{file://~]~A}~%"
+	  *link-components*
+	  (if *link-components*
+	      (format nil "~A, ignore, ~A"
+		(asdf:component-pathname component)
+		pathname)
+	    pathname)))))
   (:method :after (stream component relative-to)
     (format stream "@end table~%")))
 
