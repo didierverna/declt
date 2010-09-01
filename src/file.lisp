@@ -103,6 +103,7 @@
 				     (index str file)
 				     (tableize str file relative-to))))
 
+;; #### FIXME: we should also include the asd file.
 (defun add-files-node (node components system-directory)
   "Add COMPONENTS files node to NODE."
   (let ((all-files (mapcar (lambda (type)

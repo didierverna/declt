@@ -143,6 +143,7 @@ converted into info, HTML, DVI, PostScript or PDF."
 		 :components ((:file "util")
 			      (:file "texi" :depends-on ("util"))
 			      (:file "component" :depends-on ("texi"))
+			      (:file "package" :depends-on ("component"))
 			      (:file "file" :depends-on ("component"))
 			      (:file "module" :depends-on ("file"))
 			      (:file "system" :depends-on ("module"))
