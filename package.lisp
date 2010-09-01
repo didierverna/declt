@@ -50,6 +50,8 @@
    :+release-status-level+
    :+release-name+
    :version
+   ;; From src/component.lisp:
+   :*location-style*
    ;; From src/declt.lisp:
    :declt))
 

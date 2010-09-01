@@ -32,6 +32,7 @@
 
 (in-package :com.dvlsoft.declt)
 
+
 (defmacro endpush (object place)
   "Like push, but at the end."
   `(setf ,place (nconc ,place (list ,object))))

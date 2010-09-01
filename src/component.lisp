@@ -32,6 +32,18 @@
 (in-package :com.dvlsoft.declt)
 
 
+(defvar *location-style* :absolute
+  "The location style for system components.
+Possible values are:
+- :relative
+  Pathnames are shown relative to the system's root directory.
+  This setting is handy for creating reference manuals meant to put online,
+  and hence independent of any specific installation.
+- :absolute (the default)
+  Pathnames are shown in full. The result is hence installation-sepcific.")
+
+
+
 ;; ==========================================================================
 ;; Utilities
 ;; ==========================================================================
@@ -112,10 +124,18 @@ COMPONENT's location is displayed RELATIVE-TO.")
       (index stream (asdf:component-parent component))
       (format stream "@t{~A}~%"
 	(asdf:component-name (asdf:component-parent component))))
-    (let ((path (enough-namestring (asdf:component-pathname component)
-				   relative-to)))
-      (unless (zerop (length path))
-	(format stream "@item Location~%@t{~A}~%" path))))
+    (if (eq (type-of component) 'asdf:system) ;; Yuck!
+	(when (eq *location-style* :absolute)
+	  (format stream "@item Location~%@t{~A}~%"
+	    (asdf:component-pathname component))
+	  (format stream "@item Installation~%@t{~A}~%"
+	    (make-pathname
+	     :directory (pathname-directory
+			 (asdf:system-definition-pathname component)))))
+      (format stream "@item Location~%@t{~A}~%"
+	(ecase *location-style*
+	  (:absolute (asdf:component-pathname component))
+	  (:relative (asdf:component-relative-pathname component))))))
   (:method :after (stream component relative-to)
     (format stream "@end table~%")))
 
