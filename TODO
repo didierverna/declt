@@ -3,3 +3,6 @@
 * Index dependencies
 ASDF maintains dependencies as a list of names only, so this makes it harder
 to find the corresponding component.
+
+* Find a way to include the system definition file in the documentation
+It is not an asdf component proper.

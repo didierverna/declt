@@ -103,7 +103,6 @@
 				     (index str file)
 				     (tableize str file relative-to))))
 
-;; #### FIXME: we should also include the asd file.
 (defun add-files-node
     (node system &aux (system-directory
 		       (asdf:component-relative-pathname system))
