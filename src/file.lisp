@@ -104,36 +104,41 @@
 				     (tableize str file relative-to))))
 
 ;; #### FIXME: we should also include the asd file.
-(defun add-files-node (node components system-directory)
-  "Add COMPONENTS files node to NODE."
-  (let ((all-files (mapcar (lambda (type)
-			     (collect-components components type))
-			   '(asdf:cl-source-file
-			     asdf:c-source-file
-			     asdf:java-source-file
-			     asdf:doc-file
-			     asdf:html-file
-			     asdf:static-file))))
-    (when (some #'identity all-files)
-      (let ((all-files-node
-	     (add-child node (make-node :name "Files"
-					:synopsis "The system's files"
-					:before-menu-contents (format nil "~
+(defun add-files-node
+    (node system &aux (system-directory
+		       (asdf:component-relative-pathname system))
+		      (all-files
+		       (mapcar (lambda (type)
+				 (collect-components
+				  (asdf:module-components system)
+				  type))
+			       '(asdf:cl-source-file
+				 asdf:c-source-file
+				 asdf:java-source-file
+				 asdf:doc-file
+				 asdf:html-file
+				 asdf:static-file))))
+  "Add SYSTEM's files node to NODE."
+  (when (some #'identity all-files)
+    (let ((all-files-node
+	   (add-child node (make-node :name "Files"
+				      :synopsis "The system's files"
+				      :before-menu-contents (format nil "~
 Files are sorted by type and then listed depth-first from the system
 components tree.")))))
-	(loop :with files-node
-	      :for files :in all-files
-	      :for name :in '("Lisp Files" "C Files" "Java Files" "Doc Files"
-			      "HTML Files" "Other Files")
-	      :for section-name :in '("Lisp" "C" "Java" "Doc" "HTML" "Other")
-	      :when files
-	      :do (setq files-node
-			(add-child all-files-node
-				   (make-node :name name
-					      :section-name section-name)))
-	      :and :do (dolist (file files)
-			 (add-child files-node
-				    (file-node file system-directory))))))))
+      (loop :with files-node
+	:for files :in all-files
+	:for name :in '("Lisp Files" "C Files" "Java Files" "Doc Files"
+			"HTML Files" "Other Files")
+	:for section-name :in '("Lisp" "C" "Java" "Doc" "HTML" "Other")
+	:when files
+	:do (setq files-node
+		  (add-child all-files-node
+			     (make-node :name name
+					:section-name section-name)))
+	:and :do (dolist (file files)
+		   (add-child files-node
+			      (file-node file system-directory)))))))
 
 
 ;;; file.lisp ends here

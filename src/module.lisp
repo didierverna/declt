@@ -79,18 +79,22 @@
 				     (index str module)
 				     (tableize str module relative-to))))
 
-(defun add-modules-node (node components system-directory)
-  "Add COMPONENTS modules node to NODE."
-  (let ((modules (collect-components components 'asdf:module)))
-    (when modules
-      (let ((modules-node
-	     (add-child node (make-node :name "Modules"
-					:synopsis "The system's modules"
-					 :before-menu-contents
-					 (format nil "~
+(defun add-modules-node
+    (node system &aux (system-directory
+		       (asdf:component-relative-pathname system))
+		      (modules
+		       (collect-components (asdf:module-components system)
+					   'asdf:module)))
+  "Add SYSTEM's modules node to NODE."
+  (when modules
+    (let ((modules-node
+	   (add-child node (make-node :name "Modules"
+				      :synopsis "The system's modules"
+				      :before-menu-contents
+				      (format nil "~
 Modules are listed depth-first from the system components tree.")))))
-	(dolist (module modules)
-	  (add-child modules-node (module-node module system-directory)))))))
+      (dolist (module modules)
+	(add-child modules-node (module-node module system-directory))))))
 
 
 ;;; module.lisp ends here

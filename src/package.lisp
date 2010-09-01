@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Wed Sep  1 16:04:00 2010
-;; Last Revision: Wed Sep  1 16:42:27 2010
+;; Last Revision: Wed Sep  1 17:44:46 2010
 
 ;; This file is part of Declt.
 
@@ -43,16 +43,17 @@
 ;; Package Nodes
 ;; ==========================================================================
 
-(defun add-packages-node (node components system-directory)
-  "Add packages node to NODE."
-  (let ((files (collect-components components 'asdf:cl-source-file)))
-    (when files
-      (let ((packages-node
-	     (add-child node (make-node :name "Packages"
-					:synopsis "The system's packages"
-					:before-menu-contents (format nil "~
-Packages are sorted by lexicographic order.")))))
-	))))
+(defun add-packages-node
+    (node system &aux (files (collect-components
+			      (asdf:module-components system)
+			      'asdf:cl-source-file)))
+  "Add SYSTEM's packages node to NODE."
+  (when files
+    (let ((packages-node
+	   (add-child node (make-node :name "Packages"
+				      :synopsis "The system's packages"
+				      :before-menu-contents (format nil "~
+Packages are sorted by lexicographic order."))))))))
 
 
 ;;; package.lisp ends here

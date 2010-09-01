@@ -115,7 +115,7 @@
 			 (asdf:component-relative-pathname system)))))
 
 (defun add-system-node (node system)
-  "Add the SYSTEM node to NODE."
+  "Add SYSTEM's system node to NODE."
   (add-child node (system-node system)))
 
 

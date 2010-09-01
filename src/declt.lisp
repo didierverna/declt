@@ -318,13 +318,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 			  :before-menu-contents
 			  (pretty-texify
 			   (asdf:system-long-description system)))))
-  (add-system-node *top-node* system)
-  (add-modules-node *top-node* (asdf:module-components system)
-		    (asdf:component-relative-pathname system))
-  (add-files-node *top-node* (asdf:module-components system)
-		  (asdf:component-relative-pathname system))
-  (add-packages-node *top-node* (asdf:module-components system)
-		     (asdf:component-relative-pathname system))
+  (add-system-node   *top-node* system)
+  (add-modules-node  *top-node* system)
+  (add-files-node    *top-node* system)
+  (add-packages-node *top-node* system)
   (let ((indexes-node (add-child *top-node*
 				 (make-node :name "Indexes"
 					    :section-type :appendix))))
