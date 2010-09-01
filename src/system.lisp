@@ -97,6 +97,7 @@
   (when (system-license system)
     (format stream "@item License~%~A~%"
       (system-license system)))
+  (format stream "@item Location~%@t{~A}~%" (asdf:component-pathname system))
   (call-next-method))
 
 
