@@ -35,25 +35,111 @@
 ;; Utilities
 ;; ==========================================================================
 
+;; We need to protect against read-time errors. Let's just hope that nothing
+;; fancy occurs in IN-PACKAGE or DEFPACKAGE.
+(defun safe-read (stream)
+  "Read once from STREAM protecting against errors."
+  (handler-case (read stream nil :eof)
+    (error ())))
+
 (defun file-packages (file)
   "Return the list of all packages involved in FILE."
-  )
+  (with-open-file (stream file :direction :input)
+    (loop :for form := (safe-read stream) :then (safe-read stream)
+	  :until (eq form :eof)
+	  :if (and (consp form)
+		   (eq (car form) 'defpackage))
+	  :collect (find-package (cadr form)))))
+
+
+
+;; ==========================================================================
+;; Rendering Protocols
+;; ==========================================================================
+
+;; -----------------
+;; Indexing protocol
+;; -----------------
+
+(defmethod index (stream (package package))
+  (format stream "@packageindex{~A}@c~%"
+    (string-downcase (package-name package))))
+
+
+;; --------------------
+;; Itemization protocol
+;; --------------------
+
+(defmethod itemize (stream (package package))
+  (write-string "package" stream))
+
+
+;; ---------------------
+;; Tableization protocol
+;; ---------------------
+
+(defmethod tableize (stream (package package) relative-to)
+  "Describe PACKAGE's components."
+  (when (package-nicknames package)
+    (format stream "@item Nicknames~%~A~%"
+      (list-to-string
+       (mapcar (lambda (nickname)
+		 (format nil "@t{~A}" (string-downcase nickname)))
+	       (package-nicknames package)))))
+  (when (package-use-list package)
+    (format stream "@item Use List~%~A~%"
+      (list-to-string
+       (mapcar (lambda (package)
+		 (format nil "@t{~A}" (string-downcase
+				       (package-name package))))
+	       (package-use-list package))))))
+
+
 
 ;; ==========================================================================
 ;; Package Nodes
 ;; ==========================================================================
 
 (defun add-packages-node
-    (node system &aux (files (collect-components
-			      (asdf:module-components system)
-			      'asdf:cl-source-file)))
-  "Add SYSTEM's packages node to NODE."
-  (when files
-    (let ((packages-node
+    (node system
+     &aux (files
+	   (cons (asdf:system-definition-pathname system)
+		 (mapcar #'asdf:component-pathname
+			 (collect-components (asdf:module-components system)
+					     'asdf:cl-source-file))))
+	  (packages-node
 	   (add-child node (make-node :name "Packages"
 				      :synopsis "The system's packages"
 				      :before-menu-contents (format nil "~
-Packages are sorted by lexicographic order."))))))))
+Packages are listed by definition order."))))
+	  (packages (remove-duplicates (mapcan #'file-packages files))))
+  "Add SYSTEM's packages node to NODE."
+  (dolist (package packages)
+    (let ((package-node
+	   (add-child packages-node
+		      (make-node :name (package-name package)
+				 :section-name (format nil "@t{~A}"
+						 (string-downcase
+						  (package-name package)))
+				 :before-menu-contents
+				 (with-output-to-string (str)
+				   (tableize str package nil)))))
+	  external-symbols)
+      (do-external-symbols (symbol package)
+	(when (eq (symbol-package symbol) package)
+	  (push symbol external-symbols)))
+      (setq external-symbols (sort external-symbols #'string-lessp))
+      (when external-symbols
+	(add-child package-node
+		   (make-node
+		    :name (format nil "@t{~A} External Symbols"
+			    (string-downcase (package-name package)))
+		    :section-name "External Symbols"
+		    :before-menu-contents
+		    "Symbols are listed by lexicographic order."
+		    :after-menu-contents
+		    (with-output-to-string (str)
+		      (format str "~A" external-symbols))))))))
 
 
 ;;; package.lisp ends here
