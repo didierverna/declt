@@ -93,7 +93,7 @@
 (defun render-node (node level)
   "Render NODE at LEVEL and all its children at LEVEL+1."
   (cond ((<= level 1)
-	 (format t "~
+	 (format t "
 
 
 @c ====================================================================
@@ -132,7 +132,7 @@
     (or (node-section-name node) (node-name node)))
   (when (node-before-menu-contents node)
     (write-string (node-before-menu-contents node))
-    (terpri))
+    (fresh-line))
   (when (and (node-before-menu-contents node) (node-children node))
     (terpri))
   (when (node-children node)
@@ -145,7 +145,7 @@
     (terpri))
   (when (node-after-menu-contents node)
     (write-string (node-after-menu-contents node))
-    (terpri))
+    (fresh-line))
   (when (= level 0)
     (format t "@end ifnottex~%"))
   (dolist (child (node-children node))

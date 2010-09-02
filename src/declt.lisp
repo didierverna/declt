@@ -357,7 +357,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     (render-header library-name texi-name info-file subtitle version author
 		   email copyright-date current-time-string)
     (render-nodes)
-    (format t "~%@bye~%~%@c ~A ends here" texi-name))
+    (format t "~%@bye~%~%@c ~A ends here~%" texi-name))
   (values))
 
 
