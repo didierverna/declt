@@ -106,38 +106,78 @@
 (defun add-files-node
     (node system &aux (system-directory
 		       (asdf:component-relative-pathname system))
-		      (all-files
+		      (lisp-files (collect-components
+				   (asdf:module-components system)
+				   'asdf:cl-source-file))
+		      (other-files
 		       (mapcar (lambda (type)
 				 (collect-components
 				  (asdf:module-components system)
 				  type))
-			       '(asdf:cl-source-file
-				 asdf:c-source-file
+			       '(asdf:c-source-file
 				 asdf:java-source-file
 				 asdf:doc-file
 				 asdf:html-file
-				 asdf:static-file))))
-  "Add SYSTEM's files node to NODE."
-  (when (some #'identity all-files)
-    (let ((all-files-node
-	   (add-child node (make-node :name "Files"
-				      :synopsis "The system's files"
-				      :before-menu-contents (format nil "~
+				 asdf:static-file)))
+		      (files-node
+		       (add-child node (make-node :name "Files"
+						  :synopsis
+						  "The system's files"
+						  :before-menu-contents
+						  (format nil "~
 Files are sorted by type and then listed depth-first from the system
-components tree.")))))
-      (loop :with files-node
-	:for files :in all-files
-	:for name :in '("Lisp Files" "C Files" "Java Files" "Doc Files"
-			"HTML Files" "Other Files")
-	:for section-name :in '("Lisp" "C" "Java" "Doc" "HTML" "Other")
-	:when files
-	:do (setq files-node
-		  (add-child all-files-node
-			     (make-node :name name
-					:section-name section-name)))
-	:and :do (dolist (file files)
-		   (add-child files-node
-			      (file-node file system-directory)))))))
+components tree."))))
+		      (lisp-files-node
+		       (add-child files-node
+				  (make-node :name "Lisp Files"
+					     :section-name "Lisp"))))
+  "Add SYSTEM's files node to NODE."
+  (add-child lisp-files-node
+	     (make-node :name (format nil "The ~A file"
+				(pathname-name
+				 (asdf:system-definition-pathname system)))
+			:section-name
+			(format nil "@t{~A}"
+			  (pathname-name
+			   (asdf:system-definition-pathname system)))
+			:before-menu-contents
+			(with-output-to-string (str)
+			  (format str "@table @strong~%")
+			  (let ((file
+				 (file-namestring
+				  (asdf:system-definition-pathname system))))
+			    (format str
+				"@item Location~%~:[@t{~;@url{file://~]~A}~%"
+			      *link-components*
+			      (if *link-components*
+				  (format nil "~A, ignore, ~A"
+				    (make-pathname
+				     :name (pathname-name
+					    (asdf:system-definition-pathname
+					     system))
+				     :type (pathname-type
+					    (asdf:system-definition-pathname
+					     system))
+				     :directory (pathname-directory
+						 (asdf:component-pathname
+						  system)))
+				    file)
+				file)))
+			  (format str "@end table~%"))))
+  (dolist (file lisp-files)
+    (add-child lisp-files-node (file-node file system-directory)))
+  (loop :with other-files-node
+    :for files :in other-files
+    :for name :in '("C Files" "Java Files" "Doc Files" "HTML Files"
+		    "Other Files")
+    :for section-name :in '("C" "Java" "Doc" "HTML" "Other")
+    :when files
+    :do (setq other-files-node
+	      (add-child files-node (make-node :name name
+					       :section-name section-name)))
+    :and :do (dolist (file files)
+	       (add-child other-files-node (file-node file
+						      system-directory)))))
 
 
 ;;; file.lisp ends here
