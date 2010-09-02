@@ -127,12 +127,10 @@ COMPONENT's location is displayed RELATIVE-TO.")
 	  (format stream "@item Location~%@url{file://~A, ignore, ~A}~%"
 	    (asdf:component-pathname component)
 	    (asdf:component-pathname component))
-	  (let ((pathname
-		 (make-pathname
-		  :directory (pathname-directory
-			      (asdf:system-definition-pathname component)))))
+	  (let ((directory (directory-namestring
+			    (asdf:system-definition-pathname component))))
 	    (format stream "@item Installation~%@url{file://~A, ignore, ~A}~%"
-	      pathname pathname)))
+	      directory directory)))
       (let ((pathname (enough-namestring (asdf:component-pathname component)
 					 relative-to)))
 	(format stream "@item Location~%~:[@t{~;@url{file://~]~A}~%"

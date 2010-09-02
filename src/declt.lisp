@@ -245,8 +245,7 @@ version ~A on ~A.
 		   (copyright-date nil copyright-date-p)
 		   (link-components *link-components*)
 	      &aux (system (asdf:find-system system-name))
-		   (texi-name (make-pathname :name (pathname-name texi-file)
-					     :type (pathname-type texi-file)))
+		   (texi-name (file-namestring texi-file))
 		   (current-time-string (current-time-string)))
   "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
 - LIBRARY-NAME defaults to SYSTEM-NAME.
