@@ -139,7 +139,8 @@ Packages are listed by definition order."))))
 		    "Symbols are listed by lexicographic order."
 		    :after-menu-contents
 		    (with-output-to-string (str)
-		      (format str "~A" external-symbols))))))))
+		      (dolist (symbol external-symbols)
+			(render-symbol str symbol)))))))))
 
 
 ;;; package.lisp ends here
