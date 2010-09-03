@@ -44,27 +44,27 @@
 
 (defmethod index (stream (cl-source-file asdf:cl-source-file))
   (format stream "@lispfileindex{~A}@c~%"
-    (asdf:component-name cl-source-file)))
+    (component-name cl-source-file)))
 
 (defmethod index (stream (c-source-file asdf:c-source-file))
   (format stream "@cfileindex{~A}@c~%"
-    (asdf:component-name c-source-file)))
+    (component-name c-source-file)))
 
 (defmethod index (stream (java-source-file asdf:java-source-file))
   (format stream "@javafileindex{~A}@c~%"
-    (asdf:component-name java-source-file)))
+    (component-name java-source-file)))
 
 (defmethod index (stream (static-file asdf:static-file))
   (format stream "@otherfileindex{~A}@c~%"
-    (asdf:component-name static-file)))
+    (component-name static-file)))
 
 (defmethod index (stream (doc-file asdf:doc-file))
   (format stream "@docfileindex{~A}@c~%"
-    (asdf:component-name doc-file)))
+    (component-name doc-file)))
 
 (defmethod index (stream (html-file asdf:html-file))
   (format stream "@htmlfileindex{~A}@c~%"
-    (asdf:component-name html-file)))
+    (component-name html-file)))
 
 
 ;; --------------------
@@ -97,15 +97,15 @@
 
 (defun file-node (file relative-to)
   "Create and return a FILE node."
-  (make-node :name (format nil "The ~A file" (asdf:component-name file))
-	     :section-name (format nil "@t{~A}" (asdf:component-name file))
+  (make-node :name (format nil "The ~A file" (component-name file))
+	     :section-name (format nil "@t{~A}" (component-name file))
 	     :before-menu-contents (with-output-to-string (str)
 				     (index str file)
 				     (tableize str file relative-to))))
 
 (defun add-files-node
     (node system &aux (system-directory
-		       (asdf:component-relative-pathname system))
+		       (component-relative-pathname system))
 		      (lisp-files (collect-components
 				   (asdf:module-components system)
 				   'asdf:cl-source-file))
@@ -159,7 +159,7 @@ components tree."))))
 					    (asdf:system-definition-pathname
 					     system))
 				     :directory (pathname-directory
-						 (asdf:component-pathname
+						 (component-pathname
 						  system)))
 				    file)
 				file)))

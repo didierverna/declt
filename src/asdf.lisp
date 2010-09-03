@@ -66,7 +66,10 @@
     (asdf:system-license system)))
 
 ;; Some other accessors or functions that we can import directly.
-(import '(asdf:find-system))
+(import '(asdf:find-system
+	  asdf:component-name
+	  asdf:component-pathname
+	  asdf:component-relative-pathname))
 
 
 ;;; asdf.lisp ends here

@@ -127,7 +127,7 @@
     (node system
      &aux (files
 	   (cons (asdf:system-definition-pathname system)
-		 (mapcar #'asdf:component-pathname
+		 (mapcar #'component-pathname
 			 (collect-components (asdf:module-components system)
 					     'asdf:cl-source-file))))
 	  (packages-node

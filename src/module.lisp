@@ -42,8 +42,7 @@
 ;; -----------------
 
 (defmethod index (stream (module asdf:module))
-  (format stream "@moduleindex{~A}@c~%"
-    (asdf:component-name module)))
+  (format stream "@moduleindex{~A}@c~%" (component-name module)))
 
 ;; --------------------
 ;; Itemization protocol
@@ -73,15 +72,14 @@
 
 (defun module-node (module relative-to)
   "Create and return a MODULE node."
-  (make-node :name (format nil "The ~A module" (asdf:component-name module))
-	     :section-name (format nil "@t{~A}" (asdf:component-name module))
+  (make-node :name (format nil "The ~A module" (component-name module))
+	     :section-name (format nil "@t{~A}" (component-name module))
 	     :before-menu-contents (with-output-to-string (str)
 				     (index str module)
 				     (tableize str module relative-to))))
 
 (defun add-modules-node
-    (node system &aux (system-directory
-		       (asdf:component-relative-pathname system))
+    (node system &aux (system-directory (component-relative-pathname system))
 		      (modules
 		       (collect-components (asdf:module-components system)
 					   'asdf:module)))

@@ -84,7 +84,7 @@ online, and hence independent of any specific installation.")
     (format stream "@item~%")
     (index stream component)
     (format stream "@t{~A} ("
-      (asdf:component-name component)))
+      (component-name component)))
   (:method :after (stream component)
     (format stream "~@[, version ~A~])~%"
       (and (slot-boundp component 'asdf:version )
@@ -121,23 +121,23 @@ COMPONENT's location is displayed RELATIVE-TO.")
       (format stream "@item Parent~%")
       (index stream (asdf:component-parent component))
       (format stream "@t{~A}~%"
-	(asdf:component-name (asdf:component-parent component))))
+	(component-name (asdf:component-parent component))))
     (if (eq (type-of component) 'asdf:system) ;; Yuck!
 	(when *link-components*
 	  (format stream "@item Location~%@url{file://~A, ignore, ~A}~%"
-	    (asdf:component-pathname component)
-	    (asdf:component-pathname component))
+	    (component-pathname component)
+	    (component-pathname component))
 	  (let ((directory (directory-namestring
 			    (asdf:system-definition-pathname component))))
 	    (format stream "@item Installation~%@url{file://~A, ignore, ~A}~%"
 	      directory directory)))
-      (let ((pathname (enough-namestring (asdf:component-pathname component)
+      (let ((pathname (enough-namestring (component-pathname component)
 					 relative-to)))
 	(format stream "@item Location~%~:[@t{~;@url{file://~]~A}~%"
 	  *link-components*
 	  (if *link-components*
 	      (format nil "~A, ignore, ~A"
-		(asdf:component-pathname component)
+		(component-pathname component)
 		pathname)
 	    pathname)))))
   (:method :after (stream component relative-to)

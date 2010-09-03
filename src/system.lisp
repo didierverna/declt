@@ -44,7 +44,7 @@
 
 (defmethod tableize (stream (system asdf:system) relative-to)
   "Also describe SYSTEM's descriptions, author, maintainer and license."
-  (format stream "@item Name~%@t{~A}~%" (asdf:component-name system))
+  (format stream "@item Name~%@t{~A}~%" (component-name system))
   (when (system-description system)
     (format stream "@item Description~%~A~%"
       (pretty-texify (system-description system))))
@@ -62,8 +62,7 @@
       (format stream "@item Maintainer~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	maintainer (and maintainer email) (texify email))))
   (when (system-license system)
-    (format stream "@item License~%~A~%"
-      (system-license system)))
+    (format stream "@item License~%~A~%" (system-license system)))
   (call-next-method))
 
 
@@ -78,8 +77,7 @@
 	     :synopsis "The ASDF system documentation"
 	     :before-menu-contents
 	     (with-output-to-string (str)
-	       (tableize str system
-			 (asdf:component-relative-pathname system)))))
+	       (tableize str system (component-relative-pathname system)))))
 
 (defun add-system-node (node system)
   "Add SYSTEM's system node to NODE."
