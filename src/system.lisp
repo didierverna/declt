@@ -35,39 +35,6 @@
 
 
 ;; ==========================================================================
-;; Utilities
-;; ==========================================================================
-
-(defun system-description (system)
-  "Return ASDF SYSTEM's description or nil."
-  (when (slot-boundp system 'asdf::description)
-    (asdf:system-description system)))
-
-(defun system-long-description (system)
-  "Return ASDF SYSTEM's long description or nil."
-  (when (slot-boundp system 'asdf::long-description)
-    (asdf:system-long-description system)))
-
-(defun system-author (system)
-  "Return ASDF SYSTEM's author or nil."
-  (when (slot-boundp system 'asdf::author)
-    (asdf:system-author system)))
-
-(defun system-maintainer (system)
-  "Return ASDF SYSTEM's maintainer or nil."
-  (when (slot-boundp system 'asdf::maintainer)
-    (asdf:system-maintainer system)))
-
-(defun system-license (system)
-  "Return ASDF SYSTEM's license or nil."
-  ;; #### NOTE: yes, the slot is licenCe, but licenSe accessors are also
-  ;; available.
-  (when (slot-boundp system 'asdf::licence)
-    (asdf:system-license system)))
-
-
-
-;; ==========================================================================
 ;; Rendering Protocols
 ;; ==========================================================================
 
