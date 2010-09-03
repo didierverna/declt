@@ -123,8 +123,22 @@
     (terpri stream)
     (format stream "@findex Macro, @t{~A}~%" (string-downcase symbol))
     (when (documentation symbol 'function)
-      (write-string (pretty-texify (documentation symbol 'function)) stream))
-    (format stream "@end defmac~%")))
+      (write-string (pretty-texify (documentation symbol 'function)) stream)
+      (fresh-line stream))
+    (format stream "@end defmac~%"))
+  (when (and (fboundp symbol)
+	     (or (consp symbol)
+		 (not (macro-function symbol)))
+	     (not (typep (fdefinition symbol) 'standard-generic-function)))
+    (format stream "@defun ~A " (string-downcase symbol))
+    ;; #### PORTME.
+    (render-lambda-list stream (sb-introspect:function-lambda-list symbol))
+    (terpri stream)
+    (format stream "@findex Function, @t{~A}~%" (string-downcase symbol))
+    (when (documentation symbol 'function)
+      (write-string (pretty-texify (documentation symbol 'function)) stream)
+      (fresh-line stream))
+    (format stream "@end defun~%")))
 
 
 ;;; symbol.lisp ends here
