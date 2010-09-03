@@ -92,19 +92,25 @@
 ;; Rendering Protocols
 ;; ==========================================================================
 
-(defun render-symbol (stream symbol)
-  "Render SYMBOL's documentation on STREAM."
+(defun render-constant (stream symbol)
+  "Render SYMBOL as a constant on STREAM."
   (when (constantp symbol)
     (@defconstant (stream (string-downcase symbol))
       (when (documentation symbol 'variable)
 	(write-string (pretty-texify (documentation symbol 'variable))
-		      stream))))
+		      stream)))))
+
+(defun render-special (stream symbol)
+  "Render SYMBOL as a special variable on STREAM."
   ;; #### PORTME.
   (when (eql (sb-int:info :variable :kind symbol) :special)
     (@defspecial (stream (string-downcase symbol))
       (when (documentation symbol 'variable)
 	(write-string (pretty-texify (documentation symbol 'variable))
-		      stream))))
+		      stream)))))
+
+(defun render-class (stream symbol)
+  "Render SYMBOL as a class on STREAM."
   (let ((class (find-class symbol nil)))
     (when class
       (@deftp (stream
@@ -117,7 +123,10 @@
 	       (string-downcase symbol))
 	(when (documentation symbol 'type)
 	  (write-string (pretty-texify (documentation symbol 'type))
-			stream)))))
+			stream))))))
+
+(defun render-macro (stream symbol)
+  "Render SYMBOL as a macro on STREAM."
   (when (macro-function symbol)
     (@defmac (stream
 	      (string-downcase symbol)
@@ -125,7 +134,10 @@
 	      (sb-introspect:function-lambda-list symbol))
       (when (documentation symbol 'function)
 	(write-string (pretty-texify (documentation symbol 'function))
-		      stream))))
+		      stream)))))
+
+(defun render-function (stream symbol)
+  "Render SYMBOL as a function on STREAM."
   (when (and (fboundp symbol)
 	     (or (consp symbol)
 		 (not (macro-function symbol)))
@@ -136,7 +148,26 @@
 	     (sb-introspect:function-lambda-list symbol))
       (when (documentation symbol 'function)
 	(write-string (pretty-texify (documentation symbol 'function))
-		      stream))))
+		      stream)))))
+
+(defun render-method (stream method)
+  "Render METHOD on STREAM."
+  (@defmethod (stream
+	       ;; #### PORTME:
+	       (string-downcase
+		(sb-mop:generic-function-name
+		 (sb-mop:method-generic-function method)))
+	       ;; #### PORTME.
+	       (sb-mop:method-lambda-list method)
+	       ;; #### PORTME.
+	       (sb-mop:method-specializers method)
+	       ;; #### PORTME.
+	       (sb-mop:method-qualifiers method))
+    (when (documentation method 't)
+      (write-string (pretty-texify (documentation method 't)) stream))))
+
+(defun render-generic (stream symbol)
+  "Render SYMBOL as a generic function on STREAM."
   (when (and (fboundp symbol)
 	     (typep (fdefinition symbol) 'generic-function))
     (@defgeneric (stream
@@ -148,16 +179,16 @@
 		      stream)))
     ;; #### PORTME.
     (dolist (method (sb-mop:generic-function-methods (fdefinition symbol)))
-      (@defmethod (stream
-		   (string-downcase symbol)
-		   ;; #### PORTME.
-		   (sb-mop:method-lambda-list method)
-		   ;; #### PORTME.
-		   (sb-mop:method-specializers method)
-		   ;; #### PORTME.
-		   (sb-mop:method-qualifiers method))
-	(when (documentation method 't)
-	  (write-string (pretty-texify (documentation method 't)) stream))))))
+      (render-method stream method))))
+
+(defun render-symbol (stream symbol)
+  "Render SYMBOL's documentation on STREAM."
+  (render-constant stream symbol)
+  (render-special  stream symbol)
+  (render-class    stream symbol)
+  (render-macro    stream symbol)
+  (render-function stream symbol)
+  (render-generic  stream symbol))
 
 
 ;;; symbol.lisp ends here
