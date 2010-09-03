@@ -127,9 +127,7 @@
     (node system
      &aux (files
 	   (cons (system-definition-pathname system)
-		 (mapcar #'component-pathname
-			 (collect-components (module-components system)
-					     'asdf:cl-source-file))))
+		 (mapcar #'component-pathname (collect-lisp-files system))))
 	  (packages-node
 	   (add-child node (make-node :name "Packages"
 				      :synopsis "The system's packages"

@@ -85,14 +85,21 @@
 ;; Utilities
 ;; ==========================================================================
 
-(defun collect-components (components type)
-  "Collect all components of TYPE in COMPONENTS."
-  (loop :for component :in components
+(defun collect-components (module type)
+  "Collect all components of TYPE from MODULE."
+  (loop :for component :in (module-components module)
 	:if (eq (type-of component) type)
 	  :collect component
 	:if (eq (type-of component) 'asdf:module)
-	  :nconc (collect-components (module-components component)
-				     type)))
+	  :nconc (collect-components component type)))
+
+(defun collect-lisp-files (module)
+  "Collect all Lisp files from MODULE."
+  (collect-components module 'asdf:cl-source-file))
+
+(defun collect-modules (module)
+  "Collect all modules from MODULE."
+  (collect-components module 'asdf:module))
 
 
 ;;; asdf.lisp ends here

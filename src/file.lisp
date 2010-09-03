@@ -100,13 +100,10 @@
 (defun add-files-node
     (node system &aux (system-directory
 		       (component-relative-pathname system))
-		      (lisp-files (collect-components
-				   (module-components system)
-				   'asdf:cl-source-file))
+		      (lisp-files (collect-lisp-files system))
 		      (other-files
 		       (mapcar (lambda (type)
-				 (collect-components (module-components system)
-						     type))
+				 (collect-components system type))
 			       '(asdf:c-source-file
 				 asdf:java-source-file
 				 asdf:doc-file

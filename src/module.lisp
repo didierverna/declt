@@ -80,8 +80,7 @@
 
 (defun add-modules-node
     (node system &aux (system-directory (component-relative-pathname system))
-		      (modules (collect-components (module-components system)
-						   'asdf:module)))
+		      (modules (collect-modules system)))
   "Add SYSTEM's modules node to NODE."
   (when modules
     (let ((modules-node
