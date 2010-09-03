@@ -43,26 +43,6 @@ online, and hence independent of any specific installation.")
 
 
 ;; ==========================================================================
-;; Utilities
-;; ==========================================================================
-
-(defun component-version (component)
-  "Return ASDF COMPONENT's version or nil."
-  (when (slot-boundp component 'asdf:version)
-    (asdf:component-version component)))
-
-(defun collect-components (components type)
-  "Collect all components of TYPE in COMPONENTS."
-  (loop :for component :in components
-	:if (eq (type-of component) type)
-	  :collect component
-	:if (eq (type-of component) 'asdf:module)
-	  :nconc (collect-components (module-components component)
-				     type)))
-
-
-
-;; ==========================================================================
 ;; Rendering Protocols
 ;; ==========================================================================
 

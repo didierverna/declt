@@ -65,6 +65,11 @@
   (when (slot-boundp system 'asdf::licence)
     (asdf:system-license system)))
 
+(defun component-version (component)
+  "Return ASDF COMPONENT's version or nil."
+  (when (slot-boundp component 'asdf:version)
+    (asdf:component-version component)))
+
 ;; Some other accessors or functions that we can import directly.
 (import '(asdf:find-system
 	  asdf:system-definition-pathname
@@ -72,6 +77,21 @@
 	  asdf:component-name
 	  asdf:component-pathname
 	  asdf:component-relative-pathname))
+
+
+
+;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
+(defun collect-components (components type)
+  "Collect all components of TYPE in COMPONENTS."
+  (loop :for component :in components
+	:if (eq (type-of component) type)
+	  :collect component
+	:if (eq (type-of component) 'asdf:module)
+	  :nconc (collect-components (module-components component)
+				     type)))
 
 
 ;;; asdf.lisp ends here
