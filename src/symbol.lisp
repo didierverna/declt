@@ -138,7 +138,19 @@
     (when (documentation symbol 'function)
       (write-string (pretty-texify (documentation symbol 'function)) stream)
       (fresh-line stream))
-    (format stream "@end defun~%")))
+    (format stream "@end defun~%"))
+  (when (and (fboundp symbol)
+	     (typep (fdefinition symbol) 'standard-generic-function))
+    (format stream "@deffn {Generic Function} ~A " (string-downcase symbol))
+    ;; #### PORTME.
+    (render-lambda-list stream (sb-introspect:function-lambda-list symbol))
+    (terpri stream)
+    (format stream "@findex @r{Generic Function}, ~A~%"
+      (string-downcase symbol))
+    (when (documentation symbol 'function)
+      (write-string (pretty-texify (documentation symbol 'function)) stream)
+      (fresh-line stream))
+    (format stream "@end deffn~%")))
 
 
 ;;; symbol.lisp ends here
