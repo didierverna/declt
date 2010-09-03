@@ -37,6 +37,16 @@
 ;; Utilities
 ;; ==========================================================================
 
+(defgeneric pretty-specializer (specializer)
+  (:documentation "Returns a printable form for SPECIALIZER.")
+  (:method (specializer)
+    (or (ignore-errors (class-name specializer))
+	specializer))
+  ;; #### PORTME.
+  (:method ((specializer sb-mop:eql-specializer))
+    ;; #### PORTME.
+    `(eql ,(sb-mop:eql-specializer-object specializer))))
+
 ;; Hacked from Edi Weitz's write-lambda-list* in documentation-template.
 (defun render-lambda-list (stream lambda-list &optional specializers)
   "Render LAMBDA-LIST on STREAM."
@@ -58,12 +68,13 @@
 	     (setq after-required-args-p t)
 	     (format stream "~A" (string-downcase part)))
 	    (t
-	     (let ((specializer (pop specializers)))
+	     (let ((specializer (pretty-specializer (pop specializers))))
 	       (cond ((and specializer (not (eq specializer t)))
 		      ;; add specializers if there are any left
-		      (write-string (string-downcase
-				     (format nil "(~A ~A)"
-				       part specializer)) stream))
+		      (format stream "(~A " part)
+		      (write-string
+		       (string-downcase (format nil " @t{~A})" specializer))
+		       stream))
 		     (t
 		      (write-string (symbol-name part) stream)))))))))
 
@@ -140,7 +151,7 @@
       (fresh-line stream))
     (format stream "@end defun~%"))
   (when (and (fboundp symbol)
-	     (typep (fdefinition symbol) 'standard-generic-function))
+	     (typep (fdefinition symbol) 'generic-function))
     (format stream "@deffn {Generic Function} ~A " (string-downcase symbol))
     ;; #### PORTME.
     (render-lambda-list stream (sb-introspect:function-lambda-list symbol))
@@ -150,7 +161,23 @@
     (when (documentation symbol 'function)
       (write-string (pretty-texify (documentation symbol 'function)) stream)
       (fresh-line stream))
-    (format stream "@end deffn~%")))
+    (format stream "@end deffn~%")
+    ;; #### PORTME.
+    (dolist (method (sb-mop:generic-function-methods (fdefinition symbol)))
+      (format stream "@deffn Method ~A " (string-downcase symbol))
+      ;; #### PORTME.
+      (render-lambda-list stream (sb-mop:method-lambda-list method)
+			  ;; #### PORTME.
+			  (sb-mop:method-specializers method))
+      ;; #### PORTME.
+      (format stream "~(~{ @t{~S}~^~}~)~%" (sb-mop:method-qualifiers method))
+      (terpri stream)
+      (format stream "@findex @r{Method}, ~A~%" (string-downcase symbol))
+      (when (documentation method 't)
+	(write-string (pretty-texify (documentation method 't)) stream)
+	(fresh-line stream))
+      (format stream "@end deffn~%"))
+    ))
 
 
 ;;; symbol.lisp ends here
