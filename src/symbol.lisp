@@ -37,6 +37,36 @@
 ;; Utilities
 ;; ==========================================================================
 
+;; Hacked from Edi Weitz's write-lambda-list* in documentation-template.
+(defun render-lambda-list (stream lambda-list &optional specializers)
+  "Render LAMBDA-LIST on STREAM."
+  (let ((firstp t)
+	after-required-args-p)
+    (dolist (part lambda-list)
+      (when (and (consp part) after-required-args-p)
+	(setq part (first part)))
+      (unless firstp
+	(write-char #\Space stream))
+      (setq firstp nil)
+      (cond ((consp part)
+	     ;; a destructuring lambda list - recurse
+	     (write-char #\( stream)
+	     (render-lambda-list stream part)
+	     (write-char #\) stream))
+	    ((member part '(&optional &rest &key &allow-other-keys
+			    &aux &environment &whole &body))
+	     (setq after-required-args-p t)
+	     (format stream "~A" (string-downcase part)))
+	    (t
+	     (let ((specializer (pop specializers)))
+	       (cond ((and specializer (not (eq specializer t)))
+		      ;; add specializers if there are any left
+		      (write-string (string-downcase
+				     (format nil "(~A ~A)"
+				       part specializer)) stream))
+		     (t
+		      (write-string (symbol-name part) stream)))))))))
+
 (defun symbol-needs-rendering (symbol)
   "Return t when SYMBOL needs to be documented."
   (or (constantp symbol)
@@ -78,14 +108,23 @@
 		(t "Class"))
 	  class-name)
 	(format stream "@tpindex @r{~A, }~A~%"
-	  (cond (structure-p "Structures")
-		(error-condition-p "Error Conditions")
-		(t "Classes"))
+	  (cond (structure-p "Structure")
+		(error-condition-p "Error Condition")
+		(t "Class"))
 	  class-name)
 	(when (documentation symbol 'type)
 	  (write-string (pretty-texify (documentation symbol 'type)) stream)
 	  (fresh-line))
-	(format stream "@end deftp~%")))))
+	(format stream "@end deftp~%"))))
+  (when (macro-function symbol)
+    (format stream "@defmac ~A " (string-downcase symbol))
+    ;; #### PORTME.
+    (render-lambda-list stream (sb-introspect:function-lambda-list symbol))
+    (terpri stream)
+    (format stream "@findex Macro, @t{~A}~%" (string-downcase symbol))
+    (when (documentation symbol 'function)
+      (write-string (pretty-texify (documentation symbol 'function)) stream))
+    (format stream "@end defmac~%")))
 
 
 ;;; symbol.lisp ends here
