@@ -41,6 +41,7 @@
       (write-string (pretty-texify (documentation symbol 'variable)) stream)
       (fresh-line))
     (format stream "@end defvr~%"))
+  ;; #### PORTME.
   (when (eql (sb-int:info :variable :kind symbol) :special)
     (format stream "@defvr {Special Variable} ~A~%" (string-downcase symbol))
     (when (documentation symbol 'variable)
@@ -49,17 +50,19 @@
     (format stream "@end defvr~%"))
   (let ((class (find-class symbol nil)))
     (when class
-      (let ((error-condition-p (subtypep class 'condition))
+      ;; #### PORTME.
+      (let ((structure-p (eq (class-of class) (find-class 'structure-class)))
+	    (error-condition-p (subtypep class 'condition))
 	    (class-name (string-downcase symbol)))
 	(format stream "@deftp {~A} ~A~%"
-	  (if error-condition-p
-	      "Error Condition"
-	    "Class")
+	  (cond (structure-p "Structure")
+		(error-condition-p "Error Condition")
+		(t "Class"))
 	  class-name)
 	(format stream "@tpindex @r{~A, }~A~%"
-	  (if error-condition-p
-	      "Error Conditions"
-	    "Classes")
+	  (cond (structure-p "Structures")
+		(error-condition-p "Error Conditions")
+		(t "Classes"))
 	  class-name)
 	(when (documentation symbol 'type)
 	  (write-string (pretty-texify (documentation symbol 'type)) stream)
