@@ -122,33 +122,24 @@ components tree."))))
 					     :section-name "Lisp"))))
   "Add SYSTEM's files node to NODE."
   (add-child lisp-files-node
-	     (make-node :name (format nil "The ~A file"
-				(pathname-name
-				 (system-definition-pathname system)))
+	     (make-node :name
+			(format nil "The ~A file" (system-file-name system))
 			:section-name
-			(format nil "@t{~A}"
-			  (pathname-name (system-definition-pathname system)))
+			(format nil "@t{~A}" (system-file-name system))
 			:before-menu-contents
 			(with-output-to-string (str)
 			  (format str "@table @strong~%")
-			  (let ((file
-				 (file-namestring
-				  (system-definition-pathname system))))
+			  (let ((file (system-base-name system)))
 			    (format str
 				"@item Location~%~:[@t{~;@url{file://~]~A}~%"
 			      *link-components*
 			      (if *link-components*
 				  (format nil "~A, ignore, ~A"
 				    (make-pathname
-				     :name (pathname-name
-					    (system-definition-pathname
-					     system))
-				     :type (pathname-type
-					    (system-definition-pathname
-					     system))
+				     :name (system-file-name system)
+				     :type (system-file-type system)
 				     :directory (pathname-directory
-						 (component-pathname
-						  system)))
+						 (component-pathname system)))
 				    file)
 				file)))
 			  (format str "@end table~%"))))
@@ -164,8 +155,8 @@ components tree."))))
 	      (add-child files-node (make-node :name name
 					       :section-name section-name)))
     :and :do (dolist (file files)
-	       (add-child other-files-node (file-node file
-						      system-directory)))))
+	       (add-child other-files-node
+			  (file-node file system-directory)))))
 
 
 ;;; file.lisp ends here

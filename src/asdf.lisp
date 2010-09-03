@@ -105,5 +105,18 @@
   "Return SYSTEM's directory."
   (component-relative-pathname system))
 
+(defun system-base-name (system)
+  "Return the basename part of SYSTEM's definition file."
+  (file-namestring (system-definition-pathname system)))
+
+(defun system-file-name (system)
+  "Return the name part of SYSTEM's definition file."
+  (pathname-name (system-definition-pathname system)))
+
+(defun system-file-type (system)
+  "Return the type part of SYSTEM's definition file."
+  (pathname-type (system-definition-pathname system)))
+
+
 
 ;;; asdf.lisp ends here
