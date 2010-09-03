@@ -46,14 +46,6 @@ online, and hence independent of any specific installation.")
 ;; Rendering Protocols
 ;; ==========================================================================
 
-;; -----------------
-;; Indexing protocol
-;; -----------------
-
-(defgeneric index (stream component)
-  (:documentation "Render an index command for COMPONENT to STREAM."))
-
-
 ;; --------------------
 ;; Itemization protocol
 ;; --------------------
