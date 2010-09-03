@@ -142,8 +142,12 @@ converted into info, HTML, DVI, PostScript or PDF."
 		 :depends-on ("package")
 		 :components ((:file "util")
 			      (:file "texi" :depends-on ("util"))
+			      (:file "asdf" :depends-on ("util"))
 			      (:file "symbol" :depends-on ("texi"))
-			      (:file "component" :depends-on ("texi"))
+			      (:file "component" :depends-on ("asdf" "texi"))
+			      ;; #### FIXME: package shoudn't depend on
+			      ;; component. The rendering protocols are
+			      ;; broken.
 			      (:file "package"
 				     :depends-on ("component" "symbol"))
 			      (:file "file" :depends-on ("component"))

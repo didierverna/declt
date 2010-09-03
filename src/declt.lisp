@@ -244,7 +244,7 @@ version ~A on ~A.
 		   (email nil emailp)
 		   (copyright-date nil copyright-date-p)
 		   (link-components *link-components*)
-	      &aux (system (asdf:find-system system-name))
+	      &aux (system (find-system system-name))
 		   (texi-name (file-namestring texi-file))
 		   (current-time-string (current-time-string)))
   "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
@@ -316,8 +316,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 			  :synopsis (format nil "What ~A is all about"
 				      library-name)
 			  :before-menu-contents
-			  (pretty-texify
-			   (asdf:system-long-description system)))))
+			  (pretty-texify (system-long-description system)))))
   (let ((*link-components* link-components))
     (add-system-node   *top-node* system)
     (add-modules-node  *top-node* system)
