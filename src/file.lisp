@@ -43,28 +43,22 @@
 ;; -----------------
 
 (defmethod index (stream (cl-source-file asdf:cl-source-file))
-  (format stream "@lispfileindex{~A}@c~%"
-    (component-name cl-source-file)))
+  (format stream "@lispfileindex{~A}@c~%" (component-name cl-source-file)))
 
 (defmethod index (stream (c-source-file asdf:c-source-file))
-  (format stream "@cfileindex{~A}@c~%"
-    (component-name c-source-file)))
+  (format stream "@cfileindex{~A}@c~%" (component-name c-source-file)))
 
 (defmethod index (stream (java-source-file asdf:java-source-file))
-  (format stream "@javafileindex{~A}@c~%"
-    (component-name java-source-file)))
+  (format stream "@javafileindex{~A}@c~%" (component-name java-source-file)))
 
 (defmethod index (stream (static-file asdf:static-file))
-  (format stream "@otherfileindex{~A}@c~%"
-    (component-name static-file)))
+  (format stream "@otherfileindex{~A}@c~%" (component-name static-file)))
 
 (defmethod index (stream (doc-file asdf:doc-file))
-  (format stream "@docfileindex{~A}@c~%"
-    (component-name doc-file)))
+  (format stream "@docfileindex{~A}@c~%" (component-name doc-file)))
 
 (defmethod index (stream (html-file asdf:html-file))
-  (format stream "@htmlfileindex{~A}@c~%"
-    (component-name html-file)))
+  (format stream "@htmlfileindex{~A}@c~%" (component-name html-file)))
 
 
 ;; --------------------
@@ -111,9 +105,8 @@
 				   'asdf:cl-source-file))
 		      (other-files
 		       (mapcar (lambda (type)
-				 (collect-components
-				  (module-components system)
-				  type))
+				 (collect-components (module-components system)
+						     type))
 			       '(asdf:c-source-file
 				 asdf:java-source-file
 				 asdf:doc-file
