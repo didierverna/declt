@@ -77,7 +77,7 @@
 	     :synopsis "The ASDF system documentation"
 	     :before-menu-contents
 	     (with-output-to-string (str)
-	       (tableize str system (component-relative-pathname system)))))
+	       (tableize str system (system-directory system)))))
 
 (defun add-system-node (node system)
   "Add SYSTEM's system node to NODE."
