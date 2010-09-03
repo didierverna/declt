@@ -107,12 +107,12 @@
     (node system &aux (system-directory
 		       (component-relative-pathname system))
 		      (lisp-files (collect-components
-				   (asdf:module-components system)
+				   (module-components system)
 				   'asdf:cl-source-file))
 		      (other-files
 		       (mapcar (lambda (type)
 				 (collect-components
-				  (asdf:module-components system)
+				  (module-components system)
 				  type))
 			       '(asdf:c-source-file
 				 asdf:java-source-file

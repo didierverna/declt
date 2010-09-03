@@ -57,7 +57,7 @@ online, and hence independent of any specific installation.")
 	:if (eq (type-of component) type)
 	  :collect component
 	:if (eq (type-of component) 'asdf:module)
-	  :nconc (collect-components (asdf:module-components component)
+	  :nconc (collect-components (module-components component)
 				     type)))
 
 

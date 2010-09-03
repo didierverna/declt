@@ -128,7 +128,7 @@
      &aux (files
 	   (cons (asdf:system-definition-pathname system)
 		 (mapcar #'component-pathname
-			 (collect-components (asdf:module-components system)
+			 (collect-components (module-components system)
 					     'asdf:cl-source-file))))
 	  (packages-node
 	   (add-child node (make-node :name "Packages"

@@ -60,7 +60,7 @@
   "Also describe MODULE's components."
   (call-next-method)
   (format stream "@item Components~%@itemize @bullet~%")
-  (dolist (component (asdf:module-components module))
+  (dolist (component (module-components module))
     (itemize stream component))
   (format stream "@end itemize~%"))
 
@@ -80,9 +80,8 @@
 
 (defun add-modules-node
     (node system &aux (system-directory (component-relative-pathname system))
-		      (modules
-		       (collect-components (asdf:module-components system)
-					   'asdf:module)))
+		      (modules (collect-components (module-components system)
+						   'asdf:module)))
   "Add SYSTEM's modules node to NODE."
   (when modules
     (let ((modules-node

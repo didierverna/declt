@@ -67,6 +67,7 @@
 
 ;; Some other accessors or functions that we can import directly.
 (import '(asdf:find-system
+	  asdf:module-components
 	  asdf:component-name
 	  asdf:component-pathname
 	  asdf:component-relative-pathname))
