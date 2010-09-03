@@ -50,13 +50,13 @@
   (let ((class (find-class symbol nil)))
     (when class
       (let ((error-condition-p (subtypep class 'condition))
-	    (class-name (string-downcase class)))
+	    (class-name (string-downcase symbol)))
 	(format stream "@deftp {~A} ~A~%"
 	  (if error-condition-p
 	      "Error Condition"
 	    "Class")
 	  class-name)
-	(format t "@tpindex @r{~A, }~A~%"
+	(format stream "@tpindex @r{~A, }~A~%"
 	  (if error-condition-p
 	      "Error Conditions"
 	    "Classes")
@@ -64,7 +64,7 @@
 	(when (documentation symbol 'type)
 	  (write-string (pretty-texify (documentation symbol 'type)) stream)
 	  (fresh-line))
-	(format t "@end deftp~%")))))
+	(format stream "@end deftp~%")))))
 
 
 ;;; symbol.lisp ends here
