@@ -128,17 +128,16 @@ components tree."))))
   (add-child lisp-files-node
 	     (make-node :name (format nil "The ~A file"
 				(pathname-name
-				 (asdf:system-definition-pathname system)))
+				 (system-definition-pathname system)))
 			:section-name
 			(format nil "@t{~A}"
-			  (pathname-name
-			   (asdf:system-definition-pathname system)))
+			  (pathname-name (system-definition-pathname system)))
 			:before-menu-contents
 			(with-output-to-string (str)
 			  (format str "@table @strong~%")
 			  (let ((file
 				 (file-namestring
-				  (asdf:system-definition-pathname system))))
+				  (system-definition-pathname system))))
 			    (format str
 				"@item Location~%~:[@t{~;@url{file://~]~A}~%"
 			      *link-components*
@@ -146,10 +145,10 @@ components tree."))))
 				  (format nil "~A, ignore, ~A"
 				    (make-pathname
 				     :name (pathname-name
-					    (asdf:system-definition-pathname
+					    (system-definition-pathname
 					     system))
 				     :type (pathname-type
-					    (asdf:system-definition-pathname
+					    (system-definition-pathname
 					     system))
 				     :directory (pathname-directory
 						 (component-pathname

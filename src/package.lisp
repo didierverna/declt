@@ -126,7 +126,7 @@
 (defun add-packages-node
     (node system
      &aux (files
-	   (cons (asdf:system-definition-pathname system)
+	   (cons (system-definition-pathname system)
 		 (mapcar #'component-pathname
 			 (collect-components (module-components system)
 					     'asdf:cl-source-file))))

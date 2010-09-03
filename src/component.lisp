@@ -128,7 +128,7 @@ COMPONENT's location is displayed RELATIVE-TO.")
 	    (component-pathname component)
 	    (component-pathname component))
 	  (let ((directory (directory-namestring
-			    (asdf:system-definition-pathname component))))
+			    (system-definition-pathname component))))
 	    (format stream "@item Installation~%@url{file://~A, ignore, ~A}~%"
 	      directory directory)))
       (let ((pathname (enough-namestring (component-pathname component)
