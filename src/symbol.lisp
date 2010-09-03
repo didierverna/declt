@@ -95,89 +95,69 @@
 (defun render-symbol (stream symbol)
   "Render SYMBOL's documentation on STREAM."
   (when (constantp symbol)
-    (format stream "@defvr Constant ~A~%" (string-downcase symbol))
-    (when (documentation symbol 'variable)
-      (write-string (pretty-texify (documentation symbol 'variable)) stream)
-      (fresh-line))
-    (format stream "@end defvr~%"))
+    (@defconstant (stream (string-downcase symbol))
+      (when (documentation symbol 'variable)
+	(write-string (pretty-texify (documentation symbol 'variable))
+		      stream))))
   ;; #### PORTME.
   (when (eql (sb-int:info :variable :kind symbol) :special)
-    (format stream "@defvr {Special Variable} ~A~%" (string-downcase symbol))
-    (when (documentation symbol 'variable)
-      (write-string (pretty-texify (documentation symbol 'variable)) stream)
-      (fresh-line))
-    (format stream "@end defvr~%"))
+    (@defspecial (stream (string-downcase symbol))
+      (when (documentation symbol 'variable)
+	(write-string (pretty-texify (documentation symbol 'variable))
+		      stream))))
   (let ((class (find-class symbol nil)))
     (when class
-      ;; #### PORTME.
-      (let ((structure-p (eq (class-of class) (find-class 'structure-class)))
-	    (error-condition-p (subtypep class 'condition))
-	    (class-name (string-downcase symbol)))
-	(format stream "@deftp {~A} ~A~%"
-	  (cond (structure-p "Structure")
-		(error-condition-p "Error Condition")
-		(t "Class"))
-	  class-name)
-	(format stream "@tpindex @r{~A, }~A~%"
-	  (cond (structure-p "Structure")
-		(error-condition-p "Error Condition")
-		(t "Class"))
-	  class-name)
+      (@deftp (stream
+	       ;; #### PORTME.
+	       (cond ((eq (class-of class) (find-class 'structure-class))
+		      "Structure")
+		     ((subtypep class 'condition)
+		      "Condition")
+		     (t "Class"))
+	       (string-downcase symbol))
 	(when (documentation symbol 'type)
-	  (write-string (pretty-texify (documentation symbol 'type)) stream)
-	  (fresh-line))
-	(format stream "@end deftp~%"))))
+	  (write-string (pretty-texify (documentation symbol 'type))
+			stream)))))
   (when (macro-function symbol)
-    (format stream "@defmac ~A " (string-downcase symbol))
-    ;; #### PORTME.
-    (render-lambda-list stream (sb-introspect:function-lambda-list symbol))
-    (terpri stream)
-    (format stream "@findex Macro, @t{~A}~%" (string-downcase symbol))
-    (when (documentation symbol 'function)
-      (write-string (pretty-texify (documentation symbol 'function)) stream)
-      (fresh-line stream))
-    (format stream "@end defmac~%"))
+    (@defmac (stream
+	      (string-downcase symbol)
+	      ;; #### PORTME.
+	      (sb-introspect:function-lambda-list symbol))
+      (when (documentation symbol 'function)
+	(write-string (pretty-texify (documentation symbol 'function))
+		      stream))))
   (when (and (fboundp symbol)
 	     (or (consp symbol)
 		 (not (macro-function symbol)))
 	     (not (typep (fdefinition symbol) 'standard-generic-function)))
-    (format stream "@defun ~A " (string-downcase symbol))
-    ;; #### PORTME.
-    (render-lambda-list stream (sb-introspect:function-lambda-list symbol))
-    (terpri stream)
-    (format stream "@findex @r{Function}, ~A~%" (string-downcase symbol))
-    (when (documentation symbol 'function)
-      (write-string (pretty-texify (documentation symbol 'function)) stream)
-      (fresh-line stream))
-    (format stream "@end defun~%"))
+    (@defun (stream
+	     (string-downcase symbol)
+	     ;; #### PORTME.
+	     (sb-introspect:function-lambda-list symbol))
+      (when (documentation symbol 'function)
+	(write-string (pretty-texify (documentation symbol 'function))
+		      stream))))
   (when (and (fboundp symbol)
 	     (typep (fdefinition symbol) 'generic-function))
-    (format stream "@deffn {Generic Function} ~A " (string-downcase symbol))
-    ;; #### PORTME.
-    (render-lambda-list stream (sb-introspect:function-lambda-list symbol))
-    (terpri stream)
-    (format stream "@findex @r{Generic Function}, ~A~%"
-      (string-downcase symbol))
-    (when (documentation symbol 'function)
-      (write-string (pretty-texify (documentation symbol 'function)) stream)
-      (fresh-line stream))
-    (format stream "@end deffn~%")
+    (@defgeneric (stream
+		  (string-downcase symbol)
+		  ;; #### PORTME.
+		  (sb-introspect:function-lambda-list symbol))
+      (when (documentation symbol 'function)
+	(write-string (pretty-texify (documentation symbol 'function))
+		      stream)))
     ;; #### PORTME.
     (dolist (method (sb-mop:generic-function-methods (fdefinition symbol)))
-      (format stream "@deffn Method ~A " (string-downcase symbol))
-      ;; #### PORTME.
-      (render-lambda-list stream (sb-mop:method-lambda-list method)
-			  ;; #### PORTME.
-			  (sb-mop:method-specializers method))
-      ;; #### PORTME.
-      (format stream "~(~{ @t{~S}~^~}~)~%" (sb-mop:method-qualifiers method))
-      (terpri stream)
-      (format stream "@findex @r{Method}, ~A~%" (string-downcase symbol))
-      (when (documentation method 't)
-	(write-string (pretty-texify (documentation method 't)) stream)
-	(fresh-line stream))
-      (format stream "@end deffn~%"))
-    ))
+      (@defmethod (stream
+		   (string-downcase symbol)
+		   ;; #### PORTME.
+		   (sb-mop:method-lambda-list method)
+		   ;; #### PORTME.
+		   (sb-mop:method-specializers method)
+		   ;; #### PORTME.
+		   (sb-mop:method-qualifiers method))
+	(when (documentation method 't)
+	  (write-string (pretty-texify (documentation method 't)) stream))))))
 
 
 ;;; symbol.lisp ends here

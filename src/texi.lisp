@@ -35,6 +35,109 @@
 
 
 ;; ===========================================================================
+;; Texinfo Rendering Routines
+;; ===========================================================================
+
+(defun texify (string)
+  "Escape @ { and } characters for Texinfo format."
+  (when string
+    (coerce (loop :for char :across string
+		  :if (member char '(#\@ #\{ #\})) :collect #\@
+		  :collect char)
+	    'string)))
+
+(defun pretty-texify (string)
+  "Attempt to embellish STRING for Texinfo format."
+  (coerce (loop :for char :across (texify string)
+		:if (char= char #\Newline) :collect #\@ :and :collect #\*
+		:collect char)
+	  'string))
+
+(defmacro @defvr ((stream category name) &body body)
+  "Execute BODY in a @defvr environment."
+  `(progn
+    (format ,stream "@defvr {~A} ~A~%" ,category ,name)
+    ,@body
+    (format ,stream "~&@end defvr~%")))
+
+(defmacro @defconstant ((stream name) &body body)
+  "Execute BODY withing a @defvr {Constant} environment."
+  `(@defvr (,stream "Constant" ,name) ,@body))
+
+(defmacro @defspecial ((stream name) &body body)
+  "Execute BODY withing a @defvr {Special Variable} environment."
+  `(@defvr (,stream "Special Variable" ,name) ,@body))
+
+(defmacro @defmac ((stream name lambda-list) &body body)
+  "Execute BODY withing a @defmac environment."
+  (let ((the-name (gensym "name")))
+    `(let ((,the-name ,name))
+      (format ,stream "@defmac ~A " ,the-name)
+      (render-lambda-list ,stream ,lambda-list)
+      (terpri ,stream)
+      (format ,stream "@findex @r{Macro, }~A~%" ,the-name)
+      ,@body
+      (format ,stream "~&@end defmac~%"))))
+
+(defmacro @defun ((stream name lambda-list) &body body)
+  "Execute BODY withing a @defun environment."
+  (let ((the-name (gensym "name")))
+    `(let ((,the-name ,name))
+      (format ,stream "@defun ~A " ,the-name)
+      (render-lambda-list ,stream ,lambda-list)
+      (terpri ,stream)
+      (format ,stream "@findex @r{Function, }~A~%" ,the-name)
+      ,@body
+      (format ,stream "~&@end defun~%"))))
+
+(defmacro @deffn
+    ((stream category name lambda-list &optional specializers qualifiers)
+     &body body)
+  "Execute BODY withing a @defun environment."
+  (let ((the-name (gensym "name")))
+    `(let ((,the-name ,name))
+      (format ,stream "@deffn {~A} ~A " ,category ,the-name)
+      (render-lambda-list ,stream ,lambda-list ,specializers)
+      (format ,stream "~(~{ @t{~S}~^~}~)~%" ,qualifiers)
+      (terpri ,stream)
+      (format ,stream "@findex @r{~A, }~A~%" ,category ,the-name)
+      ,@body
+      (format ,stream "~&@end deffn~%"))))
+
+(defmacro @defgeneric ((stream name lambda-list) &body body)
+  "Execute BODY withing a @deffn {Generic Function} environment."
+  `(@deffn (,stream "Generic Function" ,name ,lambda-list) ,@body))
+
+(defmacro @defmethod
+    ((stream name lambda-list specializers qualifiers) &body body)
+  "Execute BODY withing a @deffn {Method} environment."
+  `(@deffn (,stream "Method" ,name ,lambda-list ,specializers ,qualifiers)
+    ,@body))
+
+(defmacro @deftp ((stream category name) &body body)
+  "Execute BODY withing a @deftp environment."
+  (let ((the-name (gensym "name")))
+    `(let ((,the-name ,name))
+      (format ,stream "@deftp {~A} ~A~%" ,category ,the-name)
+      (format ,stream "@tpindex @r{~A, }~A~%" ,category ,the-name)
+      ,@body
+      (format ,stream "~&@end deftp~%"))))
+
+(defmacro @defstruct ((stream name) &body body)
+  "Execute BODY withing a @deftp {Structure} environment."
+  `(@deftp (,stream "Structure" ,name) ,@body))
+
+(defmacro @defcond ((stream name) &body body)
+  "Execute BODY withing a @deftp {Condition} environment."
+  `(@deftp (,stream "Condition" ,name) ,@body))
+
+(defmacro @defclass ((stream name) &body body)
+  "Execute BODY withing a @deftp {Class} environment."
+  `(@deftp (,stream "Class" ,name) ,@body))
+
+
+
+;; ===========================================================================
 ;; Texinfo Node Implementation
 ;; ===========================================================================
 
@@ -68,27 +171,6 @@
     (setf (node-previous child) previous)
     (setf (node-up child) parent))
   child)
-
-
-
-;; ===========================================================================
-;; Texinfo Rendering Routines
-;; ===========================================================================
-
-(defun texify (string)
-  "Escape @ { and } characters for Texinfo format."
-  (when string
-    (coerce (loop :for char :across string
-		  :if (member char '(#\@ #\{ #\})) :collect #\@
-		  :collect char)
-	    'string)))
-
-(defun pretty-texify (string)
-  "Attempt to embellish STRING for Texinfo format."
-  (coerce (loop :for char :across (texify string)
-		:if (char= char #\Newline) :collect #\@ :and :collect #\*
-		:collect char)
-	  'string))
 
 (defun render-node (node level)
   "Render NODE at LEVEL and all its children at LEVEL+1."
@@ -156,5 +238,21 @@
   (render-node *top-node* 0)
   (values))
 
+
+
+;;; Local Variables:
+;;; eval: (put '@defvr       'common-lisp-indent-function 1)
+;;; eval: (put '@defconstant 'common-lisp-indent-function 1)
+;;; eval: (put '@defspecial  'common-lisp-indent-function 1)
+;;; eval: (put '@defmac      'common-lisp-indent-function 1)
+;;; eval: (put '@defun       'common-lisp-indent-function 1)
+;;; eval: (put '@deffn       'common-lisp-indent-function 1)
+;;; eval: (put '@defgeneric  'common-lisp-indent-function 1)
+;;; eval: (put '@defmethod   'common-lisp-indent-function 1)
+;;; eval: (put '@deftp       'common-lisp-indent-function 1)
+;;; eval: (put '@defstruct   'common-lisp-indent-function 1)
+;;; eval: (put '@defcond     'common-lisp-indent-function 1)
+;;; eval: (put '@defclass    'common-lisp-indent-function 1)
+;;; End:
 
 ;;; texi.lisp ends here
