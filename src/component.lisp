@@ -66,9 +66,8 @@ online, and hence independent of any specific installation.")
     (format stream "@t{~A} ("
       (component-name component)))
   (:method :after (stream component)
-    (format stream "~@[, version ~A~])~%"
-      (and (slot-boundp component 'asdf:version )
-	   (asdf:component-version component)))))
+    (format stream "~@[, version ~A~])~%" (component-version component))))
+
 
 ;; ---------------------
 ;; Tableization protocol
@@ -97,11 +96,11 @@ COMPONENT's location is displayed RELATIVE-TO.")
 	  (list-to-string
 	   (mapcar (lambda (dep) (format nil "@t{~A}" (string-downcase dep)))
 		   dependencies)))))
-    (when (asdf:component-parent component)
+    (when (component-parent component)
       (format stream "@item Parent~%")
-      (index stream (asdf:component-parent component))
+      (index stream (component-parent component))
       (format stream "@t{~A}~%"
-	(component-name (asdf:component-parent component))))
+	(component-name (component-parent component))))
     (if (eq (type-of component) 'asdf:system) ;; Yuck!
 	(when *link-components*
 	  (format stream "@item Location~%@url{file://~A, ignore, ~A}~%"

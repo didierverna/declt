@@ -76,7 +76,8 @@
 	  asdf:module-components
 	  asdf:component-name
 	  asdf:component-pathname
-	  asdf:component-relative-pathname))
+	  asdf:component-relative-pathname
+	  asdf:component-parent))
 
 
 
