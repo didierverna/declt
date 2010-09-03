@@ -33,6 +33,24 @@
 (in-package :com.dvlsoft.declt)
 
 
+;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
+(defun symbol-needs-rendering (symbol)
+  "Return t when SYMBOL needs to be documented."
+  (or (constantp symbol)
+      ;; #### PORTME.
+      (eql (sb-int:info :variable :kind symbol) :special)
+      (find-class symbol nil)
+      (fboundp symbol)))
+
+
+
+;; ==========================================================================
+;; Rendering Protocols
+;; ==========================================================================
+
 (defun render-symbol (stream symbol)
   "Render SYMBOL's documentation on STREAM."
   (when (constantp symbol)
