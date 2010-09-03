@@ -124,11 +124,15 @@ Packages are listed by definition order."))))
 				 :before-menu-contents
 				 (with-output-to-string (str)
 				   (tableize str package nil)))))
-	  external-symbols)
+	  external-symbols
+	  internal-symbols)
       (do-external-symbols (symbol package)
 	(when (eq (symbol-package symbol) package)
 	  (push symbol external-symbols)))
       (setq external-symbols (sort external-symbols #'string-lessp))
+      ;; #### FIXME: this is not quite right because there might only be
+      ;; symbols that won't be documented (e.g. argument names to functions
+      ;; etc.).
       (when external-symbols
 	(add-child package-node
 		   (make-node
@@ -140,6 +144,26 @@ Packages are listed by definition order."))))
 		    :after-menu-contents
 		    (with-output-to-string (str)
 		      (dolist (symbol external-symbols)
+			(render-symbol str symbol))))))
+      (do-symbols (symbol package)
+	(when (and (not (member symbol external-symbols))
+		   (eq (symbol-package symbol) package))
+	  (push symbol internal-symbols)))
+      (setq internal-symbols (sort internal-symbols #'string-lessp))
+      ;; #### FIXME: this is not quite right because there might only be
+      ;; symbols that won't be documented (e.g. argument names to functions
+      ;; etc.).
+      (when internal-symbols
+	(add-child package-node
+		   (make-node
+		    :name (format nil "@t{~A} Internal Symbols"
+			    (string-downcase (package-name package)))
+		    :section-name "Internal Symbols"
+		    :before-menu-contents
+		    "Symbols are listed by lexicographic order."
+		    :after-menu-contents
+		    (with-output-to-string (str)
+		      (dolist (symbol internal-symbols)
 			(render-symbol str symbol)))))))))
 
 
