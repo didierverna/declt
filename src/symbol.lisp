@@ -134,7 +134,7 @@
     ;; #### PORTME.
     (render-lambda-list stream (sb-introspect:function-lambda-list symbol))
     (terpri stream)
-    (format stream "@findex Function, @t{~A}~%" (string-downcase symbol))
+    (format stream "@findex @r{Function}, ~A~%" (string-downcase symbol))
     (when (documentation symbol 'function)
       (write-string (pretty-texify (documentation symbol 'function)) stream)
       (fresh-line stream))
