@@ -79,7 +79,7 @@
 				     (tableize str module relative-to))))
 
 (defun add-modules-node
-    (node system &aux (system-directory (component-relative-pathname system))
+    (node system &aux (system-directory (system-directory system))
 		      (modules (collect-modules system)))
   "Add SYSTEM's modules node to NODE."
   (when modules

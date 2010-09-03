@@ -98,8 +98,7 @@
 				     (tableize str file relative-to))))
 
 (defun add-files-node
-    (node system &aux (system-directory
-		       (component-relative-pathname system))
+    (node system &aux (system-directory (system-directory system))
 		      (lisp-files (collect-lisp-files system))
 		      (other-files
 		       (mapcar (lambda (type)

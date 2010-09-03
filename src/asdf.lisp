@@ -101,5 +101,9 @@
   "Collect all modules from MODULE."
   (collect-components module 'asdf:module))
 
+(defun system-directory (system)
+  "Return SYSTEM's directory."
+  (component-relative-pathname system))
+
 
 ;;; asdf.lisp ends here
