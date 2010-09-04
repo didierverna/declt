@@ -87,24 +87,34 @@ online, and hence independent of any specific installation.")
     (index stream (component-parent component))
     (format stream "@t{~A}~%"
       (component-name (component-parent component))))
-  (if (eq (type-of component) 'asdf:system) ;; Yuck!
-      (when *link-components*
-	(format stream "@item Location~%@url{file://~A, ignore, ~A}~%"
-	  (component-pathname component)
-	  (component-pathname component))
-	(let ((directory (directory-namestring
-			  (system-definition-pathname component))))
-	  (format stream "@item Installation~%@url{file://~A, ignore, ~A}~%"
-	    directory directory)))
-    (let ((pathname (enough-namestring (component-pathname component)
-				       relative-to)))
-      (format stream "@item Location~%~:[@t{~;@url{file://~]~A}~%"
-	*link-components*
-	(if *link-components*
-	    (format nil "~A, ignore, ~A"
-	      (component-pathname component)
-	      pathname)
-	  pathname)))))
+  (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
+	 (when *link-components*
+	   (format stream "@item Location~%@url{file://~A, ignore, ~A}~%"
+	     (component-pathname component)
+	     (component-pathname component)))
+	 (let ((pathname (system-base-name component)))
+	   (format stream "@item System File~%~:[@t{~;@url{file://~]~A}~%"
+	     *link-components*
+	     (if *link-components*
+		 (format nil "~A, ignore, ~A"
+		   (component-pathname component)
+		   pathname)
+	       pathname)))
+	 (when *link-components*
+	   (let ((directory (directory-namestring
+			     (system-definition-pathname component))))
+	     (format stream "@item Installation~%@url{file://~A, ignore, ~A}~%"
+	       directory directory))))
+	(t
+	 (let ((pathname (enough-namestring (component-pathname component)
+					    relative-to)))
+	   (format stream "@item Location~%~:[@t{~;@url{file://~]~A}~%"
+	     *link-components*
+	     (if *link-components*
+		 (format nil "~A, ignore, ~A"
+		   (component-pathname component)
+		   pathname)
+	       pathname))))))
 
 
 ;;; component.lisp ends here
