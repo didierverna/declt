@@ -80,7 +80,7 @@ online, and hence independent of any specific installation.")
 	    (pushnew dependency dependencies))))
       (format stream "@item Dependencies~%~A~%"
 	(list-to-string
-	 (mapcar (lambda (dep) (format nil "@t{~A}" (string-downcase dep)))
+	 (mapcar (lambda (dep) (format nil "@t{~(~A}~)" dep))
 		 dependencies)))))
   (when (component-parent component)
     (format stream "@item Parent~%")

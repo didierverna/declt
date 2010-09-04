@@ -66,15 +66,14 @@
 	    ((member part '(&optional &rest &key &allow-other-keys
 			    &aux &environment &whole &body))
 	     (setq after-required-args-p t)
-	     (format stream "~A" (string-downcase part)))
+	     (format stream "~(~A~)" part))
 	    (t
 	     (let ((specializer (pretty-specializer (pop specializers))))
 	       (cond ((and specializer (not (eq specializer t)))
 		      ;; add specializers if there are any left
 		      (format stream "(~A " part)
-		      (write-string
-		       (string-downcase (format nil " @t{~A})" specializer))
-		       stream))
+		      (write-string (format nil " @t{~(~A~)})" specializer)
+				    stream))
 		     (t
 		      (write-string (symbol-name part) stream)))))))))
 

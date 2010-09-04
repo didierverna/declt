@@ -69,8 +69,7 @@
 ;; -----------------
 
 (defmethod index (stream (package package))
-  (format stream "@packageindex{~A}@c~%"
-    (string-downcase (package-name package))))
+  (format stream "@packageindex{~(~A~)}@c~%" (package-name package)))
 
 
 ;; --------------------
@@ -92,14 +91,13 @@
     (format stream "@item Nicknames~%~A~%"
       (list-to-string
        (mapcar (lambda (nickname)
-		 (format nil "@t{~A}" (string-downcase nickname)))
+		 (format nil "@t{~(~A~)}" nickname))
 	       (package-nicknames package)))))
   (when (package-use-list package)
     (format stream "@item Use List~%~A~%"
       (list-to-string
        (mapcar (lambda (package)
-		 (format nil "@t{~A}" (string-downcase
-				       (package-name package))))
+		 (format nil "@t{~(~A~)}" (package-name package)))
 	       (package-use-list package))))))
 
 
@@ -121,9 +119,8 @@ Packages are listed by definition order."))))
     (let ((package-node
 	   (add-child packages-node
 		      (make-node :name (package-name package)
-				 :section-name (format nil "@t{~A}"
-						 (string-downcase
-						  (package-name package)))
+				 :section-name (format nil "@t{~(~A~)}"
+						 (package-name package))
 				 :before-menu-contents
 				 (with-output-to-string (str)
 				   (tableize str package)))))
@@ -132,8 +129,8 @@ Packages are listed by definition order."))))
       (when external-symbols
 	(add-child package-node
 		   (make-node
-		    :name (format nil "@t{~A} External Symbols"
-			    (string-downcase (package-name package)))
+		    :name (format nil "@t{~(~A~)} External Symbols"
+			    (package-name package))
 		    :section-name "External Symbols"
 		    :before-menu-contents
 		    "Symbols are listed by lexicographic order."
@@ -144,8 +141,8 @@ Packages are listed by definition order."))))
       (when internal-symbols
 	(add-child package-node
 		   (make-node
-		    :name (format nil "@t{~A} Internal Symbols"
-			    (string-downcase (package-name package)))
+		    :name (format nil "@t{~(~A~)} Internal Symbols"
+			    (package-name package))
 		    :section-name "Internal Symbols"
 		    :before-menu-contents
 		    "Symbols are listed by lexicographic order."
