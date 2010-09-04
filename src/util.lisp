@@ -33,6 +33,10 @@
 (in-package :com.dvlsoft.declt)
 
 
+;; ==========================================================================
+;; Miscellaneous
+;; ==========================================================================
+
 (defmacro endpush (object place)
   "Like push, but at the end."
   `(setf ,place (nconc ,place (list ,object))))
@@ -73,6 +77,86 @@ STRING should look like \"NAME <EMAIL>\"."
   (reduce (lambda (str1 str2) (concatenate 'string str1 separator str2))
 	  list
 	  :key key))
+
+
+
+;; ==========================================================================
+;; Symbol Related
+;; ==========================================================================
+
+(defun constant-symbol-p (symbol)
+  "Return t if SYMBOL names a constant."
+  (constantp symbol))
+
+(defun special-symbol-p (symbol)
+  "Return t if SYMBOL names a special variable."
+  ;; #### PORTME.
+  (eql (sb-int:info :variable :kind symbol) :special))
+
+(defun class-symbol-p (symbol)
+  "Return the class named by SYMBOL if any."
+  (find-class symbol nil))
+
+(defun fbound-symbol-p (symbol)
+  "Return t if SYMBOL names a function."
+  (fboundp symbol))
+
+(defun macro-symbol-p (symbol)
+  "Return t if SYMBOL names a macro."
+  (macro-function symbol))
+
+(defun function-symbol-p (symbol)
+  "Return t if SYMBOL names an ordinary function."
+  (and (fboundp symbol)
+       (or (consp symbol) (not (macro-symbol-p symbol)))
+       (not (typep (fdefinition symbol) 'standard-generic-function))))
+
+(defun generic-symbol-p (symbol)
+  "Return t if SYMBOL names a generic function."
+  (and (fboundp symbol)
+       (typep (fdefinition symbol) 'standard-generic-function)))
+
+(defun symbol-needs-rendering (symbol)
+  "Return t when SYMBOL needs to be documented."
+  (or (constant-symbol-p symbol)
+      (special-symbol-p  symbol)
+      (class-symbol-p    symbol)
+      (fbound-symbol-p symbol)))
+
+
+
+;; ==========================================================================
+;; Package Related
+;; ==========================================================================
+
+;; #### FIXME: see how to handle shadowed symbols (not sure what happens with
+;; the home package).
+(defun package-external-symbols (package &aux external-symbols)
+  "Return the list of symbols external to PACKAGE that need documenting."
+  (do-external-symbols (symbol package)
+    (when (and (eq (symbol-package symbol) package)
+	       (symbol-needs-rendering symbol))
+      (push symbol external-symbols)))
+  (sort external-symbols #'string-lessp))
+
+;; #### FIXME: see how to handle shadowed symbols (not sure what happens with
+;; the home package).
+(defun package-internal-symbols
+    (package &aux (external-symbols (package-external-symbols package))
+		  internal-symbols)
+  "Return the list of symbols internal to PACKAGE that need documenting."
+  (do-symbols (symbol package)
+    (when (and (not (member symbol external-symbols))
+	       (eq (symbol-package symbol) package)
+	       (symbol-needs-rendering symbol))
+      (push symbol internal-symbols)))
+  (sort internal-symbols #'string-lessp))
+
+
+
+;; ==========================================================================
+;; File Related
+;; ==========================================================================
 
 ;; We need to protect against read-time errors. Let's just hope that nothing
 ;; fancy occurs in DEFPACKAGE...

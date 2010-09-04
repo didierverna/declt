@@ -32,35 +32,6 @@
 
 
 ;; ==========================================================================
-;; Utilities
-;; ==========================================================================
-
-;; #### FIXME: see how to handle shadowed symbols (not sure what happens with
-;; the home package).
-(defun external-symbols (package &aux external-symbols)
-  "Return the list of symbols external to PACKAGE that need documenting."
-  (do-external-symbols (symbol package)
-    (when (and (eq (symbol-package symbol) package)
-	       (symbol-needs-rendering symbol))
-      (push symbol external-symbols)))
-  (sort external-symbols #'string-lessp))
-
-;; #### FIXME: see how to handle shadowed symbols (not sure what happens with
-;; the home package).
-(defun internal-symbols
-    (package &aux (external-symbols (external-symbols package))
-		  internal-symbols)
-  "Return the list of symbols internal to PACKAGE that need documenting."
-  (do-symbols (symbol package)
-    (when (and (not (member symbol external-symbols))
-	       (eq (symbol-package symbol) package)
-	       (symbol-needs-rendering symbol))
-      (push symbol internal-symbols)))
-  (sort internal-symbols #'string-lessp))
-
-
-
-;; ==========================================================================
 ;; Rendering Protocols
 ;; ==========================================================================
 
@@ -124,8 +95,8 @@ Packages are listed by definition order."))))
 				 :before-menu-contents
 				 (with-output-to-string (str)
 				   (tableize str package)))))
-	  (external-symbols (external-symbols package))
-	  (internal-symbols (internal-symbols package)))
+	  (external-symbols (package-external-symbols package))
+	  (internal-symbols (package-internal-symbols package)))
       (when external-symbols
 	(add-child package-node
 		   (make-node

@@ -71,7 +71,7 @@
 (defun add-location-node (parent location package)
   "Add PACKAGE's LOCATION node to PARENT.
 LOCATION is either :external or :internal."
-  (let ((symbols (funcall (fdefinition (intern (format nil "~A-SYMBOLS"
+  (let ((symbols (funcall (fdefinition (intern (format nil "PACKAGE-~A-SYMBOLS"
 						 location)
 					       :com.dvlsoft.declt))
 			  package)))

@@ -145,9 +145,9 @@ converted into info, HTML, DVI, PostScript or PDF."
 			      (:file "asdf" :depends-on ("util"))
 			      (:file "symbol" :depends-on ("texi"))
 			      (:file "definition"
-				     :depends-on ("asdf" "symbol"))
-			      (:file "package" :depends-on ("asdf" "symbol"))
-			      (:file "component" :depends-on ("asdf" "symbol"))
+				     :depends-on ("symbol" "asdf"))
+			      (:file "package" :depends-on ("symbol" "asdf"))
+			      (:file "component" :depends-on ("symbol" "asdf"))
 			      (:file "file" :depends-on ("component"))
 			      (:file "module" :depends-on ("file"))
 			      (:file "system" :depends-on ("module"))
