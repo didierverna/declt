@@ -65,11 +65,10 @@
   (when (system-license system)
     (format stream "@item License~%~A~%" (system-license system)))
   (call-next-method)
-  (format stream "@item Packages~%~A~%"
-    (list-to-string (system-packages system)
-		    :key (lambda (package)
-			   (format nil "@t{~(~A}~)"
-			     (package-name package))))))
+  (format stream "@item Packages~%")
+  (@itemize-list stream (system-packages system)
+		 :format "@t{~(~A~)}"
+		 :key #'package-name))
 
 
 
