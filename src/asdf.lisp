@@ -76,21 +76,21 @@
 ;; Utilities
 ;; ==========================================================================
 
-(defun collect-components (module type)
-  "Collect all components of TYPE from MODULE."
-  (loop :for component :in (module-components module)
+(defun components (module type)
+  "Return the list of all TYPE components from MODULE."
+  (loop :for component :in (asdf:module-components module)
 	:if (eq (type-of component) type)
 	  :collect component
 	:if (eq (type-of component) 'asdf:module)
-	  :nconc (collect-components component type)))
+	  :nconc (components component type)))
 
-(defun collect-lisp-files (module)
-  "Collect all Lisp files from MODULE."
-  (collect-components module 'asdf:cl-source-file))
+(defun lisp-components (module)
+  "Return the list of all Lisp source file components from MODULE."
+  (components module 'asdf:cl-source-file))
 
-(defun collect-modules (module)
-  "Collect all modules from MODULE."
-  (collect-components module 'asdf:module))
+(defun module-components (module)
+  "Return the list of all module components from MODULE."
+  (components module 'asdf:module))
 
 (defun system-directory (system)
   "Return SYSTEM's directory."

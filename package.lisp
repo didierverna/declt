@@ -45,7 +45,6 @@
   (:import-from :asdf ;; See src/asdf.lisp
     ;; Some slot-unbound proof accessors that we can import directly.
     :system-definition-pathname
-    :module-components
     :component-name
     :component-pathname
     :component-relative-pathname
