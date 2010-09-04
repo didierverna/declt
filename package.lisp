@@ -42,6 +42,16 @@
     :+release-status-level+
     :+release-name+
     :version)
+  (:import-from :asdf ;; See src/asdf.lisp
+    ;; Some slot-unbound proof accessors that we can import directly.
+    :system-definition-pathname
+    :module-components
+    :component-name
+    :component-pathname
+    :component-relative-pathname
+    :component-parent
+    ;; Some functions that we can import directly.
+    :find-system)
   (:export
    ;; From com.dvlsoft.declt.asd:
    :+release-major-level+

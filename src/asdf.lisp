@@ -70,14 +70,6 @@
   (when (slot-boundp component 'asdf:version)
     (asdf:component-version component)))
 
-;; Some other accessors that we can import directly.
-(import '(asdf:system-definition-pathname
-	  asdf:module-components
-	  asdf:component-name
-	  asdf:component-pathname
-	  asdf:component-relative-pathname
-	  asdf:component-parent))
-
 
 
 ;; ==========================================================================
@@ -115,9 +107,6 @@
 (defun system-file-type (system)
   "Return the type part of SYSTEM's definition file."
   (pathname-type (system-definition-pathname system)))
-
-;; Some functions that we can import directly.
-(import '(asdf:find-system))
 
 
 ;;; asdf.lisp ends here
