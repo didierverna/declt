@@ -53,6 +53,22 @@
 		:collect char)
 	  'string))
 
+(defmacro @itemize ((stream &optional (kind :@bullet)) &body body)
+  "Execute BODY in an @itemize KIND environment."
+  `(progn
+    (format ,stream "@itemize ~(~A~)~%" ,kind)
+    ,@body
+    (format ,stream "~&@end itemize~%")))
+
+(defun @itemize-list
+    (stream list &key (kind :@bullet) (format "~A") (key #'identity))
+  "Render every LIST element in an @itemize KIND environment."
+  (@itemize (stream kind)
+    (dolist (elt list)
+      (format stream "@item~%")
+      (format stream format (funcall key elt))
+      (terpri stream))))
+
 (defmacro @defvr ((stream category name) &body body)
   "Execute BODY in a @defvr environment."
   `(progn
