@@ -67,8 +67,10 @@
   (call-next-method)
   (format stream "@item Packages~%")
   (@itemize-list stream (system-packages system)
-		 :format "@t{~(~A~)}"
-		 :key #'package-name))
+		 :format "~A@t{~(~A~)}"
+		 :key (lambda (package)
+			(values (index nil package)
+				(package-name package)))))
 
 
 
