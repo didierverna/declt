@@ -44,6 +44,7 @@
 
 (defmethod tableize (stream (system asdf:system) &optional relative-to)
   "Also describe SYSTEM's descriptions, author, maintainer and license."
+  (declare (ignore relative-to))
   (format stream "@item Name~%@t{~A}~%" (component-name system))
   (when (system-description system)
     (format stream "@item Description~%~A~%"

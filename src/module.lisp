@@ -58,6 +58,7 @@
 
 (defmethod tableize (stream (module asdf:module) &optional relative-to)
   "Also describe MODULE's components."
+  (declare (ignore relative-to))
   (call-next-method)
   (format stream "@item Components~%@itemize @bullet~%")
   (dolist (component (module-components module))

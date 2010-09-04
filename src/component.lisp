@@ -64,54 +64,47 @@ online, and hence independent of any specific installation.")
 ;; Tableization protocol
 ;; ---------------------
 
-(defgeneric tableize (stream component &optional relative-to)
-  (:documentation "Render a tableized description of COMPONENT to STREAM.
-COMPONENT's location is displayed RELATIVE-TO.")
-  (:method :before (stream component &optional relative-to)
-    (format stream "@table @strong~%"))
-  (:method (stream component &optional relative-to)
-    (when (component-version component)
-      (format stream "@item Version~%~A~%"
-	(component-version component)))
-    ;; #### NOTE: currently, we simply extract all the dependencies regardless
-    ;; of the operations involved. We also assume that dependencies are of the
-    ;; form (OP (OP DEP...) ...), but I'm not sure this is always the case.
-    (let ((in-order-tos (slot-value component 'asdf::in-order-to))
-	  dependencies)
-      (when in-order-tos
-	(dolist (in-order-to in-order-tos)
-	  (dolist (op-dependency (cdr in-order-to))
-	    (dolist (dependency (cdr op-dependency))
-	      (pushnew dependency dependencies))))
-	(format stream "@item Dependencies~%~A~%"
-	  (list-to-string
-	   (mapcar (lambda (dep) (format nil "@t{~A}" (string-downcase dep)))
-		   dependencies)))))
-    (when (component-parent component)
-      (format stream "@item Parent~%")
-      (index stream (component-parent component))
-      (format stream "@t{~A}~%"
-	(component-name (component-parent component))))
-    (if (eq (type-of component) 'asdf:system) ;; Yuck!
-	(when *link-components*
-	  (format stream "@item Location~%@url{file://~A, ignore, ~A}~%"
-	    (component-pathname component)
-	    (component-pathname component))
-	  (let ((directory (directory-namestring
-			    (system-definition-pathname component))))
-	    (format stream "@item Installation~%@url{file://~A, ignore, ~A}~%"
-	      directory directory)))
-      (let ((pathname (enough-namestring (component-pathname component)
-					 relative-to)))
-	(format stream "@item Location~%~:[@t{~;@url{file://~]~A}~%"
-	  *link-components*
-	  (if *link-components*
-	      (format nil "~A, ignore, ~A"
-		(component-pathname component)
-		pathname)
-	    pathname)))))
-  (:method :after (stream component &optional relative-to)
-    (format stream "@end table~%")))
+(defmethod tableize (stream component &optional relative-to)
+  (when (component-version component)
+    (format stream "@item Version~%~A~%"
+      (component-version component)))
+  ;; #### NOTE: currently, we simply extract all the dependencies regardless
+  ;; of the operations involved. We also assume that dependencies are of the
+  ;; form (OP (OP DEP...) ...), but I'm not sure this is always the case.
+  (let ((in-order-tos (slot-value component 'asdf::in-order-to))
+	dependencies)
+    (when in-order-tos
+      (dolist (in-order-to in-order-tos)
+	(dolist (op-dependency (cdr in-order-to))
+	  (dolist (dependency (cdr op-dependency))
+	    (pushnew dependency dependencies))))
+      (format stream "@item Dependencies~%~A~%"
+	(list-to-string
+	 (mapcar (lambda (dep) (format nil "@t{~A}" (string-downcase dep)))
+		 dependencies)))))
+  (when (component-parent component)
+    (format stream "@item Parent~%")
+    (index stream (component-parent component))
+    (format stream "@t{~A}~%"
+      (component-name (component-parent component))))
+  (if (eq (type-of component) 'asdf:system) ;; Yuck!
+      (when *link-components*
+	(format stream "@item Location~%@url{file://~A, ignore, ~A}~%"
+	  (component-pathname component)
+	  (component-pathname component))
+	(let ((directory (directory-namestring
+			  (system-definition-pathname component))))
+	  (format stream "@item Installation~%@url{file://~A, ignore, ~A}~%"
+	    directory directory)))
+    (let ((pathname (enough-namestring (component-pathname component)
+				       relative-to)))
+      (format stream "@item Location~%~:[@t{~;@url{file://~]~A}~%"
+	*link-components*
+	(if *link-components*
+	    (format nil "~A, ignore, ~A"
+	      (component-pathname component)
+	      pathname)
+	  pathname)))))
 
 
 ;;; component.lisp ends here

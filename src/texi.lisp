@@ -157,6 +157,21 @@
   (:documentation "Render an itemized description of ITEM oo STREAM."))
 
 
+;; ---------------------
+;; Tableization protocol
+;; ---------------------
+
+(defgeneric tableize (stream item &optional relative-to)
+  (:documentation "Render a tableized description of ITEM to STREAM.
+ITEM's location is displayed RELATIVE-TO when appropriate.")
+  (:method :before (stream item &optional relative-to)
+    (declare (ignore relative-to))
+    (format stream "@table @strong~%"))
+  (:method :after (stream component &optional relative-to)
+    (declare (ignore relative-to))
+    (format stream "@end table~%")))
+
+
 
 ;; ===========================================================================
 ;; Texinfo Node Implementation

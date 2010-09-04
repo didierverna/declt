@@ -103,6 +103,7 @@
 
 (defmethod tableize (stream (package package) &optional relative-to)
   "Describe PACKAGE's components."
+  (declare (ignore relative-to))
   (when (package-nicknames package)
     (format stream "@item Nicknames~%~A~%"
       (list-to-string
