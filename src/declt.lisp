@@ -318,10 +318,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 			  :before-menu-contents
 			  (pretty-texify (system-long-description system)))))
   (let ((*link-components* link-components))
-    (add-system-node   *top-node* system)
-    (add-modules-node  *top-node* system)
-    (add-files-node    *top-node* system)
-    (add-packages-node *top-node* system))
+    (add-system-node      *top-node* system)
+    (add-modules-node     *top-node* system)
+    (add-files-node       *top-node* system)
+    (add-packages-node    *top-node* system)
+    (add-definitions-node *top-node* system))
   (let ((indexes-node (add-child *top-node*
 				 (make-node :name "Indexes"
 					    :section-type :appendix))))

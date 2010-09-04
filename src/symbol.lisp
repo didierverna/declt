@@ -50,7 +50,7 @@
   "Return the class named by SYMBOL if any."
   (find-class symbol nil))
 
-(defun function-symbol-p (symbol)
+(defun fbound-symbol-p (symbol)
   "Return t if SYMBOL names a function."
   (fboundp symbol))
 
@@ -58,23 +58,23 @@
   "Return t if SYMBOL names a macro."
   (macro-function symbol))
 
-(defun ordinary-function-symbol-p (symbol)
+(defun function-symbol-p (symbol)
   "Return t if SYMBOL names an ordinary function."
   (and (fboundp symbol)
        (or (consp symbol) (not (macro-symbol-p symbol)))
        (not (typep (fdefinition symbol) 'standard-generic-function))))
 
-(defun generic-function-symbol-p (symbol)
+(defun generic-symbol-p (symbol)
   "Return t if SYMBOL names a generic function."
   (and (fboundp symbol)
        (typep (fdefinition symbol) 'standard-generic-function)))
 
 (defun symbol-needs-rendering (symbol)
   "Return t when SYMBOL needs to be documented."
-  (or (constantsymbol-p  symbol)
+  (or (constant-symbol-p symbol)
       (special-symbol-p  symbol)
       (class-symbol-p    symbol)
-      (function-symbol-p symbol)))
+      (fbound-symbol-p symbol)))
 
 
 
@@ -205,15 +205,6 @@
     ;; #### PORTME.
     (dolist (method (sb-mop:generic-function-methods (fdefinition symbol)))
       (render-method stream method))))
-
-(defun render-symbol (stream symbol)
-  "Render SYMBOL's documentation on STREAM."
-  (render-constant stream symbol)
-  (render-special  stream symbol)
-  (render-class    stream symbol)
-  (render-macro    stream symbol)
-  (render-function stream symbol)
-  (render-generic  stream symbol))
 
 
 ;;; symbol.lisp ends here

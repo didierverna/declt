@@ -136,8 +136,7 @@ Packages are listed by definition order."))))
 		    "Symbols are listed by lexicographic order."
 		    :after-menu-contents
 		    (with-output-to-string (str)
-		      (dolist (symbol external-symbols)
-			(render-symbol str symbol))))))
+		      (dolist (symbol external-symbols))))))
       (when internal-symbols
 	(add-child package-node
 		   (make-node
@@ -148,8 +147,7 @@ Packages are listed by definition order."))))
 		    "Symbols are listed by lexicographic order."
 		    :after-menu-contents
 		    (with-output-to-string (str)
-		      (dolist (symbol internal-symbols)
-			(render-symbol str symbol)))))))))
+		      (dolist (symbol internal-symbols)))))))))
 
 
 ;;; package.lisp ends here
