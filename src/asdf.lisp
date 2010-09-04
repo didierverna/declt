@@ -108,5 +108,19 @@
   "Return the type part of SYSTEM's definition file."
   (pathname-type (system-definition-pathname system)))
 
+(defun lisp-pathnames (system)
+  "Return the list of all Lisp source file pathnames.
+The list includes the system definition file."
+  (cons
+   ;; We want the .asd file source location, not the installation location.
+   (make-pathname :name (system-file-name system)
+		  :type (system-file-type system)
+		  :directory (pathname-directory (component-pathname system)))
+   (mapcar #'component-pathname (lisp-components system))))
+
+(defun system-packages (system)
+  "Return the list of packages defined in SYSTEM."
+  (remove-duplicates (mapcan #'file-packages (lisp-pathnames system))))
+
 
 ;;; asdf.lisp ends here

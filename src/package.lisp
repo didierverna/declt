@@ -35,22 +35,6 @@
 ;; Utilities
 ;; ==========================================================================
 
-;; We need to protect against read-time errors. Let's just hope that nothing
-;; fancy occurs in IN-PACKAGE or DEFPACKAGE.
-(defun safe-read (stream)
-  "Read once from STREAM protecting against errors."
-  (handler-case (read stream nil :eof)
-    (error ())))
-
-(defun file-packages (file)
-  "Return the list of all packages involved in FILE."
-  (with-open-file (stream file :direction :input)
-    (loop :for form := (safe-read stream) :then (safe-read stream)
-	  :until (eq form :eof)
-	  :if (and (consp form)
-		   (eq (car form) 'defpackage))
-	  :collect (find-package (cadr form)))))
-
 ;; #### FIXME: see how to handle shadowed symbols (not sure what happens with
 ;; the home package).
 (defun external-symbols (package &aux external-symbols)
@@ -126,15 +110,12 @@
 
 (defun add-packages-node
     (node system
-     &aux (files
-	   (cons (system-definition-pathname system)
-		 (mapcar #'component-pathname (lisp-components system))))
-	  (packages-node
+     &aux (packages-node
 	   (add-child node (make-node :name "Packages"
 				      :synopsis "The system's packages"
 				      :before-menu-contents (format nil "~
 Packages are listed by definition order."))))
-	  (packages (remove-duplicates (mapcan #'file-packages files))))
+	  (packages (system-packages system)))
   "Add SYSTEM's packages node to NODE."
   (dolist (package packages)
     (let ((package-node
