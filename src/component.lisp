@@ -64,12 +64,12 @@ online, and hence independent of any specific installation.")
 ;; Tableization protocol
 ;; ---------------------
 
-(defgeneric tableize (stream component relative-to)
+(defgeneric tableize (stream component &optional relative-to)
   (:documentation "Render a tableized description of COMPONENT to STREAM.
 COMPONENT's location is displayed RELATIVE-TO.")
-  (:method :before (stream component relative-to)
+  (:method :before (stream component &optional relative-to)
     (format stream "@table @strong~%"))
-  (:method (stream component relative-to)
+  (:method (stream component &optional relative-to)
     (when (component-version component)
       (format stream "@item Version~%~A~%"
 	(component-version component)))
@@ -110,7 +110,7 @@ COMPONENT's location is displayed RELATIVE-TO.")
 		(component-pathname component)
 		pathname)
 	    pathname)))))
-  (:method :after (stream component relative-to)
+  (:method :after (stream component &optional relative-to)
     (format stream "@end table~%")))
 
 

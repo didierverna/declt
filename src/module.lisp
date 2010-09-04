@@ -56,7 +56,7 @@
 ;; Tableization protocol
 ;; ---------------------
 
-(defmethod tableize (stream (module asdf:module) relative-to)
+(defmethod tableize (stream (module asdf:module) &optional relative-to)
   "Also describe MODULE's components."
   (call-next-method)
   (format stream "@item Components~%@itemize @bullet~%")

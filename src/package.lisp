@@ -101,7 +101,7 @@
 ;; Tableization protocol
 ;; ---------------------
 
-(defmethod tableize (stream (package package) relative-to)
+(defmethod tableize (stream (package package) &optional relative-to)
   "Describe PACKAGE's components."
   (when (package-nicknames package)
     (format stream "@item Nicknames~%~A~%"
@@ -144,7 +144,7 @@ Packages are listed by definition order."))))
 						  (package-name package)))
 				 :before-menu-contents
 				 (with-output-to-string (str)
-				   (tableize str package nil)))))
+				   (tableize str package)))))
 	  (external-symbols (external-symbols package))
 	  (internal-symbols (internal-symbols package)))
       (when external-symbols
