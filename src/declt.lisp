@@ -93,6 +93,12 @@ The ~A Reference Manual~@[, version ~A~].
 @c Indexing macros
 @c ---------------
 
+@c Packages
+@macro packageindex{name}
+@tpindex \\name\\
+@tpindex @r{Package, }\\name\\
+@end macro
+
 @c Modules
 @macro moduleindex{name}
 @cindex @t{\\name\\}

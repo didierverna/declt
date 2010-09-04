@@ -94,6 +94,7 @@ Packages are listed by definition order."))))
 						 (package-name package))
 				 :before-menu-contents
 				 (with-output-to-string (str)
+				   (index str package)
 				   (tableize str package)))))
 	  (external-symbols (package-external-symbols package))
 	  (internal-symbols (package-internal-symbols package)))
