@@ -66,7 +66,7 @@
   (@itemize (stream kind)
     (dolist (elt list)
       (format stream "@item~%")
-      (format stream format (funcall key elt))
+      (apply #'format stream format (multiple-value-list (funcall key elt)))
       (terpri stream))))
 
 (defmacro @defvr ((stream category name) &body body)
