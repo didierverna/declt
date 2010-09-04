@@ -37,6 +37,51 @@
 ;; Utilities
 ;; ==========================================================================
 
+(defun constant-symbol-p (symbol)
+  "Return t if SYMBOL names a constant."
+  (constantp symbol))
+
+(defun special-symbol-p (symbol)
+  "Return t if SYMBOL names a special variable."
+  ;; #### PORTME.
+  (eql (sb-int:info :variable :kind symbol) :special))
+
+(defun class-symbol-p (symbol)
+  "Return the class named by SYMBOL if any."
+  (find-class symbol nil))
+
+(defun function-symbol-p (symbol)
+  "Return t if SYMBOL names a function."
+  (fboundp symbol))
+
+(defun macro-symbol-p (symbol)
+  "Return t if SYMBOL names a macro."
+  (macro-function symbol))
+
+(defun ordinary-function-symbol-p (symbol)
+  "Return t if SYMBOL names an ordinary function."
+  (and (fboundp symbol)
+       (or (consp symbol) (not (macro-symbol-p symbol)))
+       (not (typep (fdefinition symbol) 'standard-generic-function))))
+
+(defun generic-function-symbol-p (symbol)
+  "Return t if SYMBOL names a generic function."
+  (and (fboundp symbol)
+       (typep (fdefinition symbol) 'standard-generic-function)))
+
+(defun symbol-needs-rendering (symbol)
+  "Return t when SYMBOL needs to be documented."
+  (or (constantsymbol-p  symbol)
+      (special-symbol-p  symbol)
+      (class-symbol-p    symbol)
+      (function-symbol-p symbol)))
+
+
+
+;; ==========================================================================
+;; Rendering Protocols
+;; ==========================================================================
+
 (defgeneric pretty-specializer (specializer)
   (:documentation "Returns a printable form for SPECIALIZER.")
   (:method (specializer)
@@ -77,23 +122,9 @@
 		     (t
 		      (write-string (symbol-name part) stream)))))))))
 
-(defun symbol-needs-rendering (symbol)
-  "Return t when SYMBOL needs to be documented."
-  (or (constantp symbol)
-      ;; #### PORTME.
-      (eql (sb-int:info :variable :kind symbol) :special)
-      (find-class symbol nil)
-      (fboundp symbol)))
-
-
-
-;; ==========================================================================
-;; Rendering Protocols
-;; ==========================================================================
-
 (defun render-constant (stream symbol)
   "Render SYMBOL as a constant on STREAM."
-  (when (constantp symbol)
+  (when (constant-symbol-p symbol)
     (@defconstant (stream (string-downcase symbol))
       (when (documentation symbol 'variable)
 	(write-string (pretty-texify (documentation symbol 'variable))
@@ -101,8 +132,7 @@
 
 (defun render-special (stream symbol)
   "Render SYMBOL as a special variable on STREAM."
-  ;; #### PORTME.
-  (when (eql (sb-int:info :variable :kind symbol) :special)
+  (when (special-symbol-p symbol)
     (@defspecial (stream (string-downcase symbol))
       (when (documentation symbol 'variable)
 	(write-string (pretty-texify (documentation symbol 'variable))
@@ -110,7 +140,7 @@
 
 (defun render-class (stream symbol)
   "Render SYMBOL as a class on STREAM."
-  (let ((class (find-class symbol nil)))
+  (let ((class (class-symbol-p symbol)))
     (when class
       (@deftp (stream
 	       ;; #### PORTME.
@@ -126,7 +156,7 @@
 
 (defun render-macro (stream symbol)
   "Render SYMBOL as a macro on STREAM."
-  (when (macro-function symbol)
+  (when (macro-symbol-p symbol)
     (@defmac (stream
 	      (string-downcase symbol)
 	      ;; #### PORTME.
@@ -136,11 +166,8 @@
 		      stream)))))
 
 (defun render-function (stream symbol)
-  "Render SYMBOL as a function on STREAM."
-  (when (and (fboundp symbol)
-	     (or (consp symbol)
-		 (not (macro-function symbol)))
-	     (not (typep (fdefinition symbol) 'standard-generic-function)))
+  "Render SYMBOL as an ordinary function on STREAM."
+  (when (ordinary-function-symbol-p symbol)
     (@defun (stream
 	     (string-downcase symbol)
 	     ;; #### PORTME.
@@ -167,8 +194,7 @@
 
 (defun render-generic (stream symbol)
   "Render SYMBOL as a generic function on STREAM."
-  (when (and (fboundp symbol)
-	     (typep (fdefinition symbol) 'generic-function))
+  (when (generic-function-symbol-p symbol)
     (@defgeneric (stream
 		  (string-downcase symbol)
 		  ;; #### PORTME.
