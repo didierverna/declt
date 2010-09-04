@@ -43,14 +43,6 @@
   (format stream "@packageindex{~(~A~)}@c~%" (package-name package)))
 
 
-;; --------------------
-;; Itemization protocol
-;; --------------------
-
-(defmethod itemize (stream (package package))
-  (write-string "package" stream))
-
-
 ;; ---------------------
 ;; Tableization protocol
 ;; ---------------------

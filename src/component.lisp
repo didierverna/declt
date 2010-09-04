@@ -50,14 +50,15 @@ online, and hence independent of any specific installation.")
 ;; Itemization protocol
 ;; --------------------
 
-(defmethod itemize :before (stream (component asdf:component))
-  (format stream "@item~%")
-  (index stream component)
-  (format stream "@t{~A} ("
-    (component-name component)))
-
-(defmethod itemize :after (stream (component asdf:component))
-  (format stream "~@[, version ~A~])~%" (component-version component)))
+(defgeneric itemize (stream component)
+  (:documentation "Render an itemized description of COMPONENT on STREAM.")
+  (:method :before (stream (component asdf:component))
+    (format stream "@item~%")
+    (index stream component)
+    (format stream "@t{~A} ("
+      (component-name component)))
+  (:method :after (stream (component asdf:component))
+    (format stream "~@[, version ~A~])~%" (component-version component))))
 
 
 ;; ---------------------

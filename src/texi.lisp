@@ -149,14 +149,6 @@
   (:documentation "Render an index command for ITEM on STREAM."))
 
 
-;; --------------------
-;; Itemization protocol
-;; --------------------
-
-(defgeneric itemize (stream item)
-  (:documentation "Render an itemized description of ITEM oo STREAM."))
-
-
 ;; ---------------------
 ;; Tableization protocol
 ;; ---------------------
