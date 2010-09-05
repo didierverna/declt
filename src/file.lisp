@@ -43,22 +43,28 @@
 ;; -----------------
 
 (defmethod index ((cl-source-file asdf:cl-source-file))
-  (format t "@lispfileindex{~A}@c~%" (component-name cl-source-file)))
+  (format t "@lispfileindex{~A}@c~%"
+    (escape (component-name cl-source-file))))
 
 (defmethod index ((c-source-file asdf:c-source-file))
-  (format t "@cfileindex{~A}@c~%" (component-name c-source-file)))
+  (format t "@cfileindex{~A}@c~%"
+    (escape (component-name c-source-file))))
 
 (defmethod index ((java-source-file asdf:java-source-file))
-  (format t "@javafileindex{~A}@c~%" (component-name java-source-file)))
+  (format t "@javafileindex{~A}@c~%"
+    (escape (component-name java-source-file))))
 
 (defmethod index ((static-file asdf:static-file))
-  (format t "@otherfileindex{~A}@c~%" (component-name static-file)))
+  (format t "@otherfileindex{~A}@c~%"
+    (escape (component-name static-file))))
 
 (defmethod index ((doc-file asdf:doc-file))
-  (format t "@docfileindex{~A}@c~%" (component-name doc-file)))
+  (format t "@docfileindex{~A}@c~%"
+    (escape (component-name doc-file))))
 
 (defmethod index ((html-file asdf:html-file))
-  (format t "@htmlfileindex{~A}@c~%" (component-name html-file)))
+  (format t "@htmlfileindex{~A}@c~%"
+    (escape (component-name html-file))))
 
 
 ;; --------------------
@@ -91,8 +97,8 @@
 
 (defun file-node (file relative-to)
   "Create and return a FILE node."
-  (make-node :name (format nil "The ~A file" (component-name file))
-	     :section-name (format nil "@t{~A}" (component-name file))
+  (make-node :name (format nil "The ~A file" (escape (component-name file)))
+	     :section-name (format nil "@t{~A}" (escape (component-name file)))
 	     :before-menu-contents
 	     (render-to-string (document file relative-to))))
 
@@ -121,12 +127,14 @@ components tree."))))
   "Add SYSTEM's files node to NODE."
   (add-child lisp-files-node
 	     (make-node :name
-			(format nil "The ~A file" (system-file-name system))
+			(format nil "The ~A file"
+			  (escape (system-file-name system)))
 			:section-name
-			(format nil "@t{~A}" (system-file-name system))
+			(format nil "@t{~A}"
+			  (escape (system-file-name system)))
 			:before-menu-contents
 			(render-to-string
-			 (let ((file (system-base-name system)))
+			 (let ((file (escape (system-base-name system))))
 			   (format t "@lispfileindex{~A}@c~%" file)
 			   (format t "@table @strong~%")
 			   (format t
@@ -134,11 +142,14 @@ components tree."))))
 			     *link-components*
 			     (if *link-components*
 				 (format nil "~A, ignore, ~A"
-				   (make-pathname
-				    :name (system-file-name system)
-				    :type (system-file-type system)
-				    :directory (pathname-directory
-						(component-pathname system)))
+				   (escape
+				    (format nil "~A"
+				      (make-pathname
+				       :name (system-file-name system)
+				       :type (system-file-type system)
+				       :directory
+				       (pathname-directory
+					(component-pathname system)))))
 				   file)
 			       file)))
 			 (format t "@end table~%"))))

@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Wed Sep  1 16:04:00 2010
-;; Last Revision: Sun Sep  5 20:55:38 2010
+;; Last Revision: Sun Sep  5 21:54:36 2010
 
 ;; This file is part of Declt.
 
@@ -42,7 +42,7 @@
 ;; -----------------
 
 (defmethod index ((package package))
-  (format t "@packageindex{~(~A~)}@c~%" (package-name package)))
+  (format t "@packageindex{~(~A~)}@c~%" (escape (package-name package))))
 
 
 ;; --------------------
@@ -50,7 +50,7 @@
 ;; --------------------
 
 (defmethod reference ((package package))
-  (format t "@t{~(~A~)}" (package-name package)))
+  (format t "@t{~(~A~)}" (escape (package-name package))))
 
 
 ;; ----------------------
@@ -61,12 +61,15 @@
   (declare (ignore relative-to))
   (when (package-nicknames package)
     (format t "@item Nicknames~%")
-    (@itemize-list (package-nicknames package) :format "@t{~(~A~)}"))
+    (@itemize-list (package-nicknames package)
+      :format "@t{~(~A~)}"
+      :key #'escape))
   (when (package-use-list package)
     (format t "@item Use List~%")
     (@itemize-list (package-use-list package)
       :format "@t{~(~A~)}"
-      :key #'package-name)))
+      :key (lambda (package)
+	     (escape (package-name package))))))
 
 
 
@@ -86,9 +89,10 @@ Packages are listed by definition order."))))
   (dolist (package packages)
     (let ((package-node
 	   (add-child packages-node
-		      (make-node :name (package-name package)
-				 :section-name (format nil "@t{~(~A~)}"
-						 (package-name package))
+		      (make-node :name (escape (package-name package))
+				 :section-name
+				 (format nil "@t{~(~A~)}"
+				   (escape (package-name package)))
 				 :before-menu-contents
 				 (render-to-string (document package)))))
 	  (external-symbols (package-external-symbols package))
@@ -97,7 +101,7 @@ Packages are listed by definition order."))))
 	(add-child package-node
 		   (make-node
 		    :name (format nil "@t{~(~A~)} External Symbols"
-			    (package-name package))
+			    (escape (package-name package)))
 		    :section-name "External Symbols"
 		    :before-menu-contents
 		    "Symbols are listed by lexicographic order."
@@ -107,7 +111,7 @@ Packages are listed by definition order."))))
 	(add-child package-node
 		   (make-node
 		    :name (format nil "@t{~(~A~)} Internal Symbols"
-			    (package-name package))
+			    (escape (package-name package)))
 		    :section-name "Internal Symbols"
 		    :before-menu-contents
 		    "Symbols are listed by lexicographic order."

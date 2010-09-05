@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Sat Sep  4 15:27:31 2010
-;; Last Revision: Sun Sep  5 20:52:17 2010
+;; Last Revision: Sun Sep  5 21:49:36 2010
 
 ;; This file is part of Declt.
 
@@ -54,7 +54,7 @@
 			    (format nil "~@(~A~) ~A from the ~(~A~) package"
 			      location
 			      (third (assoc category +categories+))
-			      (package-name package))
+			      (escape (package-name package)))
 			    :section-name
 			    (format nil "~@(~A~)"
 			      (third (assoc category +categories+)))
@@ -80,7 +80,7 @@ LOCATION is either :external or :internal."
 			(make-node :name (format nil "~
 ~@(~A~) definitions from the ~(~A~) package"
 					   location
-					   (package-name package))
+					   (escape (package-name package)))
 				   :section-name (format nil "~
 ~:(~A~) definitions"
 						   location)))))
@@ -103,9 +103,9 @@ lexicographic order."))))
 	   (add-child definitions-node
 		      (make-node
 		       :name (format nil "Definitions from the ~(~A~) package"
-			       (package-name package))
+			       (escape (package-name package)))
 		       :section-name (format nil "From the ~(@t{~A}~) package"
-				       (package-name package))))))
+				       (escape (package-name package)))))))
       (dolist (location '(:external :internal))
 	(add-location-node package-node location package)))))
 

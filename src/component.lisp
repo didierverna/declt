@@ -55,8 +55,8 @@ online, and hence independent of any specific installation.")
 
 (defmethod reference ((component asdf:component))
   (format t "@t{~A} ~@[, version ~A~] (~A)~%"
-    (component-name component)
-    (component-version component)
+    (escape (component-name component))
+    (escape (component-version component))
     (component-type-name component)))
 
 
@@ -65,7 +65,7 @@ online, and hence independent of any specific installation.")
 ;; ----------------------
 
 (defmethod document ((component asdf:component) &optional relative-to)
-  (format t "~@[@item Version~%~A~%~]" (component-version component))
+  (format t "~@[@item Version~%~A~%~]" (escape (component-version component)))
   ;; #### NOTE: currently, we simply extract all the dependencies regardless
   ;; of the operations involved. We also assume that dependencies are of the
   ;; form (OP (OP DEP...) ...), but I'm not sure this is always the case.
@@ -77,17 +77,20 @@ online, and hence independent of any specific installation.")
 	  (dolist (dependency (cdr op-dependency))
 	    (pushnew dependency dependencies))))
       (format t "@item Dependencies~%")
-      (@itemize-list dependencies :format "@t{~(~A}~)")))
+      (@itemize-list dependencies
+	:format "@t{~(~A}~)"
+	:key (lambda (dependency) (escape (format nil "~A" dependency))))))
   (when (component-parent component)
     (format t "@item Parent~%")
     (index (component-parent component))
-    (format t "@t{~A}~%" (component-name (component-parent component))))
+    (format t "@t{~A}~%"
+      (escape (component-name (component-parent component)))))
   (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
 	 (when *link-components*
 	   (format t "@item Location~%@url{file://~A, ignore, ~A}~%"
-	     (component-pathname component)
-	     (component-pathname component)))
-	 (let ((pathname (system-base-name component)))
+	     (escape (format nil "~A" (component-pathname component)))
+	     (escape (format nil "~A" (component-pathname component)))))
+	 (let ((pathname (escape (system-base-name component))))
 	   (format t "@item System File~%~
 		      @lispfileindex{~A}@c~%~
 		      ~:[@t{~;@url{file://~]~A}~%"
@@ -95,22 +98,24 @@ online, and hence independent of any specific installation.")
 	     *link-components*
 	     (if *link-components*
 		 (format nil "~A, ignore, ~A"
-		   (component-pathname component)
+		   (escape (format nil "~A" (component-pathname component)))
 		   pathname)
 	       pathname)))
 	 (when *link-components*
-	   (let ((directory (directory-namestring
-			     (system-definition-pathname component))))
+	   (let ((directory (escape
+			     (directory-namestring
+			      (system-definition-pathname component)))))
 	     (format t "@item Installation~%@url{file://~A, ignore, ~A}~%"
 	       directory directory))))
 	(t
-	 (let ((pathname (enough-namestring (component-pathname component)
-					    relative-to)))
+	 (let ((pathname (escape (enough-namestring
+				  (component-pathname component)
+				  relative-to))))
 	   (format t "@item Location~%~:[@t{~;@url{file://~]~A}~%"
 	     *link-components*
 	     (if *link-components*
 		 (format nil "~A, ignore, ~A"
-		   (component-pathname component)
+		   (escape (format nil "~A" (component-pathname component)))
 		   pathname)
 	       pathname))))))
 

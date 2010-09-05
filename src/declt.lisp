@@ -251,8 +251,8 @@ version ~A on ~A.
 		   (copyright-date nil copyright-date-p)
 		   (link-components *link-components*)
 	      &aux (system (find-system system-name))
-		   (texi-name (file-namestring texi-file))
-		   (current-time-string (current-time-string)))
+		   (texi-name (escape (file-namestring texi-file)))
+		   (current-time-string (escape (current-time-string))))
   "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
 - LIBRARY-NAME defaults to SYSTEM-NAME.
 - TEXI-FILE is the full path to the Texinfo file.
@@ -263,6 +263,8 @@ version ~A on ~A.
 - VERSION defaults to the system version.
 - AUTHOR and EMAIL are extracted from the system author.
 - COPYRIGHT-DATE defaults to the current year."
+  (setq library-name (escape library-name))
+  (setq info-file (escape info-file))
   (unless subtitlep
     (setq subtitle (system-description system)))
   (when subtitle
@@ -271,17 +273,25 @@ version ~A on ~A.
     (setq subtitle (escape subtitle)))
   (unless versionp
     (setq version (component-version system)))
+  (when version
+    (setq version (escape version)))
   (multiple-value-bind (system-author system-email)
       (parse-author-string (system-author system))
     (unless authorp
       (setq author system-author))
-    (setq email (escape (if emailp email system-email))))
+    (when author
+      (setq author (escape author)))
+    (setq email (if emailp email system-email)))
+  (when email
+    (setq email (escape email)))
   (unless copyright-date-p
     (setq copyright-date
 	  (multiple-value-bind (second minute hour date month year)
 	      (get-decoded-time)
 	    (declare (ignore second minute hour date month))
-	    year)))
+	    (format nil "~A" year))))
+  (when copyright-date
+    (setq copyright-date (escape copyright-date)))
   (setq *top-node*
 	(make-node :name "Top"
 		   :section-name (format nil "The ~A Reference Manual"
@@ -293,7 +303,7 @@ generated automatically by Declt version ~A
 on ~A."
 					   library-name
 					   version
-					   (version :long)
+					   (escape (version :long))
 					   current-time-string)
 		   :after-menu-contents "@insertcopying"))
   (add-child *top-node*

@@ -4,9 +4,6 @@
 ASDF maintains dependencies as a list of names only, so this makes it harder
 to find the corresponding component.
 
-* Texify all strings
-this must include symbol names for instance.
-
 * Cleanup the indexes
 Files should be indexed with extension and relative path to avoid collisions.
 

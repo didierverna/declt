@@ -44,7 +44,7 @@
 
 (defmethod document ((system asdf:system) &optional relative-to)
   (declare (ignore relative-to))
-  (format t "@item Name~%@t{~A}~%" (component-name system))
+  (format t "@item Name~%@t{~A}~%" (escape (component-name system)))
   (when (system-description system)
     (format t "@item Description~%")
     (render-string (system-description system)))
@@ -55,13 +55,13 @@
       (parse-author-string (system-author system))
     (when (or author email)
       (format t "@item Author~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-	author (and author email) (escape email))))
+	(escape author) (and author email) (escape email))))
   (multiple-value-bind (maintainer email)
       (parse-author-string (system-maintainer system))
     (when (or maintainer email)
       (format t "@item Maintainer~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-	maintainer (and maintainer email) (escape email))))
-  (format t "~@[@item License~%~A~%~]" (system-license system))
+	(escape maintainer) (and maintainer email) (escape email))))
+  (format t "~@[@item License~%~A~%~]" (escape (system-license system)))
   (call-next-method)
   (format t "@item Packages~%")
   (@itemize-list (system-packages system) :renderer #'reference))
