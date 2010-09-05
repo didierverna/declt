@@ -41,29 +41,27 @@
 ;; Indexing protocol
 ;; -----------------
 
-(defmethod index (stream (module asdf:module))
-  (format stream "@moduleindex{~A}@c~%" (component-name module)))
+(defmethod index ((module asdf:module))
+  (format t "@moduleindex{~A}@c~%" (component-name module)))
+
 
 ;; --------------------
-;; Itemization protocol
+;; Referencing protocol
 ;; --------------------
 
-(defmethod itemize (stream (module asdf:module))
-  (write-string "module" stream))
+(defmethod component-type-name ((module asdf:module))
+  "module")
 
 
-;; ---------------------
-;; Tableization protocol
-;; ---------------------
+;; ----------------------
+;; Documentation protocol
+;; ----------------------
 
-(defmethod document (stream (module asdf:module) &optional relative-to)
-  "Also describe MODULE's components."
+(defmethod document ((module asdf:module) &optional relative-to)
   (declare (ignore relative-to))
   (call-next-method)
-  (format stream "@item Components~%@itemize @bullet~%")
-  (dolist (component (asdf:module-components module))
-    (itemize stream component))
-  (format stream "@end itemize~%"))
+  (format t "@item Components~%")
+  (@itemize-list (asdf:module-components module) :renderer #'reference))
 
 
 
@@ -75,9 +73,8 @@
   "Create and return a MODULE node."
   (make-node :name (format nil "The ~A module" (component-name module))
 	     :section-name (format nil "@t{~A}" (component-name module))
-	     :before-menu-contents (with-output-to-string (str)
-				     (index str module)
-				     (document str module relative-to))))
+	     :before-menu-contents (with-output-to-string (*standard-output*)
+				     (document module relative-to))))
 
 (defun add-modules-node
     (node system &aux (system-directory (system-directory system))

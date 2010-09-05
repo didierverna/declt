@@ -54,103 +54,136 @@
 	    :do (progn (write-char #\@) (write-char #\*))
 	  :do (write-char char))))
 
-(defmacro @itemize ((stream &optional (kind :@bullet)) &body body)
-  "Execute BODY in an @itemize KIND environment."
+(defun render-documentation (symbol type)
+  "Render SYMBOL's TYPE documentation."
+  (render-string (documentation symbol type)))
+
+;; Hacked from Edi Weitz's write-lambda-list* in documentation-template.
+(defun render-lambda-list (lambda-list &optional specializers)
+  "Render LAMBDA-LIST."
+  (let ((firstp t)
+	after-required-args-p)
+    (dolist (part lambda-list)
+      (when (and (consp part) after-required-args-p)
+	(setq part (first part)))
+      (unless firstp
+	(write-char #\Space))
+      (setq firstp nil)
+      (cond ((consp part)
+	     (write-char #\()
+	     (render-lambda-list part)
+	     (write-char #\)))
+	    ((member part '(&optional &rest &key &allow-other-keys
+			    &aux &environment &whole &body))
+	     (setq after-required-args-p t)
+	     (format t "~(~A~)" part))
+	    (t
+	     (let ((specializer (pretty-specializer (pop specializers))))
+	       (if (and specializer (not (eq specializer t)))
+		   (format t "(~A @t{~(~A~)})" part specializer))
+	       (write-string (symbol-name part))))))))
+
+(defmacro @itemize ((&optional (kind :@bullet)) &body body)
+  "Render BODY in an @itemize KIND environment."
   `(progn
-    (format ,stream "@itemize ~(~A~)~%" ,kind)
+    (format t "@itemize ~(~A~)~%" ,kind)
     ,@body
-    (format ,stream "~&@end itemize~%")))
+    (format t "~&@end itemize~%")))
 
 (defun @itemize-list
-    (stream list &key (kind :@bullet) (format "~A") (key #'identity))
-  "Render every LIST element in an @itemize KIND environment."
-  (@itemize (stream kind)
+    (list &key renderer (kind :@bullet) (format "~A") (key #'identity))
+  "Render every LIST element in an @itemize KIND environment.
+- If RENDERER is non-nil, it is a function of one argument (every LIST
+  element) that performs the rendering directly. Otherwise, FORMAT is used.
+- FORMAT is the format string to use when RENDERER is null.
+- KEY is the function used to provide FORMAT with the necessary arguments.
+  Multiple arguments should be returned as multiple values."
+  (@itemize (kind)
     (dolist (elt list)
-      (format stream "@item~%")
-      (apply #'format stream format (multiple-value-list (funcall key elt)))
-      (terpri stream))))
+      (format t "~&@item~%")
+      (if renderer
+	  (funcall renderer elt)
+	(apply #'format t format (multiple-value-list (funcall key elt)))))))
 
-(defmacro @defvr ((stream category name) &body body)
-  "Execute BODY in a @defvr environment."
+(defmacro @defvr (category name &body body)
+  "Render BODY in a @defvr {CATEGORY} NAME environment."
   `(progn
-    (format ,stream "@defvr {~A} ~A~%" ,category ,name)
+    (format t "@defvr {~A} ~A~%" ,category ,name)
     ,@body
-    (format ,stream "~&@end defvr~%")))
+    (format t "~&@end defvr~%")))
 
-(defmacro @defconstant ((stream name) &body body)
-  "Execute BODY withing a @defvr {Constant} environment."
-  `(@defvr (,stream "Constant" ,name) ,@body))
+(defmacro @defconstant (name &body body)
+  "Render BODY in a @defvr {Constant} NAME environment."
+  `(@defvr "Constant" ,name ,@body))
 
-(defmacro @defspecial ((stream name) &body body)
-  "Execute BODY withing a @defvr {Special Variable} environment."
-  `(@defvr (,stream "Special Variable" ,name) ,@body))
+(defmacro @defspecial (name &body body)
+  "Render BODY in a @defvr {Special Variable} NAME environment."
+  `(@defvr "Special Variable" ,name ,@body))
 
-(defmacro @defmac ((stream name lambda-list) &body body)
-  "Execute BODY withing a @defmac environment."
+(defmacro @defmac (name lambda-list &body body)
+  "Render BODY in a @defmac NAME LAMBDA-LIST environment."
   (let ((the-name (gensym "name")))
     `(let ((,the-name ,name))
-      (format ,stream "@defmac ~A " ,the-name)
-      (render-lambda-list ,stream ,lambda-list)
-      (terpri ,stream)
-      (format ,stream "@findex @r{Macro, }~A~%" ,the-name)
+      (format t "@defmac ~A " ,the-name)
+      (render-lambda-list ,lambda-list)
+      (terpri)
+      (format t "@findex @r{Macro, }~A~%" ,the-name)
       ,@body
-      (format ,stream "~&@end defmac~%"))))
+      (format t "~&@end defmac~%"))))
 
-(defmacro @defun ((stream name lambda-list) &body body)
-  "Execute BODY withing a @defun environment."
+(defmacro @defun (name lambda-list &body body)
+  "Render BODY in a @defun NAME LAMBDA-LIST environment."
   (let ((the-name (gensym "name")))
     `(let ((,the-name ,name))
-      (format ,stream "@defun ~A " ,the-name)
-      (render-lambda-list ,stream ,lambda-list)
-      (terpri ,stream)
-      (format ,stream "@findex @r{Function, }~A~%" ,the-name)
+      (format t "@defun ~A " ,the-name)
+      (render-lambda-list ,lambda-list)
+      (terpri)
+      (format t "@findex @r{Function, }~A~%" ,the-name)
       ,@body
-      (format ,stream "~&@end defun~%"))))
+      (format t "~&@end defun~%"))))
 
-(defmacro @deffn
-    ((stream category name lambda-list &optional specializers qualifiers)
-     &body body)
-  "Execute BODY withing a @defun environment."
+(defmacro @deffn ((category name lambda-list &optional specializers qualifiers)
+		  &body body)
+  "Render BODY in a @deffn CATEGORY NAME LAMBDA-LIST environment."
   (let ((the-name (gensym "name")))
     `(let ((,the-name ,name))
-      (format ,stream "@deffn {~A} ~A " ,category ,the-name)
-      (render-lambda-list ,stream ,lambda-list ,specializers)
-      (format ,stream "~(~{ @t{~S}~^~}~)~%" ,qualifiers)
-      (terpri ,stream)
-      (format ,stream "@findex @r{~A, }~A~%" ,category ,the-name)
+      (format t "@deffn {~A} ~A " ,category ,the-name)
+      (render-lambda-list ,lambda-list ,specializers)
+      (format t "~(~{ @t{~S}~^~}~)~%" ,qualifiers)
+      (format t "@findex @r{~A, }~A~%" ,category ,the-name)
       ,@body
-      (format ,stream "~&@end deffn~%"))))
+      (format t "~&@end deffn~%"))))
 
-(defmacro @defgeneric ((stream name lambda-list) &body body)
-  "Execute BODY withing a @deffn {Generic Function} environment."
-  `(@deffn (,stream "Generic Function" ,name ,lambda-list) ,@body))
-
-(defmacro @defmethod
-    ((stream name lambda-list specializers qualifiers) &body body)
-  "Execute BODY withing a @deffn {Method} environment."
-  `(@deffn (,stream "Method" ,name ,lambda-list ,specializers ,qualifiers)
+(defmacro @defgeneric (name lambda-list &body body)
+  "Render BODY in a @deffn {Generic Function} NAME LAMBDA-LIST environment."
+  `(@deffn ("Generic Function" ,name ,lambda-list)
     ,@body))
 
-(defmacro @deftp ((stream category name) &body body)
-  "Execute BODY withing a @deftp environment."
+(defmacro @defmethod (name lambda-list specializers qualifiers &body body)
+  "Render BODY in a @deffn {Method} NAME LAMBDA-LIST environment."
+  `(@deffn ("Method" ,name ,lambda-list ,specializers ,qualifiers)
+    ,@body))
+
+(defmacro @deftp (category name &body body)
+  "Render BODY in a @deftp {CATEGORY} NAME environment."
   (let ((the-name (gensym "name")))
     `(let ((,the-name ,name))
-      (format ,stream "@deftp {~A} ~A~%" ,category ,the-name)
-      (format ,stream "@tpindex @r{~A, }~A~%" ,category ,the-name)
+      (format t "@deftp {~A} ~A~%" ,category ,the-name)
+      (format t "@tpindex @r{~A, }~A~%" ,category ,the-name)
       ,@body
-      (format ,stream "~&@end deftp~%"))))
+      (format t "~&@end deftp~%"))))
 
-(defmacro @defstruct ((stream name) &body body)
-  "Execute BODY withing a @deftp {Structure} environment."
-  `(@deftp (,stream "Structure" ,name) ,@body))
+(defmacro @defstruct (name &body body)
+  "Render BODY in a @deftp {Structure} NAME environment."
+  `(@deftp "Structure" ,name ,@body))
 
-(defmacro @defcond ((stream name) &body body)
-  "Execute BODY withing a @deftp {Condition} environment."
-  `(@deftp (,stream "Condition" ,name) ,@body))
+(defmacro @defcond (name &body body)
+  "Render BODY in a @deftp {Condition} NAME environment."
+  `(@deftp "Condition" ,name ,@body))
 
-(defmacro @defclass ((stream name) &body body)
-  "Execute BODY withing a @deftp {Class} environment."
-  `(@deftp (,stream "Class" ,name) ,@body))
+(defmacro @defclass (name &body body)
+  "Render BODY in a @deftp {Class} NAME environment."
+  `(@deftp "Class" ,name ,@body))
 
 
 
@@ -162,23 +195,34 @@
 ;; Indexing protocol
 ;; -----------------
 
-(defgeneric index (stream item)
-  (:documentation "Render an index command for ITEM on STREAM."))
+(defgeneric index (item)
+  (:documentation "Render ITEM's indexing command."))
 
 
-;; ---------------------
-;; Tableization protocol
-;; ---------------------
+;; --------------------
+;; Referencing protocol
+;; --------------------
 
-(defgeneric document (stream item &optional relative-to)
-  (:documentation "Render ITEM's documentation to STREAM.
-ITEM's location is displayed RELATIVE-TO when appropriate.")
-  (:method :before (stream item &optional relative-to)
+(defgeneric reference (item)
+  (:documentation "Render ITEM's reference.")
+  (:method :before (item)
+    (index item)))
+
+
+;; ----------------------
+;; Documentation protocol
+;; ----------------------
+
+(defgeneric document (item &optional relative-to)
+  (:documentation "Render ITEM's documentation.
+ITEM's location is rendered RELATIVE-TO when appropriate.")
+  (:method :before (item &optional relative-to)
     (declare (ignore relative-to))
-    (format stream "@table @strong~%"))
-  (:method :after (stream component &optional relative-to)
+    (index item)
+    (format t "@table @strong~%"))
+  (:method :after (item &optional relative-to)
     (declare (ignore relative-to))
-    (format stream "@end table~%")))
+    (format t "@end table~%")))
 
 
 
@@ -286,18 +330,19 @@ ITEM's location is displayed RELATIVE-TO when appropriate.")
 
 
 ;;; Local Variables:
-;;; eval: (put '@defvr       'common-lisp-indent-function 1)
-;;; eval: (put '@defconstant 'common-lisp-indent-function 1)
-;;; eval: (put '@defspecial  'common-lisp-indent-function 1)
-;;; eval: (put '@defmac      'common-lisp-indent-function 1)
-;;; eval: (put '@defun       'common-lisp-indent-function 1)
-;;; eval: (put '@deffn       'common-lisp-indent-function 1)
-;;; eval: (put '@defgeneric  'common-lisp-indent-function 1)
-;;; eval: (put '@defmethod   'common-lisp-indent-function 1)
-;;; eval: (put '@deftp       'common-lisp-indent-function 1)
-;;; eval: (put '@defstruct   'common-lisp-indent-function 1)
-;;; eval: (put '@defcond     'common-lisp-indent-function 1)
-;;; eval: (put '@defclass    'common-lisp-indent-function 1)
+;;; eval: (put '@itemize-list 'common-lisp-indent-function 1)
+;;; eval: (put '@defvr        'common-lisp-indent-function 1)
+;;; eval: (put '@defconstant  'common-lisp-indent-function 1)
+;;; eval: (put '@defspecial   'common-lisp-indent-function 1)
+;;; eval: (put '@defmac       'common-lisp-indent-function 2)
+;;; eval: (put '@defun        'common-lisp-indent-function 2)
+;;; eval: (put '@deffn        'common-lisp-indent-function 3)
+;;; eval: (put '@defgeneric   'common-lisp-indent-function 2)
+;;; eval: (put '@defmethod    'common-lisp-indent-function 4)
+;;; eval: (put '@deftp        'common-lisp-indent-function 2)
+;;; eval: (put '@defstruct    'common-lisp-indent-function 1)
+;;; eval: (put '@defcond      'common-lisp-indent-function 1)
+;;; eval: (put '@defclass     'common-lisp-indent-function 1)
 ;;; End:
 
 ;;; texi.lisp ends here

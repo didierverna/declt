@@ -42,46 +42,46 @@
 ;; Indexing protocol
 ;; -----------------
 
-(defmethod index (stream (cl-source-file asdf:cl-source-file))
-  (format stream "@lispfileindex{~A}@c~%" (component-name cl-source-file)))
+(defmethod index ((cl-source-file asdf:cl-source-file))
+  (format t "@lispfileindex{~A}@c~%" (component-name cl-source-file)))
 
-(defmethod index (stream (c-source-file asdf:c-source-file))
-  (format stream "@cfileindex{~A}@c~%" (component-name c-source-file)))
+(defmethod index ((c-source-file asdf:c-source-file))
+  (format t "@cfileindex{~A}@c~%" (component-name c-source-file)))
 
-(defmethod index (stream (java-source-file asdf:java-source-file))
-  (format stream "@javafileindex{~A}@c~%" (component-name java-source-file)))
+(defmethod index ((java-source-file asdf:java-source-file))
+  (format t "@javafileindex{~A}@c~%" (component-name java-source-file)))
 
-(defmethod index (stream (static-file asdf:static-file))
-  (format stream "@otherfileindex{~A}@c~%" (component-name static-file)))
+(defmethod index ((static-file asdf:static-file))
+  (format t "@otherfileindex{~A}@c~%" (component-name static-file)))
 
-(defmethod index (stream (doc-file asdf:doc-file))
-  (format stream "@docfileindex{~A}@c~%" (component-name doc-file)))
+(defmethod index ((doc-file asdf:doc-file))
+  (format t "@docfileindex{~A}@c~%" (component-name doc-file)))
 
-(defmethod index (stream (html-file asdf:html-file))
-  (format stream "@htmlfileindex{~A}@c~%" (component-name html-file)))
+(defmethod index ((html-file asdf:html-file))
+  (format t "@htmlfileindex{~A}@c~%" (component-name html-file)))
 
 
 ;; --------------------
-;; Itemization protocol
+;; Referencing protocol
 ;; --------------------
 
-(defmethod itemize (stream (cl-source-file asdf:cl-source-file))
-  (write-string "Lisp file" stream))
+(defmethod component-type-name ((cl-source-file asdf:cl-source-file))
+  "Lisp file")
 
-(defmethod itemize (stream (c-source-file asdf:c-source-file))
-  (write-string "C file" stream))
+(defmethod component-type-name ((c-source-file asdf:c-source-file))
+  "C file")
 
-(defmethod itemize (stream (java-source-file asdf:java-source-file))
-  (write-string "Java file" stream))
+(defmethod component-type-name ((java-source-file asdf:java-source-file))
+  "Java file")
 
-(defmethod itemize (stream (static-file asdf:static-file))
-  (write-string "file" stream))
+(defmethod component-type-name ((static-file asdf:static-file))
+  "file")
 
-(defmethod itemize (stream (doc-file asdf:doc-file))
-  (write-string "doc file" stream))
+(defmethod component-type-name ((doc-file asdf:doc-file))
+  "doc file")
 
-(defmethod itemize (stream (html-file asdf:html-file))
-  (write-string "HTML file" stream))
+(defmethod component-type-name ((html-file asdf:html-file))
+  "HTML file")
 
 
 
@@ -93,9 +93,8 @@
   "Create and return a FILE node."
   (make-node :name (format nil "The ~A file" (component-name file))
 	     :section-name (format nil "@t{~A}" (component-name file))
-	     :before-menu-contents (with-output-to-string (str)
-				     (index str file)
-				     (document str file relative-to))))
+	     :before-menu-contents (with-output-to-string (*standard-output*)
+				     (document file relative-to))))
 
 (defun add-files-node
     (node system &aux (system-directory (system-directory system))
@@ -126,11 +125,11 @@ components tree."))))
 			:section-name
 			(format nil "@t{~A}" (system-file-name system))
 			:before-menu-contents
-			(with-output-to-string (str)
+			(with-output-to-string (*standard-output*)
 			  (let ((file (system-base-name system)))
-			    (format str "@lispfileindex{~A}@c~%" file)
-			    (format str "@table @strong~%")
-			    (format str
+			    (format t "@lispfileindex{~A}@c~%" file)
+			    (format t "@table @strong~%")
+			    (format t
 				"@item Location~%~:[@t{~;@url{file://~]~A}~%"
 			      *link-components*
 			      (if *link-components*
@@ -142,7 +141,7 @@ components tree."))))
 						 (component-pathname system)))
 				    file)
 				file)))
-			  (format str "@end table~%"))))
+			  (format t "@end table~%"))))
   (dolist (file lisp-files)
     (add-child lisp-files-node (file-node file system-directory)))
   (loop :with other-files-node

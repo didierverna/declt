@@ -78,6 +78,16 @@ STRING should look like \"NAME <EMAIL>\"."
 	  list
 	  :key key))
 
+(defgeneric pretty-specializer (specializer)
+  (:documentation "Returns a printable form for SPECIALIZER.")
+  (:method (specializer)
+    (or (ignore-errors (class-name specializer))
+	specializer))
+  ;; #### PORTME.
+  (:method ((specializer sb-mop:eql-specializer))
+    ;; #### PORTME.
+    `(eql ,(sb-mop:eql-specializer-object specializer))))
+
 
 
 ;; ==========================================================================

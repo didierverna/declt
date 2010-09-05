@@ -39,25 +39,31 @@
 ;; Indexing protocol
 ;; -----------------
 
-(defmethod index (stream (package package))
-  (format stream "@packageindex{~(~A~)}@c~%" (package-name package)))
+(defmethod index ((package package))
+  (format t "@packageindex{~(~A~)}@c~%" (package-name package)))
 
 
-;; ---------------------
-;; Tableization protocol
-;; ---------------------
+;; --------------------
+;; Referencing protocol
+;; --------------------
+(defmethod reference ((package package))
+  (format t "@t{~(~A~)}" (package-name package)))
 
-(defmethod document (stream (package package) &optional relative-to)
-  "Describe PACKAGE's components."
+
+;; ----------------------
+;; Documentation protocol
+;; ----------------------
+
+(defmethod document ((package package) &optional relative-to)
   (declare (ignore relative-to))
   (when (package-nicknames package)
-    (format stream "@item Nicknames~%")
-    (@itemize-list stream (package-nicknames package) :format "@t{~(~A~)}"))
+    (format t "@item Nicknames~%")
+    (@itemize-list (package-nicknames package) :format "@t{~(~A~)}"))
   (when (package-use-list package)
-    (format stream "@item Use List~%")
-    (@itemize-list stream (package-use-list package)
-		   :format "@t{~(~A~)}"
-		   :key #'package-name)))
+    (format t "@item Use List~%")
+    (@itemize-list (package-use-list package)
+      :format "@t{~(~A~)}"
+      :key #'package-name)))
 
 
 
@@ -81,9 +87,9 @@ Packages are listed by definition order."))))
 				 :section-name (format nil "@t{~(~A~)}"
 						 (package-name package))
 				 :before-menu-contents
-				 (with-output-to-string (str)
-				   (index str package)
-				   (document str package)))))
+				 (with-output-to-string (*standard-output*)
+				   (index package)
+				   (document package)))))
 	  (external-symbols (package-external-symbols package))
 	  (internal-symbols (package-internal-symbols package)))
       (when external-symbols
@@ -95,7 +101,7 @@ Packages are listed by definition order."))))
 		    :before-menu-contents
 		    "Symbols are listed by lexicographic order."
 		    :after-menu-contents
-		    (with-output-to-string (str)
+		    (with-output-to-string (*standard-output*)
 		      (dolist (symbol external-symbols))))))
       (when internal-symbols
 	(add-child package-node
@@ -106,7 +112,7 @@ Packages are listed by definition order."))))
 		    :before-menu-contents
 		    "Symbols are listed by lexicographic order."
 		    :after-menu-contents
-		    (with-output-to-string (str)
+		    (with-output-to-string (*standard-output*)
 		      (dolist (symbol internal-symbols)))))))))
 
 

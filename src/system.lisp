@@ -38,41 +38,34 @@
 ;; Rendering Protocols
 ;; ==========================================================================
 
-;; ---------------------
-;; Tableization protocol
-;; ---------------------
+;; ----------------------
+;; Documentation protocol
+;; ----------------------
 
-(defmethod document (stream (system asdf:system) &optional relative-to)
-  "Also describe SYSTEM's descriptions, author, maintainer and license."
+(defmethod document ((system asdf:system) &optional relative-to)
   (declare (ignore relative-to))
-  (format stream "@item Name~%@t{~A}~%" (component-name system))
+  (format t "@item Name~%@t{~A}~%" (component-name system))
   (when (system-description system)
-    (format stream "@item Description~%~A~%"
-      (with-output-to-string (*standard-output*)
-	(render-string (system-description system)))))
+    (format t "@item Description~%")
+    (render-string (system-description system)))
   (when (system-long-description system)
-    (format stream "@item Long Description~%~A~%"
-      (with-output-to-string (*standard-output*)
-	(render-string (system-long-description system)))))
+    (format t "@item Long Description~%")
+    (render-string (system-long-description system)))
   (multiple-value-bind (author email)
       (parse-author-string (system-author system))
     (when (or author email)
-      (format stream "@item Author~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
+      (format t "@item Author~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	author (and author email) (escape email))))
   (multiple-value-bind (maintainer email)
       (parse-author-string (system-maintainer system))
     (when (or maintainer email)
-      (format stream "@item Maintainer~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
+      (format t "@item Maintainer~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	maintainer (and maintainer email) (escape email))))
   (when (system-license system)
-    (format stream "@item License~%~A~%" (system-license system)))
+    (format t "@item License~%~A~%" (system-license system)))
   (call-next-method)
-  (format stream "@item Packages~%")
-  (@itemize-list stream (system-packages system)
-		 :format "~A@t{~(~A~)}"
-		 :key (lambda (package)
-			(values (index nil package)
-				(package-name package)))))
+  (format t "@item Packages~%")
+  (@itemize-list (system-packages system) :renderer #'reference))
 
 
 
@@ -85,8 +78,8 @@
   (make-node :name "System"
 	     :synopsis "The ASDF system documentation"
 	     :before-menu-contents
-	     (with-output-to-string (str)
-	       (document str system (system-directory system)))))
+	     (with-output-to-string (*standard-output*)
+	       (document system (system-directory system)))))
 
 (defun add-system-node (node system)
   "Add SYSTEM's system node to NODE."

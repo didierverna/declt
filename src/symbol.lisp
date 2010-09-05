@@ -37,123 +37,71 @@
 ;; Rendering Protocols
 ;; ==========================================================================
 
-(defgeneric pretty-specializer (specializer)
-  (:documentation "Returns a printable form for SPECIALIZER.")
-  (:method (specializer)
-    (or (ignore-errors (class-name specializer))
-	specializer))
-  ;; #### PORTME.
-  (:method ((specializer sb-mop:eql-specializer))
-    ;; #### PORTME.
-    `(eql ,(sb-mop:eql-specializer-object specializer))))
-
-;; Hacked from Edi Weitz's write-lambda-list* in documentation-template.
-(defun render-lambda-list (stream lambda-list &optional specializers)
-  "Render LAMBDA-LIST on STREAM."
-  (let ((firstp t)
-	after-required-args-p)
-    (dolist (part lambda-list)
-      (when (and (consp part) after-required-args-p)
-	(setq part (first part)))
-      (unless firstp
-	(write-char #\Space stream))
-      (setq firstp nil)
-      (cond ((consp part)
-	     ;; a destructuring lambda list - recurse
-	     (write-char #\( stream)
-	     (render-lambda-list stream part)
-	     (write-char #\) stream))
-	    ((member part '(&optional &rest &key &allow-other-keys
-			    &aux &environment &whole &body))
-	     (setq after-required-args-p t)
-	     (format stream "~(~A~)" part))
-	    (t
-	     (let ((specializer (pretty-specializer (pop specializers))))
-	       (cond ((and specializer (not (eq specializer t)))
-		      ;; add specializers if there are any left
-		      (format stream "(~A " part)
-		      (write-string (format nil " @t{~(~A~)})" specializer)
-				    stream))
-		     (t
-		      (write-string (symbol-name part) stream)))))))))
-
-(defun render-constant (stream symbol)
-  "Render SYMBOL as a constant on STREAM."
+(defun render-constant (symbol)
+  "Render SYMBOL as a constant."
   (when (constant-symbol-p symbol)
-    (@defconstant (stream (string-downcase symbol))
-      (let ((*standard-output* stream))
-	(render-string (documentation symbol 'variable))))))
+    (@defconstant (string-downcase symbol)
+      (render-documentation symbol 'variable))))
 
-(defun render-special (stream symbol)
-  "Render SYMBOL as a special variable on STREAM."
+(defun render-special (symbol)
+  "Render SYMBOL as a special variable."
   (when (special-symbol-p symbol)
-    (@defspecial (stream (string-downcase symbol))
-      (let ((*standard-output* stream))
-	(render-string (documentation symbol 'variable))))))
+    (@defspecial (string-downcase symbol)
+      (render-documentation symbol 'variable))))
 
-(defun render-class (stream symbol)
-  "Render SYMBOL as a class on STREAM."
+(defun render-class (symbol)
+  "Render SYMBOL as a class."
   (let ((class (class-symbol-p symbol)))
     (when class
-      (@deftp (stream
-	       ;; #### PORTME.
-	       (cond ((eq (class-of class) (find-class 'structure-class))
-		      "Structure")
-		     ((subtypep class 'condition)
-		      "Condition")
-		     (t "Class"))
-	       (string-downcase symbol))
-	(let ((*standard-output* stream))
-	  (render-string (documentation symbol 'type)))))))
+      ;; #### PORTME.
+      (@deftp (cond ((eq (class-of class) (find-class 'structure-class))
+		     "Structure")
+		    ((subtypep class 'condition)
+		     "Condition")
+		    (t "Class"))
+	  (string-downcase symbol)
+	(render-documentation symbol 'type)))))
 
-(defun render-macro (stream symbol)
-  "Render SYMBOL as a macro on STREAM."
+(defun render-macro (symbol)
+  "Render SYMBOL as a macro."
   (when (macro-symbol-p symbol)
-    (@defmac (stream
-	      (string-downcase symbol)
-	      ;; #### PORTME.
-	      (sb-introspect:function-lambda-list symbol))
-      (let ((*standard-output* stream))
-	(render-string (documentation symbol 'function))))))
+    (@defmac (string-downcase symbol)
+	;; #### PORTME.
+	(sb-introspect:function-lambda-list symbol)
+      (render-documentation symbol 'function))))
 
-(defun render-function (stream symbol)
-  "Render SYMBOL as an ordinary function on STREAM."
+(defun render-function (symbol)
+  "Render SYMBOL as an ordinary function."
   (when (function-symbol-p symbol)
-    (@defun (stream
-	     (string-downcase symbol)
-	     ;; #### PORTME.
-	     (sb-introspect:function-lambda-list symbol))
-      (let ((*standard-output* stream))
-	(render-string (documentation symbol 'function))))))
+    (@defun (string-downcase symbol)
+	;; #### PORTME.
+	(sb-introspect:function-lambda-list symbol))
+    (render-documentation symbol 'function)))
 
-(defun render-method (stream method)
-  "Render METHOD on STREAM."
-  (@defmethod (stream
-	       ;; #### PORTME:
-	       (string-downcase
-		(sb-mop:generic-function-name
-		 (sb-mop:method-generic-function method)))
-	       ;; #### PORTME.
-	       (sb-mop:method-lambda-list method)
-	       ;; #### PORTME.
-	       (sb-mop:method-specializers method)
-	       ;; #### PORTME.
-	       (sb-mop:method-qualifiers method))
-    (let ((*standard-output* stream))
-      (render-string (documentation method 't)))))
+(defun render-method (method)
+  "Render METHOD."
+  (@defmethod
+      ;; #### PORTME:
+      (string-downcase (sb-mop:generic-function-name
+			(sb-mop:method-generic-function method)))
+      ;; #### PORTME.
+      (sb-mop:method-lambda-list method)
+      ;; #### PORTME.
+      (sb-mop:method-specializers method)
+      ;; #### PORTME.
+      (sb-mop:method-qualifiers method)
+    (render-documentation method 't)))
 
-(defun render-generic (stream symbol)
-  "Render SYMBOL as a generic function on STREAM."
+(defun render-generic (symbol)
+  "Render SYMBOL as a generic function."
   (when (generic-symbol-p symbol)
-    (@defgeneric (stream
-		  (string-downcase symbol)
-		  ;; #### PORTME.
-		  (sb-introspect:function-lambda-list symbol))
-      (let ((*standard-output* stream))
-	(render-string (documentation symbol 'function))))
-    ;; #### PORTME.
-    (dolist (method (sb-mop:generic-function-methods (fdefinition symbol)))
-      (render-method stream method))))
+    (@defgeneric (string-downcase symbol)
+	;; #### PORTME.
+	(sb-introspect:function-lambda-list symbol)
+      (render-documentation symbol 'function)))
+  ;; #### PORTME.
+  (dolist (method (sb-mop:generic-function-methods (fdefinition symbol)))
+    (render-method method)))
 
 
 ;;; symbol.lisp ends here

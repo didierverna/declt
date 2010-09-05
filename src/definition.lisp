@@ -60,13 +60,13 @@
 			    (format nil "~@(~A~)"
 			      (third (assoc category +categories+)))
 			    :before-menu-contents
-			    (with-output-to-string (str)
+			    (with-output-to-string (*standard-output*)
 			      (dolist (definition definitions)
 				(funcall (fdefinition
 					  (intern
 					   (format nil "RENDER-~A" category)
 					   :com.dvlsoft.declt))
-					 str definition))))))))
+					 definition))))))))
 
 (defun add-location-node (parent location package)
   "Add PACKAGE's LOCATION node to PARENT.
