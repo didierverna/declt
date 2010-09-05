@@ -127,8 +127,9 @@ components tree."))))
 			(format nil "@t{~A}" (system-file-name system))
 			:before-menu-contents
 			(with-output-to-string (str)
-			  (format str "@table @strong~%")
 			  (let ((file (system-base-name system)))
+			    (format str "@lispfileindex{~A}@c~%" file)
+			    (format str "@table @strong~%")
 			    (format str
 				"@item Location~%~:[@t{~;@url{file://~]~A}~%"
 			      *link-components*
