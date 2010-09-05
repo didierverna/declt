@@ -79,10 +79,8 @@ online, and hence independent of any specific installation.")
 	(dolist (op-dependency (cdr in-order-to))
 	  (dolist (dependency (cdr op-dependency))
 	    (pushnew dependency dependencies))))
-      (format stream "@item Dependencies~%~A~%"
-	(list-to-string
-	 (mapcar (lambda (dep) (format nil "@t{~(~A}~)" dep))
-		 dependencies)))))
+      (format stream "@item Dependencies~%")
+      (@itemize-list stream dependencies :format "@t{~(~A}~)")))
   (when (component-parent component)
     (format stream "@item Parent~%")
     (index stream (component-parent component))
