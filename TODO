@@ -7,10 +7,7 @@ to find the corresponding component.
 * Texify all strings
 this must include symbol names for instance.
 
-* Cleanup rendering
-Every function that renders something should be called do-stuff, with a
-corresponding stuff function that just returns the string, no rendered onto
-any stream.
-
 * Cleanup the indexes
 Files should be indexed with extension and relative path to avoid collisions.
+
+* See about shadowed symbols
