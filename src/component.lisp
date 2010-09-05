@@ -94,7 +94,10 @@ online, and hence independent of any specific installation.")
 	     (component-pathname component)
 	     (component-pathname component)))
 	 (let ((pathname (system-base-name component)))
-	   (format stream "@item System File~%~:[@t{~;@url{file://~]~A}~%"
+	   (format stream "@item System File~%~
+			   @lispfileindex{~A}@c~%~
+			   ~:[@t{~;@url{file://~]~A}~%"
+	     pathname
 	     *link-components*
 	     (if *link-components*
 		 (format nil "~A, ignore, ~A"
