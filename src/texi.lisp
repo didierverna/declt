@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Tue Aug 24 11:48:19 2010
-;; Last Revision: Sun Sep  5 20:43:58 2010
+;; Last Revision: Sun Sep  5 21:36:08 2010
 
 ;; This file is part of Declt.
 
@@ -58,7 +58,7 @@
   "Render SYMBOL's TYPE documentation."
   (render-string (documentation symbol type)))
 
-;; Hacked from Edi Weitz's write-lambda-list* in documentation-template.
+;; Based on Edi Weitz's write-lambda-list* from documentation-template.
 (defun render-lambda-list (lambda-list &optional specializers)
   "Render LAMBDA-LIST."
   (let ((firstp t)
@@ -80,8 +80,10 @@
 	    (t
 	     (let ((specializer (pretty-specializer (pop specializers))))
 	       (if (and specializer (not (eq specializer t)))
-		   (format t "(~A @t{~(~A~)})" part specializer))
-	       (write-string (symbol-name part))))))))
+		   (format t "(~A @t{~(~A~)})"
+		     (escape (symbol-name part))
+		     (escape (format nil "~A" specializer)))
+		 (write-string (escape (symbol-name part))))))))))
 
 (defmacro @itemize ((&optional (kind :@bullet)) &body body)
   "Render BODY in an @itemize KIND environment."
@@ -108,7 +110,7 @@
 (defmacro @defvr (category name &body body)
   "Render BODY in a @defvr {CATEGORY} NAME environment."
   `(progn
-    (format t "@defvr {~A} ~A~%" ,category ,name)
+    (format t "@defvr {~A} ~A~%" (escape ,category) (escape ,name))
     ,@body
     (format t "~&@end defvr~%")))
 
@@ -123,7 +125,7 @@
 (defmacro @defmac (name lambda-list &body body)
   "Render BODY in a @defmac NAME LAMBDA-LIST environment."
   (let ((the-name (gensym "name")))
-    `(let ((,the-name ,name))
+    `(let ((,the-name (escape ,name)))
       (format t "@defmac ~A " ,the-name)
       (render-lambda-list ,lambda-list)
       (terpri)
@@ -134,7 +136,7 @@
 (defmacro @defun (name lambda-list &body body)
   "Render BODY in a @defun NAME LAMBDA-LIST environment."
   (let ((the-name (gensym "name")))
-    `(let ((,the-name ,name))
+    `(let ((,the-name (escape ,name)))
       (format t "@defun ~A " ,the-name)
       (render-lambda-list ,lambda-list)
       (terpri)
@@ -145,12 +147,15 @@
 (defmacro @deffn ((category name lambda-list &optional specializers qualifiers)
 		  &body body)
   "Render BODY in a @deffn CATEGORY NAME LAMBDA-LIST environment."
-  (let ((the-name (gensym "name")))
-    `(let ((,the-name ,name))
-      (format t "@deffn {~A} ~A " ,category ,the-name)
+  (let ((the-name (gensym "name"))
+	(the-category (gensym "category")))
+    `(let ((,the-name (escape ,name))
+	   (,the-category (escape ,category)))
+      (format t "@deffn {~A} ~A " ,the-category ,the-name)
       (render-lambda-list ,lambda-list ,specializers)
+      ;; #### FIXME: qualifiers not escaped !
       (format t "~(~{ @t{~S}~^~}~)~%" ,qualifiers)
-      (format t "@findex @r{~A, }~A~%" ,category ,the-name)
+      (format t "@findex @r{~A, }~A~%" ,the-category ,the-name)
       ,@body
       (format t "~&@end deffn~%"))))
 
@@ -166,10 +171,12 @@
 
 (defmacro @deftp (category name &body body)
   "Render BODY in a @deftp {CATEGORY} NAME environment."
-  (let ((the-name (gensym "name")))
-    `(let ((,the-name ,name))
-      (format t "@deftp {~A} ~A~%" ,category ,the-name)
-      (format t "@tpindex @r{~A, }~A~%" ,category ,the-name)
+  (let ((the-name (gensym "name"))
+	(the-category (gensym "category")))
+    `(let ((,the-name (escape ,name))
+	   (,the-category (escape ,category)))
+      (format t "@deftp {~A} ~A~%"  ,the-category ,the-name)
+      (format t "@tpindex @r{~A, }~A~%" ,the-category ,the-name)
       ,@body
       (format t "~&@end deftp~%"))))
 
