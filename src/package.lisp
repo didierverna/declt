@@ -51,17 +51,13 @@
   "Describe PACKAGE's components."
   (declare (ignore relative-to))
   (when (package-nicknames package)
-    (format stream "@item Nicknames~%~A~%"
-      (list-to-string
-       (mapcar (lambda (nickname)
-		 (format nil "@t{~(~A~)}" nickname))
-	       (package-nicknames package)))))
+    (format stream "@item Nicknames~%")
+    (@itemize-list stream (package-nicknames package) :format "@t{~(~A~)}"))
   (when (package-use-list package)
-    (format stream "@item Use List~%~A~%"
-      (list-to-string
-       (mapcar (lambda (package)
-		 (format nil "@t{~(~A~)}" (package-name package)))
-	       (package-use-list package))))))
+    (format stream "@item Use List~%")
+    (@itemize-list stream (package-use-list package)
+		   :format "@t{~(~A~)}"
+		   :key #'package-name)))
 
 
 
