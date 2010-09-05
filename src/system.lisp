@@ -48,20 +48,22 @@
   (format stream "@item Name~%@t{~A}~%" (component-name system))
   (when (system-description system)
     (format stream "@item Description~%~A~%"
-      (pretty-texify (system-description system))))
+      (with-output-to-string (*standard-output*)
+	(render-string (system-description system)))))
   (when (system-long-description system)
     (format stream "@item Long Description~%~A~%"
-      (pretty-texify (system-long-description system))))
+      (with-output-to-string (*standard-output*)
+	(render-string (system-long-description system)))))
   (multiple-value-bind (author email)
       (parse-author-string (system-author system))
     (when (or author email)
       (format stream "@item Author~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-	author (and author email) (texify email))))
+	author (and author email) (escape email))))
   (multiple-value-bind (maintainer email)
       (parse-author-string (system-maintainer system))
     (when (or maintainer email)
       (format stream "@item Maintainer~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-	maintainer (and maintainer email) (texify email))))
+	maintainer (and maintainer email) (escape email))))
   (when (system-license system)
     (format stream "@item License~%~A~%" (system-license system)))
   (call-next-method)

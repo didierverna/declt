@@ -38,20 +38,21 @@
 ;; Texinfo Rendering Routines
 ;; ===========================================================================
 
-(defun texify (string)
-  "Escape @ { and } characters for Texinfo format."
+(defun escape (string)
+  "Return STRING with @ { and } characters escaped."
   (when string
     (coerce (loop :for char :across string
 		  :if (member char '(#\@ #\{ #\})) :collect #\@
 		  :collect char)
 	    'string)))
 
-(defun pretty-texify (string)
-  "Attempt to embellish STRING for Texinfo format."
-  (coerce (loop :for char :across (texify string)
-		:if (char= char #\Newline) :collect #\@ :and :collect #\*
-		:collect char)
-	  'string))
+(defun render-string (string)
+  "Render STRING attempting to embellish the output."
+  (when string
+    (loop :for char :across (escape string)
+	  :if (char= char #\Newline)
+	    :do (progn (write-char #\@) (write-char #\*))
+	  :do (write-char char))))
 
 (defmacro @itemize ((stream &optional (kind :@bullet)) &body body)
   "Execute BODY in an @itemize KIND environment."
