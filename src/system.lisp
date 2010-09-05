@@ -42,7 +42,7 @@
 ;; Tableization protocol
 ;; ---------------------
 
-(defmethod tableize (stream (system asdf:system) &optional relative-to)
+(defmethod document (stream (system asdf:system) &optional relative-to)
   "Also describe SYSTEM's descriptions, author, maintainer and license."
   (declare (ignore relative-to))
   (format stream "@item Name~%@t{~A}~%" (component-name system))
@@ -84,7 +84,7 @@
 	     :synopsis "The ASDF system documentation"
 	     :before-menu-contents
 	     (with-output-to-string (str)
-	       (tableize str system (system-directory system)))))
+	       (document str system (system-directory system)))))
 
 (defun add-system-node (node system)
   "Add SYSTEM's system node to NODE."

@@ -56,7 +56,7 @@
 ;; Tableization protocol
 ;; ---------------------
 
-(defmethod tableize (stream (module asdf:module) &optional relative-to)
+(defmethod document (stream (module asdf:module) &optional relative-to)
   "Also describe MODULE's components."
   (declare (ignore relative-to))
   (call-next-method)
@@ -77,7 +77,7 @@
 	     :section-name (format nil "@t{~A}" (component-name module))
 	     :before-menu-contents (with-output-to-string (str)
 				     (index str module)
-				     (tableize str module relative-to))))
+				     (document str module relative-to))))
 
 (defun add-modules-node
     (node system &aux (system-directory (system-directory system))

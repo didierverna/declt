@@ -95,7 +95,7 @@
 	     :section-name (format nil "@t{~A}" (component-name file))
 	     :before-menu-contents (with-output-to-string (str)
 				     (index str file)
-				     (tableize str file relative-to))))
+				     (document str file relative-to))))
 
 (defun add-files-node
     (node system &aux (system-directory (system-directory system))

@@ -169,8 +169,8 @@
 ;; Tableization protocol
 ;; ---------------------
 
-(defgeneric tableize (stream item &optional relative-to)
-  (:documentation "Render a tableized description of ITEM to STREAM.
+(defgeneric document (stream item &optional relative-to)
+  (:documentation "Render ITEM's documentation to STREAM.
 ITEM's location is displayed RELATIVE-TO when appropriate.")
   (:method :before (stream item &optional relative-to)
     (declare (ignore relative-to))

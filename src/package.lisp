@@ -47,7 +47,7 @@
 ;; Tableization protocol
 ;; ---------------------
 
-(defmethod tableize (stream (package package) &optional relative-to)
+(defmethod document (stream (package package) &optional relative-to)
   "Describe PACKAGE's components."
   (declare (ignore relative-to))
   (when (package-nicknames package)
@@ -83,7 +83,7 @@ Packages are listed by definition order."))))
 				 :before-menu-contents
 				 (with-output-to-string (str)
 				   (index str package)
-				   (tableize str package)))))
+				   (document str package)))))
 	  (external-symbols (package-external-symbols package))
 	  (internal-symbols (package-internal-symbols package)))
       (when external-symbols

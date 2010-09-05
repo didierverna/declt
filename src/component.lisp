@@ -65,7 +65,7 @@ online, and hence independent of any specific installation.")
 ;; Tableization protocol
 ;; ---------------------
 
-(defmethod tableize (stream component &optional relative-to)
+(defmethod document (stream component &optional relative-to)
   (when (component-version component)
     (format stream "@item Version~%~A~%"
       (component-version component)))
