@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Tue Aug 24 11:48:19 2010
-;; Last Revision: Tue Aug 24 15:29:38 2010
+;; Last Revision: Sun Sep  5 20:43:58 2010
 
 ;; This file is part of Declt.
 
@@ -185,6 +185,11 @@
   "Render BODY in a @deftp {Class} NAME environment."
   `(@deftp "Class" ,name ,@body))
 
+(defmacro render-to-string (&body body)
+  "Render BODY to a string instead of *standard-output*."
+  `(with-output-to-string (*standard-output*)
+    ,@body))
+
 
 
 ;; ==========================================================================
@@ -310,7 +315,7 @@ ITEM's location is rendered RELATIVE-TO when appropriate.")
     (format t "@menu~%")
     (dolist (child (node-children node))
       ;; #### FIXME: this could be improved with proper alignment of synopsis.
-      (format t "* ~A:: ~@[~A~]~%" (node-name child) (node-synopsis child)))
+      (format t "* ~A::~@[ ~A~]~%" (node-name child) (node-synopsis child)))
     (format t "@end menu~%"))
   (when (node-after-menu-contents node)
     (when (or (node-children node) (node-before-menu-contents node))

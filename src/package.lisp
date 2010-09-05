@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Wed Sep  1 16:04:00 2010
-;; Last Revision: Wed Sep  1 17:44:46 2010
+;; Last Revision: Sun Sep  5 20:55:38 2010
 
 ;; This file is part of Declt.
 
@@ -24,6 +24,8 @@
 
 
 ;;; Commentary:
+
+;; Contents management by FCM version 0.1.
 
 
 ;;; Code:
@@ -46,6 +48,7 @@
 ;; --------------------
 ;; Referencing protocol
 ;; --------------------
+
 (defmethod reference ((package package))
   (format t "@t{~(~A~)}" (package-name package)))
 
@@ -87,9 +90,7 @@ Packages are listed by definition order."))))
 				 :section-name (format nil "@t{~(~A~)}"
 						 (package-name package))
 				 :before-menu-contents
-				 (with-output-to-string (*standard-output*)
-				   (index package)
-				   (document package)))))
+				 (render-to-string (document package)))))
 	  (external-symbols (package-external-symbols package))
 	  (internal-symbols (package-internal-symbols package)))
       (when external-symbols
@@ -101,8 +102,7 @@ Packages are listed by definition order."))))
 		    :before-menu-contents
 		    "Symbols are listed by lexicographic order."
 		    :after-menu-contents
-		    (with-output-to-string (*standard-output*)
-		      (dolist (symbol external-symbols))))))
+		    (render-to-string (dolist (symbol external-symbols))))))
       (when internal-symbols
 	(add-child package-node
 		   (make-node
@@ -112,8 +112,7 @@ Packages are listed by definition order."))))
 		    :before-menu-contents
 		    "Symbols are listed by lexicographic order."
 		    :after-menu-contents
-		    (with-output-to-string (*standard-output*)
-		      (dolist (symbol internal-symbols)))))))))
+		    (render-to-string (dolist (symbol internal-symbols)))))))))
 
 
 ;;; package.lisp ends here

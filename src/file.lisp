@@ -93,8 +93,8 @@
   "Create and return a FILE node."
   (make-node :name (format nil "The ~A file" (component-name file))
 	     :section-name (format nil "@t{~A}" (component-name file))
-	     :before-menu-contents (with-output-to-string (*standard-output*)
-				     (document file relative-to))))
+	     :before-menu-contents
+	     (render-to-string (document file relative-to))))
 
 (defun add-files-node
     (node system &aux (system-directory (system-directory system))
@@ -125,23 +125,23 @@ components tree."))))
 			:section-name
 			(format nil "@t{~A}" (system-file-name system))
 			:before-menu-contents
-			(with-output-to-string (*standard-output*)
-			  (let ((file (system-base-name system)))
-			    (format t "@lispfileindex{~A}@c~%" file)
-			    (format t "@table @strong~%")
-			    (format t
-				"@item Location~%~:[@t{~;@url{file://~]~A}~%"
-			      *link-components*
-			      (if *link-components*
-				  (format nil "~A, ignore, ~A"
-				    (make-pathname
-				     :name (system-file-name system)
-				     :type (system-file-type system)
-				     :directory (pathname-directory
-						 (component-pathname system)))
-				    file)
-				file)))
-			  (format t "@end table~%"))))
+			(render-to-string
+			 (let ((file (system-base-name system)))
+			   (format t "@lispfileindex{~A}@c~%" file)
+			   (format t "@table @strong~%")
+			   (format t
+			       "@item Location~%~:[@t{~;@url{file://~]~A}~%"
+			     *link-components*
+			     (if *link-components*
+				 (format nil "~A, ignore, ~A"
+				   (make-pathname
+				    :name (system-file-name system)
+				    :type (system-file-type system)
+				    :directory (pathname-directory
+						(component-pathname system)))
+				   file)
+			       file)))
+			 (format t "@end table~%"))))
   (dolist (file lisp-files)
     (add-child lisp-files-node (file-node file system-directory)))
   (loop :with other-files-node

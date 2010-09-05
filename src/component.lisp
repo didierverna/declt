@@ -65,8 +65,7 @@ online, and hence independent of any specific installation.")
 ;; ----------------------
 
 (defmethod document ((component asdf:component) &optional relative-to)
-  (when (component-version component)
-    (format t "@item Version~%~A~%" (component-version component)))
+  (format t "~@[@item Version~%~A~%~]" (component-version component))
   ;; #### NOTE: currently, we simply extract all the dependencies regardless
   ;; of the operations involved. We also assume that dependencies are of the
   ;; form (OP (OP DEP...) ...), but I'm not sure this is always the case.

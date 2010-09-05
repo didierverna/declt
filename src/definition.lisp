@@ -5,14 +5,13 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Sat Sep  4 15:27:31 2010
-;; Last Revision: Sat Sep  4 15:27:31 2010
+;; Last Revision: Sun Sep  5 20:52:17 2010
 
 ;; This file is part of Declt.
 
 ;; Declt is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2 of the License, or
-;; (at your option) any later version.
+;; it under the terms of the GNU General Public License version 3,
+;; as published by the Free Software Foundation.
 
 ;; Declt is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -45,10 +44,10 @@
 (defun add-category-node (parent category location package symbols)
   "Add PACKAGE's LOCATION definitions node to PARENT for SYMBOLS of CATEGORY."
   (let ((definitions
-	    (remove-if-not (fdefinition (intern
-					 (format nil "~A-SYMBOL-P" category)
-					 :com.dvlsoft.declt))
-			   symbols)))
+	    (remove-if-not
+	     (fdefinition
+	      (intern (format nil "~A-SYMBOL-P" category) :com.dvlsoft.declt))
+	     symbols)))
     (when definitions
       (add-child parent
 		 (make-node :name
@@ -60,20 +59,20 @@
 			    (format nil "~@(~A~)"
 			      (third (assoc category +categories+)))
 			    :before-menu-contents
-			    (with-output-to-string (*standard-output*)
-			      (dolist (definition definitions)
-				(funcall (fdefinition
-					  (intern
-					   (format nil "RENDER-~A" category)
-					   :com.dvlsoft.declt))
-					 definition))))))))
+			    (render-to-string
+			     (dolist (definition definitions)
+			       (funcall
+				(fdefinition
+				 (intern (format nil "RENDER-~A" category)
+					 :com.dvlsoft.declt))
+				definition))))))))
 
 (defun add-location-node (parent location package)
   "Add PACKAGE's LOCATION node to PARENT.
 LOCATION is either :external or :internal."
-  (let ((symbols (funcall (fdefinition (intern (format nil "PACKAGE-~A-SYMBOLS"
-						 location)
-					       :com.dvlsoft.declt))
+  (let ((symbols (funcall (fdefinition
+			   (intern (format nil "PACKAGE-~A-SYMBOLS" location)
+				   :com.dvlsoft.declt))
 			  package)))
     (when symbols
       (let ((node

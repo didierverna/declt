@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Mon Aug 23 18:25:33 2010
-;; Last Revision: Tue Aug 24 00:39:57 2010
+;; Last Revision: Sun Sep  5 20:39:39 2010
 
 ;; This file is part of Declt.
 
@@ -70,13 +70,14 @@ STRING should look like \"NAME <EMAIL>\"."
 		(subseq string (1+ pos-<) pos->))
       string)))
 
+#| Currently not used anymore
 (defun list-to-string (list &key (key #'identity) (separator ", "))
   "Return a SEPARATOR-separated string of all LIST elements.
 - KEY should provide a way to get a string from each LIST element.
 - SEPARATOR is the string to insert between elements."
   (reduce (lambda (str1 str2) (concatenate 'string str1 separator str2))
 	  list
-	  :key key))
+	  :key key))|#
 
 (defgeneric pretty-specializer (specializer)
   (:documentation "Returns a printable form for SPECIALIZER.")

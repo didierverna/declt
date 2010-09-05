@@ -73,8 +73,8 @@
   "Create and return a MODULE node."
   (make-node :name (format nil "The ~A module" (component-name module))
 	     :section-name (format nil "@t{~A}" (component-name module))
-	     :before-menu-contents (with-output-to-string (*standard-output*)
-				     (document module relative-to))))
+	     :before-menu-contents
+	     (render-to-string (document module relative-to))))
 
 (defun add-modules-node
     (node system &aux (system-directory (system-directory system))

@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Fri Sep  3 21:59:21 2010
-;; Last Revision: Fri Sep  3 21:59:21 2010
+;; Last Revision: Sun Sep  5 20:45:05 2010
 
 ;; This file is part of Declt.
 
@@ -88,6 +88,7 @@
   "Return the list of all Lisp source file components from MODULE."
   (components module 'asdf:cl-source-file))
 
+;; #### WARNING: do not confuse with asdf:mpdule-components!
 (defun module-components (module)
   "Return the list of all module components from MODULE."
   (components module 'asdf:module))

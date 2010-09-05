@@ -322,9 +322,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 			  :synopsis (format nil "What ~A is all about"
 				      library-name)
 			  :before-menu-contents
-			  (with-output-to-string (*standard-output*)
-			    (render-string
-			     (system-long-description system))))))
+			  (render-to-string
+			   (render-string
+			    (system-long-description system))))))
   (let ((*link-components* link-components))
     (add-system-node      *top-node* system)
     (add-modules-node     *top-node* system)

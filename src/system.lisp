@@ -61,8 +61,7 @@
     (when (or maintainer email)
       (format t "@item Maintainer~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	maintainer (and maintainer email) (escape email))))
-  (when (system-license system)
-    (format t "@item License~%~A~%" (system-license system)))
+  (format t "~@[@item License~%~A~%~]" (system-license system))
   (call-next-method)
   (format t "@item Packages~%")
   (@itemize-list (system-packages system) :renderer #'reference))
@@ -78,8 +77,7 @@
   (make-node :name "System"
 	     :synopsis "The ASDF system documentation"
 	     :before-menu-contents
-	     (with-output-to-string (*standard-output*)
-	       (document system (system-directory system)))))
+	     (render-to-string (document system (system-directory system)))))
 
 (defun add-system-node (node system)
   "Add SYSTEM's system node to NODE."
