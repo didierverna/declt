@@ -40,7 +40,8 @@
 
 (defgeneric escape (object)
   (:documentation
-   "Return a printable form of OBJECT with @ { and } characters escaped.")
+   "Return a printable form of OBJECT with @ { and } characters escaped.
+If OBJECT is nil, return nil.")
   (:method (object)
     "Convert non-string OBJECTs as follows:
 - SYMBOL -> SYMBOL-NAME,
@@ -52,11 +53,12 @@
       (package (package-name object))
       (pathname (namestring object))))
   (:method :around (object)
-    "Escape the conversion of OBJECT to string."
-    (coerce (loop :for char :across (call-next-method)
-		    :if (member char '(#\@ #\{ #\})) :collect #\@
-		    :collect char)
-	      'string)))
+    "Escape the conversion of non-nil OBJECT to string."
+    (when object
+      (coerce (loop :for char :across (call-next-method)
+		      :if (member char '(#\@ #\{ #\})) :collect #\@
+		      :collect char)
+	      'string))))
 
 (defun render-string (string)
   "Render STRING attempting to embellish the output."
