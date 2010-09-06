@@ -38,22 +38,25 @@
 ;; Texinfo Rendering Routines
 ;; ===========================================================================
 
-(defun escape (object)
-  "Return a printable form of OBJECT with @ { and } characters escaped.
-When OBJECT is not a string, it is converted to one as follows:
+(defgeneric escape (object)
+  (:documentation
+   "Return a printable form of OBJECT with @ { and } characters escaped.")
+  (:method (object)
+    "Convert non-string OBJECTs as follows:
 - SYMBOL -> SYMBOL-NAME,
 - PACKAGE -> PACAKGE-NAME,
 - PATHNAME -> NAMESTRING."
-  (when object
-    (unless (stringp object)
-      (setq object (etypecase object
-		     (symbol (symbol-name object))
-		     (package (package-name object))
-		     (pathname (namestring object)))))
-    (coerce (loop :for char :across object
-		  :if (member char '(#\@ #\{ #\})) :collect #\@
-		  :collect char)
-	    'string)))
+    (etypecase object
+      (string object)
+      (symbol (symbol-name object))
+      (package (package-name object))
+      (pathname (namestring object))))
+  (:method :around (object)
+    "Escape the conversion of OBJECT to string."
+    (coerce (loop :for char :across (call-next-method)
+		    :if (member char '(#\@ #\{ #\})) :collect #\@
+		    :collect char)
+	      'string)))
 
 (defun render-string (string)
   "Render STRING attempting to embellish the output."
