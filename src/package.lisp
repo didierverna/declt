@@ -79,42 +79,44 @@
 (defun add-packages-node
     (node system
      &aux (packages-node
-	   (add-child node (make-node :name "Packages"
-				      :synopsis "The system's packages"
-				      :before-menu-contents (format nil "~
+	   (add-child node
+	     (make-node :name "Packages"
+			:synopsis "The packages documentation"
+			:before-menu-contents (format nil "~
 Packages are listed by definition order."))))
 	  (packages (system-packages system)))
   "Add SYSTEM's packages node to NODE."
   (dolist (package packages)
     (let ((package-node
 	   (add-child packages-node
-		      (make-node :name (string-downcase (escape package))
-				 :section-name
-				 (format nil "@t{~(~A~)}" (escape package))
-				 :before-menu-contents
-				 (render-to-string (document package)))))
+	     (make-node :name (format nil "The ~(~A~) package"
+				(escape package))
+			:section-name (format nil "@t{~(~A~)}"
+					(escape package))
+			:before-menu-contents
+			(render-to-string (document package)))))
 	  (external-symbols (package-external-symbols package))
 	  (internal-symbols (package-internal-symbols package)))
       (when external-symbols
 	(add-child package-node
-		   (make-node
-		    :name (format nil "~(~A~) External Symbols"
-			    (escape package))
-		    :section-name "External Symbols"
-		    :before-menu-contents
-		    "Symbols are listed by lexicographic order."
-		    :after-menu-contents
-		    (render-to-string (dolist (symbol external-symbols))))))
+	  (make-node
+	   :name (format nil "External symbols from the ~(~A~) package"
+		   (escape package))
+	   :section-name "External Symbols"
+	   :before-menu-contents
+	   "Symbols are listed by lexicographic order."
+	   :after-menu-contents
+	   (render-to-string (dolist (symbol external-symbols))))))
       (when internal-symbols
 	(add-child package-node
-		   (make-node
-		    :name (format nil "~(~A~) Internal Symbols"
-			    (escape package))
-		    :section-name "Internal Symbols"
-		    :before-menu-contents
-		    "Symbols are listed by lexicographic order."
-		    :after-menu-contents
-		    (render-to-string (dolist (symbol internal-symbols)))))))))
+	  (make-node
+	   :name (format nil "Internal Symbols from the ~(~A~) package"
+		   (escape package))
+	   :section-name "Internal Symbols"
+	   :before-menu-contents
+	   "Symbols are listed by lexicographic order."
+	   :after-menu-contents
+	   (render-to-string (dolist (symbol internal-symbols)))))))))
 
 
 ;;; package.lisp ends here

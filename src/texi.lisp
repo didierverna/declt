@@ -369,6 +369,7 @@ ITEM's location is rendered RELATIVE-TO when appropriate.")
 ;;; eval: (put '@defstruct    'common-lisp-indent-function 1)
 ;;; eval: (put '@defcond      'common-lisp-indent-function 1)
 ;;; eval: (put '@defclass     'common-lisp-indent-function 1)
+;;; eval: (put 'add-child     'common-lisp-indent-function 1)
 ;;; End:
 
 ;;; texi.lisp ends here

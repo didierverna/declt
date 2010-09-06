@@ -50,22 +50,19 @@
 	     symbols)))
     (when definitions
       (add-child parent
-		 (make-node :name
-			    (format nil "~@(~A~) ~A from the ~(~A~) package"
-			      location
-			      (third (assoc category +categories+))
-			      (escape package))
-			    :section-name
-			    (format nil "~@(~A~)"
-			      (third (assoc category +categories+)))
-			    :before-menu-contents
-			    (render-to-string
-			     (dolist (definition definitions)
-			       (funcall
-				(fdefinition
-				 (intern (format nil "RENDER-~A" category)
-					 :com.dvlsoft.declt))
-				definition))))))))
+	(make-node :name (format nil "~@(~A~) ~A from the ~(~A~) package"
+			   location
+			   (third (assoc category +categories+))
+			   (escape package))
+		   :section-name (format nil "~@(~A~)"
+				   (third (assoc category +categories+)))
+		   :before-menu-contents
+		   (render-to-string
+		     (dolist (definition definitions)
+		       (funcall
+			(fdefinition (intern (format nil "RENDER-~A" category)
+					     :com.dvlsoft.declt))
+			definition))))))))
 
 (defun add-location-node (parent location package)
   "Add PACKAGE's LOCATION node to PARENT.
@@ -77,13 +74,12 @@ LOCATION is either :external or :internal."
     (when symbols
       (let ((node
 	     (add-child parent
-			(make-node :name (format nil "~
+	       (make-node :name (format nil "~
 ~@(~A~) definitions from the ~(~A~) package"
-					   location
-					   (escape package))
-				   :section-name (format nil "~
-~:(~A~) definitions"
-						   location)))))
+				  location
+				  (escape package))
+			  :section-name (format nil "~:(~A~) definitions"
+					  location)))))
 	(dolist (category '(:constant :special :class
 			    :macro :function :generic))
 	  (add-category-node node category location package symbols))))))
@@ -92,8 +88,9 @@ LOCATION is either :external or :internal."
     (parent system
      &aux (definitions-node
 	      (add-child parent
-			 (make-node :name "Definitions"
-				    :before-menu-contents(format nil "~
+		(make-node :name "Definitions"
+			   :synopsis "The symbols documentation"
+			   :before-menu-contents(format nil "~
 Definitions are sorted by package, export status, category and then by
 lexicographic order."))))
 	  (packages (system-packages system)))
@@ -101,11 +98,10 @@ lexicographic order."))))
   (dolist (package packages)
     (let ((package-node
 	   (add-child definitions-node
-		      (make-node
-		       :name (format nil "Definitions from the ~(~A~) package"
-			       (escape package))
-		       :section-name (format nil "From the ~(@t{~A}~) package"
-				       (escape package))))))
+	     (make-node :name (format nil "Definitions from the ~(~A~) package"
+				(escape package))
+			:section-name (format nil "From the ~(@t{~A}~) package"
+					(escape package))))))
       (dolist (location '(:external :internal))
 	(add-location-node package-node location package)))))
 

@@ -71,12 +71,11 @@
 
 (defun module-node (module relative-to)
   "Create and return a MODULE node."
-  (make-node :name (format nil "The ~A module"
-		     (escape module))
-	     :section-name (format nil "@t{~A}"
-			     (escape module))
-	     :before-menu-contents
-	     (render-to-string (document module relative-to))))
+  (let ((name (escape (relative-pathname module relative-to))))
+    (make-node :name (format nil "The ~A module" name)
+	       :section-name (format nil "@t{~A}"name)
+	       :before-menu-contents
+	       (render-to-string (document module relative-to)))))
 
 (defun add-modules-node
     (node system &aux (system-directory (system-directory system))
@@ -85,7 +84,7 @@
   (when modules
     (let ((modules-node
 	   (add-child node (make-node :name "Modules"
-				      :synopsis "The system's modules"
+				      :synopsis "The modules documentation"
 				      :before-menu-contents
 				      (format nil "~
 Modules are listed depth-first from the system components tree.")))))

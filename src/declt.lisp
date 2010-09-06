@@ -307,10 +307,10 @@ on ~A."
 					   current-time-string)
 		   :after-menu-contents "@insertcopying"))
   (add-child *top-node*
-	     (make-node :name "Copying"
-			:synopsis "The GNU General Public License"
-			:section-type :unnumbered
-			:before-menu-contents (format nil "@quotation
+    (make-node :name "Copying"
+	       :synopsis "The GNU General Public License"
+	       :section-type :unnumbered
+	       :before-menu-contents (format nil "@quotation
 ~A is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License version 3,
 as published by the Software Foundation.
@@ -324,17 +324,15 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 675 Mass Ave, Cambridge, MA 02139, USA.
 @end quotation"
-						library-name
-						library-name)))
+				       library-name
+				       library-name)))
   (when (system-long-description system)
     (add-child *top-node*
-	       (make-node :name "Introduction"
-			  :synopsis (format nil "What ~A is all about"
-				      library-name)
-			  :before-menu-contents
-			  (render-to-string
-			   (render-string
-			    (system-long-description system))))))
+      (make-node :name "Introduction"
+		 :synopsis (format nil "What ~A is all about" library-name)
+		 :before-menu-contents
+		 (render-to-string
+		   (render-string (system-long-description system))))))
   (let ((*link-components* link-components))
     (add-system-node      *top-node* system)
     (add-modules-node     *top-node* system)
@@ -342,35 +340,37 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     (add-packages-node    *top-node* system)
     (add-definitions-node *top-node* system))
   (let ((indexes-node (add-child *top-node*
-				 (make-node :name "Indexes"
-					    :section-type :appendix))))
+			(make-node :name "Indexes"
+				   :synopsis (format nil "~
+Concepts, functions, variables and data types")
+				   :section-type :appendix))))
     (add-child indexes-node
-	       (make-node :name "Concept Index"
-			  :section-type :appendix
-			  :section-name "Concepts"
-			  :before-menu-contents "@printindex cp"
-			  :after-menu-contents "@page"))
+      (make-node :name "Concept index"
+		 :section-type :appendix
+		 :section-name "Concepts"
+		 :before-menu-contents "@printindex cp"
+		 :after-menu-contents "@page"))
     (add-child indexes-node
-	       (make-node :name "Function Index"
-			  :section-type :appendix
-			  :section-name "Functions"
-			  :before-menu-contents "@printindex fn"
-			  :after-menu-contents "@page"))
+      (make-node :name "Function index"
+		 :section-type :appendix
+		 :section-name "Functions"
+		 :before-menu-contents "@printindex fn"
+		 :after-menu-contents "@page"))
     (add-child indexes-node
-	       (make-node :name "Variable Index"
-			  :section-type :appendix
-			  :section-name "Variables"
-			  :before-menu-contents "@printindex vr"
-			  :after-menu-contents "@page"))
+      (make-node :name "Variable index"
+		 :section-type :appendix
+		 :section-name "Variables"
+		 :before-menu-contents "@printindex vr"
+		 :after-menu-contents "@page"))
     (add-child indexes-node
-	       (make-node :name "Data Type Index"
-			  :section-type :appendix
-			  :section-name "Data Types"
-			  :before-menu-contents "@printindex tp")))
+      (make-node :name "Data type index"
+		 :section-type :appendix
+		 :section-name "Data types"
+		 :before-menu-contents "@printindex tp")))
   (with-open-file (*standard-output* texi-file
-		   :direction :output
-		   :if-exists :supersede
-		   :if-does-not-exist :create)
+		    :direction :output
+		    :if-exists :supersede
+		    :if-does-not-exist :create)
     (render-header library-name texi-name info-file subtitle version author
 		   email copyright-date current-time-string)
     (render-nodes)

@@ -41,6 +41,15 @@ Setting this to NIL is preferable for creating reference manuals meant to put
 online, and hence independent of any specific installation.")
 
 
+;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
+(defun relative-pathname (component relative-to)
+  "Return COMPONENT's path RELATIVE-TO."
+  (enough-namestring (asdf:component-pathname component) relative-to))
+
+
 
 ;; ==========================================================================
 ;; Rendering Protocols
@@ -82,47 +91,48 @@ online, and hence independent of any specific installation.")
 	  (dolist (dependency (cdr op-dependency))
 	    (pushnew dependency dependencies))))
       (format t "@item Dependencies~%")
-      (@itemize-list dependencies
-	:format "@t{~(~A}~)"
-	:key #'escape)))
-  (when (component-parent component)
-    (format t "@item Parent~%")
-    (index (component-parent component))
-    (format t "@t{~A}~%"
-      (escape (component-parent component))))
+      (@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape)))
+  (let ((parent (component-parent component)))
+    (when parent
+      (format t "@item Parent~%")
+      (index parent)
+      (format t "@t{~A}~%" (escape parent))))
   (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
 	 (when *link-components*
-	   (format t "@item Location~%@url{file://~A, ignore, ~A}~%"
-	     (escape component)
-	     (escape component)))
-	 (let ((pathname (escape (system-base-name component))))
+	   (format t "@item Location~%~
+		      @url{file://~A, ignore, @t{~A}}~%"
+	     (escape (component-pathname component))
+	     (escape (component-pathname component))))
+	 (let ((system-base-name (escape (system-base-name component))))
 	   (format t "@item System File~%~
 		      @lispfileindex{~A}@c~%~
-		      ~:[@t{~;@url{file://~]~A}~%"
-	     pathname
-	     *link-components*
-	     (if *link-components*
-		 (format nil "~A, ignore, ~A"
-		   (escape (component-pathname component))
-		   pathname)
-	       pathname)))
+		      ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
+	     system-base-name
+	     (when *link-components*
+	       (escape (make-pathname
+			:name (system-file-name component)
+			:type (system-file-type component)
+			:directory (pathname-directory
+				    (component-pathname component)))))
+	     system-base-name
+	     *link-components*))
 	 (when *link-components*
 	   (let ((directory (escape
 			     (directory-namestring
 			      (system-definition-pathname component)))))
-	     (format t "@item Installation~%@url{file://~A, ignore, ~A}~%"
+	     (format t "@item Installation~%~
+			@url{file://~A, ignore, @t{~A}}~%"
 	       directory directory))))
 	(t
 	 (let ((pathname (escape (enough-namestring
 				  (component-pathname component)
 				  relative-to))))
-	   (format t "@item Location~%~:[@t{~;@url{file://~]~A}~%"
-	     *link-components*
-	     (if *link-components*
-		 (format nil "~A, ignore, ~A"
-		   (escape (component-pathname component))
-		   pathname)
-	       pathname))))))
+	   (format t "@item Location~%~
+		      ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
+	     (when *link-components*
+	       (escape (component-pathname component)))
+	     pathname
+	     *link-components*)))))
 
 
 ;;; component.lisp ends here

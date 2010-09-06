@@ -85,7 +85,7 @@
 (defun system-node (system)
   "Create and return the SYSTEM node."
   (make-node :name "System"
-	     :synopsis "The ASDF system documentation"
+	     :synopsis "The system documentation"
 	     :before-menu-contents
 	     (render-to-string (document system (system-directory system)))))
 
