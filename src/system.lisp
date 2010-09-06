@@ -38,6 +38,14 @@
 ;; Rendering Protocols
 ;; ==========================================================================
 
+;; -----------------
+;; Indexing protocol
+;; -----------------
+
+(defmethod index ((system asdf:system))
+  (values))
+
+
 ;; ----------------------
 ;; Documentation protocol
 ;; ----------------------
