@@ -93,8 +93,8 @@
 	     (let ((specializer (pretty-specializer (pop specializers))))
 	       (if (and specializer (not (eq specializer t)))
 		   (format t "(~A @t{~(~A~)})"
-		     (escape (symbol-name part))
-		     (escape (format nil "~A" specializer)))
+		     (escape part)
+		     (escape specializer))
 		 (write-string (escape (symbol-name part))))))))))
 
 (defmacro @itemize ((&optional (kind :@bullet)) &body body)
