@@ -221,7 +221,7 @@ If OBJECT is nil, return nil.")
 ;; Indexing protocol
 ;; -----------------
 
-(defgeneric index (item)
+(defgeneric index (item &optional relative-to)
   (:documentation "Render ITEM's indexing command."))
 
 
@@ -229,10 +229,10 @@ If OBJECT is nil, return nil.")
 ;; Referencing protocol
 ;; --------------------
 
-(defgeneric reference (item)
+(defgeneric reference (item &optional relative-to)
   (:documentation "Render ITEM's reference.")
-  (:method :before (item)
-    (index item)))
+  (:method :before (item &optional relative-to)
+    (index item relative-to)))
 
 
 ;; ----------------------
@@ -243,8 +243,7 @@ If OBJECT is nil, return nil.")
   (:documentation "Render ITEM's documentation.
 ITEM's location is rendered RELATIVE-TO when appropriate.")
   (:method :before (item &optional relative-to)
-    (declare (ignore relative-to))
-    (index item)
+    (index item relative-to)
     (format t "@table @strong~%"))
   (:method :after (item &optional relative-to)
     (declare (ignore relative-to))

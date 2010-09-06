@@ -42,7 +42,8 @@
 ;; Indexing protocol
 ;; -----------------
 
-(defmethod index ((system asdf:system))
+(defmethod index ((system asdf:system) &optional relative-to)
+  (declare (ignore relative-to))
   (values))
 
 

@@ -41,8 +41,9 @@
 ;; Indexing protocol
 ;; -----------------
 
-(defmethod index ((module asdf:module))
-  (format t "@moduleindex{~A}@c~%" (escape module)))
+(defmethod index ((module asdf:module) &optional relative-to)
+  (format t "@moduleindex{~A}@c~%"
+    (escape (relative-pathname module relative-to))))
 
 
 ;; --------------------
@@ -58,10 +59,11 @@
 ;; ----------------------
 
 (defmethod document ((module asdf:module) &optional relative-to)
-  (declare (ignore relative-to))
   (call-next-method)
   (format t "@item Components~%")
-  (@itemize-list (asdf:module-components module) :renderer #'reference))
+  (@itemize-list (asdf:module-components module)
+    :renderer (lambda (component)
+		(reference component relative-to))))
 
 
 

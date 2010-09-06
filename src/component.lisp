@@ -67,7 +67,8 @@ online, and hence independent of any specific installation.")
 (defgeneric component-type-name (component)
   (:documentation "Return COMPONENT's type name."))
 
-(defmethod reference ((component asdf:component))
+(defmethod reference ((component asdf:component) &optional relative-to)
+  (declare (ignore relative-to))
   (format t "@t{~A} ~@[, version ~A~] (~A)~%"
     (escape component)
     (escape (component-version component))
@@ -95,7 +96,7 @@ online, and hence independent of any specific installation.")
   (let ((parent (component-parent component)))
     (when parent
       (format t "@item Parent~%")
-      (index parent)
+      (index parent relative-to)
       (format t "@t{~A}~%" (escape parent))))
   (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
 	 (when *link-components*

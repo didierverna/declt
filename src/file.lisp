@@ -42,29 +42,30 @@
 ;; Indexing protocol
 ;; -----------------
 
-(defmethod index ((cl-source-file asdf:cl-source-file))
+(defmethod index ((cl-source-file asdf:cl-source-file) &optional relative-to)
   (format t "@lispfileindex{~A}@c~%"
-    (escape cl-source-file)))
+    (escape (relative-pathname cl-source-file relative-to))))
 
-(defmethod index ((c-source-file asdf:c-source-file))
+(defmethod index ((c-source-file asdf:c-source-file) &optional relative-to)
   (format t "@cfileindex{~A}@c~%"
-    (escape c-source-file)))
+    (escape (relative-pathname c-source-file relative-to))))
 
-(defmethod index ((java-source-file asdf:java-source-file))
+(defmethod index
+    ((java-source-file asdf:java-source-file) &optional relative-to)
   (format t "@javafileindex{~A}@c~%"
-    (escape java-source-file)))
+    (escape (relative-pathname java-source-file relative-to))))
 
-(defmethod index ((static-file asdf:static-file))
+(defmethod index ((static-file asdf:static-file) &optional relative-to)
   (format t "@otherfileindex{~A}@c~%"
-    (escape static-file)))
+    (escape (relative-pathname static-file relative-to))))
 
-(defmethod index ((doc-file asdf:doc-file))
+(defmethod index ((doc-file asdf:doc-file) &optional relative-to)
   (format t "@docfileindex{~A}@c~%"
-    (escape doc-file)))
+    (escape (relative-pathname doc-file relative-to))))
 
-(defmethod index ((html-file asdf:html-file))
+(defmethod index ((html-file asdf:html-file) &optional relative-to)
   (format t "@htmlfileindex{~A}@c~%"
-    (escape html-file)))
+    (escape (relative-pathname html-file relative-to))))
 
 
 ;; --------------------

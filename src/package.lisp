@@ -41,7 +41,8 @@
 ;; Indexing protocol
 ;; -----------------
 
-(defmethod index ((package package))
+(defmethod index ((package package) &optional relative-to)
+  (declare (ignore relative-to))
   (format t "@packageindex{~(~A~)}@c~%" (escape package)))
 
 
@@ -49,7 +50,8 @@
 ;; Referencing protocol
 ;; --------------------
 
-(defmethod reference ((package package))
+(defmethod reference ((package package) &optional relative-to)
+  (declare (ignore relative-to))
   (format t "@t{~(~A~)}" (escape package)))
 
 
