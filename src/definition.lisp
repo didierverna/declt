@@ -54,7 +54,7 @@
 			    (format nil "~@(~A~) ~A from the ~(~A~) package"
 			      location
 			      (third (assoc category +categories+))
-			      (escape (package-name package)))
+			      (escape package))
 			    :section-name
 			    (format nil "~@(~A~)"
 			      (third (assoc category +categories+)))
@@ -80,7 +80,7 @@ LOCATION is either :external or :internal."
 			(make-node :name (format nil "~
 ~@(~A~) definitions from the ~(~A~) package"
 					   location
-					   (escape (package-name package)))
+					   (escape package))
 				   :section-name (format nil "~
 ~:(~A~) definitions"
 						   location)))))
@@ -103,9 +103,9 @@ lexicographic order."))))
 	   (add-child definitions-node
 		      (make-node
 		       :name (format nil "Definitions from the ~(~A~) package"
-			       (escape (package-name package)))
+			       (escape package))
 		       :section-name (format nil "From the ~(@t{~A}~) package"
-				       (escape (package-name package)))))))
+				       (escape package))))))
       (dolist (location '(:external :internal))
 	(add-location-node package-node location package)))))
 

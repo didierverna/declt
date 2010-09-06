@@ -142,14 +142,12 @@ components tree."))))
 			     *link-components*
 			     (if *link-components*
 				 (format nil "~A, ignore, ~A"
-				   (escape
-				    (format nil "~A"
-				      (make-pathname
-				       :name (system-file-name system)
-				       :type (system-file-type system)
-				       :directory
-				       (pathname-directory
-					(component-pathname system)))))
+				   (escape (make-pathname
+					    :name (system-file-name system)
+					    :type (system-file-type system)
+					    :directory
+					    (pathname-directory
+					     (component-pathname system))))
 				   file)
 			       file)))
 			 (format t "@end table~%"))))

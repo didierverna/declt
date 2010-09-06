@@ -79,7 +79,7 @@ online, and hence independent of any specific installation.")
       (format t "@item Dependencies~%")
       (@itemize-list dependencies
 	:format "@t{~(~A}~)"
-	:key (lambda (dependency) (escape (format nil "~A" dependency))))))
+	:key (lambda (dependency) (escape dependency)))))
   (when (component-parent component)
     (format t "@item Parent~%")
     (index (component-parent component))
@@ -88,8 +88,8 @@ online, and hence independent of any specific installation.")
   (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
 	 (when *link-components*
 	   (format t "@item Location~%@url{file://~A, ignore, ~A}~%"
-	     (escape (format nil "~A" (component-pathname component)))
-	     (escape (format nil "~A" (component-pathname component)))))
+	     (escape (component-pathname component))
+	     (escape (component-pathname component))))
 	 (let ((pathname (escape (system-base-name component))))
 	   (format t "@item System File~%~
 		      @lispfileindex{~A}@c~%~
@@ -98,7 +98,7 @@ online, and hence independent of any specific installation.")
 	     *link-components*
 	     (if *link-components*
 		 (format nil "~A, ignore, ~A"
-		   (escape (format nil "~A" (component-pathname component)))
+		   (escape (component-pathname component))
 		   pathname)
 	       pathname)))
 	 (when *link-components*
@@ -115,7 +115,7 @@ online, and hence independent of any specific installation.")
 	     *link-components*
 	     (if *link-components*
 		 (format nil "~A, ignore, ~A"
-		   (escape (format nil "~A" (component-pathname component)))
+		   (escape (component-pathname component))
 		   pathname)
 	       pathname))))))
 

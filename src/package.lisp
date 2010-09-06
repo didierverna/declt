@@ -42,7 +42,7 @@
 ;; -----------------
 
 (defmethod index ((package package))
-  (format t "@packageindex{~(~A~)}@c~%" (escape (package-name package))))
+  (format t "@packageindex{~(~A~)}@c~%" (escape package)))
 
 
 ;; --------------------
@@ -50,7 +50,7 @@
 ;; --------------------
 
 (defmethod reference ((package package))
-  (format t "@t{~(~A~)}" (escape (package-name package))))
+  (format t "@t{~(~A~)}" (escape package)))
 
 
 ;; ----------------------
@@ -68,8 +68,7 @@
     (format t "@item Use List~%")
     (@itemize-list (package-use-list package)
       :format "@t{~(~A~)}"
-      :key (lambda (package)
-	     (escape (package-name package))))))
+      :key #'escape)))
 
 
 
@@ -89,10 +88,10 @@ Packages are listed by definition order."))))
   (dolist (package packages)
     (let ((package-node
 	   (add-child packages-node
-		      (make-node :name (escape (package-name package))
+		      (make-node :name (escape package)
 				 :section-name
 				 (format nil "@t{~(~A~)}"
-				   (escape (package-name package)))
+				   (escape package))
 				 :before-menu-contents
 				 (render-to-string (document package)))))
 	  (external-symbols (package-external-symbols package))
@@ -101,7 +100,7 @@ Packages are listed by definition order."))))
 	(add-child package-node
 		   (make-node
 		    :name (format nil "@t{~(~A~)} External Symbols"
-			    (escape (package-name package)))
+			    (escape package))
 		    :section-name "External Symbols"
 		    :before-menu-contents
 		    "Symbols are listed by lexicographic order."
@@ -111,7 +110,7 @@ Packages are listed by definition order."))))
 	(add-child package-node
 		   (make-node
 		    :name (format nil "@t{~(~A~)} Internal Symbols"
-			    (escape (package-name package)))
+			    (escape package))
 		    :section-name "Internal Symbols"
 		    :before-menu-contents
 		    "Symbols are listed by lexicographic order."

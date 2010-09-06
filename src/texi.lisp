@@ -38,10 +38,19 @@
 ;; Texinfo Rendering Routines
 ;; ===========================================================================
 
-(defun escape (string)
-  "Return STRING with @ { and } characters escaped."
-  (when string
-    (coerce (loop :for char :across string
+(defun escape (object)
+  "Return a printable form of OBJECT with @ { and } characters escaped.
+When OBJECT is not a string, it is converted to one as follows:
+- SYMBOL -> SYMBOL-NAME,
+- PACKAGE -> PACAKGE-NAME,
+- PATHNAME -> NAMESTRING."
+  (when object
+    (unless (stringp object)
+      (setq object (etypecase object
+		     (symbol (symbol-name object))
+		     (package (package-name object))
+		     (pathname (namestring object)))))
+    (coerce (loop :for char :across object
 		  :if (member char '(#\@ #\{ #\})) :collect #\@
 		  :collect char)
 	    'string)))
