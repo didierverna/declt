@@ -88,10 +88,9 @@ Packages are listed by definition order."))))
   (dolist (package packages)
     (let ((package-node
 	   (add-child packages-node
-		      (make-node :name (escape package)
+		      (make-node :name (string-downcase (escape package))
 				 :section-name
-				 (format nil "@t{~(~A~)}"
-				   (escape package))
+				 (format nil "@t{~(~A~)}" (escape package))
 				 :before-menu-contents
 				 (render-to-string (document package)))))
 	  (external-symbols (package-external-symbols package))
@@ -99,7 +98,7 @@ Packages are listed by definition order."))))
       (when external-symbols
 	(add-child package-node
 		   (make-node
-		    :name (format nil "@t{~(~A~)} External Symbols"
+		    :name (format nil "~(~A~) External Symbols"
 			    (escape package))
 		    :section-name "External Symbols"
 		    :before-menu-contents
@@ -109,7 +108,7 @@ Packages are listed by definition order."))))
       (when internal-symbols
 	(add-child package-node
 		   (make-node
-		    :name (format nil "@t{~(~A~)} Internal Symbols"
+		    :name (format nil "~(~A~) Internal Symbols"
 			    (escape package))
 		    :section-name "Internal Symbols"
 		    :before-menu-contents
