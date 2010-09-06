@@ -44,7 +44,7 @@
 
 (defmethod document ((system asdf:system) &optional relative-to)
   (declare (ignore relative-to))
-  (format t "@item Name~%@t{~A}~%" (escape (component-name system)))
+  (format t "@item Name~%@t{~A}~%" (escape system))
   (when (system-description system)
     (format t "@item Description~%")
     (render-string (system-description system)))

@@ -46,6 +46,11 @@ online, and hence independent of any specific installation.")
 ;; Rendering Protocols
 ;; ==========================================================================
 
+(defmethod escape ((component asdf:component))
+  "Turn COMPONENT into its name."
+  (component-name component))
+
+
 ;; --------------------
 ;; Referencing protocol
 ;; --------------------
@@ -55,7 +60,7 @@ online, and hence independent of any specific installation.")
 
 (defmethod reference ((component asdf:component))
   (format t "@t{~A} ~@[, version ~A~] (~A)~%"
-    (escape (component-name component))
+    (escape component)
     (escape (component-version component))
     (component-type-name component)))
 
@@ -79,17 +84,17 @@ online, and hence independent of any specific installation.")
       (format t "@item Dependencies~%")
       (@itemize-list dependencies
 	:format "@t{~(~A}~)"
-	:key (lambda (dependency) (escape dependency)))))
+	:key #'escape)))
   (when (component-parent component)
     (format t "@item Parent~%")
     (index (component-parent component))
     (format t "@t{~A}~%"
-      (escape (component-name (component-parent component)))))
+      (escape (component-parent component))))
   (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
 	 (when *link-components*
 	   (format t "@item Location~%@url{file://~A, ignore, ~A}~%"
-	     (escape (component-pathname component))
-	     (escape (component-pathname component))))
+	     (escape component)
+	     (escape component)))
 	 (let ((pathname (escape (system-base-name component))))
 	   (format t "@item System File~%~
 		      @lispfileindex{~A}@c~%~

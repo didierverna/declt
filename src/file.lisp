@@ -44,27 +44,27 @@
 
 (defmethod index ((cl-source-file asdf:cl-source-file))
   (format t "@lispfileindex{~A}@c~%"
-    (escape (component-name cl-source-file))))
+    (escape cl-source-file)))
 
 (defmethod index ((c-source-file asdf:c-source-file))
   (format t "@cfileindex{~A}@c~%"
-    (escape (component-name c-source-file))))
+    (escape c-source-file)))
 
 (defmethod index ((java-source-file asdf:java-source-file))
   (format t "@javafileindex{~A}@c~%"
-    (escape (component-name java-source-file))))
+    (escape java-source-file)))
 
 (defmethod index ((static-file asdf:static-file))
   (format t "@otherfileindex{~A}@c~%"
-    (escape (component-name static-file))))
+    (escape static-file)))
 
 (defmethod index ((doc-file asdf:doc-file))
   (format t "@docfileindex{~A}@c~%"
-    (escape (component-name doc-file))))
+    (escape doc-file)))
 
 (defmethod index ((html-file asdf:html-file))
   (format t "@htmlfileindex{~A}@c~%"
-    (escape (component-name html-file))))
+    (escape html-file)))
 
 
 ;; --------------------
@@ -97,8 +97,8 @@
 
 (defun file-node (file relative-to)
   "Create and return a FILE node."
-  (make-node :name (format nil "The ~A file" (escape (component-name file)))
-	     :section-name (format nil "@t{~A}" (escape (component-name file)))
+  (make-node :name (format nil "The ~A file" (escape file))
+	     :section-name (format nil "@t{~A}" (escape file))
 	     :before-menu-contents
 	     (render-to-string (document file relative-to))))
 
