@@ -9,6 +9,3 @@ Files should be indexed with extension and relative path to avoid collisions.
 
 * See about shadowed symbols
 
-* Generalize escape
-so as to avoid (format nil "~A" balh) to use it.
-Also look into ~/name/ in format.
