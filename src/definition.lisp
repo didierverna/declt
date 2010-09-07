@@ -33,12 +33,14 @@
 (in-package :com.dvlsoft.declt)
 
 (define-constant +categories+
-    '((:constant "constant"          "constants")
-      (:special  "special variable"  "special variables")
-      (:class    "class"             "classes")
-      (:macro    "macro"             "macros")
-      (:function "ordinary function" "ordinary functions")
-      (:generic  "generic function"  "generic functions"))
+    '((:constant  "constant"          "constants")
+      (:special   "special variable"  "special variables")
+;;      (:condition "condition"         "conditions")
+;;      (:structure "structure"         "structures")
+      (:class     "class"             "classes")
+      (:macro     "macro"             "macros")
+      (:function  "ordinary function" "ordinary functions")
+      (:generic   "generic function"  "generic functions"))
   "The list of definition categories and how to typeset them.")
 
 (defun add-category-node (parent category location package symbols)
@@ -46,21 +48,23 @@
   (let ((definitions
 	    (remove-if-not
 	     (fdefinition
-	      (intern (format nil "~A-SYMBOL-P" category) :com.dvlsoft.declt))
+	      (intern (format nil "~A-SYMBOL-P" (first category))
+		      :com.dvlsoft.declt))
 	     symbols)))
     (when definitions
       (add-child parent
 	(make-node :name (format nil "~@(~A~) ~A from the ~(~A~) package"
 			   location
-			   (third (assoc category +categories+))
+			   (third category)
 			   (escape package))
 		   :section-name (format nil "~@(~A~)"
-				   (third (assoc category +categories+)))
+				   (third category))
 		   :before-menu-contents
 		   (render-to-string
 		     (dolist (definition definitions)
 		       (funcall
-			(fdefinition (intern (format nil "RENDER-~A" category)
+			(fdefinition (intern (format nil "RENDER-~A"
+					       (first category))
 					     :com.dvlsoft.declt))
 			definition))))))))
 
@@ -80,8 +84,7 @@ LOCATION is either :external or :internal."
 				  (escape package))
 			  :section-name (format nil "~:(~A~) definitions"
 					  location)))))
-	(dolist (category '(:constant :special :class
-			    :macro :function :generic))
+	(dolist (category +categories+)
 	  (add-category-node node category location package symbols))))))
 
 (defun add-definitions-node
