@@ -6,3 +6,4 @@ to find the corresponding component.
 
 * See about shadowed symbols
 
+* See sb-introspect for a list of other things that we could possibly document
