@@ -37,6 +37,15 @@
 ;; Rendering routines
 ;; ==========================================================================
 
+(defun render-documentation (symbol type)
+  "Render SYMBOL's TYPE documentation."
+  (when (symbolp symbol)
+    (format t "@table @strong~%")
+    (format t "@item Package~%")
+    (reference (symbol-package symbol))
+    (format t "@end table~%"))
+  (render-string (documentation symbol type)))
+
 (defun render-method (method)
   "Render METHOD."
   (@defmethod

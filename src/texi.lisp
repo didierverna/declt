@@ -68,10 +68,6 @@ If OBJECT is nil, return nil.")
 	    :do (progn (write-char #\@) (write-char #\*))
 	  :do (write-char char))))
 
-(defun render-documentation (symbol type)
-  "Render SYMBOL's TYPE documentation."
-  (render-string (documentation symbol type)))
-
 ;; Based on Edi Weitz's write-lambda-list* from documentation-template.
 (defun render-lambda-list (lambda-list &optional specializers)
   "Render LAMBDA-LIST."
