@@ -163,28 +163,22 @@ STRING should look like \"NAME <EMAIL>\"."
 ;; Package Related
 ;; ==========================================================================
 
-;; #### FIXME: see how to handle shadowed symbols (not sure what happens with
-;; the home package).
 (defun package-external-symbols (package &aux external-symbols)
-  "Return the list of symbols external to PACKAGE that need documenting."
-  (do-external-symbols (symbol package)
+  "Return the list of PACKAGE's external symbols which need documenting."
+  (do-external-symbols (symbol package external-symbols)
     (when (and (eq (symbol-package symbol) package)
 	       (symbol-needs-documenting symbol))
-      (push symbol external-symbols)))
-  (sort external-symbols #'string-lessp))
+      (push symbol external-symbols))))
 
-;; #### FIXME: see how to handle shadowed symbols (not sure what happens with
-;; the home package).
 (defun package-internal-symbols
     (package &aux (external-symbols (package-external-symbols package))
 		  internal-symbols)
-  "Return the list of symbols internal to PACKAGE that need documenting."
-  (do-symbols (symbol package)
+  "Return the list of PACKAGE's internal symbols which need documenting."
+  (do-symbols (symbol package internal-symbols)
     (when (and (not (member symbol external-symbols))
 	       (eq (symbol-package symbol) package)
 	       (symbol-needs-documenting symbol))
-      (push symbol internal-symbols)))
-  (sort internal-symbols #'string-lessp))
+      (push symbol internal-symbols))))
 
 
 

@@ -123,5 +123,13 @@ The list includes the system definition file."
   "Return the list of packages defined in SYSTEM."
   (remove-duplicates (mapcan #'file-packages (lisp-pathnames system))))
 
+(defun system-external-symbols (system)
+  "Return the list of SYSTEM's external symbols which need documenting."
+  (mapcan #'package-external-symbols (system-packages system)))
+
+(defun system-internal-symbols (system)
+  "Return the list of SYSTEM's internal symbols which need documenting."
+  (mapcan #'package-internal-symbols (system-packages system)))
+
 
 ;;; asdf.lisp ends here

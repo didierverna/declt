@@ -43,49 +43,31 @@
       (:class     "class"             "classes"))
   "The list of definition categories and how to typeset them.")
 
-(defun add-category-node (parent category location package symbols)
-  "Add PACKAGE's LOCATION definitions node to PARENT for SYMBOLS of CATEGORY."
-  (let ((definitions
-	    (remove-if-not
-	     (fdefinition
-	      (intern (format nil "~A-DEFINITION-P" (first category))
-		      :com.dvlsoft.declt))
-	     symbols)))
-    (when definitions
-      (add-child parent
-	(make-node :name (format nil "~@(~A~) ~A from the ~(~A~) package"
-			   location
-			   (third category)
-			   (escape package))
-		   :section-name (format nil "~@(~A~)"
-				   (third category))
-		   :before-menu-contents
-		   (render-to-string
-		     (dolist (definition definitions)
-		       (funcall
-			(fdefinition (intern (format nil "RENDER-~A"
-					       (first category))
-					     :com.dvlsoft.declt))
-			definition))))))))
+(defun add-category-node (parent location category symbols)
+  "Add LOCATION CATEGORY node to PARENT for SYMBOLS."
+  (add-child parent
+    (make-node :name (format nil "~@(~A ~A~)" location (third category))
+	       :section-name (format nil "~@(~A~)" (third category))
+	       :before-menu-contents
+	       (render-to-string
+		 (dolist (symbol (sort symbols #'string-lessp))
+		   (funcall
+		    (fdefinition (intern (format nil "RENDER-~A"
+					   (first category))
+					 :com.dvlsoft.declt))
+		    symbol))))))
 
-(defun add-location-node (parent location package)
-  "Add PACKAGE's LOCATION node to PARENT.
-LOCATION is either :external or :internal."
-  (let ((symbols (funcall (fdefinition
-			   (intern (format nil "PACKAGE-~A-SYMBOLS" location)
-				   :com.dvlsoft.declt))
-			  package)))
-    (when symbols
-      (let ((node
-	     (add-child parent
-	       (make-node :name (format nil "~
-~@(~A~) definitions from the ~(~A~) package"
-				  location
-				  (escape package))
-			  :section-name (format nil "~:(~A~) definitions"
-					  location)))))
-	(dolist (category +categories+)
-	  (add-category-node node category location package symbols))))))
+(defun add-categories-node (parent location symbols)
+  "Add all relevant category nodes to PARENT for LOCATION SYMBOLS."
+  (dolist (category +categories+)
+    (let ((category-symbols
+	   (remove-if-not
+	    (fdefinition
+	     (intern (format nil "~A-DEFINITION-P" (first category))
+		     :com.dvlsoft.declt))
+	    symbols)))
+      (when category-symbols
+	(add-category-node parent location category category-symbols)))))
 
 (defun add-definitions-node
     (parent system
@@ -94,19 +76,17 @@ LOCATION is either :external or :internal."
 		(make-node :name "Definitions"
 			   :synopsis "The symbols documentation"
 			   :before-menu-contents(format nil "~
-Definitions are sorted by package, export status, category and then by
-lexicographic order."))))
-	  (packages (system-packages system)))
+Definitions are sorted by export status, category, package, and then by
+lexicographic order.")))))
   "Add the SYSTEM's definitions node to PARENT."
-  (dolist (package packages)
-    (let ((package-node
-	   (add-child definitions-node
-	     (make-node :name (format nil "Definitions from the ~(~A~) package"
-				(escape package))
-			:section-name (format nil "From the ~(@t{~A}~) package"
-					(escape package))))))
-      (dolist (location '(:external :internal))
-	(add-location-node package-node location package)))))
+  (loop :for symbols :in (list (system-external-symbols system)
+			       (system-internal-symbols system))
+	:for location :in '("exported" "internal")
+	:when symbols
+	:do (let ((node (add-child definitions-node
+			  (make-node :name (format nil "~@(~A~) definitions"
+					     location)))))
+	      (add-categories-node node location symbols))))
 
 
 ;;; definition.lisp ends here
