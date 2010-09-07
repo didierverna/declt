@@ -128,8 +128,8 @@ STRING should look like \"NAME <EMAIL>\"."
   (:method (symbol (kind (eql :function)))
     "Return the ordinary function defined by SYMBOL if any."
     (when (and (fboundp symbol)
-	       (not (macro-definition-p symbol))
-	       (not (generic-definition-p symbol)))
+	       (not (definitionp symbol :macro))
+	       (not (definitionp symbol :generic)))
       (fdefinition symbol)))
   (:method (symbol (kind (eql :condition)))
     "Return the condition defined by SYMBOL if any."
@@ -147,8 +147,8 @@ STRING should look like \"NAME <EMAIL>\"."
     "Return the ordinary class defined by SYMBOL if any."
     (let ((class (find-class symbol nil)))
       (when (and class
-		 (not (condition-definition-p symbol))
-		 (not (structure-definition-p symbol)))
+		 (not (definitionp symbol :condition))
+		 (not (definitionp symbol :structure)))
 	class))))
 
 (defun symbol-needs-documenting (symbol)

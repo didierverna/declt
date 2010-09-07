@@ -58,7 +58,8 @@
 ;; Documentation protocol
 ;; ----------------------
 
-(defmethod document ((module asdf:module) &optional relative-to)
+(defmethod document ((module asdf:module) &optional relative-to category)
+  (declare (ignore category))
   (call-next-method)
   (format t "@item Components~%")
   (@itemize-list (asdf:module-components module)

@@ -59,8 +59,8 @@
 ;; Documentation protocol
 ;; ----------------------
 
-(defmethod document ((package package) &optional relative-to)
-  (declare (ignore relative-to))
+(defmethod document ((package package) &optional relative-to category)
+  (declare (ignore relative-to category))
   (when (package-nicknames package)
     (format t "@item Nicknames~%")
     (@itemize-list (package-nicknames package)

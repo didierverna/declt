@@ -51,8 +51,8 @@
 ;; Documentation protocol
 ;; ----------------------
 
-(defmethod document ((system asdf:system) &optional relative-to)
-  (declare (ignore relative-to))
+(defmethod document ((system asdf:system) &optional relative-to category)
+  (declare (ignore relative-to category))
   (format t "@item Name~%@t{~A}~%" (escape system))
   (when (system-description system)
     (format t "@item Description~%")

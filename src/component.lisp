@@ -79,7 +79,9 @@ online, and hence independent of any specific installation.")
 ;; Documentation protocol
 ;; ----------------------
 
-(defmethod document ((component asdf:component) &optional relative-to)
+(defmethod document
+    ((component asdf:component) &optional relative-to category)
+  (declare (ignore category))
   (format t "~@[@item Version~%~A~%~]" (escape (component-version component)))
   ;; #### NOTE: currently, we simply extract all the dependencies regardless
   ;; of the operations involved. We also assume that dependencies are of the

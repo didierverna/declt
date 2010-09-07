@@ -37,80 +37,93 @@
 ;; Rendering routines
 ;; ==========================================================================
 
-(defun render-documentation (symbol type)
-  "Render SYMBOL's TYPE documentation."
-  (when (symbolp symbol)
-    (format t "@table @strong~%")
-    (format t "@item Package~%")
-    (reference (symbol-package symbol))
-    (format t "@end table~%"))
-  (render-string (documentation symbol type)))
+(defmethod index ((symbol symbol) &optional relative-to)
+  (declare (ignore relative-to))
+  (values))
 
-(defun render-method (method)
-  "Render METHOD."
+(defmethod document ((symbol symbol) &optional relative-to category)
+  "Render SYMBOL's CATEGORY documentation."
+  (declare (ignore relative-to))
+  (format t "@item Package~%")
+  (reference (symbol-package symbol))
+  (format t "@item Documentation~%")
+  (render-string (documentation symbol (ecase category
+					 ((:constant :special)
+					  'variable)
+					 ((:macro :function :generic)
+					  'function)
+					 ((:condition :structure :class)
+					  'type)))))
+
+(defmethod index ((method method) &optional relative-to)
+  (declare (ignore relative-to))
+  (values))
+
+(defmethod document ((method method) &optional relative-to category)
+  (declare (ignore relative-to category))
+  (render-string (documentation method t)))
+
+;; #### PORTME:
+(defun render-method (method relative-to)
   (@defmethod
-      ;; #### PORTME:
       (string-downcase (sb-mop:generic-function-name
 			(sb-mop:method-generic-function method)))
-      ;; #### PORTME.
       (sb-mop:method-lambda-list method)
-      ;; #### PORTME.
       (sb-mop:method-specializers method)
-      ;; #### PORTME.
       (sb-mop:method-qualifiers method)
-    (render-documentation method 't)))
+    (document method relative-to)))
 
-(defgeneric render-symbol (symbol kind)
-  (:documentation "Render SYMBOL as a KIND.")
-  (:method (symbol (kind (eql :constant)))
+(defgeneric render-symbol (symbol relative-to category)
+  (:documentation "Render SYMBOL as a CATEGORY.")
+  (:method (symbol relative-to (category (eql :constant)))
     "Render SYMBOL as a constant."
-    (when (constant-definition-p symbol)
+    (when (definitionp symbol :constant)
       (@defconstant (string-downcase symbol)
-	(render-documentation symbol 'variable))))
-  (:method (symbol (kind (eql :special)))
+	(document symbol relative-to category))))
+  (:method (symbol relative-to (category (eql :special)))
     "Render SYMBOL as a special variable."
-    (when (special-definition-p symbol)
+    (when (definitionp symbol :special)
       (@defspecial (string-downcase symbol)
-	(render-documentation symbol 'variable))))
-  (:method (symbol (kind (eql :macro)))
+	(document symbol relative-to category))))
+  (:method (symbol relative-to (category (eql :macro)))
     "Render SYMBOL as a macro."
-    (when (macro-definition-p symbol)
+    (when (definitionp symbol :macro)
       (@defmac (string-downcase symbol)
 	  ;; #### PORTME.
 	  (sb-introspect:function-lambda-list symbol)
-	(render-documentation symbol 'function))))
-  (:method (symbol (kind (eql :function)))
+	(document symbol relative-to category))))
+  (:method (symbol relative-to (category (eql :function)))
     "Render SYMBOL as an ordinary function."
-    (when (function-definition-p symbol)
+    (when (definitionp symbol :function)
       (@defun (string-downcase symbol)
 	  ;; #### PORTME.
 	  (sb-introspect:function-lambda-list symbol))
-      (render-documentation symbol 'function)))
-  (:method (symbol (kind (eql :generic)))
+      (document symbol relative-to category)))
+  (:method (symbol relative-to (category (eql :generic)))
     "Render SYMBOL as a generic function."
-    (when (generic-definition-p symbol)
+    (when (definitionp symbol :generic)
       (@defgeneric (string-downcase symbol)
 	  ;; #### PORTME.
 	  (sb-introspect:function-lambda-list symbol)
-	(render-documentation symbol 'function)))
+	(document symbol relative-to category)))
     ;; #### PORTME.
     (dolist (method (sb-mop:generic-function-methods (fdefinition symbol)))
-      (render-method method)))
-  (:method (symbol (kind (eql :condition)))
+      (render-method method relative-to)))
+  (:method (symbol relative-to (category (eql :condition)))
     "Render SYMBOL as a condition."
-    (when (condition-definition-p symbol)
+    (when (definitionp symbol :condition)
       (@defcond (string-downcase symbol)
-	(render-documentation symbol 'type))))
-  (:method (symbol (kind (eql :structure)))
+	(document symbol relative-to category))))
+  (:method (symbol relative-to (category (eql :structure)))
     "Render SYMBOL as a structure."
-    (when (structure-definition-p symbol)
+    (when (definitionp symbol :structure)
       (@defstruct (string-downcase symbol)
-	(render-documentation symbol 'type))))
-  (:method (symbol (kind (eql :class)))
+	(document symbol relative-to category))))
+  (:method (symbol relative-to (category (eql :class)))
     "Render SYMBOL as an ordinary class."
-    (when (class-definition-p symbol)
+    (when (definitionp symbol :class)
       (@defclass (string-downcase symbol)
-	(render-documentation symbol 'type)))))
+	(document symbol relative-to category)))))
 
 
 
@@ -118,7 +131,7 @@
 ;; Definition nodes
 ;; ==========================================================================
 
-(defun add-category-node (parent location category symbols)
+(defun add-category-node (parent location category symbols relative-to)
   "Add LOCATION CATEGORY node to PARENT for SYMBOLS."
   (add-child parent
     (make-node :name (format nil "~@(~A ~A~)" location (third category))
@@ -126,9 +139,9 @@
 	       :before-menu-contents
 	       (render-to-string
 		 (dolist (symbol (sort symbols #'string-lessp))
-		   (render-symbol symbol (first category)))))))
+		   (render-symbol symbol relative-to (first category)))))))
 
-(defun add-categories-node (parent location symbols)
+(defun add-categories-node (parent location symbols relative-to)
   "Add all relevant category nodes to PARENT for LOCATION SYMBOLS."
   (dolist (category +categories+)
     (let ((category-symbols
@@ -136,11 +149,13 @@
 			    (definitionp symbol (first category)))
 			  symbols)))
       (when category-symbols
-	(add-category-node parent location category category-symbols)))))
+	(add-category-node parent location category category-symbols
+			   relative-to)))))
 
 (defun add-definitions-node
     (parent system
-     &aux (definitions-node
+     &aux (system-directory (system-directory system))
+	  (definitions-node
 	      (add-child parent
 		(make-node :name "Definitions"
 			   :synopsis "The symbols documentation"
@@ -155,7 +170,7 @@ lexicographic order.")))))
 	:do (let ((node (add-child definitions-node
 			  (make-node :name (format nil "~@(~A~) definitions"
 					     location)))))
-	      (add-categories-node node location symbols))))
+	      (add-categories-node node location symbols system-directory))))
 
 
 ;;; definition.lisp ends here

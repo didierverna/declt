@@ -235,14 +235,16 @@ If OBJECT is nil, return nil.")
 ;; Documentation protocol
 ;; ----------------------
 
-(defgeneric document (item &optional relative-to)
+(defgeneric document (item &optional relative-to category)
   (:documentation "Render ITEM's documentation.
-ITEM's location is rendered RELATIVE-TO when appropriate.")
-  (:method :before (item &optional relative-to)
+ITEM's location is rendered RELATIVE-TO when appropriate.
+CATEGORY applies to symbols.")
+  (:method :before (item &optional relative-to category)
+    (declare (ignore category))
     (index item relative-to)
     (format t "@table @strong~%"))
-  (:method :after (item &optional relative-to)
-    (declare (ignore relative-to))
+  (:method :after (item &optional relative-to category)
+    (declare (ignore relative-to category))
     (format t "@end table~%")))
 
 
