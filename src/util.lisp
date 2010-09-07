@@ -95,67 +95,67 @@ STRING should look like \"NAME <EMAIL>\"."
 ;; Symbol Related
 ;; ==========================================================================
 
+(define-constant +categories+
+    '((:constant  "constant"          "constants")
+      (:special   "special variable"  "special variables")
+      (:macro     "macro"             "macros")
+      (:function  "function"          "functions")
+      (:generic   "generic function"  "generic functions")
+      (:condition "condition"         "conditions")
+      (:structure "structure"         "structures")
+      (:class     "class"             "classes"))
+  "The list of definition categories and how to typeset them.")
+
 ;; #### PORTME.
-
-(defun constant-definition-p (symbol)
-  "Return the constant defined by SYMBOL if any."
-  (when (eql (sb-int:info :variable :kind symbol) :constant)
-    (symbol-value symbol)))
-
-(defun special-definition-p (symbol)
-  "Return the special variable value defined by SYMBOL if any."
-  (when (eql (sb-int:info :variable :kind symbol) :special)
-    (symbol-value symbol)))
-
-(defun macro-definition-p (symbol)
-  "Return the macro function defined by SYMBOL if any."
-  (macro-function symbol))
-
-(defun generic-definition-p (symbol)
-  "Return the generic function defined by SYMBOL if any."
-  (when (and (fboundp symbol)
-	     (typep (fdefinition symbol) 'generic-function))
-    (fdefinition symbol)))
-
-(defun function-definition-p (symbol)
-  "Return the ordinary function defined by SYMBOL if any."
-  (when (and (fboundp symbol)
-	     (not (macro-definition-p symbol))
-	     (not (generic-definition-p symbol)))
-    (fdefinition symbol)))
-
-(defun condition-definition-p (symbol)
-  "Return the condition defined by SYMBOL if any."
-  (let ((class (find-class symbol nil)))
-    (when (and class
-	       (typep class 'condition))
-      class)))
-
-(defun structure-definition-p (symbol)
-  "Return the structure defined by SYMBOL if any."
-  (let ((class (find-class symbol nil)))
-    (when (and class
-	       (eq (class-of class) 'structure-class))
-      class)))
-
-(defun class-definition-p (symbol)
-  "Return the ordinary class defined by SYMBOL if any."
-  (let ((class (find-class symbol nil)))
-    (when (and class
-	       (not (condition-definition-p symbol))
-	       (not (structure-definition-p symbol)))
-      class)))
+(defgeneric definitionp (symbol kind)
+  (:documentation "Return the value of KIND defined by SYMBOL if any.")
+  (:method (symbol (kind (eql :constant)))
+    "Return the constant defined by SYMBOL if any."
+    (when (eql (sb-int:info :variable :kind symbol) :constant)
+      (symbol-value symbol)))
+  (:method (symbol (kind (eql :special)))
+    "Return the special variable value defined by SYMBOL if any."
+    (when (eql (sb-int:info :variable :kind symbol) :special)
+      (symbol-value symbol)))
+  (:method (symbol (kind (eql :macro)))
+    "Return the macro function defined by SYMBOL if any."
+    (macro-function symbol))
+  (:method (symbol (kind (eql :generic)))
+    "Return the generic function defined by SYMBOL if any."
+    (when (and (fboundp symbol)
+	       (typep (fdefinition symbol) 'generic-function))
+      (fdefinition symbol)))
+  (:method (symbol (kind (eql :function)))
+    "Return the ordinary function defined by SYMBOL if any."
+    (when (and (fboundp symbol)
+	       (not (macro-definition-p symbol))
+	       (not (generic-definition-p symbol)))
+      (fdefinition symbol)))
+  (:method (symbol (kind (eql :condition)))
+    "Return the condition defined by SYMBOL if any."
+    (let ((class (find-class symbol nil)))
+      (when (and class
+		 (typep class 'condition))
+	class)))
+  (:method (symbol (kind (eql :structure)))
+    "Return the structure defined by SYMBOL if any."
+    (let ((class (find-class symbol nil)))
+      (when (and class
+		 (eq (class-of class) 'structure-class))
+	class)))
+  (:method (symbol (kind (eql :class)))
+    "Return the ordinary class defined by SYMBOL if any."
+    (let ((class (find-class symbol nil)))
+      (when (and class
+		 (not (condition-definition-p symbol))
+		 (not (structure-definition-p symbol)))
+	class))))
 
 (defun symbol-needs-documenting (symbol)
   "Return t when SYMBOL needs to be documented."
-  (or (constant-definition-p symbol)
-      (special-definition-p  symbol)
-      (macro-definition-p  symbol)
-      (generic-definition-p  symbol)
-      (function-definition-p  symbol)
-      (condition-definition-p  symbol)
-      (structure-definition-p  symbol)
-      (class-definition-p  symbol)))
+  (some (lambda (category)
+	  (definitionp symbol (first category)))
+	+categories+))
 
 
 

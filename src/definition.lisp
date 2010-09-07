@@ -109,17 +109,6 @@
 ;; Definition nodes
 ;; ==========================================================================
 
-(define-constant +categories+
-    '((:constant  "constant"          "constants")
-      (:special   "special variable"  "special variables")
-      (:macro     "macro"             "macros")
-      (:function  "function"          "functions")
-      (:generic   "generic function"  "generic functions")
-      (:condition "condition"         "conditions")
-      (:structure "structure"         "structures")
-      (:class     "class"             "classes"))
-  "The list of definition categories and how to typeset them.")
-
 (defun add-category-node (parent location category symbols)
   "Add LOCATION CATEGORY node to PARENT for SYMBOLS."
   (add-child parent
@@ -134,11 +123,9 @@
   "Add all relevant category nodes to PARENT for LOCATION SYMBOLS."
   (dolist (category +categories+)
     (let ((category-symbols
-	   (remove-if-not
-	    (fdefinition
-	     (intern (format nil "~A-DEFINITION-P" (first category))
-		     :com.dvlsoft.declt))
-	    symbols)))
+	   (remove-if-not (lambda (symbol)
+			    (definitionp symbol (first category)))
+			  symbols)))
       (when category-symbols
 	(add-category-node parent location category category-symbols)))))
 
