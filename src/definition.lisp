@@ -35,8 +35,8 @@
 (define-constant +categories+
     '((:constant  "constant"          "constants")
       (:special   "special variable"  "special variables")
-;;      (:condition "condition"         "conditions")
-;;      (:structure "structure"         "structures")
+      (:condition "condition"         "conditions")
+      (:structure "structure"         "structures")
       (:class     "class"             "classes")
       (:macro     "macro"             "macros")
       (:function  "ordinary function" "ordinary functions")
@@ -48,7 +48,7 @@
   (let ((definitions
 	    (remove-if-not
 	     (fdefinition
-	      (intern (format nil "~A-SYMBOL-P" (first category))
+	      (intern (format nil "~A-DEFINITION-P" (first category))
 		      :com.dvlsoft.declt))
 	     symbols)))
     (when definitions

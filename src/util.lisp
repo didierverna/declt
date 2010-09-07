@@ -95,44 +95,62 @@ STRING should look like \"NAME <EMAIL>\"."
 ;; Symbol Related
 ;; ==========================================================================
 
-(defun constant-symbol-p (symbol)
-  "Return t if SYMBOL names a constant."
-  (constantp symbol))
+;; #### PORTME.
 
-(defun special-symbol-p (symbol)
-  "Return t if SYMBOL names a special variable."
-  ;; #### PORTME.
-  (eql (sb-int:info :variable :kind symbol) :special))
+(defun constant-definition-p (symbol)
+  "Return the constant defined by SYMBOL if any."
+  (when (eql (sb-int:info :variable :kind symbol) :constant)
+    (symbol-value symbol)))
 
-(defun class-symbol-p (symbol)
-  "Return the class named by SYMBOL if any."
-  (find-class symbol nil))
+(defun special-definition-p (symbol)
+  "Return the special variable value defined by SYMBOL if any."
+  (when (eql (sb-int:info :variable :kind symbol) :special)
+    (symbol-value symbol)))
 
-(defun fbound-symbol-p (symbol)
-  "Return t if SYMBOL names a function."
-  (fboundp symbol))
+(defun generic-definition-p (symbol)
+  "Return the generic function defined by SYMBOL if any."
+  (when (and (fboundp symbol)
+	     (typep (fdefinition symbol) 'generic-function))
+    (fdefinition symbol)))
 
-(defun macro-symbol-p (symbol)
-  "Return t if SYMBOL names a macro."
+(defun macro-definition-p (symbol)
+  "Return the macro function defined by SYMBOL if any."
   (macro-function symbol))
 
-(defun function-symbol-p (symbol)
+(defun function-definition-p (symbol)
   "Return t if SYMBOL names an ordinary function."
   (and (fboundp symbol)
-       (or (consp symbol) (not (macro-symbol-p symbol)))
+       (or (consp symbol) (not (macro-definition-p symbol)))
        (not (typep (fdefinition symbol) 'standard-generic-function))))
-
-(defun generic-symbol-p (symbol)
-  "Return t if SYMBOL names a generic function."
-  (and (fboundp symbol)
-       (typep (fdefinition symbol) 'standard-generic-function)))
 
 (defun symbol-needs-rendering (symbol)
   "Return t when SYMBOL needs to be documented."
-  (or (constant-symbol-p symbol)
-      (special-symbol-p  symbol)
-      (class-symbol-p    symbol)
-      (fbound-symbol-p symbol)))
+  (or (constant-definition-p symbol)
+      (special-definition-p  symbol)
+      (class-definition-p    symbol)
+      (fbound-definition-p symbol)))
+
+(defun condition-definition-p (symbol)
+  "Return the condition named by SYMBOL if any."
+  (let ((class (find-class symbol nil)))
+    (when (and class
+	       (typep class 'condition))
+      class)))
+
+(defun structure-definition-p (symbol)
+  "Return the structure named by SYMBOL if any."
+  (let ((class (find-class symbol nil)))
+    (when (and class
+	       (typep class 'structure))
+      class)))
+
+(defun class-definition-p (symbol)
+  "Return the class named by SYMBOL if any."
+  (let ((class (find-class symbol nil)))
+    (when (and class
+	       (not (condition-definition-p symbol))
+	       (not (structure-definition-p symbol)))
+      class)))
 
 
 
