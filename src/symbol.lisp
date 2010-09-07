@@ -39,32 +39,19 @@
 
 (defun render-constant (symbol)
   "Render SYMBOL as a constant."
-  (when (constant-symbol-p symbol)
+  (when (constant-definition-p symbol)
     (@defconstant (string-downcase symbol)
       (render-documentation symbol 'variable))))
 
 (defun render-special (symbol)
   "Render SYMBOL as a special variable."
-  (when (special-symbol-p symbol)
+  (when (special-definition-p symbol)
     (@defspecial (string-downcase symbol)
       (render-documentation symbol 'variable))))
 
-(defun render-class (symbol)
-  "Render SYMBOL as a class."
-  (let ((class (class-symbol-p symbol)))
-    (when class
-      ;; #### PORTME.
-      (@deftp (cond ((eq (class-of class) (find-class 'structure-class))
-		     "Structure")
-		    ((subtypep class 'condition)
-		     "Condition")
-		    (t "Class"))
-	  (string-downcase symbol)
-	(render-documentation symbol 'type)))))
-
 (defun render-macro (symbol)
   "Render SYMBOL as a macro."
-  (when (macro-symbol-p symbol)
+  (when (macro-definition-p symbol)
     (@defmac (string-downcase symbol)
 	;; #### PORTME.
 	(sb-introspect:function-lambda-list symbol)
@@ -72,7 +59,7 @@
 
 (defun render-function (symbol)
   "Render SYMBOL as an ordinary function."
-  (when (function-symbol-p symbol)
+  (when (function-definition-p symbol)
     (@defun (string-downcase symbol)
 	;; #### PORTME.
 	(sb-introspect:function-lambda-list symbol))
@@ -94,7 +81,7 @@
 
 (defun render-generic (symbol)
   "Render SYMBOL as a generic function."
-  (when (generic-symbol-p symbol)
+  (when (generic-definition-p symbol)
     (@defgeneric (string-downcase symbol)
 	;; #### PORTME.
 	(sb-introspect:function-lambda-list symbol)
@@ -102,6 +89,24 @@
   ;; #### PORTME.
   (dolist (method (sb-mop:generic-function-methods (fdefinition symbol)))
     (render-method method)))
+
+(defun render-condition (symbol)
+  "Render SYMBOL as a condition."
+  (when (condition-definition-p symbol)
+    (@defcond (string-downcase symbol)
+      (render-documentation symbol 'type))))
+
+(defun render-structure (symbol)
+  "Render SYMBOL as a structure."
+  (when (structure-definition-p symbol)
+    (@defstruct (string-downcase symbol)
+      (render-documentation symbol 'type))))
+
+(defun render-class (symbol)
+  "Render SYMBOL as an ordinary class."
+  (when (class-definition-p symbol)
+    (@defclass (string-downcase symbol)
+      (render-documentation symbol 'type))))
 
 
 ;;; symbol.lisp ends here

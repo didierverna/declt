@@ -107,50 +107,55 @@ STRING should look like \"NAME <EMAIL>\"."
   (when (eql (sb-int:info :variable :kind symbol) :special)
     (symbol-value symbol)))
 
+(defun macro-definition-p (symbol)
+  "Return the macro function defined by SYMBOL if any."
+  (macro-function symbol))
+
 (defun generic-definition-p (symbol)
   "Return the generic function defined by SYMBOL if any."
   (when (and (fboundp symbol)
 	     (typep (fdefinition symbol) 'generic-function))
     (fdefinition symbol)))
 
-(defun macro-definition-p (symbol)
-  "Return the macro function defined by SYMBOL if any."
-  (macro-function symbol))
-
 (defun function-definition-p (symbol)
-  "Return t if SYMBOL names an ordinary function."
-  (and (fboundp symbol)
-       (or (consp symbol) (not (macro-definition-p symbol)))
-       (not (typep (fdefinition symbol) 'standard-generic-function))))
-
-(defun symbol-needs-rendering (symbol)
-  "Return t when SYMBOL needs to be documented."
-  (or (constant-definition-p symbol)
-      (special-definition-p  symbol)
-      (class-definition-p    symbol)
-      (fbound-definition-p symbol)))
+  "Return the ordinary function defined by SYMBOL if any."
+  (when (and (fboundp symbol)
+	     (not (macro-definition-p symbol))
+	     (not (generic-definition-p symbol)))
+    (fdefinition symbol)))
 
 (defun condition-definition-p (symbol)
-  "Return the condition named by SYMBOL if any."
+  "Return the condition defined by SYMBOL if any."
   (let ((class (find-class symbol nil)))
     (when (and class
 	       (typep class 'condition))
       class)))
 
 (defun structure-definition-p (symbol)
-  "Return the structure named by SYMBOL if any."
+  "Return the structure defined by SYMBOL if any."
   (let ((class (find-class symbol nil)))
     (when (and class
-	       (typep class 'structure))
+	       (eq (class-of class) 'structure-class))
       class)))
 
 (defun class-definition-p (symbol)
-  "Return the class named by SYMBOL if any."
+  "Return the ordinary class defined by SYMBOL if any."
   (let ((class (find-class symbol nil)))
     (when (and class
 	       (not (condition-definition-p symbol))
 	       (not (structure-definition-p symbol)))
       class)))
+
+(defun symbol-needs-documenting (symbol)
+  "Return t when SYMBOL needs to be documented."
+  (or (constant-definition-p symbol)
+      (special-definition-p  symbol)
+      (macro-definition-p  symbol)
+      (generic-definition-p  symbol)
+      (function-definition-p  symbol)
+      (condition-definition-p  symbol)
+      (structure-definition-p  symbol)
+      (class-definition-p  symbol)))
 
 
 
@@ -164,7 +169,7 @@ STRING should look like \"NAME <EMAIL>\"."
   "Return the list of symbols external to PACKAGE that need documenting."
   (do-external-symbols (symbol package)
     (when (and (eq (symbol-package symbol) package)
-	       (symbol-needs-rendering symbol))
+	       (symbol-needs-documenting symbol))
       (push symbol external-symbols)))
   (sort external-symbols #'string-lessp))
 
@@ -177,7 +182,7 @@ STRING should look like \"NAME <EMAIL>\"."
   (do-symbols (symbol package)
     (when (and (not (member symbol external-symbols))
 	       (eq (symbol-package symbol) package)
-	       (symbol-needs-rendering symbol))
+	       (symbol-needs-documenting symbol))
       (push symbol internal-symbols)))
   (sort internal-symbols #'string-lessp))
 

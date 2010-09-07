@@ -35,12 +35,12 @@
 (define-constant +categories+
     '((:constant  "constant"          "constants")
       (:special   "special variable"  "special variables")
+      (:macro     "macro"             "macros")
+      (:function  "function"          "functions")
+      (:generic   "generic function"  "generic functions")
       (:condition "condition"         "conditions")
       (:structure "structure"         "structures")
-      (:class     "class"             "classes")
-      (:macro     "macro"             "macros")
-      (:function  "ordinary function" "ordinary functions")
-      (:generic   "generic function"  "generic functions"))
+      (:class     "class"             "classes"))
   "The list of definition categories and how to typeset them.")
 
 (defun add-category-node (parent category location package symbols)
