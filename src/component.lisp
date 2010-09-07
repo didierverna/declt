@@ -79,6 +79,14 @@ online, and hence independent of any specific installation.")
 ;; Documentation protocol
 ;; ----------------------
 
+(defmethod document :around
+    ((component asdf:component) &optional relative-to category)
+  (declare (ignore category))
+  "Index COMPONENT and enclose its documentation in a @table environment."
+  (index component relative-to)
+  (@table ()
+    (call-next-method)))
+
 (defmethod document
     ((component asdf:component) &optional relative-to category)
   (declare (ignore category))

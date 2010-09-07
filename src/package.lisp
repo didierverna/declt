@@ -61,16 +61,18 @@
 
 (defmethod document ((package package) &optional relative-to category)
   (declare (ignore relative-to category))
-  (when (package-nicknames package)
-    (format t "@item Nicknames~%")
-    (@itemize-list (package-nicknames package)
-      :format "@t{~(~A~)}"
-      :key #'escape))
-  (when (package-use-list package)
-    (format t "@item Use List~%")
-    (@itemize-list (package-use-list package)
-      :format "@t{~(~A~)}"
-      :key #'escape)))
+  (index package)
+  (@table ()
+    (when (package-nicknames package)
+      (format t "@item Nicknames~%")
+      (@itemize-list (package-nicknames package)
+	:format "@t{~(~A~)}"
+	:key #'escape))
+    (when (package-use-list package)
+      (format t "@item Use List~%")
+      (@itemize-list (package-use-list package)
+	:format "@t{~(~A~)}"
+	:key #'escape))))
 
 
 

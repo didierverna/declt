@@ -95,6 +95,13 @@ If OBJECT is nil, return nil.")
 		     (escape specializer))
 		 (write-string (escape (symbol-name part))))))))))
 
+(defmacro @table ((&optional (kind :@strong)) &body body)
+  "Render BODY in a @table KIND environment."
+  `(progn
+    (format t "@table ~(~A~)~%" ,kind)
+    ,@body
+    (format t "~&@end table~%")))
+
 (defmacro @itemize ((&optional (kind :@bullet)) &body body)
   "Render BODY in an @itemize KIND environment."
   `(progn
@@ -238,14 +245,7 @@ If OBJECT is nil, return nil.")
 (defgeneric document (item &optional relative-to category)
   (:documentation "Render ITEM's documentation.
 ITEM's location is rendered RELATIVE-TO when appropriate.
-CATEGORY applies to symbols.")
-  (:method :before (item &optional relative-to category)
-    (declare (ignore category))
-    (index item relative-to)
-    (format t "@table @strong~%"))
-  (:method :after (item &optional relative-to category)
-    (declare (ignore relative-to category))
-    (format t "@end table~%")))
+CATEGORY applies to symbols."))
 
 
 

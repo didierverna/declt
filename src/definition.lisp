@@ -44,16 +44,17 @@
 (defmethod document ((symbol symbol) &optional relative-to category)
   "Render SYMBOL's CATEGORY documentation."
   (declare (ignore relative-to))
-  (format t "@item Package~%")
-  (reference (symbol-package symbol))
-  (format t "@item Documentation~%")
-  (render-string (documentation symbol (ecase category
-					 ((:constant :special)
-					  'variable)
-					 ((:macro :function :generic)
-					  'function)
-					 ((:condition :structure :class)
-					  'type)))))
+  (@table ()
+    (format t "@item Package~%")
+    (reference (symbol-package symbol))
+    (format t "@item Documentation~%")
+    (render-string (documentation symbol (ecase category
+					   ((:constant :special)
+					    'variable)
+					   ((:macro :function :generic)
+					    'function)
+					   ((:condition :structure :class)
+					    'type))))))
 
 (defmethod index ((method method) &optional relative-to)
   (declare (ignore relative-to))
