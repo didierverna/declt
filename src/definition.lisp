@@ -32,6 +32,83 @@
 
 (in-package :com.dvlsoft.declt)
 
+
+;; ==========================================================================
+;; Rendering routines
+;; ==========================================================================
+
+(defun render-method (method)
+  "Render METHOD."
+  (@defmethod
+      ;; #### PORTME:
+      (string-downcase (sb-mop:generic-function-name
+			(sb-mop:method-generic-function method)))
+      ;; #### PORTME.
+      (sb-mop:method-lambda-list method)
+      ;; #### PORTME.
+      (sb-mop:method-specializers method)
+      ;; #### PORTME.
+      (sb-mop:method-qualifiers method)
+    (render-documentation method 't)))
+
+(defgeneric render-symbol (symbol kind)
+  (:documentation "Render SYMBOL as a KIND.")
+  (:method (symbol (kind (eql :constant)))
+    "Render SYMBOL as a constant."
+    (when (constant-definition-p symbol)
+      (@defconstant (string-downcase symbol)
+	(render-documentation symbol 'variable))))
+  (:method (symbol (kind (eql :special)))
+    "Render SYMBOL as a special variable."
+    (when (special-definition-p symbol)
+      (@defspecial (string-downcase symbol)
+	(render-documentation symbol 'variable))))
+  (:method (symbol (kind (eql :macro)))
+    "Render SYMBOL as a macro."
+    (when (macro-definition-p symbol)
+      (@defmac (string-downcase symbol)
+	  ;; #### PORTME.
+	  (sb-introspect:function-lambda-list symbol)
+	(render-documentation symbol 'function))))
+  (:method (symbol (kind (eql :function)))
+    "Render SYMBOL as an ordinary function."
+    (when (function-definition-p symbol)
+      (@defun (string-downcase symbol)
+	  ;; #### PORTME.
+	  (sb-introspect:function-lambda-list symbol))
+      (render-documentation symbol 'function)))
+  (:method (symbol (kind (eql :generic)))
+    "Render SYMBOL as a generic function."
+    (when (generic-definition-p symbol)
+      (@defgeneric (string-downcase symbol)
+	  ;; #### PORTME.
+	  (sb-introspect:function-lambda-list symbol)
+	(render-documentation symbol 'function)))
+    ;; #### PORTME.
+    (dolist (method (sb-mop:generic-function-methods (fdefinition symbol)))
+      (render-method method)))
+  (:method (symbol (kind (eql :condition)))
+    "Render SYMBOL as a condition."
+    (when (condition-definition-p symbol)
+      (@defcond (string-downcase symbol)
+	(render-documentation symbol 'type))))
+  (:method (symbol (kind (eql :structure)))
+    "Render SYMBOL as a structure."
+    (when (structure-definition-p symbol)
+      (@defstruct (string-downcase symbol)
+	(render-documentation symbol 'type))))
+  (:method (symbol (kind (eql :class)))
+    "Render SYMBOL as an ordinary class."
+    (when (class-definition-p symbol)
+      (@defclass (string-downcase symbol)
+	(render-documentation symbol 'type)))))
+
+
+
+;; ==========================================================================
+;; Definition nodes
+;; ==========================================================================
+
 (define-constant +categories+
     '((:constant  "constant"          "constants")
       (:special   "special variable"  "special variables")
@@ -51,11 +128,7 @@
 	       :before-menu-contents
 	       (render-to-string
 		 (dolist (symbol (sort symbols #'string-lessp))
-		   (funcall
-		    (fdefinition (intern (format nil "RENDER-~A"
-					   (first category))
-					 :com.dvlsoft.declt))
-		    symbol))))))
+		   (render-symbol symbol (first category)))))))
 
 (defun add-categories-node (parent location symbols)
   "Add all relevant category nodes to PARENT for LOCATION SYMBOLS."
