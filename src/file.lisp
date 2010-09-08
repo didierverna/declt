@@ -44,28 +44,28 @@
 
 (defmethod index ((cl-source-file asdf:cl-source-file) &optional relative-to)
   (format t "@lispfileindex{~A}@c~%"
-    (escape (relative-pathname cl-source-file relative-to))))
+    (escape (relative-location cl-source-file relative-to))))
 
 (defmethod index ((c-source-file asdf:c-source-file) &optional relative-to)
   (format t "@cfileindex{~A}@c~%"
-    (escape (relative-pathname c-source-file relative-to))))
+    (escape (relative-location c-source-file relative-to))))
 
 (defmethod index
     ((java-source-file asdf:java-source-file) &optional relative-to)
   (format t "@javafileindex{~A}@c~%"
-    (escape (relative-pathname java-source-file relative-to))))
+    (escape (relative-location java-source-file relative-to))))
 
 (defmethod index ((static-file asdf:static-file) &optional relative-to)
   (format t "@otherfileindex{~A}@c~%"
-    (escape (relative-pathname static-file relative-to))))
+    (escape (relative-location static-file relative-to))))
 
 (defmethod index ((doc-file asdf:doc-file) &optional relative-to)
   (format t "@docfileindex{~A}@c~%"
-    (escape (relative-pathname doc-file relative-to))))
+    (escape (relative-location doc-file relative-to))))
 
 (defmethod index ((html-file asdf:html-file) &optional relative-to)
   (format t "@htmlfileindex{~A}@c~%"
-    (escape (relative-pathname html-file relative-to))))
+    (escape (relative-location html-file relative-to))))
 
 
 ;; --------------------
@@ -99,9 +99,9 @@
 (defun file-node (file relative-to)
   "Create and return a FILE node."
   (make-node :name (format nil "The ~A file"
-		     (escape (relative-pathname file relative-to)))
+		     (escape (relative-location file relative-to)))
 	     :section-name (format nil "@t{~A}"
-			     (escape (relative-pathname file relative-to)))
+			     (escape (relative-location file relative-to)))
 	     :before-menu-contents
 	     (render-to-string (document-component file relative-to))))
 

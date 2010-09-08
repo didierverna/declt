@@ -161,6 +161,18 @@
 
 
 ;; ==========================================================================
+;; Item Protocols
+;; ==========================================================================
+
+(defmethod location ((method method))
+  ;; #### PORTME.
+  (let* ((defsrc (sb-introspect:find-definition-source method)))
+    (when defsrc
+      (sb-introspect:definition-source-pathname defsrc))))
+
+
+
+;; ==========================================================================
 ;; Documentation Protocols
 ;; ==========================================================================
 
@@ -177,14 +189,12 @@
       (sb-mop:method-lambda-list method)
       (sb-mop:method-specializers method)
       (sb-mop:method-qualifiers method)
-    ;; #### PORTME.
-    (let* ((defsrc (sb-introspect:find-definition-source method))
-	   (pathname (when defsrc
-		       (sb-introspect:definition-source-pathname defsrc))))
-      (when pathname
-	(@table ()
-	  (render-location pathname relative-to))))
-    (render-string (documentation method t))))
+    (@table ()
+      (render-location method relative-to)
+      (let ((documentation (documentation method t)))
+	(when documentation
+	  (format t "@item Documentation~%")
+	  (render-string documentation))))))
 
 (defun document-definition-1 (definition relative-to type kind)
   "Render DEFINITION's documentation contents as KIND."

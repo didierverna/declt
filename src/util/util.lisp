@@ -78,51 +78,52 @@ STRING should look like \"NAME <EMAIL>\"."
 
 ;; #### PORTME.
 (define-constant +categories+
-    '((:constant  "constant"          "constants"
-       (lambda (symbol)
-	 (when (eql (sb-int:info :variable :kind symbol) :constant)
-	   (symbol-value symbol))))
-      (:special   "special variable"  "special variables"
-       (lambda (symbol)
-	 (when (eql (sb-int:info :variable :kind symbol) :special)
-	   (symbol-value symbol))))
-      (:macro     "macro"             "macros"
-       (lambda (symbol)
-	 (macro-function symbol)))
-      (:function  "function"          "functions"
-       (lambda (symbol)
-	 (when (and (fboundp symbol)
-		    (not (definitionp symbol :macro))
-		    (not (definitionp symbol :generic)))
-	   (fdefinition symbol))))
-      (:generic   "generic function"  "generic functions"
-       (lambda (symbol)
-	 (when (and (fboundp symbol)
-		    (typep (fdefinition symbol) 'generic-function))
-	   (fdefinition symbol))))
-      (:condition "condition"         "conditions"
-       (lambda (symbol)
-	 (let ((class (find-class symbol nil)))
-	   (when (and class
-		      (typep class 'condition))
-	     class))))
-      (:structure "structure"         "structures"
-       (let ((class (find-class symbol nil)))
-	 (when (and class
-		    (eq (class-of class) 'structure-class))
-	   class)))
-      (:class     "class"             "classes"
-       (lambda (symbol)
-	 (let ((class (find-class symbol nil)))
-	   (when (and class
-		      (not (definitionp symbol :condition))
-		      (not (definitionp symbol :structure)))
-	     class)))))
+    '((:constant  "constant"          "constants")
+      (:special   "special variable"  "special variables")
+      (:macro     "macro"             "macros")
+      (:function  "function"          "functions")
+      (:generic   "generic function"  "generic functions")
+      (:condition "condition"         "conditions")
+      (:structure "structure"         "structures")
+      (:class     "class"             "classes"))
   "The list of definition categories.")
 
 (defun definitionp (symbol kind)
   "Return a value of some KIND defined by SYMBOL if any."
-  (funcall (fourth (assoc kind +categories+)) symbol))
+  (ecase kind
+    (:constant
+     (when (eql (sb-int:info :variable :kind symbol) :constant)
+       (symbol-value symbol)))
+    (:special
+     (when (eql (sb-int:info :variable :kind symbol) :special)
+       (symbol-value symbol)))
+    (:macro
+     (macro-function symbol))
+    (:function
+     (when (and (fboundp symbol)
+		(not (definitionp symbol :macro))
+		(not (definitionp symbol :generic)))
+       (fdefinition symbol)))
+    (:generic
+     (when (and (fboundp symbol)
+		(typep (fdefinition symbol) 'generic-function))
+       (fdefinition symbol)))
+    (:condition
+     (let ((class (find-class symbol nil)))
+       (when (and class
+		  (typep class 'condition))
+	 class)))
+    (:structure
+     (let ((class (find-class symbol nil)))
+       (when (and class
+		  (eq (class-of class) 'structure-class))
+	 class)))
+    (:class
+     (let ((class (find-class symbol nil)))
+       (when (and class
+		  (not (definitionp symbol :condition))
+		  (not (definitionp symbol :structure)))
+	 class)))))
 
 (defun symbol-needs-documenting (symbol)
   "Return t when SYMBOL needs to be documented."
@@ -174,6 +175,23 @@ STRING should look like \"NAME <EMAIL>\"."
 	  :if (and (consp form)
 		   (eq (car form) 'defpackage))
 	  :collect (find-package (cadr form)))))
+
+
+
+;; ==========================================================================
+;; Item Protocols
+;; ==========================================================================
+
+(defgeneric location (item)
+  (:documentation "Return ITEM's pathname.")
+  (:method ((pathname pathname))
+    pathname))
+
+(defun relative-location (item relative-to)
+  "Return ITEM's location RELATIVE-TO."
+  (let ((location (location item)))
+    (when location
+      (enough-namestring location relative-to))))
 
 
 ;;; util.lisp ends here

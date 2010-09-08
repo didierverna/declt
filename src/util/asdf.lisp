@@ -73,6 +73,22 @@
 
 
 ;; ==========================================================================
+;; Item related
+;; ==========================================================================
+
+(defmethod location ((component asdf:component))
+  (component-pathname component))
+
+;; #### NOTE: what we call the "system's location" is the pathname to the
+;; source tree. Not to the systems directory symlink .
+(defmethod location ((system asdf:system))
+  (make-pathname :name (system-file-name system)
+		 :type (system-file-type system)
+		 :directory (pathname-directory (component-pathname system))))
+
+
+
+;; ==========================================================================
 ;; Utilities
 ;; ==========================================================================
 
@@ -112,12 +128,7 @@
 (defun lisp-pathnames (system)
   "Return the list of all Lisp source file pathnames.
 The list includes the system definition file."
-  (cons
-   ;; We want the .asd file source location, not the installation location.
-   (make-pathname :name (system-file-name system)
-		  :type (system-file-type system)
-		  :directory (pathname-directory (component-pathname system)))
-   (mapcar #'component-pathname (lisp-components system))))
+  (mapcar #'location (cons system (lisp-components system))))
 
 (defun system-packages (system)
   "Return the list of packages defined in SYSTEM."
@@ -130,6 +141,7 @@ The list includes the system definition file."
 (defun system-internal-definitions (system)
   "Return the list of SYSTEM's internal symbols which need documenting."
   (mapcan #'package-internal-definitions (system-packages system)))
+
 
 
 ;;; asdf.lisp ends here

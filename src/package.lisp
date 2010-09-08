@@ -34,6 +34,18 @@
 
 
 ;; ==========================================================================
+;; Item Protocols
+;; ==========================================================================
+
+(defmethod location ((package package))
+  ;; #### PORTME.
+  (let* ((defsrc (sb-introspect:find-definition-source package)))
+    (when defsrc
+      (sb-introspect:definition-source-pathname defsrc))))
+
+
+
+;; ==========================================================================
 ;; Documentation Protocols
 ;; ==========================================================================
 
@@ -69,13 +81,7 @@
       (@itemize-list (package-use-list package)
 	:format "@t{~(~A~)}"
 	:key #'escape))
-    ;; #### PORTME.
-    (let* ((defsrc (sb-introspect:find-definition-source package))
-	   (pathname (when defsrc
-		       (sb-introspect:definition-source-pathname defsrc))))
-      (when pathname
-	(render-location pathname relative-to)))))
-
+    (render-location package relative-to)))
 
 
 

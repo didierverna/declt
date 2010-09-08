@@ -43,7 +43,7 @@
 
 (defmethod index ((module asdf:module) &optional relative-to)
   (format t "@moduleindex{~A}@c~%"
-    (escape (relative-pathname module relative-to))))
+    (escape (relative-location module relative-to))))
 
 
 ;; --------------------
@@ -73,7 +73,7 @@
 
 (defun module-node (module relative-to)
   "Create and return a MODULE node."
-  (let ((name (escape (relative-pathname module relative-to))))
+  (let ((name (escape (relative-location module relative-to))))
     (make-node :name (format nil "The ~A module" name)
 	       :section-name (format nil "@t{~A}"name)
 	       :before-menu-contents

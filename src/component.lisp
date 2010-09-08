@@ -33,30 +33,25 @@
 
 
 ;; ==========================================================================
-;; Utilities
-;; ==========================================================================
-
-(defun relative-pathname (component relative-to)
-  "Return COMPONENT's path RELATIVE-TO."
-  (enough-namestring (asdf:component-pathname component) relative-to))
-
-
-
-;; ==========================================================================
 ;; Rendering Protocols
 ;; ==========================================================================
+
+(defgeneric component-type-name (component)
+  (:documentation "Return COMPONENT's type name."))
 
 (defmethod escape ((component asdf:component))
   "Turn COMPONENT into its name."
   (component-name component))
 
 
-;; --------------------
-;;  protocol
-;; --------------------
 
-(defgeneric component-type-name (component)
-  (:documentation "Return COMPONENT's type name."))
+;; ==========================================================================
+;; Documentation Protocols
+;; ==========================================================================
+
+;; ---------------------
+;;  Referencing protocol
+;; ---------------------
 
 (defmethod reference ((component asdf:component) &optional relative-to)
   (declare (ignore relative-to))
@@ -64,11 +59,6 @@
     (escape component)
     (escape (component-version component))
     (component-type-name component)))
-
-
-;; ----------------------
-;; Documentation protocol
-;; ----------------------
 
 (defgeneric document-component (component relative-to)
   (:documentation "Render COMPONENT's documentation.")
@@ -97,34 +87,19 @@
 	(format t "@item Parent~%")
 	(index parent relative-to)
 	(format t "@t{~A}~%" (escape parent))))
-    (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
-	   (when *link-files*
-	     (format t "@item Location~%~
+    (if (eq (type-of component) 'asdf:system) ;; Yuck!
+	(when *link-files*
+	  (format t "@item Source Directory~%~
 		      @url{file://~A, ignore, @t{~A}}~%"
-	       (escape (component-pathname component))
-	       (escape (component-pathname component))))
-	   (let ((system-base-name (escape (system-base-name component))))
-	     (format t "@item System File~%~
-		      @lispfileindex{~A}@c~%~
-		      ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
-	       system-base-name
-	       (when *link-files*
-		 (escape (make-pathname
-			  :name (system-file-name component)
-			  :type (system-file-type component)
-			  :directory (pathname-directory
-				      (component-pathname component)))))
-	       system-base-name
-	       *link-files*))
-	   (when *link-files*
-	     (let ((directory (escape
-			       (directory-namestring
-				(system-definition-pathname component)))))
-	       (format t "@item Installation~%~
+	    (escape (component-pathname component))
+	    (escape (component-pathname component)))
+	  (let ((directory (escape
+			    (directory-namestring
+			     (system-definition-pathname component)))))
+	    (format t "@item Installation Directory~%~
 			@url{file://~A, ignore, @t{~A}}~%"
-		 directory directory))))
-	  (t
-	   (render-location (component-pathname component) relative-to)))))
+	      directory directory)))
+      (render-location component relative-to))))
 
 
 ;;; component.lisp ends here

@@ -110,15 +110,16 @@ specific to this particular installation.
 Setting this to NIL is preferable for creating reference manuals meant to put
 online, and hence independent of any specific installation.")
 
-(defun render-location (pathname relative-to)
-  "Render an itemized location line for PATHNAME RELATIVE-TO."
-  (let ((relative-name (escape (enough-namestring pathname relative-to))))
-    (format t "@item Location~%~
-	       ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
-      (when *link-files*
-	(escape pathname))
-      relative-name
-      *link-files*)))
+(defun render-location (item relative-to)
+  "Render an itemized location line for ITEM RELATIVE-TO."
+  (let ((location (location item)))
+    (when location
+      (format t "@item Location~%~
+		 ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
+	(when *link-files*
+	  (escape location))
+	(escape (relative-location location relative-to))
+	*link-files*))))
 
 
 
