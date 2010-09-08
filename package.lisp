@@ -42,8 +42,9 @@
     :+release-status-level+
     :+release-name+
     :version)
-  (:import-from :asdf ;; See src/asdf.lisp
-    ;; Some slot-unbound proof accessors that we can import directly.
+  (:import-from :asdf
+    ;; Some slot-unbound proof accessors that we can import directly (see
+    ;; src/util/util.lisp for wrappers around other ones).
     :system-definition-pathname
     :component-name
     :component-pathname

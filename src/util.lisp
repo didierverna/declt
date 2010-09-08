@@ -73,6 +73,86 @@ STRING should look like \"NAME <EMAIL>\"."
 
 
 ;; ==========================================================================
+;; ASDF Specific
+;; ==========================================================================
+
+;; ----------------------------
+;; slot-unbound proof accessors
+;; ----------------------------
+
+(defun system-description (system)
+  "Return ASDF SYSTEM's description or nil."
+  (when (slot-boundp system 'asdf::description)
+    (asdf:system-description system)))
+
+(defun system-long-description (system)
+  "Return ASDF SYSTEM's long description or nil."
+  (when (slot-boundp system 'asdf::long-description)
+    (asdf:system-long-description system)))
+
+(defun system-author (system)
+  "Return ASDF SYSTEM's author or nil."
+  (when (slot-boundp system 'asdf::author)
+    (asdf:system-author system)))
+
+(defun system-maintainer (system)
+  "Return ASDF SYSTEM's maintainer or nil."
+  (when (slot-boundp system 'asdf::maintainer)
+    (asdf:system-maintainer system)))
+
+(defun system-license (system)
+  "Return ASDF SYSTEM's license or nil."
+  ;; #### NOTE: yes, the slot is licenCe, but licenSe accessors are also
+  ;; available.
+  (when (slot-boundp system 'asdf::licence)
+    (asdf:system-license system)))
+
+(defun component-version (component)
+  "Return ASDF COMPONENT's version or nil."
+  (when (slot-boundp component 'asdf:version)
+    (asdf:component-version component)))
+
+
+;; ---------------
+;; Other utilities
+;; ---------------
+
+(defun components (module type)
+  "Return the list of all TYPE components from MODULE."
+  (loop :for component :in (asdf:module-components module)
+	:if (eq (type-of component) type)
+	  :collect component
+	:if (eq (type-of component) 'asdf:module)
+	  :nconc (components component type)))
+
+(defun lisp-components (module)
+  "Return the list of all Lisp source file components from MODULE."
+  (components module 'asdf:cl-source-file))
+
+;; #### WARNING: do not confuse with asdf:mpdule-components!
+(defun module-components (module)
+  "Return the list of all module components from MODULE."
+  (components module 'asdf:module))
+
+(defun system-directory (system)
+  "Return SYSTEM's directory."
+  (component-relative-pathname system))
+
+(defun system-base-name (system)
+  "Return the basename part of SYSTEM's definition file."
+  (file-namestring (system-definition-pathname system)))
+
+(defun system-file-name (system)
+  "Return the name part of SYSTEM's definition file."
+  (pathname-name (system-definition-pathname system)))
+
+(defun system-file-type (system)
+  "Return the type part of SYSTEM's definition file."
+  (pathname-type (system-definition-pathname system)))
+
+
+
+;; ==========================================================================
 ;; Symbol Related
 ;; ==========================================================================
 

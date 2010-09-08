@@ -140,15 +140,12 @@ converted into info, HTML, DVI, PostScript or PDF."
   :components ((:file "package")
 	       (:module "src"
 		 :depends-on ("package")
-		 :components ((:module "util"
-				:components ((:file "util")
-					     (:file "texi"
-						    :depends-on ("util"))
-					     (:file "asdf"
-						    :depends-on ("util"))))
-			      (:file "definition" :depends-on ("util"))
-			      (:file "package" :depends-on ("util"))
-			      (:file "component" :depends-on ("util"))
+		 :components ((:file "util")
+			      (:file "item" :depends-on ("util"))
+			      (:file "texi" :depends-on ("item"))
+			      (:file "definition" :depends-on ("texi"))
+			      (:file "package" :depends-on ("texi"))
+			      (:file "component" :depends-on ("texi"))
 			      (:file "file" :depends-on ("component"))
 			      (:file "module" :depends-on ("file"))
 			      (:file "system" :depends-on ("module"))
