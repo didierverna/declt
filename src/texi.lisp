@@ -170,8 +170,7 @@ If OBJECT is nil, return nil.")
 	   (,the-category (escape ,category)))
       (format t "@deffn {~A} ~A " ,the-category ,the-name)
       (render-lambda-list ,lambda-list ,specializers)
-      ;; #### FIXME: qualifiers not escaped !
-      (format t "~(~{ @t{~S}~^~}~)~%" ,qualifiers)
+      (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape ,qualifiers))
       (format t "@findex @r{~A, }~A~%" ,the-category ,the-name)
       ,@body
       (format t "~&@end deffn~%"))))
