@@ -58,8 +58,7 @@
 ;; Documentation protocol
 ;; ----------------------
 
-(defmethod document ((module asdf:module) &optional relative-to category)
-  (declare (ignore category))
+(defmethod document-component ((module asdf:module) relative-to)
   (call-next-method)
   (format t "@item Components~%")
   (@itemize-list (asdf:module-components module)
@@ -78,7 +77,7 @@
     (make-node :name (format nil "The ~A module" name)
 	       :section-name (format nil "@t{~A}"name)
 	       :before-menu-contents
-	       (render-to-string (document module relative-to)))))
+	       (render-to-string (document-component module relative-to)))))
 
 (defun add-modules-node
     (node system &aux (system-directory (system-directory system))

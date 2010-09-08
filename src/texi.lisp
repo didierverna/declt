@@ -238,16 +238,6 @@ If OBJECT is nil, return nil.")
     (index item relative-to)))
 
 
-;; ----------------------
-;; Documentation protocol
-;; ----------------------
-
-(defgeneric document (item &optional relative-to category)
-  (:documentation "Render ITEM's documentation.
-ITEM's location is rendered RELATIVE-TO when appropriate.
-CATEGORY applies to symbols."))
-
-
 
 ;; ===========================================================================
 ;; Texinfo Node Implementation
@@ -353,6 +343,8 @@ CATEGORY applies to symbols."))
 
 
 ;;; Local Variables:
+;;; eval: (put '@itemize      'common-lisp-indent-function 1)
+;;; eval: (put '@table        'common-lisp-indent-function 1)
 ;;; eval: (put '@itemize-list 'common-lisp-indent-function 1)
 ;;; eval: (put '@defvr        'common-lisp-indent-function 1)
 ;;; eval: (put '@defconstant  'common-lisp-indent-function 1)

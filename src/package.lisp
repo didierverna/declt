@@ -59,8 +59,8 @@
 ;; Documentation protocol
 ;; ----------------------
 
-(defmethod document ((package package) &optional relative-to category)
-  (declare (ignore relative-to category))
+(defun document-package (package)
+  "Render PACKAGE's documentation."
   (index package)
   (@table ()
     (when (package-nicknames package)
@@ -95,7 +95,7 @@ Packages are listed by definition order."))))
       (make-node :name (format nil "The ~(~A~) package"	(escape package))
 		 :section-name (format nil "@t{~(~A~)}" (escape package))
 		 :before-menu-contents
-		 (render-to-string (document package))))))
+		 (render-to-string (document-package package))))))
 
 
 ;;; package.lisp ends here

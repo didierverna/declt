@@ -103,7 +103,7 @@
 	     :section-name (format nil "@t{~A}"
 			     (escape (relative-pathname file relative-to)))
 	     :before-menu-contents
-	     (render-to-string (document file relative-to))))
+	     (render-to-string (document-component file relative-to))))
 
 (defun add-files-node
     (node system &aux (system-directory (system-directory system))

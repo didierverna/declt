@@ -51,8 +51,7 @@
 ;; Documentation protocol
 ;; ----------------------
 
-(defmethod document ((system asdf:system) &optional relative-to category)
-  (declare (ignore relative-to category))
+(defmethod document-component ((system asdf:system) relative-to)
   (format t "@item Name~%@t{~A}~%" (escape system))
   (when (system-description system)
     (format t "@item Description~%")
@@ -88,7 +87,8 @@
   (make-node :name "System"
 	     :synopsis "The system documentation"
 	     :before-menu-contents
-	     (render-to-string (document system (system-directory system)))))
+	     (render-to-string
+	       (document-component system (system-directory system)))))
 
 (defun add-system-node (node system)
   "Add SYSTEM's system node to NODE."

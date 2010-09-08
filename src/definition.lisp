@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Sat Sep  4 15:27:31 2010
-;; Last Revision: Sun Sep  5 21:49:36 2010
+;; Last Revision: Wed Sep  8 09:51:59 2010
 
 ;; This file is part of Declt.
 
@@ -37,94 +37,75 @@
 ;; Rendering routines
 ;; ==========================================================================
 
-(defmethod index ((symbol symbol) &optional relative-to)
-  (declare (ignore relative-to))
-  (values))
+;; #### NOTE: there are no idnexing methods for methods or symbols, because
+;; indexing is done by the lower-level @defXXX routines (Texinfo does half the
+;; job and we do the othe rhalf).
 
-(defmethod document ((symbol symbol) &optional relative-to category)
-  "Render SYMBOL's CATEGORY documentation."
-  (declare (ignore relative-to))
-  (@table ()
-    (format t "@item Package~%")
-    (reference (symbol-package symbol))
-    (format t "@item Documentation~%")
-    (render-string (documentation symbol (ecase category
-					   ((:constant :special)
-					    'variable)
-					   ((:macro :function :generic)
-					    'function)
-					   ((:condition :structure :class)
-					    'type))))))
-
-(defmethod index ((method method) &optional relative-to)
-  (declare (ignore relative-to))
-  (values))
-
-(defmethod document ((method method) &optional relative-to category)
-  (declare (ignore relative-to category))
-  (render-string (documentation method t)))
-
-;; #### PORTME:
-(defun render-method (method relative-to)
+(defun document-method (method relative-to)
+  "Render METHOD's documentation."
   (@defmethod
+      ;; #### PORTME:
       (string-downcase (sb-mop:generic-function-name
 			(sb-mop:method-generic-function method)))
       (sb-mop:method-lambda-list method)
       (sb-mop:method-specializers method)
       (sb-mop:method-qualifiers method)
-    (document method relative-to)))
+    (render-string (documentation method t))))
 
-(defgeneric render-symbol (symbol relative-to category)
-  (:documentation "Render SYMBOL as a CATEGORY.")
-  (:method (symbol relative-to (category (eql :constant)))
-    "Render SYMBOL as a constant."
-    (when (definitionp symbol :constant)
-      (@defconstant (string-downcase symbol)
-	(document symbol relative-to category))))
-  (:method (symbol relative-to (category (eql :special)))
-    "Render SYMBOL as a special variable."
-    (when (definitionp symbol :special)
-      (@defspecial (string-downcase symbol)
-	(document symbol relative-to category))))
-  (:method (symbol relative-to (category (eql :macro)))
-    "Render SYMBOL as a macro."
-    (when (definitionp symbol :macro)
-      (@defmac (string-downcase symbol)
-	  ;; #### PORTME.
-	  (sb-introspect:function-lambda-list symbol)
-	(document symbol relative-to category))))
-  (:method (symbol relative-to (category (eql :function)))
-    "Render SYMBOL as an ordinary function."
-    (when (definitionp symbol :function)
-      (@defun (string-downcase symbol)
-	  ;; #### PORTME.
-	  (sb-introspect:function-lambda-list symbol))
-      (document symbol relative-to category)))
-  (:method (symbol relative-to (category (eql :generic)))
-    "Render SYMBOL as a generic function."
-    (when (definitionp symbol :generic)
-      (@defgeneric (string-downcase symbol)
-	  ;; #### PORTME.
-	  (sb-introspect:function-lambda-list symbol)
-	(document symbol relative-to category)))
-    ;; #### PORTME.
-    (dolist (method (sb-mop:generic-function-methods (fdefinition symbol)))
-      (render-method method relative-to)))
-  (:method (symbol relative-to (category (eql :condition)))
-    "Render SYMBOL as a condition."
-    (when (definitionp symbol :condition)
-      (@defcond (string-downcase symbol)
-	(document symbol relative-to category))))
-  (:method (symbol relative-to (category (eql :structure)))
-    "Render SYMBOL as a structure."
-    (when (definitionp symbol :structure)
-      (@defstruct (string-downcase symbol)
-	(document symbol relative-to category))))
-  (:method (symbol relative-to (category (eql :class)))
-    "Render SYMBOL as an ordinary class."
-    (when (definitionp symbol :class)
-      (@defclass (string-downcase symbol)
-	(document symbol relative-to category)))))
+(defun document-symbol-1 (symbol relative-to kind)
+  "Render SYMBOL's documentation contents as KIND."
+  (@table ()
+    (format t "@item Package~%")
+    (reference (symbol-package symbol))
+    (let ((documentation (documentation symbol kind)))
+      (when documentation
+	(format t "@item Documentation~%")
+	(render-string documentation)))))
+
+(defun document-symbol (symbol relative-to category)
+  "Render SYMBOL's documentation in CATEGORY."
+  (ecase category
+    (:constant
+     (when (definitionp symbol :constant)
+       (@defconstant (string-downcase symbol)
+	 (document-symbol-1 symbol relative-to 'variable))))
+    (:special
+     (when (definitionp symbol :special)
+       (@defspecial (string-downcase symbol)
+	 (document-symbol-1 symbol relative-to 'variable))))
+    (:macro
+     (when (definitionp symbol :macro)
+       (@defmac (string-downcase symbol)
+	   ;; #### PORTME.
+	   (sb-introspect:function-lambda-list symbol)
+	 (document-symbol-1 symbol relative-to 'function))))
+    (:function
+     (when (definitionp symbol :function)
+       (@defun (string-downcase symbol)
+	   ;; #### PORTME.
+	   (sb-introspect:function-lambda-list symbol)
+	 (document-symbol-1 symbol relative-to 'function))))
+    (:generic
+     (when (definitionp symbol :generic)
+       (@defgeneric (string-downcase symbol)
+	   ;; #### PORTME.
+	   (sb-introspect:function-lambda-list symbol)
+	 (document-symbol-1 symbol relative-to 'function))
+       ;; #### PORTME.
+       (dolist (method (sb-mop:generic-function-methods (fdefinition symbol)))
+	 (document-method method relative-to))))
+    (:condition
+     (when (definitionp symbol :condition)
+       (@defcond (string-downcase symbol)
+	 (document-symbol-1 symbol relative-to 'type))))
+    (:structure
+     (when (definitionp symbol :structure)
+       (@defstruct (string-downcase symbol)
+	 (document-symbol-1 symbol relative-to 'type))))
+    (:class
+     (when (definitionp symbol :class)
+       (@defclass (string-downcase symbol)
+	 (document-symbol-1 symbol relative-to 'type))))))
 
 
 
@@ -140,7 +121,7 @@
 	       :before-menu-contents
 	       (render-to-string
 		 (dolist (symbol (sort symbols #'string-lessp))
-		   (render-symbol symbol relative-to (first category)))))))
+		   (document-symbol symbol relative-to (first category)))))))
 
 (defun add-categories-node (parent location symbols relative-to)
   "Add all relevant category nodes to PARENT for LOCATION SYMBOLS."
