@@ -138,14 +138,17 @@ converted into info, HTML, DVI, PostScript or PDF."
   :license "GNU GPL"
   :version #.(version :long)
   :components ((:file "package")
-	       (module "src"
+	       (:module "src"
 		 :depends-on ("package")
-		 :components ((:file "util")
-			      (:file "texi" :depends-on ("util"))
-			      (:file "asdf" :depends-on ("util"))
-			      (:file "definition" :depends-on ("asdf" "texi"))
-			      (:file "package" :depends-on ("asdf" "texi"))
-			      (:file "component" :depends-on ("asdf" "texi"))
+		 :components ((:module "util"
+				:components ((:file "util")
+					     (:file "texi"
+						    :depends-on ("util"))
+					     (:file "asdf"
+						    :depends-on ("util"))))
+			      (:file "definition" :depends-on ("util"))
+			      (:file "package" :depends-on ("util"))
+			      (:file "component" :depends-on ("util"))
 			      (:file "file" :depends-on ("component"))
 			      (:file "module" :depends-on ("file"))
 			      (:file "system" :depends-on ("module"))

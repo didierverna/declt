@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Fri Sep  3 21:59:21 2010
-;; Last Revision: Sun Sep  5 20:45:05 2010
+;; Last Revision: Wed Sep  8 14:30:10 2010
 
 ;; This file is part of Declt.
 
@@ -123,13 +123,13 @@ The list includes the system definition file."
   "Return the list of packages defined in SYSTEM."
   (remove-duplicates (mapcan #'file-packages (lisp-pathnames system))))
 
-(defun system-external-symbols (system)
+(defun system-external-definitions (system)
   "Return the list of SYSTEM's external symbols which need documenting."
-  (mapcan #'package-external-symbols (system-packages system)))
+  (mapcan #'package-external-definitions (system-packages system)))
 
-(defun system-internal-symbols (system)
+(defun system-internal-definitions (system)
   "Return the list of SYSTEM's internal symbols which need documenting."
-  (mapcan #'package-internal-symbols (system-packages system)))
+  (mapcan #'package-internal-definitions (system-packages system)))
 
 
 ;;; asdf.lisp ends here

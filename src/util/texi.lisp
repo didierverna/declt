@@ -1,11 +1,11 @@
-;;; texi.lisp --- Texinfo format routines
+;;; texi.lisp --- Texinfo format utilities
 
 ;; Copyright (C) 2010 Didier Verna
 
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Tue Aug 24 11:48:19 2010
-;; Last Revision: Sun Sep  5 21:36:08 2010
+;; Last Revision: Wed Sep  8 14:28:52 2010
 
 ;; This file is part of Declt.
 
@@ -34,9 +34,9 @@
 (in-package :com.dvlsoft.declt)
 
 
-;; ===========================================================================
-;; Texinfo Rendering Routines
-;; ===========================================================================
+;; ==========================================================================
+;; Rendering Protocols
+;; ==========================================================================
 
 (defgeneric escape (object)
   (:documentation
@@ -68,33 +68,6 @@ If OBJECT is nil, return nil.")
 	    :do (progn (write-char #\@) (write-char #\*))
 	  :do (write-char char))))
 
-;; Based on Edi Weitz's write-lambda-list* from documentation-template.
-(defun render-lambda-list (lambda-list &optional specializers)
-  "Render LAMBDA-LIST."
-  (let ((firstp t)
-	after-required-args-p)
-    (dolist (part lambda-list)
-      (when (and (consp part) after-required-args-p)
-	(setq part (first part)))
-      (unless firstp
-	(write-char #\Space))
-      (setq firstp nil)
-      (cond ((consp part)
-	     (write-char #\()
-	     (render-lambda-list part)
-	     (write-char #\)))
-	    ((member part '(&optional &rest &key &allow-other-keys
-			    &aux &environment &whole &body))
-	     (setq after-required-args-p t)
-	     (format t "~(~A~)" part))
-	    (t
-	     (let ((specializer (pretty-specializer (pop specializers))))
-	       (if (and specializer (not (eq specializer t)))
-		   (format t "(~A @t{~(~A~)})"
-		     (escape part)
-		     (escape specializer))
-		 (write-string (escape (symbol-name part))))))))))
-
 (defmacro @table ((&optional (kind :@strong)) &body body)
   "Render BODY in a @table KIND environment."
   `(progn
@@ -124,90 +97,6 @@ If OBJECT is nil, return nil.")
 	  (funcall renderer elt)
 	(apply #'format t format (multiple-value-list (funcall key elt)))))))
 
-(defmacro @defvr (category name &body body)
-  "Render BODY in a @defvr {CATEGORY} NAME environment."
-  `(progn
-    (format t "@defvr {~A} ~A~%" (escape ,category) (escape ,name))
-    ,@body
-    (format t "~&@end defvr~%")))
-
-(defmacro @defconstant (name &body body)
-  "Render BODY in a @defvr {Constant} NAME environment."
-  `(@defvr "Constant" ,name ,@body))
-
-(defmacro @defspecial (name &body body)
-  "Render BODY in a @defvr {Special Variable} NAME environment."
-  `(@defvr "Special Variable" ,name ,@body))
-
-(defmacro @defmac (name lambda-list &body body)
-  "Render BODY in a @defmac NAME LAMBDA-LIST environment."
-  (let ((the-name (gensym "name")))
-    `(let ((,the-name (escape ,name)))
-      (format t "@defmac ~A " ,the-name)
-      (render-lambda-list ,lambda-list)
-      (terpri)
-      (format t "@findex @r{Macro, }~A~%" ,the-name)
-      ,@body
-      (format t "~&@end defmac~%"))))
-
-(defmacro @defun (name lambda-list &body body)
-  "Render BODY in a @defun NAME LAMBDA-LIST environment."
-  (let ((the-name (gensym "name")))
-    `(let ((,the-name (escape ,name)))
-      (format t "@defun ~A " ,the-name)
-      (render-lambda-list ,lambda-list)
-      (terpri)
-      (format t "@findex @r{Function, }~A~%" ,the-name)
-      ,@body
-      (format t "~&@end defun~%"))))
-
-(defmacro @deffn ((category name lambda-list &optional specializers qualifiers)
-		  &body body)
-  "Render BODY in a @deffn CATEGORY NAME LAMBDA-LIST environment."
-  (let ((the-name (gensym "name"))
-	(the-category (gensym "category")))
-    `(let ((,the-name (escape ,name))
-	   (,the-category (escape ,category)))
-      (format t "@deffn {~A} ~A " ,the-category ,the-name)
-      (render-lambda-list ,lambda-list ,specializers)
-      (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape ,qualifiers))
-      (format t "@findex @r{~A, }~A~%" ,the-category ,the-name)
-      ,@body
-      (format t "~&@end deffn~%"))))
-
-(defmacro @defgeneric (name lambda-list &body body)
-  "Render BODY in a @deffn {Generic Function} NAME LAMBDA-LIST environment."
-  `(@deffn ("Generic Function" ,name ,lambda-list)
-    ,@body))
-
-(defmacro @defmethod (name lambda-list specializers qualifiers &body body)
-  "Render BODY in a @deffn {Method} NAME LAMBDA-LIST environment."
-  `(@deffn ("Method" ,name ,lambda-list ,specializers ,qualifiers)
-    ,@body))
-
-(defmacro @deftp (category name &body body)
-  "Render BODY in a @deftp {CATEGORY} NAME environment."
-  (let ((the-name (gensym "name"))
-	(the-category (gensym "category")))
-    `(let ((,the-name (escape ,name))
-	   (,the-category (escape ,category)))
-      (format t "@deftp {~A} ~A~%"  ,the-category ,the-name)
-      (format t "@tpindex @r{~A, }~A~%" ,the-category ,the-name)
-      ,@body
-      (format t "~&@end deftp~%"))))
-
-(defmacro @defstruct (name &body body)
-  "Render BODY in a @deftp {Structure} NAME environment."
-  `(@deftp "Structure" ,name ,@body))
-
-(defmacro @defcond (name &body body)
-  "Render BODY in a @deftp {Condition} NAME environment."
-  `(@deftp "Condition" ,name ,@body))
-
-(defmacro @defclass (name &body body)
-  "Render BODY in a @deftp {Class} NAME environment."
-  `(@deftp "Class" ,name ,@body))
-
 (defmacro render-to-string (&body body)
   "Render BODY to a string instead of *standard-output*."
   `(with-output-to-string (*standard-output*)
@@ -234,7 +123,7 @@ online, and hence independent of any specific installation.")
 
 
 ;; ==========================================================================
-;; Rendering Protocols
+;; Documentation Protocols
 ;; ==========================================================================
 
 ;; -----------------
@@ -256,9 +145,9 @@ online, and hence independent of any specific installation.")
 
 
 
-;; ===========================================================================
-;; Texinfo Node Implementation
-;; ===========================================================================
+;; ==========================================================================
+;; Node Implementation
+;; ==========================================================================
 
 (define-constant +section-names+
   '((:numbered   nil

@@ -52,7 +52,7 @@
 
 
 ;; --------------------
-;; Referencing protocol
+;;  protocol
 ;; --------------------
 
 (defgeneric component-type-name (component)

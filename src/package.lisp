@@ -34,7 +34,7 @@
 
 
 ;; ==========================================================================
-;; Rendering Protocols
+;; Documentation Protocols
 ;; ==========================================================================
 
 ;; -----------------
@@ -54,10 +54,6 @@
   (declare (ignore relative-to))
   (format t "@t{~(~A~)}" (escape package)))
 
-
-;; ----------------------
-;; Documentation protocol
-;; ----------------------
 
 (defun document-package (package relative-to)
   "Render PACKAGE's documentation."

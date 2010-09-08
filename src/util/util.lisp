@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Mon Aug 23 18:25:33 2010
-;; Last Revision: Sun Sep  5 20:39:39 2010
+;; Last Revision: Wed Sep  8 14:22:37 2010
 
 ;; This file is part of Declt.
 
@@ -70,86 +70,59 @@ STRING should look like \"NAME <EMAIL>\"."
 		(subseq string (1+ pos-<) pos->))
       string)))
 
-#| Currently not used anymore
-(defun list-to-string (list &key (key #'identity) (separator ", "))
-  "Return a SEPARATOR-separated string of all LIST elements.
-- KEY should provide a way to get a string from each LIST element.
-- SEPARATOR is the string to insert between elements."
-  (reduce (lambda (str1 str2) (concatenate 'string str1 separator str2))
-	  list
-	  :key key))|#
-
-(defgeneric pretty-specializer (specializer)
-  (:documentation "Returns a printable form for SPECIALIZER.")
-  (:method (specializer)
-    (or (ignore-errors (class-name specializer))
-	specializer))
-  ;; #### PORTME.
-  (:method ((specializer sb-mop:eql-specializer))
-    ;; #### PORTME.
-    `(eql ,(sb-mop:eql-specializer-object specializer))))
-
 
 
 ;; ==========================================================================
 ;; Symbol Related
 ;; ==========================================================================
 
-(define-constant +categories+
-    '((:constant  "constant"          "constants")
-      (:special   "special variable"  "special variables")
-      (:macro     "macro"             "macros")
-      (:function  "function"          "functions")
-      (:generic   "generic function"  "generic functions")
-      (:condition "condition"         "conditions")
-      (:structure "structure"         "structures")
-      (:class     "class"             "classes"))
-  "The list of definition categories and how to typeset them.")
-
 ;; #### PORTME.
-(defgeneric definitionp (symbol kind)
-  (:documentation "Return the value of KIND defined by SYMBOL if any.")
-  (:method (symbol (kind (eql :constant)))
-    "Return the constant defined by SYMBOL if any."
-    (when (eql (sb-int:info :variable :kind symbol) :constant)
-      (symbol-value symbol)))
-  (:method (symbol (kind (eql :special)))
-    "Return the special variable value defined by SYMBOL if any."
-    (when (eql (sb-int:info :variable :kind symbol) :special)
-      (symbol-value symbol)))
-  (:method (symbol (kind (eql :macro)))
-    "Return the macro function defined by SYMBOL if any."
-    (macro-function symbol))
-  (:method (symbol (kind (eql :generic)))
-    "Return the generic function defined by SYMBOL if any."
-    (when (and (fboundp symbol)
-	       (typep (fdefinition symbol) 'generic-function))
-      (fdefinition symbol)))
-  (:method (symbol (kind (eql :function)))
-    "Return the ordinary function defined by SYMBOL if any."
-    (when (and (fboundp symbol)
-	       (not (definitionp symbol :macro))
-	       (not (definitionp symbol :generic)))
-      (fdefinition symbol)))
-  (:method (symbol (kind (eql :condition)))
-    "Return the condition defined by SYMBOL if any."
-    (let ((class (find-class symbol nil)))
-      (when (and class
-		 (typep class 'condition))
-	class)))
-  (:method (symbol (kind (eql :structure)))
-    "Return the structure defined by SYMBOL if any."
-    (let ((class (find-class symbol nil)))
-      (when (and class
-		 (eq (class-of class) 'structure-class))
-	class)))
-  (:method (symbol (kind (eql :class)))
-    "Return the ordinary class defined by SYMBOL if any."
-    (let ((class (find-class symbol nil)))
-      (when (and class
-		 (not (definitionp symbol :condition))
-		 (not (definitionp symbol :structure)))
-	class))))
+(define-constant +categories+
+    '((:constant  "constant"          "constants"
+       (lambda (symbol)
+	 (when (eql (sb-int:info :variable :kind symbol) :constant)
+	   (symbol-value symbol))))
+      (:special   "special variable"  "special variables"
+       (lambda (symbol)
+	 (when (eql (sb-int:info :variable :kind symbol) :special)
+	   (symbol-value symbol))))
+      (:macro     "macro"             "macros"
+       (lambda (symbol)
+	 (macro-function symbol)))
+      (:function  "function"          "functions"
+       (lambda (symbol)
+	 (when (and (fboundp symbol)
+		    (not (definitionp symbol :macro))
+		    (not (definitionp symbol :generic)))
+	   (fdefinition symbol))))
+      (:generic   "generic function"  "generic functions"
+       (lambda (symbol)
+	 (when (and (fboundp symbol)
+		    (typep (fdefinition symbol) 'generic-function))
+	   (fdefinition symbol))))
+      (:condition "condition"         "conditions"
+       (lambda (symbol)
+	 (let ((class (find-class symbol nil)))
+	   (when (and class
+		      (typep class 'condition))
+	     class))))
+      (:structure "structure"         "structures"
+       (let ((class (find-class symbol nil)))
+	 (when (and class
+		    (eq (class-of class) 'structure-class))
+	   class)))
+      (:class     "class"             "classes"
+       (lambda (symbol)
+	 (let ((class (find-class symbol nil)))
+	   (when (and class
+		      (not (definitionp symbol :condition))
+		      (not (definitionp symbol :structure)))
+	     class)))))
+  "The list of definition categories.")
+
+(defun definitionp (symbol kind)
+  "Return a value of some KIND defined by SYMBOL if any."
+  (funcall (fourth (assoc kind +categories+)) symbol))
 
 (defun symbol-needs-documenting (symbol)
   "Return t when SYMBOL needs to be documented."
@@ -163,22 +136,22 @@ STRING should look like \"NAME <EMAIL>\"."
 ;; Package Related
 ;; ==========================================================================
 
-(defun package-external-symbols (package &aux external-symbols)
+(defun package-external-definitions (package &aux external-definitions)
   "Return the list of PACKAGE's external symbols which need documenting."
-  (do-external-symbols (symbol package external-symbols)
+  (do-external-symbols (symbol package external-definitions)
     (when (and (eq (symbol-package symbol) package)
 	       (symbol-needs-documenting symbol))
-      (push symbol external-symbols))))
+      (push symbol external-definitions))))
 
-(defun package-internal-symbols
-    (package &aux (external-symbols (package-external-symbols package))
-		  internal-symbols)
+(defun package-internal-definitions
+    (package &aux (external-definitions (package-external-definitions package))
+		  internal-definitions)
   "Return the list of PACKAGE's internal symbols which need documenting."
-  (do-symbols (symbol package internal-symbols)
-    (when (and (not (member symbol external-symbols))
+  (do-symbols (symbol package internal-definitions)
+    (when (and (not (member symbol external-definitions))
 	       (eq (symbol-package symbol) package)
 	       (symbol-needs-documenting symbol))
-      (push symbol internal-symbols))))
+      (push symbol internal-definitions))))
 
 
 
