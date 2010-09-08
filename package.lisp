@@ -60,7 +60,7 @@
    :+release-name+
    :version
    ;; From src/component.lisp:
-   :*location-style*
+   :*link-files*
    ;; From src/declt.lisp:
    :declt))
 
