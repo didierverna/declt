@@ -59,7 +59,7 @@
 ;; Documentation protocol
 ;; ----------------------
 
-(defun document-package (package)
+(defun document-package (package relative-to)
   "Render PACKAGE's documentation."
   (index package)
   (@table ()
@@ -72,7 +72,14 @@
       (format t "@item Use List~%")
       (@itemize-list (package-use-list package)
 	:format "@t{~(~A~)}"
-	:key #'escape))))
+	:key #'escape))
+    ;; #### PORTME.
+    (let* ((defsrc (sb-introspect:find-definition-source package))
+	   (pathname (when defsrc
+		       (sb-introspect:definition-source-pathname defsrc))))
+      (when pathname
+	(render-location pathname relative-to)))))
+
 
 
 
@@ -95,7 +102,8 @@ Packages are listed by definition order."))))
       (make-node :name (format nil "The ~(~A~) package"	(escape package))
 		 :section-name (format nil "@t{~(~A~)}" (escape package))
 		 :before-menu-contents
-		 (render-to-string (document-package package))))))
+		 (render-to-string
+		   (document-package package (system-directory system)))))))
 
 
 ;;; package.lisp ends here

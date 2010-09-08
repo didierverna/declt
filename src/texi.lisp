@@ -214,6 +214,24 @@ If OBJECT is nil, return nil.")
   `(with-output-to-string (*standard-output*)
     ,@body))
 
+(defvar *link-files* t
+  "Whether to create links to files or directories in the reference manual.
+When true (the default), pathnames are made clickable although the links are
+specific to this particular installation.
+
+Setting this to NIL is preferable for creating reference manuals meant to put
+online, and hence independent of any specific installation.")
+
+(defun render-location (pathname relative-to)
+  "Render an itemized location line for PATHNAME RELATIVE-TO."
+  (let ((relative-name (escape (enough-namestring pathname relative-to))))
+    (format t "@item Location~%~
+	       ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
+      (when *link-files*
+	(escape pathname))
+      relative-name
+      *link-files*)))
+
 
 
 ;; ==========================================================================

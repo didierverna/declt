@@ -32,15 +32,6 @@
 (in-package :com.dvlsoft.declt)
 
 
-(defvar *link-components* t
-  "Whether to create links to components in the reference manual.
-When true (the default), pathnames are made clickable but the links are
-specific to this particular installation.
-
-Setting this to NIL is preferable for creating reference manuals meant to put
-online, and hence independent of any specific installation.")
-
-
 ;; ==========================================================================
 ;; Utilities
 ;; ==========================================================================
@@ -107,7 +98,7 @@ online, and hence independent of any specific installation.")
 	(index parent relative-to)
 	(format t "@t{~A}~%" (escape parent))))
     (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
-	   (when *link-components*
+	   (when *link-files*
 	     (format t "@item Location~%~
 		      @url{file://~A, ignore, @t{~A}}~%"
 	       (escape (component-pathname component))
@@ -117,15 +108,15 @@ online, and hence independent of any specific installation.")
 		      @lispfileindex{~A}@c~%~
 		      ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
 	       system-base-name
-	       (when *link-components*
+	       (when *link-files*
 		 (escape (make-pathname
 			  :name (system-file-name component)
 			  :type (system-file-type component)
 			  :directory (pathname-directory
 				      (component-pathname component)))))
 	       system-base-name
-	       *link-components*))
-	   (when *link-components*
+	       *link-files*))
+	   (when *link-files*
 	     (let ((directory (escape
 			       (directory-namestring
 				(system-definition-pathname component)))))
@@ -133,15 +124,7 @@ online, and hence independent of any specific installation.")
 			@url{file://~A, ignore, @t{~A}}~%"
 		 directory directory))))
 	  (t
-	   (let ((pathname (escape (enough-namestring
-				    (component-pathname component)
-				    relative-to))))
-	     (format t "@item Location~%~
-		      ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
-	       (when *link-components*
-		 (escape (component-pathname component)))
-	       pathname
-	       *link-components*))))))
+	   (render-location (component-pathname component) relative-to)))))
 
 
 ;;; component.lisp ends here

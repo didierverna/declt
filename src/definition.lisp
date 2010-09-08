@@ -50,13 +50,29 @@
       (sb-mop:method-lambda-list method)
       (sb-mop:method-specializers method)
       (sb-mop:method-qualifiers method)
+    ;; #### PORTME.
+    (let* ((defsrc (sb-introspect:find-definition-source method))
+	   (pathname (when defsrc
+		       (sb-introspect:definition-source-pathname defsrc))))
+      (when pathname
+	(@table ()
+	  (render-location pathname relative-to))))
     (render-string (documentation method t))))
 
-(defun document-symbol-1 (symbol relative-to kind)
+(defun document-symbol-1 (symbol relative-to type kind)
   "Render SYMBOL's documentation contents as KIND."
   (@table ()
     (format t "@item Package~%")
     (reference (symbol-package symbol))
+    ;; #### PORTME.
+    (let* ((defsrc
+	       ;; #### FIXME: why a list? How can there be several sources?
+	       (car
+		(sb-introspect:find-definition-sources-by-name symbol type)))
+	   (pathname (when defsrc
+		       (sb-introspect:definition-source-pathname defsrc))))
+      (when pathname
+	(render-location pathname relative-to)))
     (let ((documentation (documentation symbol kind)))
       (when documentation
 	(format t "@item Documentation~%")
@@ -68,44 +84,44 @@
     (:constant
      (when (definitionp symbol :constant)
        (@defconstant (string-downcase symbol)
-	 (document-symbol-1 symbol relative-to 'variable))))
+	 (document-symbol-1 symbol relative-to :constant 'variable))))
     (:special
      (when (definitionp symbol :special)
        (@defspecial (string-downcase symbol)
-	 (document-symbol-1 symbol relative-to 'variable))))
+	 (document-symbol-1 symbol relative-to :variable 'variable))))
     (:macro
      (when (definitionp symbol :macro)
        (@defmac (string-downcase symbol)
 	   ;; #### PORTME.
 	   (sb-introspect:function-lambda-list symbol)
-	 (document-symbol-1 symbol relative-to 'function))))
+	 (document-symbol-1 symbol relative-to :macro 'function))))
     (:function
      (when (definitionp symbol :function)
        (@defun (string-downcase symbol)
 	   ;; #### PORTME.
 	   (sb-introspect:function-lambda-list symbol)
-	 (document-symbol-1 symbol relative-to 'function))))
+	 (document-symbol-1 symbol relative-to :function 'function))))
     (:generic
      (when (definitionp symbol :generic)
        (@defgeneric (string-downcase symbol)
 	   ;; #### PORTME.
 	   (sb-introspect:function-lambda-list symbol)
-	 (document-symbol-1 symbol relative-to 'function))
+	 (document-symbol-1 symbol relative-to :generic-function 'function))
        ;; #### PORTME.
        (dolist (method (sb-mop:generic-function-methods (fdefinition symbol)))
 	 (document-method method relative-to))))
     (:condition
      (when (definitionp symbol :condition)
        (@defcond (string-downcase symbol)
-	 (document-symbol-1 symbol relative-to 'type))))
+	 (document-symbol-1 symbol relative-to :condition 'type))))
     (:structure
      (when (definitionp symbol :structure)
        (@defstruct (string-downcase symbol)
-	 (document-symbol-1 symbol relative-to 'type))))
+	 (document-symbol-1 symbol relative-to :structure 'type))))
     (:class
      (when (definitionp symbol :class)
        (@defclass (string-downcase symbol)
-	 (document-symbol-1 symbol relative-to 'type))))))
+	 (document-symbol-1 symbol relative-to :class 'type))))))
 
 
 

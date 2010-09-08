@@ -138,14 +138,14 @@ components tree."))))
 			      @item Location~%~
 			      ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
 		     system-base-name
-		     (when *link-components*
+		     (when *link-files*
 		       (escape (make-pathname
 				:name (system-file-name system)
 				:type (system-file-type system)
 				:directory (pathname-directory
 					    (component-pathname system)))))
 		     system-base-name
-		     *link-components*)
+		     *link-files*)
 		   (format t "@end table~%")))))
   (dolist (file lisp-files)
     (add-child lisp-files-node (file-node file system-directory)))

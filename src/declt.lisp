@@ -249,7 +249,7 @@ version ~A on ~A.
 		   (author nil authorp)
 		   (email nil emailp)
 		   (copyright-date nil copyright-date-p)
-		   (link-components *link-components*)
+		   (link-files *link-files*)
 	      &aux (system (find-system system-name))
 		   (texi-name (escape (file-namestring texi-file)))
 		   (current-time-string (escape (current-time-string))))
@@ -333,7 +333,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		 :before-menu-contents
 		 (render-to-string
 		   (render-string (system-long-description system))))))
-  (let ((*link-components* link-components))
+  (let ((*link-files* link-files))
     (add-system-node      *top-node* system)
     (add-modules-node     *top-node* system)
     (add-files-node       *top-node* system)
