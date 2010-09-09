@@ -37,23 +37,6 @@
 ;; Rendering Protocols
 ;; ==========================================================================
 
-;; -----------------
-;; Indexing protocol
-;; -----------------
-
-(defmethod index ((module asdf:module) &optional relative-to)
-  (format t "@moduleindex{~A}@c~%"
-    (escape (relative-location module relative-to))))
-
-
-;; --------------------
-;; Referencing protocol
-;; --------------------
-
-(defmethod component-type-name ((module asdf:module))
-  "module")
-
-
 ;; ----------------------
 ;; Documentation protocol
 ;; ----------------------

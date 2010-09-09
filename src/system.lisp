@@ -34,19 +34,6 @@
 (in-package :com.dvlsoft.declt)
 
 
-;; ==========================================================================
-;; Rendering Protocols
-;; ==========================================================================
-
-;; -----------------
-;; Indexing protocol
-;; -----------------
-
-(defmethod index ((system asdf:system) &optional relative-to)
-  (declare (ignore relative-to))
-  (values))
-
-
 ;; ----------------------
 ;; Documentation protocol
 ;; ----------------------

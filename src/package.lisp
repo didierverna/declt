@@ -34,38 +34,8 @@
 
 
 ;; ==========================================================================
-;; Item Protocols
-;; ==========================================================================
-
-(defmethod location ((package package))
-  ;; #### PORTME.
-  (let* ((defsrc (sb-introspect:find-definition-source package)))
-    (when defsrc
-      (sb-introspect:definition-source-pathname defsrc))))
-
-
-
-;; ==========================================================================
 ;; Documentation Protocols
 ;; ==========================================================================
-
-;; -----------------
-;; Indexing protocol
-;; -----------------
-
-(defmethod index ((package package) &optional relative-to)
-  (declare (ignore relative-to))
-  (format t "@packageindex{~(~A~)}@c~%" (escape package)))
-
-
-;; --------------------
-;; Referencing protocol
-;; --------------------
-
-(defmethod reference ((package package) &optional relative-to)
-  (declare (ignore relative-to))
-  (format t "@t{~(~A~)}" (escape package)))
-
 
 (defun document-package (package relative-to)
   "Render PACKAGE's documentation."

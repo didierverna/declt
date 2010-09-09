@@ -33,32 +33,8 @@
 
 
 ;; ==========================================================================
-;; Rendering Protocols
-;; ==========================================================================
-
-(defgeneric component-type-name (component)
-  (:documentation "Return COMPONENT's type name."))
-
-(defmethod escape ((component asdf:component))
-  "Turn COMPONENT into its name."
-  (component-name component))
-
-
-
-;; ==========================================================================
 ;; Documentation Protocols
 ;; ==========================================================================
-
-;; ---------------------
-;;  Referencing protocol
-;; ---------------------
-
-(defmethod reference ((component asdf:component) &optional relative-to)
-  (declare (ignore relative-to))
-  (format t "@t{~A} ~@[, version ~A~] (~A)~%"
-    (escape component)
-    (escape (component-version component))
-    (component-type-name component)))
 
 (defgeneric document-component (component relative-to)
   (:documentation "Render COMPONENT's documentation.")

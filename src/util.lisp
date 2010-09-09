@@ -73,6 +73,28 @@ STRING should look like \"NAME <EMAIL>\"."
 
 
 ;; ==========================================================================
+;; Files
+;; ==========================================================================
+
+;; We need to protect against read-time errors. Let's just hope that nothing
+;; fancy occurs in DEFPACKAGE...
+(defun safe-read (stream)
+  "Read once from STREAM protecting against errors."
+  (handler-case (read stream nil :eof)
+    (error ())))
+
+(defun file-packages (file)
+  "Return the list of all packages defined in FILE."
+  (with-open-file (stream file :direction :input)
+    (loop :for form := (safe-read stream) :then (safe-read stream)
+	  :until (eq form :eof)
+	  :if (and (consp form)
+		   (eq (car form) 'defpackage))
+	  :collect (find-package (cadr form)))))
+
+
+
+;; ==========================================================================
 ;; ASDF Specific
 ;; ==========================================================================
 

@@ -146,6 +146,38 @@ online, and hence independent of any specific installation.")
 ;; Packages
 ;; ==========================================================================
 
+;; ------------------
+;; Redering protocols
+;; ------------------
+
+(defmethod to-string ((package package))
+  "Return PACKAGE's name."
+  (package-name package))
+
+
+;; ------------------
+;; Item protocols
+;; ------------------
+
+(defmethod location ((package package))
+  ;; #### PORTME.
+  (let* ((defsrc (sb-introspect:find-definition-source package)))
+    (when defsrc
+      (sb-introspect:definition-source-pathname defsrc))))
+
+(defmethod index ((package package) &optional relative-to)
+  (declare (ignore relative-to))
+  (format t "@packageindex{~(~A~)}@c~%" (escape package)))
+
+(defmethod reference ((package package) &optional relative-to)
+  (declare (ignore relative-to))
+  (format t "@t{~(~A~)}" (escape package)))
+
+
+;; ---------
+;; Utilities
+;; ---------
+
 (defun package-external-definitions (package &aux external-definitions)
   "Return the list of PACKAGE's external symbols which need documenting."
   (do-external-symbols (symbol package external-definitions)
@@ -166,30 +198,24 @@ online, and hence independent of any specific installation.")
 
 
 ;; ==========================================================================
-;; Files
-;; ==========================================================================
-
-;; We need to protect against read-time errors. Let's just hope that nothing
-;; fancy occurs in DEFPACKAGE...
-(defun safe-read (stream)
-  "Read once from STREAM protecting against errors."
-  (handler-case (read stream nil :eof)
-    (error ())))
-
-(defun file-packages (file)
-  "Return the list of all packages defined in FILE."
-  (with-open-file (stream file :direction :input)
-    (loop :for form := (safe-read stream) :then (safe-read stream)
-	  :until (eq form :eof)
-	  :if (and (consp form)
-		   (eq (car form) 'defpackage))
-	  :collect (find-package (cadr form)))))
-
-
-
-;; ==========================================================================
 ;; ASDF
 ;; ==========================================================================
+
+;; ------------------
+;; Redering protocols
+;; ------------------
+
+(defmethod to-string ((component asdf:component))
+  "Return COMPONENT's name."
+  (component-name component))
+
+(defgeneric component-type-name (component)
+  (:documentation "Return COMPONENT's type name."))
+
+
+;; ------------------
+;; Item protocols
+;; ------------------
 
 (defmethod location ((component asdf:component))
   (component-pathname component))
@@ -200,6 +226,72 @@ online, and hence independent of any specific installation.")
   (make-pathname :name (system-file-name system)
 		 :type (system-file-type system)
 		 :directory (pathname-directory (component-pathname system))))
+
+(defmethod reference ((component asdf:component) &optional relative-to)
+  (declare (ignore relative-to))
+  (format t "@t{~A} ~@[, version ~A~] (~A)~%"
+    (escape component)
+    (escape (component-version component))
+    (component-type-name component)))
+
+(defmethod index ((cl-source-file asdf:cl-source-file) &optional relative-to)
+  (format t "@lispfileindex{~A}@c~%"
+    (escape (relative-location cl-source-file relative-to))))
+
+(defmethod index ((c-source-file asdf:c-source-file) &optional relative-to)
+  (format t "@cfileindex{~A}@c~%"
+    (escape (relative-location c-source-file relative-to))))
+
+(defmethod index
+    ((java-source-file asdf:java-source-file) &optional relative-to)
+  (format t "@javafileindex{~A}@c~%"
+    (escape (relative-location java-source-file relative-to))))
+
+(defmethod index ((static-file asdf:static-file) &optional relative-to)
+  (format t "@otherfileindex{~A}@c~%"
+    (escape (relative-location static-file relative-to))))
+
+(defmethod index ((doc-file asdf:doc-file) &optional relative-to)
+  (format t "@docfileindex{~A}@c~%"
+    (escape (relative-location doc-file relative-to))))
+
+(defmethod index ((html-file asdf:html-file) &optional relative-to)
+  (format t "@htmlfileindex{~A}@c~%"
+    (escape (relative-location html-file relative-to))))
+
+(defmethod component-type-name ((cl-source-file asdf:cl-source-file))
+  "Lisp file")
+
+(defmethod component-type-name ((c-source-file asdf:c-source-file))
+  "C file")
+
+(defmethod component-type-name ((java-source-file asdf:java-source-file))
+  "Java file")
+
+(defmethod component-type-name ((static-file asdf:static-file))
+  "file")
+
+(defmethod component-type-name ((doc-file asdf:doc-file))
+  "doc file")
+
+(defmethod component-type-name ((html-file asdf:html-file))
+  "HTML file")
+
+(defmethod index ((module asdf:module) &optional relative-to)
+  (format t "@moduleindex{~A}@c~%"
+    (escape (relative-location module relative-to))))
+
+(defmethod component-type-name ((module asdf:module))
+  "module")
+
+(defmethod index ((system asdf:system) &optional relative-to)
+  (declare (ignore relative-to))
+  (values))
+
+
+;; ---------
+;; Utilities
+;; ---------
 
 (defun lisp-pathnames (system)
   "Return the list of all Lisp source file pathnames.

@@ -35,64 +35,6 @@
 
 
 ;; ==========================================================================
-;; Rendering Protocols
-;; ==========================================================================
-
-;; -----------------
-;; Indexing protocol
-;; -----------------
-
-(defmethod index ((cl-source-file asdf:cl-source-file) &optional relative-to)
-  (format t "@lispfileindex{~A}@c~%"
-    (escape (relative-location cl-source-file relative-to))))
-
-(defmethod index ((c-source-file asdf:c-source-file) &optional relative-to)
-  (format t "@cfileindex{~A}@c~%"
-    (escape (relative-location c-source-file relative-to))))
-
-(defmethod index
-    ((java-source-file asdf:java-source-file) &optional relative-to)
-  (format t "@javafileindex{~A}@c~%"
-    (escape (relative-location java-source-file relative-to))))
-
-(defmethod index ((static-file asdf:static-file) &optional relative-to)
-  (format t "@otherfileindex{~A}@c~%"
-    (escape (relative-location static-file relative-to))))
-
-(defmethod index ((doc-file asdf:doc-file) &optional relative-to)
-  (format t "@docfileindex{~A}@c~%"
-    (escape (relative-location doc-file relative-to))))
-
-(defmethod index ((html-file asdf:html-file) &optional relative-to)
-  (format t "@htmlfileindex{~A}@c~%"
-    (escape (relative-location html-file relative-to))))
-
-
-;; --------------------
-;; Referencing protocol
-;; --------------------
-
-(defmethod component-type-name ((cl-source-file asdf:cl-source-file))
-  "Lisp file")
-
-(defmethod component-type-name ((c-source-file asdf:c-source-file))
-  "C file")
-
-(defmethod component-type-name ((java-source-file asdf:java-source-file))
-  "Java file")
-
-(defmethod component-type-name ((static-file asdf:static-file))
-  "file")
-
-(defmethod component-type-name ((doc-file asdf:doc-file))
-  "doc file")
-
-(defmethod component-type-name ((html-file asdf:html-file))
-  "HTML file")
-
-
-
-;; ==========================================================================
 ;; File Nodes
 ;; ==========================================================================
 

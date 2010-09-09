@@ -38,27 +38,31 @@
 ;; Rendering Protocols
 ;; ==========================================================================
 
-(defgeneric escape (object)
-  (:documentation
-   "Return a printable form of OBJECT with @ { and } characters escaped.
-If OBJECT is nil, return nil.")
-  (:method (object)
-    "Convert non-string OBJECTs as follows:
-- SYMBOL -> SYMBOL-NAME,
-- PACKAGE -> PACAKGE-NAME,
-- PATHNAME -> NAMESTRING."
-    (etypecase object
-      (string object)
-      (symbol (symbol-name object))
-      (package (package-name object))
-      (pathname (namestring object))))
-  (:method :around (object)
-    "Escape the conversion of non-nil OBJECT to string."
-    (when object
-      (coerce (loop :for char :across (call-next-method)
-		      :if (member char '(#\@ #\{ #\})) :collect #\@
-		      :collect char)
-	      'string))))
+(defgeneric to-string (object)
+  (:documentation "When OBJECT, return a string form of it.")
+  (:method ((string string))
+    "Return STRING."
+    string)
+  (:method ((symbol symbol))
+    "Return SYMBOL's name."
+    (symbol-name symbol))
+  (:method ((pathname pathname))
+    "Return PATHNAME's name."
+    (namestring pathname)))
+
+
+
+;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
+(defun escape (object)
+  "Escape the conversion of non-nil OBJECT to string."
+  (when object
+    (coerce (loop :for char :across (to-string object)
+		  :if (member char '(#\@ #\{ #\})) :collect #\@
+		  :collect char)
+	    'string)))
 
 (defun render-string (string)
   "Render STRING attempting to embellish the output."
