@@ -61,13 +61,33 @@
 		  :collect char)
 	    'string)))
 
+(defun first-word-length (string)
+  (or (position-if (lambda (char) (member char '(#\space #\tab #\newline)))
+		   (string-trim '(#\space #\tab #\newline) string))
+      (length string)))
+
+(defun read-next-line (stream)
+  (multiple-value-list (read-line stream nil :eof)))
+
 (defun render-text (string)
   "Render STRING attempting to embellish the output."
   (when string
-    (loop :for char :across (escape string)
-	  :if (char= char #\Newline)
-	    :do (progn (write-char #\@) (write-char #\*))
-	  :do (write-char char))))
+    (with-input-from-string (str string)
+      (loop :for (ln1 mnl1p) :=    (read-next-line str)
+			     :then (list ln2 mnl2p)
+	    :for (ln2 mnl2p) :=    (read-next-line str)
+			     :then (read-next-line str)
+	    :until (eq ln1 :eof)
+	    :if (zerop (length ln1))
+	      :do (terpri)
+	    :else :if (eq ln2 :eof)
+	      :do (format t "~A~@[~%~]" (escape ln1) (not mnl1p))
+	    :else :if (> (- 78 (length ln1)) (first-word-length ln2))
+	      :do (format t "~A@*~%" (escape ln1))
+	    :else
+	      :do (format t "~A~%" (escape ln1))
+))))
+
 
 (defmacro @table ((&optional (kind :@strong)) &body body)
   "Render BODY in a @table KIND environment."
