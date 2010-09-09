@@ -152,7 +152,9 @@ converted into info, HTML, DVI, PostScript or PDF."
 					     (:file "package")
 					     (:file "asdf")))
 			      (:module "doc"
-				:components ((:file "symbol")
+				:serial t
+				:components ((:file "doc")
+					     (:file "symbol")
 					     (:file "package")
 					     (:file "asdf")))
 			      (:file "declt")))))

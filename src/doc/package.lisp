@@ -37,6 +37,18 @@
 ;; Documentation Protocols
 ;; ==========================================================================
 
+(defmethod title ((package package) &optional relative-to)
+  (declare (ignore relative-to))
+  (format nil "The ~(~A~) package" (escape package)))
+
+(defmethod anchor ((package package) &optional relative-to)
+  (declare (ignore relative-to))
+  (format nil "~A anchor" (title package)))
+
+(defmethod reference ((package package) &optional relative-to)
+  (declare (ignore relative-to))
+  (format t "@ref{~A, , @t{~(~A}~)}" (anchor package) (escape package)))
+
 (defun document-package (package relative-to)
   "Render PACKAGE's documentation."
   (index package)
@@ -71,9 +83,11 @@ Packages are listed by definition order."))))
   "Add SYSTEM's packages node to NODE."
   (dolist (package packages)
     (add-child packages-node
-      (make-node :name (format nil "The ~(~A~) package"	(escape package))
+      (make-node :name (title package)
 		 :section-name (format nil "@t{~(~A~)}" (escape package))
 		 :before-menu-contents
+		 (format nil "@anchor{~A}" (anchor package))
+		 :after-menu-contents
 		 (render-to-string
 		   (document-package package (system-directory system)))))))
 

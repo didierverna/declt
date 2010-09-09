@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Thu Sep  9 11:59:59 2010
-;; Last Revision: Thu Sep  9 12:06:16 2010
+;; Last Revision: Thu Sep  9 14:49:21 2010
 
 ;; This file is part of Declt.
 
@@ -40,6 +40,13 @@
 ;; -----------------------
 ;; Documentation protocols
 ;; -----------------------
+
+(defmethod reference ((component asdf:component) &optional relative-to)
+  (format t "@ref{~A, , @t{~(~A}~)} (~A)"
+    (anchor component relative-to)
+    (escape component)
+    (component-type-name component)))
+
 
 (defgeneric document-component (component relative-to)
   (:documentation "Render COMPONENT's documentation.")
@@ -88,17 +95,30 @@
 ;; Files
 ;; ==========================================================================
 
+;; -----------------------
+;; Documentation protocols
+;; -----------------------
+
+(defmethod title ((source-file asdf:source-file) &optional relative-to)
+  (format nil "The ~A file"
+    (escape (relative-location source-file relative-to))))
+
+(defmethod anchor ((source-file asdf:source-file) &optional relative-to)
+  (format nil "~A anchor" (title source-file relative-to)))
+
+
 ;; -----
 ;; Nodes
 ;; -----
 
 (defun file-node (file relative-to)
   "Create and return a FILE node."
-  (make-node :name (format nil "The ~A file"
-		     (escape (relative-location file relative-to)))
+  (make-node :name (title file relative-to)
 	     :section-name (format nil "@t{~A}"
 			     (escape (relative-location file relative-to)))
 	     :before-menu-contents
+	     (format nil "@anchor{~A}" (anchor file relative-to))
+	     :after-menu-contents
 	     (render-to-string (document-component file relative-to))))
 
 (defun add-files-node
@@ -168,6 +188,13 @@ components tree."))))
 ;; Documentation protocols
 ;; -----------------------
 
+(defmethod title ((module asdf:module) &optional relative-to)
+  (format nil "The ~A module"
+    (escape (relative-location module relative-to))))
+
+(defmethod anchor ((module asdf:module) &optional relative-to)
+  (format nil "~A anchor" (title module relative-to)))
+
 (defmethod document-component ((module asdf:module) relative-to)
   (call-next-method)
   (format t "@item Components~%")
@@ -182,11 +209,13 @@ components tree."))))
 
 (defun module-node (module relative-to)
   "Create and return a MODULE node."
-  (let ((name (escape (relative-location module relative-to))))
-    (make-node :name (format nil "The ~A module" name)
-	       :section-name (format nil "@t{~A}"name)
-	       :before-menu-contents
-	       (render-to-string (document-component module relative-to)))))
+  (make-node :name (title module relative-to)
+	     :section-name (format nil "@t{~A}"
+			     (escape (relative-location module relative-to)))
+	     :before-menu-contents
+	     (format nil "@anchor{~A}" (anchor module relative-to))
+	     :after-menu-contents
+	     (render-to-string (document-component module relative-to))))
 
 (defun add-modules-node
     (node system &aux (system-directory (system-directory system))

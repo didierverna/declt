@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Thu Sep  9 11:40:40 2010
-;; Last Revision: Thu Sep  9 11:48:31 2010
+;; Last Revision: Thu Sep  9 14:49:25 2010
 
 ;; This file is part of Declt.
 
@@ -56,13 +56,6 @@
 (defmethod location ((component asdf:component))
   (component-pathname component))
 
-(defmethod reference ((component asdf:component) &optional relative-to)
-  (declare (ignore relative-to))
-  (format t "@t{~A} ~@[, version ~A~] (~A)~%"
-    (escape component)
-    (escape (component-version component))
-    (component-type-name component)))
-
 
 
 ;; ==========================================================================
@@ -83,10 +76,10 @@
   "Java file")
 
 (defmethod component-type-name ((static-file asdf:static-file))
-  "file")
+  "File")
 
 (defmethod component-type-name ((doc-file asdf:doc-file))
-  "doc file")
+  "Doc file")
 
 (defmethod component-type-name ((html-file asdf:html-file))
   "HTML file")
