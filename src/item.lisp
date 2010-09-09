@@ -52,6 +52,33 @@
     (when location
       (enough-namestring location relative-to))))
 
+(defgeneric index (item &optional relative-to)
+  (:documentation "Render ITEM's indexing command."))
+
+(defgeneric reference (item &optional relative-to)
+  (:documentation "Render ITEM's reference.")
+  (:method :before (item &optional relative-to)
+    (index item relative-to)))
+
+(defvar *link-files* t
+  "Whether to create links to files or directories in the reference manual.
+When true (the default), pathnames are made clickable although the links are
+specific to this particular installation.
+
+Setting this to NIL is preferable for creating reference manuals meant to put
+online, and hence independent of any specific installation.")
+
+(defun render-location (item relative-to)
+  "Render an itemized location line for ITEM RELATIVE-TO."
+  (let ((location (location item)))
+    (when location
+      (format t "@item Location~%~
+		 ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
+	(when *link-files*
+	  (escape location))
+	(escape (relative-location location relative-to))
+	*link-files*))))
+
 
 
 ;; ==========================================================================
