@@ -1,11 +1,11 @@
-;;; util.lisp --- General utilities
+;;; asdf.lisp --- ASDF Utilities
 
 ;; Copyright (C) 2010 Didier Verna
 
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
-;; Created:       Mon Aug 23 18:25:33 2010
-;; Last Revision: Wed Sep  8 14:22:37 2010
+;; Created:       Thu Sep  9 11:19:17 2010
+;; Last Revision: Thu Sep  9 11:22:04 2010
 
 ;; This file is part of Declt.
 
@@ -34,73 +34,8 @@
 
 
 ;; ==========================================================================
-;; Miscellaneous
+;; slot-unbound Proof Accessors
 ;; ==========================================================================
-
-(defmacro endpush (object place)
-  "Like push, but at the end."
-  `(setf ,place (nconc ,place (list ,object))))
-
-(defun current-time-string ()
-  "Return the current time as a string."
-  (multiple-value-bind
-	(second minute hour date month year day-of-week dst-p tz)
-      (get-decoded-time)
-    (declare (ignore dst-p))
-    (format nil "~A ~A ~2,'0D ~2,'0D:~2,'0D:~2,'0D ~D GMT~@D"
-      (nth day-of-week '("Mon" "Tue" "Wed" "Thu" "Fri" "Sat" "Sun"))
-      (nth (1- month) '("Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug"
-			"Sep" "Oct" "Nov" "Dec"))
-      date
-      hour
-      minute
-      second
-      year
-      (- tz))))
-
-;; Originally stolen from Tinaa.
-(defun parse-author-string (string)
-  "Extract a name and an email part from STRING.
-Return these as two values.
-STRING should look like \"NAME <EMAIL>\"."
-  (let ((pos-< (position #\< string :test #'char-equal))
-	(pos-> (position #\> string :test #'char-equal)))
-    (if (and pos-< pos-> (< pos-< pos->))
-	(values (subseq string 0 (1- pos-<))
-		(subseq string (1+ pos-<) pos->))
-      string)))
-
-
-
-;; ==========================================================================
-;; Files
-;; ==========================================================================
-
-;; We need to protect against read-time errors. Let's just hope that nothing
-;; fancy occurs in DEFPACKAGE...
-(defun safe-read (stream)
-  "Read once from STREAM protecting against errors."
-  (handler-case (read stream nil :eof)
-    (error ())))
-
-(defun file-packages (file)
-  "Return the list of all packages defined in FILE."
-  (with-open-file (stream file :direction :input)
-    (loop :for form := (safe-read stream) :then (safe-read stream)
-	  :until (eq form :eof)
-	  :if (and (consp form)
-		   (eq (car form) 'defpackage))
-	  :collect (find-package (cadr form)))))
-
-
-
-;; ==========================================================================
-;; ASDF Specific
-;; ==========================================================================
-
-;; ----------------------------
-;; slot-unbound proof accessors
-;; ----------------------------
 
 (defun system-description (system)
   "Return ASDF SYSTEM's description or nil."
@@ -135,9 +70,10 @@ STRING should look like \"NAME <EMAIL>\"."
     (asdf:component-version component)))
 
 
-;; ---------------
-;; Other utilities
-;; ---------------
+
+;; ==========================================================================
+;; Miscellaneous
+;; ==========================================================================
 
 (defun components (module type)
   "Return the list of all TYPE components from MODULE."
@@ -173,4 +109,5 @@ STRING should look like \"NAME <EMAIL>\"."
   (pathname-type (system-definition-pathname system)))
 
 
-;;; util.lisp ends here
+
+;;; asdf.lisp ends here

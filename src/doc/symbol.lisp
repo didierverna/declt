@@ -1,11 +1,11 @@
-;;; definition.lisp --- Definitions rendering
+;;; symbol.lisp --- Symbol based documentation
 
 ;; Copyright (C) 2010 Didier Verna
 
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Sat Sep  4 15:27:31 2010
-;; Last Revision: Wed Sep  8 09:51:59 2010
+;; Last Revision: Thu Sep  9 11:57:30 2010
 
 ;; This file is part of Declt.
 
@@ -161,18 +161,6 @@
 
 
 ;; ==========================================================================
-;; Item Protocols
-;; ==========================================================================
-
-(defmethod location ((method method))
-  ;; #### PORTME.
-  (let* ((defsrc (sb-introspect:find-definition-source method)))
-    (when defsrc
-      (sb-introspect:definition-source-pathname defsrc))))
-
-
-
-;; ==========================================================================
 ;; Documentation Protocols
 ;; ==========================================================================
 
@@ -313,4 +301,4 @@ lexicographic order.")))))
 				   system-directory))))
 
 
-;;; definition.lisp ends here
+;;; symbol.lisp ends here

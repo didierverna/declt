@@ -137,19 +137,25 @@ converted into info, HTML, DVI, PostScript or PDF."
   :maintainer "Didier Verna <didier@lrde.epita.fr>"
   :license "GNU GPL"
   :version #.(version :long)
+  :serial t
   :components ((:file "package")
 	       (:module "src"
-		 :depends-on ("package")
-		 :components ((:file "util")
-			      (:file "item" :depends-on ("util"))
-			      (:file "texi" :depends-on ("item"))
-			      (:file "definition" :depends-on ("texi"))
-			      (:file "package" :depends-on ("texi"))
-			      (:file "component" :depends-on ("texi"))
-			      (:file "file" :depends-on ("component"))
-			      (:file "module" :depends-on ("file"))
-			      (:file "system" :depends-on ("module"))
-			      (:file "declt" :depends-on ("system"))))))
+		 :serial t
+		 :components ((:module "util"
+				:components ((:file "misc")
+					     (:file "asdf")
+					     (:file "texi")))
+			      (:module "item"
+				:serial t
+				:components ((:file "item")
+					     (:file "symbol")
+					     (:file "package")
+					     (:file "asdf")))
+			      (:module "doc"
+				:components ((:file "symbol")
+					     (:file "package")
+					     (:file "asdf")))
+			      (:file "declt")))))
 
 
 ;;; com.dvlsoft.declt.asd ends here

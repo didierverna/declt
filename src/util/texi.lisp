@@ -43,9 +43,6 @@
   (:method ((string string))
     "Return STRING."
     string)
-  (:method ((symbol symbol))
-    "Return SYMBOL's name."
-    (symbol-name symbol))
   (:method ((pathname pathname))
     "Return PATHNAME's name."
     (namestring pathname)))
