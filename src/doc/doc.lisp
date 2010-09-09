@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Thu Sep  9 12:31:11 2010
-;; Last Revision: Thu Sep  9 17:49:48 2010
+;; Last Revision: Thu Sep  9 18:48:37 2010
 
 ;; This file is part of Declt.
 
@@ -61,9 +61,17 @@ online, and hence independent of any specific installation.")
 
 (defun relative-location (item relative-to)
   "Return ITEM's location RELATIVE-TO."
-  (let ((location (location item)))
-    (when location
-      (enough-namestring location relative-to))))
+  (let* ((location (location item))
+	 (relative-location (when location
+			      (enough-namestring location relative-to))))
+    ;; #### HACK ALERT! Some items might end up being located in the *symlink*
+    ;; to the system file. In such a case, LOCATION is actually not
+    ;; RELATIVE-TO, but we know this is the system file so we just return the
+    ;; file name.
+    (when (and relative-location
+	       (string= relative-location (namestring location)))
+      (setq relative-location (file-namestring location)))
+    relative-location))
 
 (defun render-location (item relative-to)
   "Render an itemized location line for ITEM RELATIVE-TO."
@@ -85,5 +93,6 @@ online, and hence independent of any specific installation.")
       (format t "@ref{The ~A file anchor, , @t{~(~A}~)} (Lisp file)~%"
 	location
 	location))))
+
 
 ;;; doc.lisp ends here
