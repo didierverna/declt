@@ -70,7 +70,7 @@
       (@itemize-list (package-use-list package)
 	:format "@t{~(~A~)}"
 	:key #'escape))
-    (render-location package relative-to)))
+    (render-definition-source package relative-to)))
 
 
 

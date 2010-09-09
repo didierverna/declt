@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Thu Sep  9 12:31:11 2010
-;; Last Revision: Thu Sep  9 15:25:16 2010
+;; Last Revision: Thu Sep  9 17:49:48 2010
 
 ;; This file is part of Declt.
 
@@ -46,5 +46,44 @@
   (:method :before (item &optional relative-to)
     (index item relative-to)))
 
+(defvar *link-files* t
+  "Whether to create links to files or directories in the reference manual.
+When true (the default), pathnames are made clickable although the links are
+specific to this particular installation.
+
+Setting this to NIL is preferable for creating reference manuals meant to put
+online, and hence independent of any specific installation.")
+
+(defgeneric location (item)
+  (:documentation "Return ITEM's pathname.")
+  (:method ((pathname pathname))
+    pathname))
+
+(defun relative-location (item relative-to)
+  "Return ITEM's location RELATIVE-TO."
+  (let ((location (location item)))
+    (when location
+      (enough-namestring location relative-to))))
+
+(defun render-location (item relative-to)
+  "Render an itemized location line for ITEM RELATIVE-TO."
+  (let ((location (location item)))
+    (when location
+      (format t "@item Location~%~
+		 ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
+	(when *link-files*
+	  (escape location))
+	(escape (relative-location location relative-to))
+	*link-files*))))
+
+(defun render-definition-source (item relative-to)
+  "Render ITEM's definition source RELATIVE-TO."
+  (let ((location (escape (relative-location item relative-to))))
+    (when location
+      (format t "@item Definition Source~%")
+      (format t "@lispfileindex{~A}@c~%" location)
+      (format t "@ref{The ~A file anchor, , @t{~(~A}~)} (Lisp file)~%"
+	location
+	location))))
 
 ;;; doc.lisp ends here

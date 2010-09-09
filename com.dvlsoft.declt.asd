@@ -147,8 +147,7 @@ converted into info, HTML, DVI, PostScript or PDF."
 					     (:file "texi")))
 			      (:module "item"
 				:serial t
-				:components ((:file "item")
-					     (:file "symbol")
+				:components ((:file "symbol")
 					     (:file "package")
 					     (:file "asdf")))
 			      (:module "doc"

@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Sat Sep  4 15:27:31 2010
-;; Last Revision: Thu Sep  9 11:57:30 2010
+;; Last Revision: Thu Sep  9 17:41:03 2010
 
 ;; This file is part of Declt.
 
@@ -178,7 +178,7 @@
       (sb-mop:method-specializers method)
       (sb-mop:method-qualifiers method)
     (@table ()
-      (render-location method relative-to)
+      (render-definition-source method relative-to)
       (let ((documentation (documentation method t)))
 	(when documentation
 	  (format t "@item Documentation~%")
@@ -198,7 +198,7 @@
 	   (pathname (when defsrc
 		       (sb-introspect:definition-source-pathname defsrc))))
       (when pathname
-	(render-location pathname relative-to)))
+	(render-definition-source pathname relative-to)))
     (let ((documentation (documentation definition kind)))
       (when documentation
 	(format t "@item Documentation~%")
