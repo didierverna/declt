@@ -101,8 +101,8 @@ The ~A Reference Manual~@[, version ~A~].
 
 @c Systems
 @macro systemindex{name}
-@cindex @t{\\name\\}
-@cindex System, @t{\\name\\}
+@tpindex \\name\\
+@tpindex @r{System, }\\name\\
 @end macro
 
 @c Modules

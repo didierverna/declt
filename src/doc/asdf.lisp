@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Thu Sep  9 11:59:59 2010
-;; Last Revision: Thu Sep  9 15:36:11 2010
+;; Last Revision: Thu Sep  9 17:04:02 2010
 
 ;; This file is part of Declt.
 
@@ -56,6 +56,7 @@
   (:documentation "Render COMPONENT's documentation.")
   (:method :around ((component asdf:component) relative-to)
     "Index COMPONENT and enclose its documentation in a @table environment."
+    (format t "@anchor{~A}@c~%" (anchor component relative-to))
     (index component relative-to)
     (@table ()
       (call-next-method)))
@@ -78,19 +79,29 @@
       (when parent
 	(format t "@item Parent~%")
 	(reference parent relative-to)))
-    (if (eq (type-of component) 'asdf:system) ;; Yuck!
-	(when *link-files*
-	  (format t "@item Source Directory~%~
-		      @url{file://~A, ignore, @t{~A}}~%"
-	    (escape (component-pathname component))
-	    (escape (component-pathname component)))
-	  (let ((directory (escape
-			    (directory-namestring
-			     (system-definition-pathname component)))))
-	    (format t "@item Installation Directory~%~
+    (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
+	   (when *link-files*
+	     (format t "@item Source Directory~%~
 			@url{file://~A, ignore, @t{~A}}~%"
-	      directory directory)))
-      (render-location component relative-to))))
+	       (escape (component-pathname component))
+	       (escape (component-pathname component))))
+	   ;; That sucks. I need to fake a cl-source-file reference because
+	   ;; the system file is not an ASDF component per-se.
+	   (format t "@item Definition file~%")
+	   (let ((system-base-name (escape (system-base-name component))))
+	     (format t "@lispfileindex{~A}@c~%" system-base-name)
+	     (format t "@ref{The ~A file anchor, , @t{~(~A}~)} (Lisp file)~%"
+	       system-base-name
+	       system-base-name))
+	   (when *link-files*
+	     (let ((directory (escape
+			       (directory-namestring
+				(system-definition-pathname component)))))
+	       (format t "@item Installation Directory~%~
+			  @url{file://~A, ignore, @t{~A}}~%"
+		 directory directory))))
+	  (t
+	   (render-location component relative-to)))))
 
 
 
@@ -142,8 +153,6 @@
 	     :section-name (format nil "@t{~A}"
 			     (escape (relative-location file relative-to)))
 	     :before-menu-contents
-	     (format nil "@anchor{~A}" (anchor file relative-to))
-	     :after-menu-contents
 	     (render-to-string (document-component file relative-to))))
 
 (defun add-files-node
@@ -170,24 +179,17 @@ components tree."))))
   "Add SYSTEM's files node to NODE."
   (let ((system-base-name (escape (system-base-name system))))
     (add-child lisp-files-node
+      ;; That sucks. I need to fake a file-node call because the system file
+      ;; is not an ASDF component per-se.
       (make-node :name (format nil "The ~A file" system-base-name)
 		 :section-name (format nil "@t{~A}" system-base-name)
 		 :before-menu-contents
 		 (render-to-string
-		   (format t "@lispfileindex{~A}@c~%~
-			      @table @strong~%~
-			      @item Location~%~
-			      ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
-		     system-base-name
-		     (when *link-files*
-		       (escape (make-pathname
-				:name (system-file-name system)
-				:type (system-file-type system)
-				:directory (pathname-directory
-					    (component-pathname system)))))
-		     system-base-name
-		     *link-files*)
-		   (format t "@end table~%")))))
+		   (format t "@anchor{The ~A file anchor}@c~%"
+		     system-base-name)
+		   (format t "@lispfileindex{~A}@c~%" system-base-name)
+		   (@table ()
+		     (render-location system system-directory))))))
   (dolist (file lisp-files)
     (add-child lisp-files-node (file-node file system-directory)))
   (loop :with other-files-node
@@ -239,8 +241,6 @@ components tree."))))
 	     :section-name (format nil "@t{~A}"
 			     (escape (relative-location module relative-to)))
 	     :before-menu-contents
-	     (format nil "@anchor{~A}" (anchor module relative-to))
-	     :after-menu-contents
 	     (render-to-string (document-component module relative-to))))
 
 (defun add-modules-node
@@ -268,12 +268,12 @@ Modules are listed depth-first from the system components tree.")))))
 ;; -----------------------
 
 (defmethod title ((system asdf:system) &optional relative-to)
-  (format nil "The ~A system"
-    (escape (relative-location system relative-to))))
+  (declare (ignore relative-to))
+  (format nil "The ~A system" (escape system)))
 
 (defmethod index ((system asdf:system) &optional relative-to)
-  (format t "@systemindex{~A}@c~%"
-    (escape (relative-location system relative-to))))
+  (declare (ignore relative-to))
+  (format t "@systemindex{~A}@c~%" (escape system)))
 
 (defmethod document-component ((system asdf:system) relative-to)
   (format t "@item Name~%@t{~A}~%" (escape system))
@@ -310,8 +310,6 @@ Modules are listed depth-first from the system components tree.")))))
   (make-node :name "System"
 	     :synopsis "The system documentation"
 	     :before-menu-contents
-	     (format nil "@anchor{~A}" (anchor system relative-to))
-	     :after-menu-contents
 	     (render-to-string (document-component system relative-to))))
 
 (defun add-system-node (node system)

@@ -57,6 +57,7 @@
 
 (defun document-package (package relative-to)
   "Render PACKAGE's documentation."
+  (format t "@anchor{~A}@c~%" (anchor package))
   (index package)
   (@table ()
     (when (package-nicknames package)
@@ -92,8 +93,6 @@ Packages are listed by definition order."))))
       (make-node :name (title package)
 		 :section-name (format nil "@t{~(~A~)}" (escape package))
 		 :before-menu-contents
-		 (format nil "@anchor{~A}" (anchor package))
-		 :after-menu-contents
 		 (render-to-string
 		   (document-package package (system-directory system)))))))
 
