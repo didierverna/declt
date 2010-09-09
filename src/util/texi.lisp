@@ -61,7 +61,7 @@
 		  :collect char)
 	    'string)))
 
-(defun render-string (string)
+(defun render-text (string)
   "Render STRING attempting to embellish the output."
   (when string
     (loop :for char :across (escape string)

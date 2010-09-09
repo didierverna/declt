@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Sat Sep  4 15:27:31 2010
-;; Last Revision: Thu Sep  9 17:41:03 2010
+;; Last Revision: Thu Sep  9 18:53:22 2010
 
 ;; This file is part of Declt.
 
@@ -178,15 +178,19 @@
       (sb-mop:method-specializers method)
       (sb-mop:method-qualifiers method)
     (@table ()
-      (render-definition-source method relative-to)
       (let ((documentation (documentation method t)))
 	(when documentation
 	  (format t "@item Documentation~%")
-	  (render-string documentation))))))
+	  (render-text documentation)))
+      (render-source method relative-to))))
 
 (defun document-definition-1 (definition relative-to type kind)
   "Render DEFINITION's documentation contents as KIND."
   (@table ()
+    (let ((documentation (documentation definition kind)))
+      (when documentation
+	(format t "@item Documentation~%")
+	(render-text documentation)))
     (format t "@item Package~%")
     (reference (symbol-package definition))
     ;; #### PORTME.
@@ -198,11 +202,7 @@
 	   (pathname (when defsrc
 		       (sb-introspect:definition-source-pathname defsrc))))
       (when pathname
-	(render-definition-source pathname relative-to)))
-    (let ((documentation (documentation definition kind)))
-      (when documentation
-	(format t "@item Documentation~%")
-	(render-string documentation)))))
+	(render-source pathname relative-to)))))
 
 (defun document-definition (definition relative-to category)
   "Render DEFINITION's documentation in CATEGORY."

@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Thu Sep  9 12:31:11 2010
-;; Last Revision: Thu Sep  9 18:48:37 2010
+;; Last Revision: Thu Sep  9 18:52:59 2010
 
 ;; This file is part of Declt.
 
@@ -84,11 +84,11 @@ online, and hence independent of any specific installation.")
 	(escape (relative-location location relative-to))
 	*link-files*))))
 
-(defun render-definition-source (item relative-to)
+(defun render-source (item relative-to)
   "Render ITEM's definition source RELATIVE-TO."
   (let ((location (escape (relative-location item relative-to))))
     (when location
-      (format t "@item Definition Source~%")
+      (format t "@item Source~%")
       (format t "@lispfileindex{~A}@c~%" location)
       (format t "@ref{The ~A file anchor, , @t{~(~A}~)} (Lisp file)~%"
 	location

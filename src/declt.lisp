@@ -338,7 +338,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		 :synopsis (format nil "What ~A is all about" library-name)
 		 :before-menu-contents
 		 (render-to-string
-		   (render-string (system-long-description system))))))
+		   (render-text (system-long-description system))))))
   (let ((*link-files* link-files))
     (add-system-node      *top-node* system)
     (add-modules-node     *top-node* system)
