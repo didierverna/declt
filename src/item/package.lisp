@@ -53,10 +53,6 @@
     (when defsrc
       (sb-introspect:definition-source-pathname defsrc))))
 
-(defmethod index ((package package) &optional relative-to)
-  (declare (ignore relative-to))
-  (format t "@packageindex{~(~A~)}@c~%" (escape package)))
-
 
 
 ;; ==========================================================================

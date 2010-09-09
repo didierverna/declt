@@ -99,6 +99,12 @@ The ~A Reference Manual~@[, version ~A~].
 @tpindex @r{Package, }\\name\\
 @end macro
 
+@c Systems
+@macro systemindex{name}
+@cindex @t{\\name\\}
+@cindex System, @t{\\name\\}
+@end macro
+
 @c Modules
 @macro moduleindex{name}
 @cindex @t{\\name\\}

@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Thu Sep  9 11:59:59 2010
-;; Last Revision: Thu Sep  9 14:49:21 2010
+;; Last Revision: Thu Sep  9 15:36:11 2010
 
 ;; This file is part of Declt.
 
@@ -41,12 +41,16 @@
 ;; Documentation protocols
 ;; -----------------------
 
+;; Since node references are boring in Texinfo, we prefer to create custom
+;; anchors for ASDF components and link to them instead.
+(defmethod anchor ((component asdf:component) &optional relative-to)
+  (format nil "~A anchor" (title component relative-to)))
+
 (defmethod reference ((component asdf:component) &optional relative-to)
-  (format t "@ref{~A, , @t{~(~A}~)} (~A)"
+  (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
     (anchor component relative-to)
     (escape component)
     (component-type-name component)))
-
 
 (defgeneric document-component (component relative-to)
   (:documentation "Render COMPONENT's documentation.")
@@ -73,8 +77,7 @@
     (let ((parent (component-parent component)))
       (when parent
 	(format t "@item Parent~%")
-	(index parent relative-to)
-	(format t "@t{~A}~%" (escape parent))))
+	(reference parent relative-to)))
     (if (eq (type-of component) 'asdf:system) ;; Yuck!
 	(when *link-files*
 	  (format t "@item Source Directory~%~
@@ -103,8 +106,30 @@
   (format nil "The ~A file"
     (escape (relative-location source-file relative-to))))
 
-(defmethod anchor ((source-file asdf:source-file) &optional relative-to)
-  (format nil "~A anchor" (title source-file relative-to)))
+(defmethod index ((cl-source-file asdf:cl-source-file) &optional relative-to)
+  (format t "@lispfileindex{~A}@c~%"
+    (escape (relative-location cl-source-file relative-to))))
+
+(defmethod index ((c-source-file asdf:c-source-file) &optional relative-to)
+  (format t "@cfileindex{~A}@c~%"
+    (escape (relative-location c-source-file relative-to))))
+
+(defmethod index
+    ((java-source-file asdf:java-source-file) &optional relative-to)
+  (format t "@javafileindex{~A}@c~%"
+    (escape (relative-location java-source-file relative-to))))
+
+(defmethod index ((static-file asdf:static-file) &optional relative-to)
+  (format t "@otherfileindex{~A}@c~%"
+    (escape (relative-location static-file relative-to))))
+
+(defmethod index ((doc-file asdf:doc-file) &optional relative-to)
+  (format t "@docfileindex{~A}@c~%"
+    (escape (relative-location doc-file relative-to))))
+
+(defmethod index ((html-file asdf:html-file) &optional relative-to)
+  (format t "@htmlfileindex{~A}@c~%"
+    (escape (relative-location html-file relative-to))))
 
 
 ;; -----
@@ -192,8 +217,9 @@ components tree."))))
   (format nil "The ~A module"
     (escape (relative-location module relative-to))))
 
-(defmethod anchor ((module asdf:module) &optional relative-to)
-  (format nil "~A anchor" (title module relative-to)))
+(defmethod index ((module asdf:module) &optional relative-to)
+  (format t "@moduleindex{~A}@c~%"
+    (escape (relative-location module relative-to))))
 
 (defmethod document-component ((module asdf:module) relative-to)
   (call-next-method)
@@ -241,6 +267,14 @@ Modules are listed depth-first from the system components tree.")))))
 ;; Documentation protocols
 ;; -----------------------
 
+(defmethod title ((system asdf:system) &optional relative-to)
+  (format nil "The ~A system"
+    (escape (relative-location system relative-to))))
+
+(defmethod index ((system asdf:system) &optional relative-to)
+  (format t "@systemindex{~A}@c~%"
+    (escape (relative-location system relative-to))))
+
 (defmethod document-component ((system asdf:system) relative-to)
   (format t "@item Name~%@t{~A}~%" (escape system))
   (when (system-description system)
@@ -271,13 +305,14 @@ Modules are listed depth-first from the system components tree.")))))
 ;; Nodes
 ;; -----
 
-(defun system-node (system)
+(defun system-node (system &aux (relative-to (system-directory system)))
   "Create and return the SYSTEM node."
   (make-node :name "System"
 	     :synopsis "The system documentation"
 	     :before-menu-contents
-	     (render-to-string
-	       (document-component system (system-directory system)))))
+	     (format nil "@anchor{~A}" (anchor system relative-to))
+	     :after-menu-contents
+	     (render-to-string (document-component system relative-to))))
 
 (defun add-system-node (node system)
   "Add SYSTEM's system node to NODE."

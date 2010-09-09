@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Thu Sep  9 12:31:11 2010
-;; Last Revision: Thu Sep  9 14:24:58 2010
+;; Last Revision: Thu Sep  9 15:25:16 2010
 
 ;; This file is part of Declt.
 
@@ -37,6 +37,9 @@
 
 (defgeneric anchor (item &optional relative-to)
   (:documentation "Return ITEM's anchor name."))
+
+(defgeneric index (item &optional relative-to)
+  (:documentation "Render ITEM's indexing command."))
 
 (defgeneric reference (item &optional relative-to)
   (:documentation "Render ITEM's reference.")

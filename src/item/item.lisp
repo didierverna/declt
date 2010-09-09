@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Wed Sep  8 21:10:37 2010
-;; Last Revision: Thu Sep  9 12:49:47 2010
+;; Last Revision: Thu Sep  9 15:24:31 2010
 
 ;; This file is part of Declt.
 
@@ -43,9 +43,6 @@
   (let ((location (location item)))
     (when location
       (enough-namestring location relative-to))))
-
-(defgeneric index (item &optional relative-to)
-  (:documentation "Render ITEM's indexing command."))
 
 (defvar *link-files* t
   "Whether to create links to files or directories in the reference manual.

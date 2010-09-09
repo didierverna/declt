@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Thu Sep  9 11:40:40 2010
-;; Last Revision: Thu Sep  9 14:49:25 2010
+;; Last Revision: Thu Sep  9 15:28:05 2010
 
 ;; This file is part of Declt.
 
@@ -85,36 +85,6 @@
   "HTML file")
 
 
-;; --------------
-;; Item protocols
-;; --------------
-
-(defmethod index ((cl-source-file asdf:cl-source-file) &optional relative-to)
-  (format t "@lispfileindex{~A}@c~%"
-    (escape (relative-location cl-source-file relative-to))))
-
-(defmethod index ((c-source-file asdf:c-source-file) &optional relative-to)
-  (format t "@cfileindex{~A}@c~%"
-    (escape (relative-location c-source-file relative-to))))
-
-(defmethod index
-    ((java-source-file asdf:java-source-file) &optional relative-to)
-  (format t "@javafileindex{~A}@c~%"
-    (escape (relative-location java-source-file relative-to))))
-
-(defmethod index ((static-file asdf:static-file) &optional relative-to)
-  (format t "@otherfileindex{~A}@c~%"
-    (escape (relative-location static-file relative-to))))
-
-(defmethod index ((doc-file asdf:doc-file) &optional relative-to)
-  (format t "@docfileindex{~A}@c~%"
-    (escape (relative-location doc-file relative-to))))
-
-(defmethod index ((html-file asdf:html-file) &optional relative-to)
-  (format t "@htmlfileindex{~A}@c~%"
-    (escape (relative-location html-file relative-to))))
-
-
 
 ;; ==========================================================================
 ;; Modules
@@ -128,19 +98,18 @@
   "module")
 
 
-;; --------------
-;; Item protocols
-;; --------------
-
-(defmethod index ((module asdf:module) &optional relative-to)
-  (format t "@moduleindex{~A}@c~%"
-    (escape (relative-location module relative-to))))
-
-
 
 ;; ==========================================================================
 ;; System
 ;; ==========================================================================
+
+;; -------------------
+;; Rendering protocols
+;; -------------------
+
+(defmethod component-type-name ((system asdf:system))
+  "system")
+
 
 ;; --------------
 ;; Item protocols
@@ -152,10 +121,6 @@
   (make-pathname :name (system-file-name system)
 		 :type (system-file-type system)
 		 :directory (pathname-directory (component-pathname system))))
-
-(defmethod index ((system asdf:system) &optional relative-to)
-  (declare (ignore relative-to))
-  (values))
 
 
 ;; ---------
