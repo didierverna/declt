@@ -60,16 +60,24 @@
   (format t "@anchor{~A}@c~%" (anchor package))
   (index package)
   (@table ()
-    (when (package-nicknames package)
-      (format t "@item Nicknames~%")
-      (@itemize-list (package-nicknames package)
-	:format "@t{~(~A~)}"
-	:key #'escape))
-    (when (package-use-list package)
-      (format t "@item Use List~%")
-      (@itemize-list (package-use-list package)
-	:format "@t{~(~A~)}"
-	:key #'escape))
+    (let* ((nicknames (package-nicknames package))
+	   (length (length nicknames)))
+      (when nicknames
+	(format t "@item Nickname~p~%" length)
+	(if (eq length 1)
+	    (format t "@t{~(~A~)}" (escape (first nicknames)))
+	  (@itemize-list nicknames
+	    :format "@t{~(~A~)}"
+	    :key #'escape))))
+    (let* ((use-list (package-use-list package))
+	   (length (length use-list)))
+      (when use-list
+	(format t "@item Use List~%")
+	(if (eq length 1)
+	    (format t "@t{~(~A~)}" (escape (first use-list)))
+	  (@itemize-list (package-use-list package)
+	    :format "@t{~(~A~)}"
+	    :key #'escape))))
     (render-source package relative-to)))
 
 
