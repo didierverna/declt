@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Thu Sep  9 12:31:11 2010
-;; Last Revision: Fri Sep 10 11:35:35 2010
+;; Last Revision: Fri Sep 10 13:20:32 2010
 
 ;; This file is part of Declt.
 
@@ -32,6 +32,11 @@
 
 (in-package :com.dvlsoft.declt)
 
+
+;; ==========================================================================
+;; Documentation Protocols
+;; ==========================================================================
+
 (defgeneric title (item &optional relative-to)
   (:documentation "Return ITEM's title."))
 
@@ -44,6 +49,12 @@
 (defgeneric reference (item &optional relative-to)
   (:documentation "Render ITEM's reference."))
 
+
+
+;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
 (defvar *link-files* t
   "Whether to create links to files or directories in the reference manual.
 When true (the default), pathnames are made clickable although the links are
@@ -51,25 +62,6 @@ specific to this particular installation.
 
 Setting this to NIL is preferable for creating reference manuals meant to put
 online, and hence independent of any specific installation.")
-
-(defgeneric location (item)
-  (:documentation "Return ITEM's pathname.")
-  (:method ((pathname pathname))
-    pathname))
-
-(defun relative-location (item relative-to)
-  "Return ITEM's location RELATIVE-TO."
-  (let* ((location (location item))
-	 (relative-location (when location
-			      (enough-namestring location relative-to))))
-    ;; #### HACK ALERT! Some items might end up being located in the *symlink*
-    ;; to the system file. In such a case, LOCATION is actually not
-    ;; RELATIVE-TO, but we know this is the system file so we just return the
-    ;; file name.
-    (when (and relative-location
-	       (string= relative-location (namestring location)))
-      (setq relative-location (file-namestring location)))
-    relative-location))
 
 (defun render-location (item relative-to)
   "Render an itemized location line for ITEM RELATIVE-TO."
