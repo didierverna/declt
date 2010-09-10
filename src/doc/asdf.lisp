@@ -34,6 +34,21 @@
 
 
 ;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
+(defun render-packages (packages)
+  "Render a list of PACKAGES references."
+  (when packages
+    (let ((length (length packages)))
+      (format t "@item Package~p~%" length)
+      (if (eq length 1)
+	  (reference (first packages))
+	(@itemize-list packages :renderer #'reference)))))
+
+
+
+;; ==========================================================================
 ;; Components
 ;; ==========================================================================
 
@@ -141,6 +156,10 @@
 (defmethod index ((html-file asdf:html-file) &optional relative-to)
   (format t "@htmlfileindex{~A}@c~%"
     (escape (relative-location html-file relative-to))))
+
+(defmethod document-component ((file asdf:cl-source-file) relative-to)
+  (call-next-method)
+  (render-packages (file-packages (component-pathname file))))
 
 
 ;; -----
@@ -297,8 +316,7 @@ Modules are listed depth-first from the system components tree.")))))
 	(escape maintainer) (and maintainer email) (escape email))))
   (format t "~@[@item License~%~A~%~]" (escape (system-license system)))
   (call-next-method)
-  (format t "@item Packages~%")
-  (@itemize-list (system-packages system) :renderer #'reference))
+  (render-packages (system-packages system)))
 
 
 ;; -----
