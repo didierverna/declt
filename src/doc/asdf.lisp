@@ -248,10 +248,15 @@ components tree."))))
 
 (defmethod document-component ((module asdf:module) relative-to)
   (call-next-method)
-  (format t "@item Components~%")
-  (@itemize-list (asdf:module-components module)
-    :renderer (lambda (component)
-		(reference component relative-to))))
+  (let* ((components (asdf:module-components module))
+	 (length (length components)))
+    (when components
+      (format t "@item Component~p~%" length)
+      (if (eq length 1)
+	  (reference (first components) relative-to)
+	(@itemize-list components
+	  :renderer (lambda (component)
+		      (reference component relative-to)))))))
 
 
 ;; -----
