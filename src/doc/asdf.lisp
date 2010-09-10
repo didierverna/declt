@@ -76,7 +76,8 @@
     (@table ()
       (call-next-method)))
   (:method ((component asdf:component) relative-to)
-    (format t "~@[@item Version~%~A~%~]"
+    (format t "~@[@item Version~%~
+		  ~A~%~]"
       (escape (component-version component)))
     ;; #### NOTE: currently, we simply extract all the dependencies regardless
     ;; of the operations involved. We also assume that dependencies are of the
@@ -315,14 +316,17 @@ Modules are listed depth-first from the system components tree.")))))
   (multiple-value-bind (author email)
       (parse-author-string (system-author system))
     (when (or author email)
-      (format t "@item Author~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
+      (format t "@item Author~%~
+		 ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	(escape author) (and author email) (escape email))))
   (multiple-value-bind (maintainer email)
       (parse-author-string (system-maintainer system))
     (when (or maintainer email)
-      (format t "@item Maintainer~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
+      (format t "@item Maintainer~%~
+		 ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	(escape maintainer) (and maintainer email) (escape email))))
-  (format t "~@[@item License~%~A~%~]" (escape (system-license system)))
+  (format t "~@[@item License~%~
+		~A~%~]" (escape (system-license system)))
   (call-next-method))
 
 
