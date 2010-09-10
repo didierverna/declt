@@ -108,7 +108,6 @@
 	   ;; the system file is not an ASDF component per-se.
 	   (format t "@item Definition file~%")
 	   (let ((system-base-name (escape (system-base-name component))))
-	     (format t "@lispfileindex{~A}@c~%" system-base-name)
 	     (format t "@ref{The ~A file anchor, , @t{~(~A}~)} (Lisp file)~%"
 	       system-base-name
 	       system-base-name))
