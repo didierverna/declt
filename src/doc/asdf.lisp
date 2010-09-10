@@ -82,14 +82,18 @@
     ;; of the operations involved. We also assume that dependencies are of the
     ;; form (OP (OP DEP...) ...), but I'm not sure this is always the case.
     (let ((in-order-tos (slot-value component 'asdf::in-order-to))
-	  dependencies)
+	  dependencies
+	  length)
       (when in-order-tos
 	(dolist (in-order-to in-order-tos)
 	  (dolist (op-dependency (cdr in-order-to))
 	    (dolist (dependency (cdr op-dependency))
 	      (pushnew dependency dependencies))))
-	(format t "@item Dependencies~%")
-	(@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape)))
+	(setq length (length dependencies))
+	(format t "@item Dependenc~@p~%" length)
+	(if (eq length 1)
+	    (format t "@t{~(~A}~)" (escape (first dependencies)))
+	  (@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape))))
     (let ((parent (component-parent component)))
       (when parent
 	(format t "@item Parent~%")
