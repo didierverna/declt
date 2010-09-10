@@ -59,7 +59,6 @@
 ;; Utilities
 ;; ==========================================================================
 
-;; #### PORTME.
 (define-constant +categories+
     '((:constant  "constant"          "constants")
       (:special   "special variable"  "special variables")
@@ -71,6 +70,7 @@
       (:class     "class"             "classes"))
   "The list of definition categories.")
 
+;; #### PORTME.
 (defun definitionp (symbol kind)
   "Return a value of some KIND defined by SYMBOL if any."
   (ecase kind
@@ -93,13 +93,11 @@
        (fdefinition symbol)))
     (:condition
      (let ((class (find-class symbol nil)))
-       (when (and class
-		  (typep class 'condition))
+       (when (and class (typep class 'sb-pcl::condition-class))
 	 class)))
     (:structure
      (let ((class (find-class symbol nil)))
-       (when (and class
-		  (eq (class-of class) 'structure-class))
+       (when (and class (typep class 'sb-pcl::structure-class))
 	 class)))
     (:class
      (let ((class (find-class symbol nil)))
