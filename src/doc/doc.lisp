@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Thu Sep  9 12:31:11 2010
-;; Last Revision: Fri Sep 10 11:24:59 2010
+;; Last Revision: Fri Sep 10 11:35:35 2010
 
 ;; This file is part of Declt.
 
@@ -82,14 +82,13 @@ online, and hence independent of any specific installation.")
 	(escape (relative-location location relative-to))
 	*link-files*))))
 
-;; #### FIXME: this is ugly because it duplicates referencing of a
-;; cl-source-file.
 (defun render-source (item relative-to)
   "Render ITEM's definition source RELATIVE-TO."
   (let ((location (escape (relative-location item relative-to))))
     (when location
       (format t "@item Source~%")
-      (format t "@ref{The ~A file anchor, , @t{~(~A}~)} (Lisp file)~%"
+      ;; #### FIXME: somewhat ugly. We fake a cl-source-file anchor name.
+      (format t "@ref{The ~A file anchor, , @t{~(~A}~)}~%"
 	location
 	location))))
 
