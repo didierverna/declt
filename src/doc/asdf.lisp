@@ -323,8 +323,7 @@ Modules are listed depth-first from the system components tree.")))))
       (format t "@item Maintainer~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	(escape maintainer) (and maintainer email) (escape email))))
   (format t "~@[@item License~%~A~%~]" (escape (system-license system)))
-  (call-next-method)
-  (render-packages (system-packages system)))
+  (call-next-method))
 
 
 ;; -----
