@@ -85,8 +85,7 @@
 	    :else :if (> (- 78 (length ln1)) (first-word-length ln2))
 	      :do (format t "~A@*~%" (escape ln1))
 	    :else
-	      :do (format t "~A~%" (escape ln1))
-))))
+	      :do (format t "~A~%" (escape ln1))))))
 
 
 (defmacro @table ((&optional (kind :@strong)) &body body)
