@@ -191,7 +191,7 @@
       (when documentation
 	(format t "@item Documentation~%")
 	(render-text documentation)))
-    (format t "@item Package~%")
+    (format t "~&@item Package~%")
     (reference (symbol-package definition))
     ;; #### PORTME.
     (let* ((defsrc
