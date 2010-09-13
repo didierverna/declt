@@ -166,63 +166,107 @@
 
 ;; #### NOTE: there are no indexing methods for methods or symbols, because
 ;; indexing is done by the lower-level @defXXX routines (Texinfo does half the
-;; job and we do the othe rhalf).
+;; job and we do the other rhalf).
 
-(defun document-symbol (symbol relative-to type kind)
-  "Render SYMBOL's documentation contents as KIND."
+(defmethod title ((constant constant-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format nil "The ~(~A~) constant" (escape constant)))
+
+(defmethod title ((special special-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format nil "The ~(~A~) special variable" (escape special)))
+
+(defmethod title ((macro macro-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format nil "The ~(~A~) macro" (escape macro)))
+
+(defmethod title ((function function-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format nil "The ~(~A~) function" (escape function)))
+
+(defmethod title ((method method-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format nil "The ~(~A~{ ~A~^~}~{ ~A~^~}~) method"
+    (escape method)
+    ;; #### PORTME.
+    (mapcar #'escape (mapcar #'pretty-specializer
+			     (sb-mop:method-specializers
+			      (method-definition-method method))))
+    (mapcar #'escape (sb-mop:method-qualifiers
+		      (method-definition-method method)))))
+
+(defmethod title ((generic generic-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format nil "The ~(~A~) generic function" (escape generic)))
+
+(defmethod title ((condition condition-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format nil "The ~(~A~) condition" (escape condition)))
+
+(defmethod title ((structure structure-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format nil "The ~(~A~) structure" (escape structure)))
+
+(defmethod title ((class class-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format nil "The ~(~A~) class" (escape class)))
+
+(defmethod anchor ((definition definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format nil "~A anchor" (title definition)))
+
+(defmethod reference ((definition definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
+    (anchor definition)
+    (escape definition)
+    (definition-type-name definition)))
+
+(defun document-definition (definition relative-to kind)
+  "Render DEFINITION's documentation contents as KIND."
+  (format t "@anchor{~A}@c~%" (anchor definition))
   (@table ()
-    (let ((documentation (documentation symbol kind)))
+    (let ((documentation (documentation (definition-symbol definition) kind)))
       (when documentation
 	(format t "@item Documentation~%")
 	(render-text documentation)))
     (format t "~&@item Package~%")
-    (reference (symbol-package symbol))
-    ;; #### PORTME.
-    (let* ((defsrc
-	       ;; #### FIXME: why a list? How can there be several sources?
-	       (car
-		(sb-introspect:find-definition-sources-by-name symbol type)))
-	   (pathname (when defsrc
-		       (sb-introspect:definition-source-pathname defsrc))))
-      (when pathname
-	(render-source pathname relative-to)))))
+    (reference (symbol-package (definition-symbol definition)))
+    (render-source definition relative-to)))
 
 (defmethod document ((constant constant-definition) relative-to)
   (@defconstant (string-downcase (definition-symbol constant))
-    (document-symbol (definition-symbol constant) relative-to :constant
-		     'variable)))
+    (document-definition constant relative-to 'variable)))
 
 (defmethod document ((special special-definition) relative-to)
   (@defspecial (string-downcase (definition-symbol special))
-    (document-symbol (definition-symbol special) relative-to :variable
-		     'variable)))
+    (document-definition special relative-to 'variable)))
 
 (defmethod document ((macro macro-definition) relative-to)
   (@defmac (string-downcase (definition-symbol macro))
       ;; #### PORTME.
       (sb-introspect:function-lambda-list
        (macro-definition-function macro))
-    (document-symbol (definition-symbol macro) relative-to :macro
-		     'function)))
+    (document-definition macro relative-to 'function)))
 
 (defmethod document ((function function-definition) relative-to)
   (@defun (string-downcase (definition-symbol function))
       ;; #### PORTME.
       (sb-introspect:function-lambda-list
        (function-definition-function function))
-    (document-symbol (definition-symbol function) relative-to :function
-		     'function)))
+    (document-definition function relative-to 'function)))
 
-(defmethod document ((method method) relative-to)
+(defmethod document ((method method-definition) relative-to)
   (@defmethod
       ;; #### PORTME:
-      (string-downcase (sb-mop:generic-function-name
-			(sb-mop:method-generic-function method)))
-      (sb-mop:method-lambda-list method)
-      (sb-mop:method-specializers method)
-      (sb-mop:method-qualifiers method)
+      (string-downcase (definition-symbol method))
+      (sb-mop:method-lambda-list (method-definition-method method))
+      (sb-mop:method-specializers (method-definition-method method))
+      (sb-mop:method-qualifiers (method-definition-method method))
     (@table ()
-      (let ((documentation (documentation method t)))
+      (format t "@anchor{~A}@c~%" (anchor method))
+      (let ((documentation
+	     (documentation (method-definition-method method) t)))
 	(when documentation
 	  (format t "@item Documentation~%")
 	  (render-text documentation)))
@@ -233,27 +277,27 @@
       ;; #### PORTME.
       (sb-introspect:function-lambda-list
        (generic-definition-function generic))
-    (document-symbol (definition-symbol generic) relative-to :generic-function
-		     'function))
+    (document-definition generic relative-to 'function))
   ;; #### PORTME.
   (dolist (method
 	    (sb-mop:generic-function-methods
 	     (generic-definition-function generic)))
-    (document method relative-to)))
+    (document (make-method-definition
+	       :symbol (definition-symbol generic)
+	       :method method)
+	      relative-to)))
 
 (defmethod document ((condition condition-definition) relative-to)
   (@defcond (string-downcase (definition-symbol condition))
-    (document-symbol (definition-symbol condition) relative-to :condition
-		     'type)))
+    (document-definition condition relative-to 'type)))
 
 (defmethod document ((structure structure-definition) relative-to)
   (@defstruct (string-downcase (definition-symbol structure))
-    (document-symbol (definition-symbol structure) relative-to :structure
-		     'type)))
+    (document-definition structure relative-to 'type)))
 
 (defmethod document ((class class-definition) relative-to)
   (@defclass (string-downcase (definition-symbol class))
-    (document-symbol (definition-symbol class) relative-to :class 'type)))
+    (document-definition class relative-to 'type)))
 
 
 

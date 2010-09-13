@@ -41,8 +41,6 @@
   (declare (ignore relative-to))
   (format nil "The ~(~A~) package" (escape package)))
 
-;; Since node references are boring in Texinfo, we prefer to create custom
-;; anchors for ASDF components and link to them instead.
 (defmethod anchor ((package package) &optional relative-to)
   (declare (ignore relative-to))
   (format nil "~A anchor" (title package)))

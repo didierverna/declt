@@ -40,6 +40,8 @@
 (defgeneric title (item &optional relative-to)
   (:documentation "Return ITEM's title."))
 
+;; Since node references are boring in Texinfo, we prefer to create custom
+;; anchors for our items and link to them instead.
 (defgeneric anchor (item &optional relative-to)
   (:documentation "Return ITEM's anchor name."))
 

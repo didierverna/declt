@@ -37,6 +37,8 @@
 ;; Symbol-based Items
 ;; ==========================================================================
 
+;; #### NOTE: +CATEGORIES+ and SYMBOL-DEFINITION don't handle methods, because
+;; those are listed directly as part of generic function definitions.
 (define-constant +categories+
     '((:constant  "constant"          "constants")
       (:special   "special variable"  "special variables")
@@ -58,10 +60,23 @@
 (defstruct (function-definition (:include functional-definition)))
 (defstruct (generic-definition (:include functional-definition)))
 
+(defstruct (method-definition (:include definition)) (method))
+
 (defstruct (condition-definition (:include definition)))
 (defstruct (structure-definition (:include definition)))
 (defstruct (class-definition (:include definition)))
 
+(defgeneric definition-type-name (definition)
+  (:documentation "Return DEFINITION's type name.")
+  (:method ((constant constant-definition)) "constant")
+  (:method ((special special-definition)) "special variable")
+  (:method ((macro macro-definition)) "macro")
+  (:method ((function function-definition)) "function")
+  (:method ((generic generic-definition)) "generic function")
+  (:method ((method method-definition)) "method")
+  (:method ((condition condition-definition)) "condition")
+  (:method ((structure structure-definition)) "structure")
+  (:method ((class class-definition)) "class"))
 
 ;; #### PORTME.
 (defun symbol-definition (symbol category)
@@ -125,9 +140,10 @@
 ;; Item Protocols
 ;; ==========================================================================
 
-(defmethod location ((method method))
+(defmethod location ((method method-definition))
   ;; #### PORTME.
-  (let* ((defsrc (sb-introspect:find-definition-source method)))
+  (let* ((defsrc (sb-introspect:find-definition-source
+		  (method-definition-method method))))
     (when defsrc
       (sb-introspect:definition-source-pathname defsrc))))
 
