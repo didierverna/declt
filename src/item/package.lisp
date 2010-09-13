@@ -59,22 +59,20 @@
 ;; Utilities
 ;; ==========================================================================
 
-(defun package-external-definitions (package &aux external-definitions)
-  "Return the list of PACKAGE's external symbols which need documenting."
-  (do-external-symbols (symbol package external-definitions)
-    (when (and (eq (symbol-package symbol) package)
-	       (symbol-needs-documenting symbol))
-      (push symbol external-definitions))))
+(defun package-external-symbols (package &aux external-symbols)
+  "Return the list of PACKAGE's external symbols."
+  (do-external-symbols (symbol package external-symbols)
+    (when (eq (symbol-package symbol) package)
+      (push symbol external-symbols))))
 
-(defun package-internal-definitions
-    (package &aux (external-definitions (package-external-definitions package))
-		  internal-definitions)
-  "Return the list of PACKAGE's internal symbols which need documenting."
-  (do-symbols (symbol package internal-definitions)
-    (when (and (not (member symbol external-definitions))
-	       (eq (symbol-package symbol) package)
-	       (symbol-needs-documenting symbol))
-      (push symbol internal-definitions))))
+(defun package-internal-symbols
+    (package &aux (external-symbols (package-external-symbols package))
+		  internal-symbols)
+  "Return the list of PACKAGE's internal definitions."
+  (do-symbols (symbol package internal-symbols)
+    (when (and (not (member symbol external-symbols))
+	       (eq (symbol-package symbol) package))
+      (push symbol internal-symbols))))
 
 
 ;;; package.lisp ends here

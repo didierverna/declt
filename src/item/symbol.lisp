@@ -34,29 +34,7 @@
 
 
 ;; ==========================================================================
-;; Rendering protocols
-;; ==========================================================================
-
-(defmethod to-string ((symbol symbol))
-  "Return SYMBOL's name."
-  (symbol-name symbol))
-
-
-
-;; ==========================================================================
-;; Item Protocols
-;; ==========================================================================
-
-(defmethod location ((method method))
-  ;; #### PORTME.
-  (let* ((defsrc (sb-introspect:find-definition-source method)))
-    (when defsrc
-      (sb-introspect:definition-source-pathname defsrc))))
-
-
-
-;; ==========================================================================
-;; Utilities
+;; Symbol-based Items
 ;; ==========================================================================
 
 (define-constant +categories+
@@ -70,47 +48,122 @@
       (:class     "class"             "classes"))
   "The list of definition categories.")
 
+(defstruct definition (symbol))
+
+(defstruct (constant-definition (:include definition)))
+(defstruct (special-definition (:include definition)))
+
+(defstruct (functional-definition (:include definition)) (function))
+(defstruct (macro-definition (:include functional-definition)))
+(defstruct (function-definition (:include functional-definition)))
+(defstruct (generic-definition (:include functional-definition)))
+
+(defstruct (condition-definition (:include definition)))
+(defstruct (structure-definition (:include definition)))
+(defstruct (class-definition (:include definition)))
+
+
 ;; #### PORTME.
-(defun definitionp (symbol kind)
-  "Return a value of some KIND defined by SYMBOL if any."
-  (ecase kind
+(defun symbol-definition (symbol category)
+  "Return a SYMBOL definition of CATEGORY if any."
+  (ecase category
     (:constant
      (when (eql (sb-int:info :variable :kind symbol) :constant)
-       (symbol-value symbol)))
+       (make-constant-definition :symbol symbol)))
     (:special
      (when (eql (sb-int:info :variable :kind symbol) :special)
-       (symbol-value symbol)))
+       (make-special-definition :symbol symbol)))
     (:macro
-     (macro-function symbol))
+     (let ((function (macro-function symbol)))
+       (when function
+	 (make-macro-definition :symbol symbol :function function))))
     (:function
      (when (and (fboundp symbol)
-		(not (definitionp symbol :macro))
-		(not (definitionp symbol :generic)))
-       (fdefinition symbol)))
+		(not (symbol-definition symbol :macro))
+		(not (symbol-definition symbol :generic)))
+       (make-function-definition :symbol symbol
+				 :function (fdefinition symbol))))
     (:generic
      (when (and (fboundp symbol)
 		(typep (fdefinition symbol) 'generic-function))
-       (fdefinition symbol)))
+       (make-generic-definition :symbol symbol
+				:function (fdefinition symbol))))
     (:condition
      (let ((class (find-class symbol nil)))
        (when (and class (typep class 'sb-pcl::condition-class))
-	 class)))
+	 (make-condition-definition :symbol symbol))))
     (:structure
      (let ((class (find-class symbol nil)))
        (when (and class (typep class 'sb-pcl::structure-class))
-	 class)))
+	 (make-structure-definition :symbol symbol))))
     (:class
      (let ((class (find-class symbol nil)))
        (when (and class
-		  (not (definitionp symbol :condition))
-		  (not (definitionp symbol :structure)))
-	 class)))))
+		  (not (symbol-definition symbol :condition))
+		  (not (symbol-definition symbol :structure)))
+	 (make-class-definition :symbol symbol))))))
 
-(defun symbol-needs-documenting (symbol)
-  "Return t when SYMBOL needs to be documented."
-  (some (lambda (category)
-	  (definitionp symbol (first category)))
-	+categories+))
+(defun symbol-definitions (symbol)
+  "Return all definitions named by SYMBOL if any."
+  (loop :for category :in (mapcar #'first +categories+)
+	:when (symbol-definition symbol category)
+	:collect :it))
+
+
+
+;; ==========================================================================
+;; Rendering protocols
+;; ==========================================================================
+
+(defmethod to-string ((definition definition))
+  "Return DEFINITION's symbol name."
+  (symbol-name (definition-symbol definition)))
+
+
+
+;; ==========================================================================
+;; Item Protocols
+;; ==========================================================================
+
+(defmethod location ((method method))
+  ;; #### PORTME.
+  (let* ((defsrc (sb-introspect:find-definition-source method)))
+    (when defsrc
+      (sb-introspect:definition-source-pathname defsrc))))
+
+;; #### PORTME.
+;; #### FIXME: why does f-d-s-b-n return a list? How can there be several
+;; sources?
+(defun definition-source (definition type)
+  (let ((defsrc (car (sb-introspect:find-definition-sources-by-name
+		      (definition-symbol definition)
+		      type))))
+    (when defsrc
+      (sb-introspect:definition-source-pathname defsrc))))
+
+(defmethod location ((constant constant-definition))
+  (definition-source constant :constant))
+
+(defmethod location ((special special-definition))
+  (definition-source special :special))
+
+(defmethod location ((macro macro-definition))
+  (definition-source macro :macro))
+
+(defmethod location ((function function-definition))
+  (definition-source function :function))
+
+(defmethod location ((generic generic-definition))
+  (definition-source generic :generic-function))
+
+(defmethod location ((condition condition-definition))
+  (definition-source condition :condition))
+
+(defmethod location ((structure structure-definition))
+  (definition-source structure :structure))
+
+(defmethod location ((class class-definition))
+  (definition-source class :class))
 
 
 ;;; symbol.lisp ends here

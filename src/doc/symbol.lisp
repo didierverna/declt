@@ -184,72 +184,72 @@
 	  (render-text documentation)))
       (render-source method relative-to))))
 
-(defun document-definition-1 (definition relative-to type kind)
-  "Render DEFINITION's documentation contents as KIND."
+(defun document-symbol (symbol relative-to type kind)
+  "Render SYMBOL's documentation contents as KIND."
   (@table ()
-    (let ((documentation (documentation definition kind)))
+    (let ((documentation (documentation symbol kind)))
       (when documentation
 	(format t "@item Documentation~%")
 	(render-text documentation)))
     (format t "~&@item Package~%")
-    (reference (symbol-package definition))
+    (reference (symbol-package symbol))
     ;; #### PORTME.
     (let* ((defsrc
 	       ;; #### FIXME: why a list? How can there be several sources?
 	       (car
-		(sb-introspect:find-definition-sources-by-name definition
-							       type)))
+		(sb-introspect:find-definition-sources-by-name symbol type)))
 	   (pathname (when defsrc
 		       (sb-introspect:definition-source-pathname defsrc))))
       (when pathname
 	(render-source pathname relative-to)))))
 
-(defun document-definition (definition relative-to category)
-  "Render DEFINITION's documentation in CATEGORY."
-  (ecase category
-    (:constant
-     (when (definitionp definition :constant)
-       (@defconstant (string-downcase definition)
-	 (document-definition-1 definition relative-to :constant 'variable))))
-    (:special
-     (when (definitionp definition :special)
-       (@defspecial (string-downcase definition)
-	 (document-definition-1 definition relative-to :variable 'variable))))
-    (:macro
-     (when (definitionp definition :macro)
-       (@defmac (string-downcase definition)
-	   ;; #### PORTME.
-	   (sb-introspect:function-lambda-list definition)
-	 (document-definition-1 definition relative-to :macro 'function))))
-    (:function
-     (when (definitionp definition :function)
-       (@defun (string-downcase definition)
-	   ;; #### PORTME.
-	   (sb-introspect:function-lambda-list definition)
-	 (document-definition-1 definition relative-to :function 'function))))
-    (:generic
-     (when (definitionp definition :generic)
-       (@defgeneric (string-downcase definition)
-	   ;; #### PORTME.
-	   (sb-introspect:function-lambda-list definition)
-	 (document-definition-1 definition relative-to :generic-function
-				'function))
-       ;; #### PORTME.
-       (dolist (method
-		 (sb-mop:generic-function-methods (fdefinition definition)))
-	 (document-method method relative-to))))
-    (:condition
-     (when (definitionp definition :condition)
-       (@defcond (string-downcase definition)
-	 (document-definition-1 definition relative-to :condition 'type))))
-    (:structure
-     (when (definitionp definition :structure)
-       (@defstruct (string-downcase definition)
-	 (document-definition-1 definition relative-to :structure 'type))))
-    (:class
-     (when (definitionp definition :class)
-       (@defclass (string-downcase definition)
-	 (document-definition-1 definition relative-to :class 'type))))))
+(defgeneric document-definition (definition relative-to)
+  (:documentation "Render DEFINITION's documentation.")
+  (:method ((constant constant-definition) relative-to)
+    (@defconstant (string-downcase (definition-symbol constant))
+      (document-symbol (definition-symbol constant) relative-to :constant
+		       'variable)))
+  (:method ((special special-definition) relative-to)
+    (@defspecial (string-downcase (definition-symbol special))
+      (document-symbol (definition-symbol special) relative-to :variable
+		       'variable)))
+  (:method ((macro macro-definition) relative-to)
+    (@defmac (string-downcase (definition-symbol macro))
+	;; #### PORTME.
+	(sb-introspect:function-lambda-list
+	 (macro-definition-function macro))
+      (document-symbol (definition-symbol macro) relative-to :macro
+		       'function)))
+  (:method ((function function-definition) relative-to)
+    (@defun (string-downcase (definition-symbol function))
+	;; #### PORTME.
+	(sb-introspect:function-lambda-list
+	 (function-definition-function function))
+      (document-symbol (definition-symbol function) relative-to :function
+		       'function)))
+  (:method ((generic generic-definition) relative-to)
+    (@defgeneric (string-downcase (definition-symbol generic))
+	;; #### PORTME.
+	(sb-introspect:function-lambda-list
+	 (generic-definition-function generic))
+      (document-symbol (definition-symbol generic) relative-to
+		       :generic-function 'function))
+    ;; #### PORTME.
+    (dolist (method
+	      (sb-mop:generic-function-methods
+	       (generic-definition-function generic)))
+      (document-method method relative-to)))
+  (:method ((condition condition-definition) relative-to)
+    (@defcond (string-downcase (definition-symbol condition))
+      (document-symbol (definition-symbol condition) relative-to :condition
+		       'type)))
+  (:method ((structure structure-definition) relative-to)
+    (@defstruct (string-downcase (definition-symbol structure))
+      (document-symbol (definition-symbol structure) relative-to :structure
+		       'type)))
+  (:method ((class class-definition) relative-to)
+    (@defclass (string-downcase (definition-symbol class))
+      (document-symbol (definition-symbol class) relative-to :class 'type))))
 
 
 
@@ -260,24 +260,24 @@
 (defun add-category-node (parent location category definitions relative-to)
   "Add LOCATION CATEGORY node to PARENT for DEFINITIONS."
   (add-child parent
-    (make-node :name (format nil "~@(~A ~A~)" location (third category))
-	       :section-name (format nil "~@(~A~)" (third category))
+    (make-node :name (format nil "~@(~A ~A~)" location category)
+	       :section-name (format nil "~@(~A~)" category)
 	       :before-menu-contents
 	       (render-to-string
-		 (dolist (definition (sort definitions #'string-lessp))
-		   (document-definition definition relative-to
-					(first category)))))))
+		 (dolist (definition (sort definitions #'string-lessp
+					   :key #'definition-symbol))
+		   (document-definition definition relative-to))))))
 
-(defun add-categories-node (parent location definitions relative-to)
-  "Add all relevant category nodes to PARENT for LOCATION DEFINITIONS."
+(defun add-categories-node (parent location symbols relative-to)
+  "Add all relevant category nodes to PARENT for LOCATION SYMBOLS."
   (dolist (category +categories+)
     (let ((category-definitions
-	   (remove-if-not (lambda (definition)
-			    (definitionp definition (first category)))
-			  definitions)))
+	   (loop :for symbol :in symbols
+		 :when (symbol-definition symbol (first category))
+		 :collect :it)))
       (when category-definitions
-	(add-category-node parent location category category-definitions
-			   relative-to)))))
+	(add-category-node parent location (third category)
+			   category-definitions relative-to)))))
 
 (defun add-definitions-node
     (parent system
@@ -290,15 +290,14 @@
 Definitions are sorted by export status, category, package, and then by
 lexicographic order.")))))
   "Add the SYSTEM's definitions node to PARENT."
-  (loop :for definitions :in (list (system-external-definitions system)
-				   (system-internal-definitions system))
-	:for location :in '("exported" "internal")
-	:when definitions
+  (loop :for symbols :in (list (system-external-symbols system)
+			       (system-internal-symbols system))
+	:for status :in '("exported" "internal")
+	:when symbols
 	:do (let ((node (add-child definitions-node
 			  (make-node :name (format nil "~@(~A~) definitions"
-					     location)))))
-	      (add-categories-node node location definitions
-				   system-directory))))
+					     status)))))
+	      (add-categories-node node status symbols system-directory))))
 
 
 ;;; symbol.lisp ends here

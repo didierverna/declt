@@ -40,6 +40,9 @@
 
 (defgeneric to-string (object)
   (:documentation "When OBJECT, return a string form of it.")
+  (:method ((symbol symbol))
+    "Return SYMBOL's name."
+    (symbol-name symbol))
   (:method ((string string))
     "Return STRING."
     string)
