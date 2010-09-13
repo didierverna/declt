@@ -212,7 +212,10 @@ components tree."))))
 		     system-base-name)
 		   (format t "@lispfileindex{~A}@c~%" system-base-name)
 		   (@table ()
-		     (render-location system system-directory))))))
+		     (render-location system system-directory)
+		     (render-packages
+		      (file-packages
+		       (system-definition-pathname system))))))))
   (dolist (file lisp-files)
     (add-child lisp-files-node (file-node file system-directory)))
   (loop :with other-files-node
