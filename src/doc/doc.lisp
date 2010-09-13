@@ -49,6 +49,9 @@
 (defgeneric reference (item &optional relative-to)
   (:documentation "Render ITEM's reference."))
 
+(defgeneric document (item relative-to)
+  (:documentation "Render ITEM's documentation."))
+
 
 
 ;; ==========================================================================

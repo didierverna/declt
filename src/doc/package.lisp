@@ -55,7 +55,7 @@
   (declare (ignore relative-to))
   (format t "@ref{~A, , @t{~(~A}~)}~%" (anchor package) (escape package)))
 
-(defun document-package (package relative-to)
+(defmethod document ((package package) relative-to)
   "Render PACKAGE's documentation."
   (format t "@anchor{~A}@c~%" (anchor package))
   (index package)
@@ -102,7 +102,7 @@ Packages are listed by definition order."))))
 		 :section-name (format nil "@t{~(~A~)}" (escape package))
 		 :before-menu-contents
 		 (render-to-string
-		   (document-package package (system-directory system)))))))
+		  (document package (system-directory system)))))))
 
 
 ;;; package.lisp ends here

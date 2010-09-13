@@ -168,22 +168,6 @@
 ;; indexing is done by the lower-level @defXXX routines (Texinfo does half the
 ;; job and we do the othe rhalf).
 
-(defun document-method (method relative-to)
-  "Render METHOD's documentation."
-  (@defmethod
-      ;; #### PORTME:
-      (string-downcase (sb-mop:generic-function-name
-			(sb-mop:method-generic-function method)))
-      (sb-mop:method-lambda-list method)
-      (sb-mop:method-specializers method)
-      (sb-mop:method-qualifiers method)
-    (@table ()
-      (let ((documentation (documentation method t)))
-	(when documentation
-	  (format t "@item Documentation~%")
-	  (render-text documentation)))
-      (render-source method relative-to))))
-
 (defun document-symbol (symbol relative-to type kind)
   "Render SYMBOL's documentation contents as KIND."
   (@table ()
@@ -203,53 +187,73 @@
       (when pathname
 	(render-source pathname relative-to)))))
 
-(defgeneric document-definition (definition relative-to)
-  (:documentation "Render DEFINITION's documentation.")
-  (:method ((constant constant-definition) relative-to)
-    (@defconstant (string-downcase (definition-symbol constant))
-      (document-symbol (definition-symbol constant) relative-to :constant
-		       'variable)))
-  (:method ((special special-definition) relative-to)
-    (@defspecial (string-downcase (definition-symbol special))
-      (document-symbol (definition-symbol special) relative-to :variable
-		       'variable)))
-  (:method ((macro macro-definition) relative-to)
-    (@defmac (string-downcase (definition-symbol macro))
-	;; #### PORTME.
-	(sb-introspect:function-lambda-list
-	 (macro-definition-function macro))
-      (document-symbol (definition-symbol macro) relative-to :macro
-		       'function)))
-  (:method ((function function-definition) relative-to)
-    (@defun (string-downcase (definition-symbol function))
-	;; #### PORTME.
-	(sb-introspect:function-lambda-list
-	 (function-definition-function function))
-      (document-symbol (definition-symbol function) relative-to :function
-		       'function)))
-  (:method ((generic generic-definition) relative-to)
-    (@defgeneric (string-downcase (definition-symbol generic))
-	;; #### PORTME.
-	(sb-introspect:function-lambda-list
-	 (generic-definition-function generic))
-      (document-symbol (definition-symbol generic) relative-to
-		       :generic-function 'function))
-    ;; #### PORTME.
-    (dolist (method
-	      (sb-mop:generic-function-methods
-	       (generic-definition-function generic)))
-      (document-method method relative-to)))
-  (:method ((condition condition-definition) relative-to)
-    (@defcond (string-downcase (definition-symbol condition))
-      (document-symbol (definition-symbol condition) relative-to :condition
-		       'type)))
-  (:method ((structure structure-definition) relative-to)
-    (@defstruct (string-downcase (definition-symbol structure))
-      (document-symbol (definition-symbol structure) relative-to :structure
-		       'type)))
-  (:method ((class class-definition) relative-to)
-    (@defclass (string-downcase (definition-symbol class))
-      (document-symbol (definition-symbol class) relative-to :class 'type))))
+(defmethod document ((constant constant-definition) relative-to)
+  (@defconstant (string-downcase (definition-symbol constant))
+    (document-symbol (definition-symbol constant) relative-to :constant
+		     'variable)))
+
+(defmethod document ((special special-definition) relative-to)
+  (@defspecial (string-downcase (definition-symbol special))
+    (document-symbol (definition-symbol special) relative-to :variable
+		     'variable)))
+
+(defmethod document ((macro macro-definition) relative-to)
+  (@defmac (string-downcase (definition-symbol macro))
+      ;; #### PORTME.
+      (sb-introspect:function-lambda-list
+       (macro-definition-function macro))
+    (document-symbol (definition-symbol macro) relative-to :macro
+		     'function)))
+
+(defmethod document ((function function-definition) relative-to)
+  (@defun (string-downcase (definition-symbol function))
+      ;; #### PORTME.
+      (sb-introspect:function-lambda-list
+       (function-definition-function function))
+    (document-symbol (definition-symbol function) relative-to :function
+		     'function)))
+
+(defmethod document ((method method) relative-to)
+  (@defmethod
+      ;; #### PORTME:
+      (string-downcase (sb-mop:generic-function-name
+			(sb-mop:method-generic-function method)))
+      (sb-mop:method-lambda-list method)
+      (sb-mop:method-specializers method)
+      (sb-mop:method-qualifiers method)
+    (@table ()
+      (let ((documentation (documentation method t)))
+	(when documentation
+	  (format t "@item Documentation~%")
+	  (render-text documentation)))
+      (render-source method relative-to))))
+
+(defmethod document ((generic generic-definition) relative-to)
+  (@defgeneric (string-downcase (definition-symbol generic))
+      ;; #### PORTME.
+      (sb-introspect:function-lambda-list
+       (generic-definition-function generic))
+    (document-symbol (definition-symbol generic) relative-to :generic-function
+		     'function))
+  ;; #### PORTME.
+  (dolist (method
+	    (sb-mop:generic-function-methods
+	     (generic-definition-function generic)))
+    (document method relative-to)))
+
+(defmethod document ((condition condition-definition) relative-to)
+  (@defcond (string-downcase (definition-symbol condition))
+    (document-symbol (definition-symbol condition) relative-to :condition
+		     'type)))
+
+(defmethod document ((structure structure-definition) relative-to)
+  (@defstruct (string-downcase (definition-symbol structure))
+    (document-symbol (definition-symbol structure) relative-to :structure
+		     'type)))
+
+(defmethod document ((class class-definition) relative-to)
+  (@defclass (string-downcase (definition-symbol class))
+    (document-symbol (definition-symbol class) relative-to :class 'type)))
 
 
 
@@ -266,7 +270,7 @@
 	       (render-to-string
 		 (dolist (definition (sort definitions #'string-lessp
 					   :key #'definition-symbol))
-		   (document-definition definition relative-to))))))
+		   (document definition relative-to))))))
 
 (defun add-categories-node (parent location symbols relative-to)
   "Add all relevant category nodes to PARENT for LOCATION SYMBOLS."

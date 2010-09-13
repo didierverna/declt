@@ -67,60 +67,59 @@
     (escape component)
     (component-type-name component)))
 
-(defgeneric document-component (component relative-to)
-  (:documentation "Render COMPONENT's documentation.")
-  (:method :around ((component asdf:component) relative-to)
-    "Index COMPONENT and enclose its documentation in a @table environment."
-    (format t "@anchor{~A}@c~%" (anchor component relative-to))
-    (index component relative-to)
-    (@table ()
-      (call-next-method)))
-  (:method ((component asdf:component) relative-to)
-    (format t "~@[@item Version~%~
+(defmethod document :around ((component asdf:component) relative-to)
+  "Index COMPONENT and enclose its documentation in a @table environment."
+  (format t "@anchor{~A}@c~%" (anchor component relative-to))
+  (index component relative-to)
+  (@table ()
+    (call-next-method)))
+
+(defmethod document ((component asdf:component) relative-to)
+  (format t "~@[@item Version~%~
 		  ~A~%~]"
-      (escape (component-version component)))
-    ;; #### NOTE: currently, we simply extract all the dependencies regardless
-    ;; of the operations involved. We also assume that dependencies are of the
-    ;; form (OP (OP DEP...) ...), but I'm not sure this is always the case.
-    (let ((in-order-tos (slot-value component 'asdf::in-order-to))
-	  dependencies
-	  length)
-      (when in-order-tos
-	(dolist (in-order-to in-order-tos)
-	  (dolist (op-dependency (cdr in-order-to))
-	    (dolist (dependency (cdr op-dependency))
-	      (pushnew dependency dependencies))))
-	(setq length (length dependencies))
-	(format t "@item Dependenc~@p~%" length)
-	(if (eq length 1)
-	    (format t "@t{~(~A}~)" (escape (first dependencies)))
-	  (@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape))))
-    (let ((parent (component-parent component)))
-      (when parent
-	(format t "@item Parent~%")
-	(reference parent relative-to)))
-    (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
-	   (when *link-files*
-	     (format t "@item Source Directory~%~
+    (escape (component-version component)))
+  ;; #### NOTE: currently, we simply extract all the dependencies regardless
+  ;; of the operations involved. We also assume that dependencies are of the
+  ;; form (OP (OP DEP...) ...), but I'm not sure this is always the case.
+  (let ((in-order-tos (slot-value component 'asdf::in-order-to))
+	dependencies
+	length)
+    (when in-order-tos
+      (dolist (in-order-to in-order-tos)
+	(dolist (op-dependency (cdr in-order-to))
+	  (dolist (dependency (cdr op-dependency))
+	    (pushnew dependency dependencies))))
+      (setq length (length dependencies))
+      (format t "@item Dependenc~@p~%" length)
+      (if (eq length 1)
+	  (format t "@t{~(~A}~)" (escape (first dependencies)))
+	(@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape))))
+  (let ((parent (component-parent component)))
+    (when parent
+      (format t "@item Parent~%")
+      (reference parent relative-to)))
+  (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
+	 (when *link-files*
+	   (format t "@item Source Directory~%~
 			@url{file://~A, ignore, @t{~A}}~%"
-	       (escape (component-pathname component))
-	       (escape (component-pathname component))))
-	   ;; That sucks. I need to fake a cl-source-file reference because
-	   ;; the system file is not an ASDF component per-se.
-	   (format t "@item Definition file~%")
-	   (let ((system-base-name (escape (system-base-name component))))
-	     (format t "@ref{The ~A file anchor, , @t{~(~A}~)} (Lisp file)~%"
-	       system-base-name
-	       system-base-name))
-	   (when *link-files*
-	     (let ((directory (escape
-			       (directory-namestring
-				(system-definition-pathname component)))))
-	       (format t "@item Installation Directory~%~
+	     (escape (component-pathname component))
+	     (escape (component-pathname component))))
+	 ;; That sucks. I need to fake a cl-source-file reference because
+	 ;; the system file is not an ASDF component per-se.
+	 (format t "@item Definition file~%")
+	 (let ((system-base-name (escape (system-base-name component))))
+	   (format t "@ref{The ~A file anchor, , @t{~(~A}~)} (Lisp file)~%"
+	     system-base-name
+	     system-base-name))
+	 (when *link-files*
+	   (let ((directory (escape
+			     (directory-namestring
+			      (system-definition-pathname component)))))
+	     (format t "@item Installation Directory~%~
 			  @url{file://~A, ignore, @t{~A}}~%"
-		 directory directory))))
-	  (t
-	   (render-location component relative-to)))))
+	       directory directory))))
+	(t
+	 (render-location component relative-to))))
 
 
 
@@ -161,7 +160,7 @@
   (format t "@htmlfileindex{~A}@c~%"
     (escape (relative-location html-file relative-to))))
 
-(defmethod document-component ((file asdf:cl-source-file) relative-to)
+(defmethod document ((file asdf:cl-source-file) relative-to)
   (call-next-method)
   (render-packages (file-packages (component-pathname file))))
 
@@ -176,7 +175,7 @@
 	     :section-name (format nil "@t{~A}"
 			     (escape (relative-location file relative-to)))
 	     :before-menu-contents
-	     (render-to-string (document-component file relative-to))))
+	     (render-to-string (document file relative-to))))
 
 (defun add-files-node
     (node system &aux (system-directory (system-directory system))
@@ -249,7 +248,7 @@ components tree."))))
   (format t "@moduleindex{~A}@c~%"
     (escape (relative-location module relative-to))))
 
-(defmethod document-component ((module asdf:module) relative-to)
+(defmethod document ((module asdf:module) relative-to)
   (call-next-method)
   (let* ((components (asdf:module-components module))
 	 (length (length components)))
@@ -272,7 +271,7 @@ components tree."))))
 	     :section-name (format nil "@t{~A}"
 			     (escape (relative-location module relative-to)))
 	     :before-menu-contents
-	     (render-to-string (document-component module relative-to))))
+	     (render-to-string (document module relative-to))))
 
 (defun add-modules-node
     (node system &aux (system-directory (system-directory system))
@@ -306,7 +305,7 @@ Modules are listed depth-first from the system components tree.")))))
   (declare (ignore relative-to))
   (format t "@systemindex{~A}@c~%" (escape system)))
 
-(defmethod document-component ((system asdf:system) relative-to)
+(defmethod document ((system asdf:system) relative-to)
   (format t "@item Name~%@t{~A}~%" (escape system))
   (when (system-description system)
     (format t "@item Description~%")
@@ -342,7 +341,7 @@ Modules are listed depth-first from the system components tree.")))))
   (make-node :name "System"
 	     :synopsis "The system documentation"
 	     :before-menu-contents
-	     (render-to-string (document-component system relative-to))))
+	     (render-to-string (document system relative-to))))
 
 (defun add-system-node (node system)
   "Add SYSTEM's system node to NODE."
