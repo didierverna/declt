@@ -133,7 +133,7 @@
 
 (defun document-definition (definition relative-to kind)
   "Render DEFINITION's documentation contents as KIND."
-  (format t "@anchor{~A}@c~%" (anchor definition))
+  (@anchor (anchor definition))
   (index definition)
   (@table ()
     (let ((documentation (documentation (definition-symbol definition) kind)))
@@ -174,7 +174,7 @@
       (sb-mop:method-specializers (method-definition-method method))
       (sb-mop:method-qualifiers (method-definition-method method))
     (@table ()
-      (format t "@anchor{~A}@c~%" (anchor method))
+      (@anchor (anchor method))
       (index method)
       (let ((documentation
 	     (documentation (method-definition-method method) t)))

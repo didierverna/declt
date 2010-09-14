@@ -55,7 +55,7 @@
 
 (defmethod document ((package package) relative-to &key)
   "Render PACKAGE's documentation."
-  (format t "@anchor{~A}@c~%" (anchor package))
+  (@anchor (anchor package))
   (index package)
   (@table ()
     (let* ((nicknames (package-nicknames package))

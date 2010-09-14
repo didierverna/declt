@@ -90,6 +90,9 @@
 	    :else
 	      :do (format t "~A~%" (escape ln1))))))
 
+(defun @anchor (anchor)
+  "Render ANCHOR."
+  (format t "@anchor{~A}@c~%" anchor))
 
 (defmacro @table ((&optional (kind :@strong)) &body body)
   "Render BODY in a @table KIND environment."

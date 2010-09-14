@@ -67,7 +67,7 @@
 
 (defmethod document :around ((component asdf:component) relative-to &key)
   "Index COMPONENT and enclose its documentation in a @table environment."
-  (format t "@anchor{~A}@c~%" (anchor component relative-to))
+  (@anchor (anchor component relative-to))
   (index component relative-to)
   (@table ()
     (call-next-method)))
@@ -241,8 +241,8 @@ components tree."))))
 		 :section-name (format nil "@t{~A}" system-base-name)
 		 :before-menu-contents
 		 (render-to-string
-		   (format t "@anchor{The ~A file anchor}@c~%"
-		     system-base-name)
+		   (@anchor
+		    (format nil "The ~A file anchor" system-base-name))
 		   (format t "@lispfileindex{~A}@c~%" system-base-name)
 		   (@table ()
 		     (render-location system system-directory)
