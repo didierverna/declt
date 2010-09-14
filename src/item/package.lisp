@@ -65,6 +65,12 @@
     (when (eq (symbol-package symbol) package)
       (push symbol external-symbols))))
 
+(defun package-external-definitions (package)
+  "Return the list of PACKAGE's external definitions."
+  (loop :for symbol :in (package-external-symbols package)
+	:when (symbol-definitions symbol)
+	:collect :it))
+
 (defun package-internal-symbols
     (package &aux (external-symbols (package-external-symbols package))
 		  internal-symbols)
@@ -73,6 +79,12 @@
     (when (and (not (member symbol external-symbols))
 	       (eq (symbol-package symbol) package))
       (push symbol internal-symbols))))
+
+(defun package-internal-definitions (package)
+  "Return the list of PACKAGE's internal definitions."
+  (loop :for symbol :in (package-internal-symbols package)
+	:when (symbol-definitions symbol)
+	:collect :it))
 
 
 ;;; package.lisp ends here
