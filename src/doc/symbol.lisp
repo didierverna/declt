@@ -34,139 +34,8 @@
 
 
 ;; ==========================================================================
-;; Rendering Routines
-;; ==========================================================================
-
-(defmacro @defvr (category name &body body)
-  "Render BODY in a @defvr {CATEGORY} NAME environment."
-  `(progn
-    (format t "@defvr {~A} ~A~%" (escape ,category) (escape ,name))
-    ,@body
-    (format t "~&@end defvr~%")))
-
-(defmacro @defconstant (name &body body)
-  "Render BODY in a @defvr {Constant} NAME environment."
-  `(@defvr "Constant" ,name ,@body))
-
-(defmacro @defspecial (name &body body)
-  "Render BODY in a @defvr {Special Variable} NAME environment."
-  `(@defvr "Special Variable" ,name ,@body))
-
-(defgeneric pretty-specializer (specializer)
-  (:documentation "Returns a printable form for SPECIALIZER.")
-  (:method (specializer)
-    (or (ignore-errors (class-name specializer))
-	specializer))
-  ;; #### PORTME.
-  (:method ((specializer sb-mop:eql-specializer))
-    ;; #### PORTME.
-    `(eql ,(sb-mop:eql-specializer-object specializer))))
-
-;; Based on Edi Weitz's write-lambda-list* from documentation-template.
-(defun render-lambda-list (lambda-list &optional specializers)
-  "Render LAMBDA-LIST."
-  (let ((firstp t)
-	after-required-args-p)
-    (dolist (part lambda-list)
-      (when (and (consp part) after-required-args-p)
-	(setq part (first part)))
-      (unless firstp
-	(write-char #\Space))
-      (setq firstp nil)
-      (cond ((consp part)
-	     (write-char #\()
-	     (render-lambda-list part)
-	     (write-char #\)))
-	    ((member part '(&optional &rest &key &allow-other-keys
-			    &aux &environment &whole &body))
-	     (setq after-required-args-p t)
-	     (format t "~(~A~)" part))
-	    (t
-	     (let ((specializer (pretty-specializer (pop specializers))))
-	       (if (and specializer (not (eq specializer t)))
-		   (format t "(~A @t{~(~A~)})"
-		     (escape part)
-		     (escape specializer))
-		 (write-string (escape (symbol-name part))))))))))
-
-(defmacro @defmac (name lambda-list &body body)
-  "Render BODY in a @defmac NAME LAMBDA-LIST environment."
-  (let ((the-name (gensym "name")))
-    `(let ((,the-name (escape ,name)))
-      (format t "@defmac ~A " ,the-name)
-      (render-lambda-list ,lambda-list)
-      (terpri)
-      (format t "@findex @r{Macro, }~A~%" ,the-name)
-      ,@body
-      (format t "~&@end defmac~%"))))
-
-(defmacro @defun (name lambda-list &body body)
-  "Render BODY in a @defun NAME LAMBDA-LIST environment."
-  (let ((the-name (gensym "name")))
-    `(let ((,the-name (escape ,name)))
-      (format t "@defun ~A " ,the-name)
-      (render-lambda-list ,lambda-list)
-      (terpri)
-      (format t "@findex @r{Function, }~A~%" ,the-name)
-      ,@body
-      (format t "~&@end defun~%"))))
-
-(defmacro @deffn ((category name lambda-list &optional specializers qualifiers)
-		  &body body)
-  "Render BODY in a @deffn CATEGORY NAME LAMBDA-LIST environment."
-  (let ((the-name (gensym "name"))
-	(the-category (gensym "category")))
-    `(let ((,the-name (escape ,name))
-	   (,the-category (escape ,category)))
-      (format t "@deffn {~A} ~A " ,the-category ,the-name)
-      (render-lambda-list ,lambda-list ,specializers)
-      (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape ,qualifiers))
-      (format t "@findex @r{~A, }~A~%" ,the-category ,the-name)
-      ,@body
-      (format t "~&@end deffn~%"))))
-
-(defmacro @defgeneric (name lambda-list &body body)
-  "Render BODY in a @deffn {Generic Function} NAME LAMBDA-LIST environment."
-  `(@deffn ("Generic Function" ,name ,lambda-list)
-    ,@body))
-
-(defmacro @defmethod (name lambda-list specializers qualifiers &body body)
-  "Render BODY in a @deffn {Method} NAME LAMBDA-LIST environment."
-  `(@deffn ("Method" ,name ,lambda-list ,specializers ,qualifiers)
-    ,@body))
-
-(defmacro @deftp (category name &body body)
-  "Render BODY in a @deftp {CATEGORY} NAME environment."
-  (let ((the-name (gensym "name"))
-	(the-category (gensym "category")))
-    `(let ((,the-name (escape ,name))
-	   (,the-category (escape ,category)))
-      (format t "@deftp {~A} ~A~%"  ,the-category ,the-name)
-      (format t "@tpindex @r{~A, }~A~%" ,the-category ,the-name)
-      ,@body
-      (format t "~&@end deftp~%"))))
-
-(defmacro @defstruct (name &body body)
-  "Render BODY in a @deftp {Structure} NAME environment."
-  `(@deftp "Structure" ,name ,@body))
-
-(defmacro @defcond (name &body body)
-  "Render BODY in a @deftp {Condition} NAME environment."
-  `(@deftp "Condition" ,name ,@body))
-
-(defmacro @defclass (name &body body)
-  "Render BODY in a @deftp {Class} NAME environment."
-  `(@deftp "Class" ,name ,@body))
-
-
-
-;; ==========================================================================
 ;; Documentation Protocols
 ;; ==========================================================================
-
-;; #### NOTE: there are no indexing methods for methods or symbols, because
-;; indexing is done by the lower-level @defXXX routines (Texinfo does half the
-;; job and we do the other rhalf).
 
 (defmethod title ((constant constant-definition) &optional relative-to)
   (declare (ignore relative-to))
@@ -211,6 +80,46 @@
   (declare (ignore relative-to))
   (format nil "The ~(~A~) class" (escape class)))
 
+;; #### NOTE: the INDEX methods below only perform sub-indexing because the
+;; main index entries are created automatically in Texinfo by the @defXXX
+;; routines.
+
+(defmethod index ((constant constant-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format t "@vindex @r{Constant, }~(~A~)~%" (escape constant)))
+
+(defmethod index ((special special-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format t "@vindex @r{Special Variable, }~(~A~)~%" (escape special)))
+
+(defmethod index ((macro macro-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format t "@findex @r{Macro, }~(~A~)~%" (escape macro)))
+
+(defmethod index ((function function-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format t "@findex @r{Function, }~(~A~)~%" (escape function)))
+
+(defmethod index ((method method-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format t "@findex @r{Method, }~(~A~)~%" (escape method)))
+
+(defmethod index ((generic generic-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format t "@findex @r{Generic Function, }~(~A~)~%" (escape generic)))
+
+(defmethod index ((condition condition-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format t "@tpindex @r{Condition, }~(~A~)~%" (escape condition)))
+
+(defmethod index ((structure structure-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format t "@tpindex @r{Structure, }~(~A~)~%" (escape structure)))
+
+(defmethod index ((class class-definition) &optional relative-to)
+  (declare (ignore relative-to))
+  (format t "@tpindex @r{Class, }~(~A~)~%" (escape class)))
+
 (defmethod anchor ((definition definition) &optional relative-to)
   (declare (ignore relative-to))
   (format nil "~A anchor" (title definition)))
@@ -225,6 +134,7 @@
 (defun document-definition (definition relative-to kind)
   "Render DEFINITION's documentation contents as KIND."
   (format t "@anchor{~A}@c~%" (anchor definition))
+  (index definition)
   (@table ()
     (let ((documentation (documentation (definition-symbol definition) kind)))
       (when documentation
@@ -265,6 +175,7 @@
       (sb-mop:method-qualifiers (method-definition-method method))
     (@table ()
       (format t "@anchor{~A}@c~%" (anchor method))
+      (index method)
       (let ((documentation
 	     (documentation (method-definition-method method) t)))
 	(when documentation
