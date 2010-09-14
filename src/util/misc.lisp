@@ -38,7 +38,7 @@
 ;; ==========================================================================
 
 (defmacro endpush (object place)
-  "Like push, but at the end."
+  "Push OBJECT at the end of PLACE."
   `(setf ,place (nconc ,place (list ,object))))
 
 (defun current-time-string ()
@@ -58,11 +58,10 @@
       year
       (- tz))))
 
-;; Originally stolen from Tinaa.
+;; Stolen from Tinaa.
 (defun parse-author-string (string)
-  "Extract a name and an email part from STRING.
-Return these as two values.
-STRING should look like \"NAME <EMAIL>\"."
+  "Parse STRING as \"NAME <EMAIL>\".
+Return NAME and EMAIL as two values."
   (let ((pos-< (position #\< string :test #'char-equal))
 	(pos-> (position #\> string :test #'char-equal)))
     (if (and pos-< pos-> (< pos-< pos->))
