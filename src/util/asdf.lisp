@@ -76,11 +76,14 @@
 ;; ==========================================================================
 
 (defun components (module type)
-  "Return the list of all TYPE components from MODULE."
+  "Return the list of all components of TYPE from MODULE."
+  ;; #### NOTE: we accept subtypes of TYPE because ASDF components might be
+  ;; subclassed. An example of this is SBCL's grovel facility which subclasses
+  ;; asdf:cl-source-file.
   (loop :for component :in (asdf:module-components module)
-	:if (eq (type-of component) type)
+	:if (typep component type)
 	  :collect component
-	:if (eq (type-of component) 'asdf:module)
+	:if (typep component 'asdf:module)
 	  :nconc (components component type)))
 
 (defun lisp-components (module)
