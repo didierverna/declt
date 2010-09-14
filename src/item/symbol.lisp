@@ -167,7 +167,7 @@
   (definition-source constant :constant))
 
 (defmethod location ((special special-definition))
-  (definition-source special :special))
+  (definition-source special :variable))
 
 (defmethod location ((macro macro-definition))
   (definition-source macro :macro))
