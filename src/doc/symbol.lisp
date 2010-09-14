@@ -278,14 +278,8 @@
       (sb-introspect:function-lambda-list
        (generic-definition-function generic))
     (document-definition generic relative-to 'function))
-  ;; #### PORTME.
-  (dolist (method
-	    (sb-mop:generic-function-methods
-	     (generic-definition-function generic)))
-    (document (make-method-definition
-	       :symbol (definition-symbol generic)
-	       :method method)
-	      relative-to)))
+  (dolist (method (generic-definition-methods generic))
+    (document method relative-to)))
 
 (defmethod document ((condition condition-definition) relative-to)
   (@defcond (string-downcase (definition-symbol condition))

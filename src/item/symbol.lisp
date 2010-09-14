@@ -58,9 +58,9 @@
 (defstruct (functional-definition (:include definition)) (function))
 (defstruct (macro-definition (:include functional-definition)))
 (defstruct (function-definition (:include functional-definition)))
-(defstruct (generic-definition (:include functional-definition)))
 
 (defstruct (method-definition (:include definition)) (method))
+(defstruct (generic-definition (:include functional-definition)) (methods))
 
 (defstruct (condition-definition (:include definition)))
 (defstruct (structure-definition (:include definition)))
@@ -101,8 +101,14 @@
     (:generic
      (when (and (fboundp symbol)
 		(typep (fdefinition symbol) 'generic-function))
-       (make-generic-definition :symbol symbol
-				:function (fdefinition symbol))))
+       (make-generic-definition
+	:symbol symbol
+	:function (fdefinition symbol)
+	:methods (mapcar (lambda (method)
+			   (make-method-definition :symbol symbol
+						   :method method))
+			 (sb-mop:generic-function-methods
+			  (fdefinition symbol))))))
     (:condition
      (let ((class (find-class symbol nil)))
        (when (and class (typep class 'sb-pcl::condition-class))
