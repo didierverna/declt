@@ -248,7 +248,23 @@ components tree."))))
 		     (render-location system system-directory)
 		     (render-packages
 		      (file-packages
-		       (system-definition-pathname system)))))))
+		       (system-definition-pathname system)))
+		     (let ((external-definitions
+			    (file-definitions
+			     (system-definition-pathname system)
+			     external-definitions))
+			   (internal-definitions
+			    (file-definitions
+			     (system-definition-pathname system)
+			     internal-definitions)))
+		       (when external-definitions
+			 (format t "@item Exported definitions~%")
+			 (@itemize-list external-definitions
+			   :renderer #'reference))
+		       (when internal-definitions
+			 (format t "@item Internal definitions~%")
+			 (@itemize-list internal-definitions
+			   :renderer #'reference)))))))
     (dolist (file lisp-files)
       (add-child lisp-files-node
 	(lisp-file-node file system-directory
