@@ -51,7 +51,7 @@
 (defgeneric reference (item &optional relative-to)
   (:documentation "Render ITEM's reference."))
 
-(defgeneric document (item relative-to)
+(defgeneric document (item relative-to &key &allow-other-keys)
   (:documentation "Render ITEM's documentation."))
 
 

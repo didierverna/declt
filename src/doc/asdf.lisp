@@ -56,8 +56,6 @@
 ;; Documentation protocols
 ;; -----------------------
 
-;; Since node references are boring in Texinfo, we prefer to create custom
-;; anchors for ASDF components and link to them instead.
 (defmethod anchor ((component asdf:component) &optional relative-to)
   (format nil "~A anchor" (title component relative-to)))
 
@@ -67,14 +65,14 @@
     (escape component)
     (component-type-name component)))
 
-(defmethod document :around ((component asdf:component) relative-to)
+(defmethod document :around ((component asdf:component) relative-to &key)
   "Index COMPONENT and enclose its documentation in a @table environment."
   (format t "@anchor{~A}@c~%" (anchor component relative-to))
   (index component relative-to)
   (@table ()
     (call-next-method)))
 
-(defmethod document ((component asdf:component) relative-to)
+(defmethod document ((component asdf:component) relative-to &key)
   (format t "~@[@item Version~%~
 		  ~A~%~]"
     (escape (component-version component)))
@@ -160,22 +158,56 @@
   (format t "@htmlfileindex{~A}@c~%"
     (escape (relative-location html-file relative-to))))
 
-(defmethod document ((file asdf:cl-source-file) relative-to)
+(defmethod document ((file asdf:cl-source-file) relative-to
+		     &key external-definitions internal-definitions)
   (call-next-method)
-  (render-packages (file-packages (component-pathname file))))
+  (render-packages (file-packages (component-pathname file)))
+  (when external-definitions
+    (format t "@item Exported definitions~%")
+    (@itemize-list external-definitions :renderer #'reference))
+  (when internal-definitions
+    (format t "@item Internal definitions~%")
+    (@itemize-list internal-definitions :renderer #'reference)))
 
 
 ;; -----
 ;; Nodes
 ;; -----
 
+(defun file-definitions (file definitions &aux file-definitions)
+  "Return the subset of DEFINITIONS that come from FILE."
+  (dolist (definition definitions
+	      (sort file-definitions #'string-lessp :key #'definition-symbol))
+    (when (equal (location definition) file)
+      (endpush definition file-definitions))
+    (when (generic-definition-p definition)
+      (dolist (method (generic-definition-methods definition))
+	(when (equal (location method) file)
+	  (endpush method file-definitions))))))
+
+(defun lisp-file-node
+    (file relative-to external-definitions internal-definitions)
+  "Create and return a Lisp FILE node."
+  (make-node :name (title file relative-to)
+	     :section-name (format nil "@t{~A}"
+			     (escape (relative-location file relative-to)))
+	     :before-menu-contents
+	     (render-to-string
+	       (document file relative-to
+			 :external-definitions
+			 (file-definitions
+			  (location file) external-definitions)
+			 :internal-definitions
+			 (file-definitions
+			  (location file) internal-definitions)))))
+
 (defun file-node (file relative-to)
   "Create and return a FILE node."
   (make-node :name (title file relative-to)
 	     :section-name (format nil "@t{~A}"
 			     (escape (relative-location file relative-to)))
-	     :before-menu-contents
-	     (render-to-string (document file relative-to))))
+	     :before-menu-contents (render-to-string
+				     (document file relative-to))))
 
 (defun add-files-node
     (node system &aux (system-directory (system-directory system))
@@ -199,7 +231,9 @@ components tree."))))
 			 (make-node :name "Lisp files"
 				    :section-name "Lisp"))))
   "Add SYSTEM's files node to NODE."
-  (let ((system-base-name (escape (system-base-name system))))
+  (let ((system-base-name (escape (system-base-name system)))
+	(external-definitions (system-external-definitions system))
+	(internal-definitions (system-internal-definitions system)))
     (add-child lisp-files-node
       ;; That sucks. I need to fake a file-node call because the system file
       ;; is not an ASDF component per-se.
@@ -214,9 +248,11 @@ components tree."))))
 		     (render-location system system-directory)
 		     (render-packages
 		      (file-packages
-		       (system-definition-pathname system))))))))
-  (dolist (file lisp-files)
-    (add-child lisp-files-node (file-node file system-directory)))
+		       (system-definition-pathname system)))))))
+    (dolist (file lisp-files)
+      (add-child lisp-files-node
+	(lisp-file-node file system-directory
+			external-definitions internal-definitions))))
   (loop :with other-files-node
     :for files :in other-files
     :for name :in '("C files" "Java files" "Doc files" "HTML files"
@@ -248,7 +284,7 @@ components tree."))))
   (format t "@moduleindex{~A}@c~%"
     (escape (relative-location module relative-to))))
 
-(defmethod document ((module asdf:module) relative-to)
+(defmethod document ((module asdf:module) relative-to &key)
   (call-next-method)
   (let* ((components (asdf:module-components module))
 	 (length (length components)))
@@ -305,7 +341,7 @@ Modules are listed depth-first from the system components tree.")))))
   (declare (ignore relative-to))
   (format t "@systemindex{~A}@c~%" (escape system)))
 
-(defmethod document ((system asdf:system) relative-to)
+(defmethod document ((system asdf:system) relative-to &key)
   (format t "@item Name~%@t{~A}~%" (escape system))
   (when (system-description system)
     (format t "@item Description~%")

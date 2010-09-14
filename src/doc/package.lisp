@@ -53,7 +53,7 @@
   (declare (ignore relative-to))
   (format t "@ref{~A, , @t{~(~A}~)}~%" (anchor package) (escape package)))
 
-(defmethod document ((package package) relative-to)
+(defmethod document ((package package) relative-to &key)
   "Render PACKAGE's documentation."
   (format t "@anchor{~A}@c~%" (anchor package))
   (index package)

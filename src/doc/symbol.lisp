@@ -234,29 +234,29 @@
     (reference (symbol-package (definition-symbol definition)))
     (render-source definition relative-to)))
 
-(defmethod document ((constant constant-definition) relative-to)
+(defmethod document ((constant constant-definition) relative-to &key)
   (@defconstant (string-downcase (definition-symbol constant))
     (document-definition constant relative-to 'variable)))
 
-(defmethod document ((special special-definition) relative-to)
+(defmethod document ((special special-definition) relative-to &key)
   (@defspecial (string-downcase (definition-symbol special))
     (document-definition special relative-to 'variable)))
 
-(defmethod document ((macro macro-definition) relative-to)
+(defmethod document ((macro macro-definition) relative-to &key)
   (@defmac (string-downcase (definition-symbol macro))
       ;; #### PORTME.
       (sb-introspect:function-lambda-list
        (macro-definition-function macro))
     (document-definition macro relative-to 'function)))
 
-(defmethod document ((function function-definition) relative-to)
+(defmethod document ((function function-definition) relative-to &key)
   (@defun (string-downcase (definition-symbol function))
       ;; #### PORTME.
       (sb-introspect:function-lambda-list
        (function-definition-function function))
     (document-definition function relative-to 'function)))
 
-(defmethod document ((method method-definition) relative-to)
+(defmethod document ((method method-definition) relative-to &key)
   (@defmethod
       ;; #### PORTME:
       (string-downcase (definition-symbol method))
@@ -272,7 +272,7 @@
 	  (render-text documentation)))
       (render-source method relative-to))))
 
-(defmethod document ((generic generic-definition) relative-to)
+(defmethod document ((generic generic-definition) relative-to &key)
   (@defgeneric (string-downcase (definition-symbol generic))
       ;; #### PORTME.
       (sb-introspect:function-lambda-list
@@ -281,15 +281,15 @@
   (dolist (method (generic-definition-methods generic))
     (document method relative-to)))
 
-(defmethod document ((condition condition-definition) relative-to)
+(defmethod document ((condition condition-definition) relative-to &key)
   (@defcond (string-downcase (definition-symbol condition))
     (document-definition condition relative-to 'type)))
 
-(defmethod document ((structure structure-definition) relative-to)
+(defmethod document ((structure structure-definition) relative-to &key)
   (@defstruct (string-downcase (definition-symbol structure))
     (document-definition structure relative-to 'type)))
 
-(defmethod document ((class class-definition) relative-to)
+(defmethod document ((class class-definition) relative-to &key)
   (@defclass (string-downcase (definition-symbol class))
     (document-definition class relative-to 'type)))
 

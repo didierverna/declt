@@ -140,9 +140,21 @@ The list includes the system definition file."
   "Return the list of SYSTEM's external symbols."
   (mapcan #'package-external-symbols (system-packages system)))
 
+(defun system-external-definitions (system)
+  "Return the list of SYSTEM's external definitions."
+  (loop :for symbol :in (system-external-symbols system)
+	:when (symbol-definitions symbol)
+	:nconc :it))
+
 (defun system-internal-symbols (system)
   "Return the list of SYSTEM's internal symbols."
   (mapcan #'package-internal-symbols (system-packages system)))
+
+(defun system-internal-definitions (system)
+  "Return the list of SYSTEM's internal definitions."
+  (loop :for symbol :in (system-internal-symbols system)
+	:when (symbol-definitions symbol)
+	:nconc :it))
 
 
 ;;; asdf.lisp ends here
