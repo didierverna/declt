@@ -76,7 +76,7 @@
 ;; ==========================================================================
 
 (defun components (module type)
-  "Return the list of all components of TYPE from MODULE."
+  "Return the list of all components of (sub)TYPE from ASDF MODULE."
   ;; #### NOTE: we accept subtypes of TYPE because ASDF components might be
   ;; subclassed. An example of this is SBCL's grovel facility which subclasses
   ;; asdf:cl-source-file.
@@ -87,30 +87,29 @@
 	  :nconc (components component type)))
 
 (defun lisp-components (module)
-  "Return the list of all Lisp source file components from MODULE."
+  "Return the list of all Lisp source file components from ASDF MODULE."
   (components module 'asdf:cl-source-file))
 
-;; #### WARNING: do not confuse with asdf:mpdule-components!
+;; #### WARNING: do not confuse this function with asdf:module-components!
 (defun module-components (module)
-  "Return the list of all module components from MODULE."
+  "Return the list of all module components from ASDF MODULE."
   (components module 'asdf:module))
 
 (defun system-directory (system)
-  "Return SYSTEM's directory."
-  (component-relative-pathname system))
+  "Return ASDF SYSTEM's directory."
+  (component-pathname system))
 
 (defun system-base-name (system)
-  "Return the basename part of SYSTEM's definition file."
+  "Return the basename part of ASDF SYSTEM's definition file."
   (file-namestring (system-definition-pathname system)))
 
 (defun system-file-name (system)
-  "Return the name part of SYSTEM's definition file."
+  "Return the name part of ASDF SYSTEM's definition file."
   (pathname-name (system-definition-pathname system)))
 
 (defun system-file-type (system)
-  "Return the type part of SYSTEM's definition file."
+  "Return the type part of ASDF SYSTEM's definition file."
   (pathname-type (system-definition-pathname system)))
-
 
 
 ;;; asdf.lisp ends here
