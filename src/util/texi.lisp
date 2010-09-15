@@ -38,8 +38,8 @@
 ;; Rendering Protocols
 ;; ==========================================================================
 
-(defgeneric to-string (object)
-  (:documentation "When OBJECT, return a string form of it.")
+(defgeneric name (object)
+  (:documentation "Return OBJECT's name as a string.")
   (:method ((symbol symbol))
     "Return SYMBOL's name."
     (symbol-name symbol))
@@ -57,9 +57,9 @@
 ;; ==========================================================================
 
 (defun escape (object)
-  "Escape the conversion of non-nil OBJECT to string."
+  "When OBJECT, escape its name for Texinfo."
   (when object
-    (coerce (loop :for char :across (to-string object)
+    (coerce (loop :for char :across (name object)
 		  :if (member char '(#\@ #\{ #\})) :collect #\@
 		  :collect char)
 	    'string)))

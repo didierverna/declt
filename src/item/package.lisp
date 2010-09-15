@@ -37,7 +37,7 @@
 ;; Rendering Protocols
 ;; ==========================================================================
 
-(defmethod to-string ((package package))
+(defmethod name ((package package))
   "Return PACKAGE's name."
   (package-name package))
 

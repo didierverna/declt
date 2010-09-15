@@ -136,9 +136,9 @@
 ;; Rendering protocols
 ;; ==========================================================================
 
-(defmethod to-string ((definition definition))
+(defmethod name ((definition definition))
   "Return DEFINITION's symbol name."
-  (symbol-name (definition-symbol definition)))
+  (name (definition-symbol definition)))
 
 
 

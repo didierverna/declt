@@ -41,7 +41,7 @@
 ;; Rendering protocols
 ;; -------------------
 
-(defmethod to-string ((component asdf:component))
+(defmethod name ((component asdf:component))
   "Return COMPONENT's name."
   (component-name component))
 
