@@ -38,9 +38,7 @@
 ;; ==========================================================================
 
 (defgeneric location (item)
-  (:documentation "Return ITEM's pathname.")
-  (:method ((pathname pathname))
-    pathname))
+  (:documentation "Return ITEM's pathname."))
 
 
 

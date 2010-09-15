@@ -76,7 +76,7 @@ online, and hence independent of any specific installation.")
 		 ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
 	(when *link-files*
 	  (escape location))
-	(escape (relative-location location relative-to))
+	(escape (relative-location item relative-to))
 	*link-files*))))
 
 (defun render-source (item relative-to)
