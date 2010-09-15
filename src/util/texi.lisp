@@ -307,7 +307,8 @@ Return that string."
 ;; #### NOTE: all contents in the NODE structure must be already escaped for
 ;; Texinfo.
 (defstruct node
-  "The Texinfo node structure."
+  "The NODE structure.
+This structure holds Texinfo nodes."
   name                      ;; node name
   synopsis                  ;; node menu description
   (section-type :numbered)  ;; see +section-names+
