@@ -60,7 +60,7 @@
    :+release-status-level+
    :+release-name+
    :version
-   ;; From src/doc/doc.lisp:
+   ;; From src/doc/asdf.lisp:
    :*link-files*
    ;; From src/declt.lisp:
    :declt))

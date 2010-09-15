@@ -47,7 +47,7 @@
 ;; Item Protocols
 ;; ==========================================================================
 
-(defmethod location ((package package))
+(defmethod source ((package package))
   ;; #### PORTME.
   (let* ((defsrc (sb-introspect:find-definition-source package)))
     (when defsrc

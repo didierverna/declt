@@ -34,31 +34,11 @@
 
 
 ;; ==========================================================================
-;; Item Protocols
-;; ==========================================================================
-
-(defgeneric location (item)
-  (:documentation "Return ITEM's pathname."))
-
-
-
-;; ==========================================================================
 ;; Utilities
 ;; ==========================================================================
 
-(defun relative-location (item relative-to)
-  "Return ITEM's location RELATIVE-TO."
-  (let* ((location (location item))
-	 (relative-location (when location
-			      (enough-namestring location relative-to))))
-    ;; #### HACK ALERT! Some items might end up being located in the *symlink*
-    ;; to the system file. In such a case, LOCATION is actually not
-    ;; RELATIVE-TO, but we know this is the system file so we just return the
-    ;; file name.
-    (when (and relative-location
-	       (string= relative-location (namestring location)))
-      (setq relative-location (file-namestring location)))
-    relative-location))
+(defgeneric source (item)
+  (:documentation "Return ITEM's definition source pathname."))
 
 
 ;;; item.lisp ends here

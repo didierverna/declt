@@ -37,6 +37,33 @@
 ;; Utilities
 ;; ==========================================================================
 
+(defvar *link-files* t
+  "Whether to create links to files or directories in the reference manual.
+When true (the default), pathnames are made clickable although the links are
+specific to the machine on which the manual was generated.
+
+Setting this to NIL is preferable for creating reference manuals meant to put
+online, and hence independent of any specific installation.")
+
+(defun render-location (pathname relative-to)
+  "Render an itemized location line for PATHNAME, RELATIVE-TO.
+Rendering is done on *standard-output*."
+  ;; #### NOTE: Probing the pathname as the virtue of dereferencing symlinks.
+  ;; This is good because when the system definition file is involved, it is
+  ;; the installed symlink which is seen, whereas we want to advertise the
+  ;; original one.
+  (setq pathname (probe-file pathname))
+  (format t "@item Location~%~
+	     ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
+    (when *link-files*
+      (escape pathname))
+    (escape (enough-namestring pathname relative-to))
+    *link-files*))
+
+(defun relative-location (component relative-to)
+  "Return COMPONENT's location RELATIVE-TO."
+  (enough-namestring (component-pathname component) relative-to))
+
 (defun render-packages (packages)
   "Render a list of PACKAGES references."
   (when packages
@@ -117,7 +144,7 @@
 			  @url{file://~A, ignore, @t{~A}}~%"
 	       directory directory))))
 	(t
-	 (render-location component relative-to))))
+	 (render-location (component-pathname component) relative-to))))
 
 
 
@@ -178,11 +205,11 @@
   "Return the subset of DEFINITIONS that come from FILE."
   (dolist (definition definitions
 	      (sort file-definitions #'string-lessp :key #'definition-symbol))
-    (when (equal (location definition) file)
+    (when (equal (source definition) file)
       (endpush definition file-definitions))
     (when (generic-definition-p definition)
       (dolist (method (generic-definition-methods definition))
-	(when (equal (location method) file)
+	(when (equal (source method) file)
 	  (endpush method file-definitions))))))
 
 (defun lisp-file-node
@@ -196,10 +223,10 @@
 	       (document file relative-to
 			 :external-definitions
 			 (file-definitions
-			  (location file) external-definitions)
+			  (component-pathname file) external-definitions)
 			 :internal-definitions
 			 (file-definitions
-			  (location file) internal-definitions)))))
+			  (component-pathname file) internal-definitions)))))
 
 (defun file-node (file relative-to)
   "Create and return a FILE node."
@@ -245,7 +272,8 @@ components tree."))))
 		    (format nil "The ~A file anchor" system-base-name))
 		   (format t "@lispfileindex{~A}@c~%" system-base-name)
 		   (@table ()
-		     (render-location system system-directory)
+		     (render-location (system-definition-pathname system)
+				      system-directory)
 		     (render-packages
 		      (file-packages
 		       (system-definition-pathname system)))

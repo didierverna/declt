@@ -60,29 +60,17 @@
 ;; Utilities
 ;; ==========================================================================
 
-(defvar *link-files* t
-  "Whether to create links to files or directories in the reference manual.
-When true (the default), pathnames are made clickable although the links are
-specific to this particular installation.
-
-Setting this to NIL is preferable for creating reference manuals meant to put
-online, and hence independent of any specific installation.")
-
-(defun render-location (item relative-to)
-  "Render an itemized location line for ITEM RELATIVE-TO."
-  (let ((location (location item)))
-    (when location
-      (format t "@item Location~%~
-		 ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
-	(when *link-files*
-	  (escape location))
-	(escape (relative-location item relative-to))
-	*link-files*))))
-
-(defun render-source (item relative-to)
-  "Render ITEM's definition source RELATIVE-TO."
-  (let ((location (escape (relative-location item relative-to))))
-    (when location
+(defun render-source (object relative-to
+		      &aux (source (source object)))
+  "Render an itemized source line for OBJECT, RELATIVE-TO.
+Rendering is done on *standard-output*."
+  (when source
+    ;; #### NOTE: Probing the pathname as the virtue of dereferencing
+    ;; symlinks. This is good because when the system definition file is
+    ;; involved, it is the installed symlink which is seen, whereas we want to
+    ;; advertise the original one.
+    (setq source (probe-file source))
+    (let ((location (escape (enough-namestring source relative-to))))
       (format t "@item Source~%")
       ;; #### FIXME: somewhat ugly. We fake a cl-source-file anchor name.
       (format t "@ref{The ~A file anchor, , @t{~(~A}~)}~%"

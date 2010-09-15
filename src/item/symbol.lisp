@@ -146,7 +146,7 @@
 ;; Item Protocols
 ;; ==========================================================================
 
-(defmethod location ((method method-definition))
+(defmethod source ((method method-definition))
   ;; #### PORTME.
   (let* ((defsrc (sb-introspect:find-definition-source
 		  (method-definition-method method))))
@@ -163,28 +163,28 @@
     (when defsrc
       (sb-introspect:definition-source-pathname defsrc))))
 
-(defmethod location ((constant constant-definition))
+(defmethod source ((constant constant-definition))
   (definition-source constant :constant))
 
-(defmethod location ((special special-definition))
+(defmethod source ((special special-definition))
   (definition-source special :variable))
 
-(defmethod location ((macro macro-definition))
+(defmethod source ((macro macro-definition))
   (definition-source macro :macro))
 
-(defmethod location ((function function-definition))
+(defmethod source ((function function-definition))
   (definition-source function :function))
 
-(defmethod location ((generic generic-definition))
+(defmethod source ((generic generic-definition))
   (definition-source generic :generic-function))
 
-(defmethod location ((condition condition-definition))
+(defmethod source ((condition condition-definition))
   (definition-source condition :condition))
 
-(defmethod location ((structure structure-definition))
+(defmethod source ((structure structure-definition))
   (definition-source structure :structure))
 
-(defmethod location ((class class-definition))
+(defmethod source ((class class-definition))
   (definition-source class :class))
 
 
