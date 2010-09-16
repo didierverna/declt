@@ -120,20 +120,21 @@
   (declare (ignore relative-to))
   (format t "@tpindex @r{Class, }~(~A~)~%" (escape class)))
 
-(defmethod anchor ((definition definition) &optional relative-to)
+(defmethod anchor-name ((definition definition) &optional relative-to)
+  "Return DEFINITION's anchor name."
   (declare (ignore relative-to))
   (format nil "~A anchor" (title definition)))
 
 (defmethod reference ((definition definition) &optional relative-to)
   (declare (ignore relative-to))
   (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
-    (anchor definition)
+    (anchor-name definition)
     (escape definition)
     (type-name definition)))
 
 (defun document-definition (definition relative-to kind)
   "Render DEFINITION's documentation contents as KIND."
-  (@anchor (anchor definition))
+  (@anchor (anchor-name definition))
   (index definition)
   (@table ()
     (let ((documentation (documentation (definition-symbol definition) kind)))
@@ -174,7 +175,7 @@
       (sb-mop:method-specializers (method-definition-method method))
       (sb-mop:method-qualifiers (method-definition-method method))
     (@table ()
-      (@anchor (anchor method))
+      (@anchor (anchor-name method))
       (index method)
       (let ((documentation
 	     (documentation (method-definition-method method) t)))

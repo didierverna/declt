@@ -42,7 +42,7 @@
 
 ;; Since node references are boring in Texinfo, we prefer to create custom
 ;; anchors for our items and link to them instead.
-(defgeneric anchor (item &optional relative-to)
+(defgeneric anchor-name (item &optional relative-to)
   (:documentation "Return ITEM's anchor name."))
 
 (defgeneric index (item &optional relative-to)

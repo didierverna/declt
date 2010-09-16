@@ -83,18 +83,19 @@ Rendering is done on *standard-output*."
 ;; Documentation protocols
 ;; -----------------------
 
-(defmethod anchor ((component asdf:component) &optional relative-to)
+(defmethod anchor-name ((component asdf:component) &optional relative-to)
+  "Return COMPONENT's anchor name."
   (format nil "~A anchor" (title component relative-to)))
 
 (defmethod reference ((component asdf:component) &optional relative-to)
   (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
-    (anchor component relative-to)
+    (anchor-name component relative-to)
     (escape component)
     (type-name component)))
 
 (defmethod document :around ((component asdf:component) relative-to &key)
   "Index COMPONENT and enclose its documentation in a @table environment."
-  (@anchor (anchor component relative-to))
+  (@anchor (anchor-name component relative-to))
   (index component relative-to)
   (@table ()
     (call-next-method)))

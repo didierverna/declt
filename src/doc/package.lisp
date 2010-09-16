@@ -41,7 +41,8 @@
   (declare (ignore relative-to))
   (format nil "The ~(~A~) package" (escape package)))
 
-(defmethod anchor ((package package) &optional relative-to)
+(defmethod anchor-name ((package package) &optional relative-to)
+  "Return PACKAGE's anchor name."
   (declare (ignore relative-to))
   (format nil "~A anchor" (title package)))
 
@@ -51,11 +52,11 @@
 
 (defmethod reference ((package package) &optional relative-to)
   (declare (ignore relative-to))
-  (format t "@ref{~A, , @t{~(~A}~)}~%" (anchor package) (escape package)))
+  (format t "@ref{~A, , @t{~(~A}~)}~%" (anchor-name package) (escape package)))
 
 (defmethod document ((package package) relative-to &key)
   "Render PACKAGE's documentation."
-  (@anchor (anchor package))
+  (@anchor (anchor-name package))
   (index package)
   (@table ()
     (let* ((nicknames (package-nicknames package))
