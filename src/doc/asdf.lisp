@@ -95,7 +95,7 @@ Rendering is done on *standard-output*."
 
 (defmethod document :around ((component asdf:component) relative-to &key)
   "Index COMPONENT and enclose its documentation in a @table environment."
-  (@anchor (anchor-name component relative-to))
+  (anchor component relative-to)
   (index component relative-to)
   (@table ()
     (call-next-method)))

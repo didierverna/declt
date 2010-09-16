@@ -60,6 +60,10 @@
 ;; Utilities
 ;; ==========================================================================
 
+(defun anchor (item &optional relative-to)
+  "Render ITEM's anchor."
+  (@anchor (anchor-name item relative-to)))
+
 (defun render-source (object relative-to
 		      &aux (source (source object)))
   "Render an itemized source line for OBJECT, RELATIVE-TO.
