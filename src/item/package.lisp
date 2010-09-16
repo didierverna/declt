@@ -47,6 +47,10 @@
 ;; Item Protocols
 ;; ==========================================================================
 
+;; ---------------
+;; Source protocol
+;; ---------------
+
 (defmethod source ((package package))
   "Return PACKAGE's definition source."
   ;; #### PORTME.

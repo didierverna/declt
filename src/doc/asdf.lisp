@@ -90,7 +90,7 @@ Rendering is done on *standard-output*."
   (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
     (anchor component relative-to)
     (escape component)
-    (component-type-name component)))
+    (type-name component)))
 
 (defmethod document :around ((component asdf:component) relative-to &key)
   "Index COMPONENT and enclose its documentation in a @table environment."

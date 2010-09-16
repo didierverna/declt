@@ -45,9 +45,6 @@
   "Return COMPONENT's name."
   (component-name component))
 
-(defgeneric component-type-name (component)
-  (:documentation "Return COMPONENT's type name."))
-
 
 
 ;; ==========================================================================
@@ -55,30 +52,32 @@
 ;; ==========================================================================
 
 ;; -------------------
-;; Rendering protocols
+;; Item protocols
 ;; -------------------
 
-(defmethod component-type-name ((cl-source-file asdf:cl-source-file))
+;; Type name protocol
+
+(defmethod type-name ((cl-source-file asdf:cl-source-file))
   "Return \"Lisp file\""
   "Lisp file")
 
-(defmethod component-type-name ((c-source-file asdf:c-source-file))
+(defmethod type-name ((c-source-file asdf:c-source-file))
   "Return \"C file\""
   "C file")
 
-(defmethod component-type-name ((java-source-file asdf:java-source-file))
+(defmethod type-name ((java-source-file asdf:java-source-file))
   "Return \"Java file\""
   "Java file")
 
-(defmethod component-type-name ((static-file asdf:static-file))
+(defmethod type-name ((static-file asdf:static-file))
   "Return \"File\""
   "File")
 
-(defmethod component-type-name ((doc-file asdf:doc-file))
+(defmethod type-name ((doc-file asdf:doc-file))
   "Return \"Doc file\""
   "Doc file")
 
-(defmethod component-type-name ((html-file asdf:html-file))
+(defmethod type-name ((html-file asdf:html-file))
   "Return \"HTML file\""
   "HTML file")
 
@@ -89,10 +88,12 @@
 ;; ==========================================================================
 
 ;; -------------------
-;; Rendering protocols
+;; Item protocols
 ;; -------------------
 
-(defmethod component-type-name ((module asdf:module))
+;; Type name protocol
+
+(defmethod type-name ((module asdf:module))
   "Return \"module\""
   "module")
 
@@ -103,13 +104,14 @@
 ;; ==========================================================================
 
 ;; -------------------
-;; Rendering protocols
+;; Item protocols
 ;; -------------------
 
-(defmethod component-type-name ((system asdf:system))
+;; Type name protocol
+
+(defmethod type-name ((system asdf:system))
   "Return \"system\""
   "system")
-
 
 
 ;; ---------

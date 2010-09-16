@@ -34,11 +34,23 @@
 
 
 ;; ==========================================================================
-;; Utilities
+;; Item Protocols
 ;; ==========================================================================
+
+;; ---------------
+;; Source protocol
+;; ---------------
 
 (defgeneric source (item)
   (:documentation "Return ITEM's definition source pathname."))
+
+
+;; ------------------
+;; Type name protocol
+;; ------------------
+
+(defgeneric type-name (item)
+  (:documentation "Return ITEM's type name."))
 
 
 ;;; item.lisp ends here

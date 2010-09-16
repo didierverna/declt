@@ -87,35 +87,6 @@ This structure holds the list of methods."
 (defstruct (class-definition (:include definition))
   "Structure for class definitions.")
 
-(defgeneric definition-type-name (definition)
-  (:documentation "Return DEFINITION's type name.")
-  (:method ((constant constant-definition))
-    "Return \"constant\""
-    "constant")
-  (:method ((special special-definition))
-    "Return \"special variable\""
-    "special variable")
-  (:method ((macro macro-definition))
-    "Return \"macro\""
-    "macro")
-  (:method ((function function-definition))
-    "Return \"function\""
-    "function")
-  (:method ((generic generic-definition))
-    "Return \"generic function\""
-    "generic function")
-  (:method ((method method-definition))
-    "Return \"method\""
-    "method")
-  (:method ((condition condition-definition))
-    "Return \"condition\""
-    "condition")
-  (:method ((structure structure-definition))
-    "Return \"structure\""
-    "structure")
-  (:method ((class class-definition))
-    "Return \"class\""
-    "class"))
 
 ;; #### PORTME.
 (defun symbol-definition (symbol category)
@@ -185,6 +156,10 @@ This structure holds the list of methods."
 ;; Item Protocols
 ;; ==========================================================================
 
+;; ---------------
+;; Source protocol
+;; ---------------
+
 (defmethod source ((method method-definition))
   "Return METHOD's definition source."
   ;; #### PORTME.
@@ -235,6 +210,47 @@ This structure holds the list of methods."
 (defmethod source ((class class-definition))
   "Return CLASS's definition source."
   (definition-source class :class))
+
+
+;; ------------------
+;; Type name protocol
+;; ------------------
+
+(defmethod type-name ((constant constant-definition))
+  "Return \"constant\""
+  "constant")
+
+(defmethod type-name ((special special-definition))
+  "Return \"special variable\""
+  "special variable")
+
+(defmethod type-name ((macro macro-definition))
+  "Return \"macro\""
+  "macro")
+
+(defmethod type-name ((function function-definition))
+  "Return \"function\""
+  "function")
+
+(defmethod type-name ((generic generic-definition))
+  "Return \"generic function\""
+  "generic function")
+
+(defmethod type-name ((method method-definition))
+  "Return \"method\""
+  "method")
+
+(defmethod type-name ((condition condition-definition))
+  "Return \"condition\""
+  "condition")
+
+(defmethod type-name ((structure structure-definition))
+  "Return \"structure\""
+  "structure")
+
+(defmethod type-name ((class class-definition))
+  "Return \"class\""
+  "class")
 
 
 ;;; symbol.lisp ends here

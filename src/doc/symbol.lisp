@@ -129,7 +129,7 @@
   (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
     (anchor definition)
     (escape definition)
-    (definition-type-name definition)))
+    (type-name definition)))
 
 (defun document-definition (definition relative-to kind)
   "Render DEFINITION's documentation contents as KIND."
