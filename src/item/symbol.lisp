@@ -40,27 +40,39 @@
 ;; #### NOTE: +CATEGORIES+ and SYMBOL-DEFINITION don't handle methods, because
 ;; those are listed directly as part of generic function definitions.
 (define-constant +categories+
-    '((:constant  "constant"          "constants")
-      (:special   "special variable"  "special variables")
-      (:macro     "macro"             "macros")
-      (:function  "function"          "functions")
-      (:generic   "generic function"  "generic functions")
-      (:condition "condition"         "conditions")
-      (:structure "structure"         "structures")
-      (:class     "class"             "classes"))
+    '((:constant  "constants")
+      (:special   "special variables")
+      (:macro     "macros")
+      (:function  "functions")
+      (:generic   "generic functions")
+      (:condition "conditions")
+      (:structure "structures")
+      (:class     "classes"))
   "The list of definition categories.")
 
-(defstruct definition (symbol))
+(defstruct definition
+  "Base structure for definitions named by symbols.
+This structure holds the symbol naming the definition."
+  (symbol)) ;; symbol naming the definition
 
 (defstruct (constant-definition (:include definition)))
 (defstruct (special-definition (:include definition)))
 
-(defstruct (functional-definition (:include definition)) (function))
+(defstruct (functional-definition (:include definition))
+  "Base structure for definitions of functional values.
+This structure holds the the function, generic function or macro function
+object."
+  (function)) ;; function, generic function or macro function objet
 (defstruct (macro-definition (:include functional-definition)))
 (defstruct (function-definition (:include functional-definition)))
 
-(defstruct (method-definition (:include definition)) (method))
-(defstruct (generic-definition (:include functional-definition)) (methods))
+(defstruct (method-definition (:include definition))
+  "This structure holds the method object."
+  (method)) ;; method object
+
+(defstruct (generic-definition (:include functional-definition))
+  "This structure holds the list of methods."
+  (methods)) ;; list of method objects
 
 (defstruct (condition-definition (:include definition)))
 (defstruct (structure-definition (:include definition)))
@@ -157,6 +169,7 @@
 ;; #### FIXME: why does f-d-s-b-n return a list? How can there be several
 ;; sources?
 (defun definition-source (definition type)
+  "Return DEFINITION's source for TYPE."
   (let ((defsrc (car (sb-introspect:find-definition-sources-by-name
 		      (definition-symbol definition)
 		      type))))

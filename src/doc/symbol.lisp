@@ -229,7 +229,7 @@
 		 :when (symbol-definition symbol (first category))
 		 :collect :it)))
       (when category-definitions
-	(add-category-node parent location (third category)
+	(add-category-node parent location (second category)
 			   category-definitions relative-to)))))
 
 (defun add-definitions-node
