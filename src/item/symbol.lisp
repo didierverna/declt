@@ -55,40 +55,67 @@
 This structure holds the symbol naming the definition."
   (symbol)) ;; symbol naming the definition
 
-(defstruct (constant-definition (:include definition)))
-(defstruct (special-definition (:include definition)))
+(defstruct (constant-definition (:include definition))
+  "Structure for constant definitions.")
+(defstruct (special-definition (:include definition))
+  "Structure for special variables definitions.")
 
 (defstruct (functional-definition (:include definition))
   "Base structure for definitions of functional values.
 This structure holds the the function, generic function or macro function
 object."
   (function)) ;; function, generic function or macro function objet
-(defstruct (macro-definition (:include functional-definition)))
-(defstruct (function-definition (:include functional-definition)))
+(defstruct (macro-definition (:include functional-definition))
+  "Structure for macro definitions.")
+(defstruct (function-definition (:include functional-definition))
+  "Structure for ordinary function definitions.")
 
 (defstruct (method-definition (:include definition))
-  "This structure holds the method object."
+  "Structure for method definitions.
+This structure holds the method object."
   (method)) ;; method object
 
 (defstruct (generic-definition (:include functional-definition))
-  "This structure holds the list of methods."
+  "Structure for generic function definitions.
+This structure holds the list of methods."
   (methods)) ;; list of method objects
 
-(defstruct (condition-definition (:include definition)))
-(defstruct (structure-definition (:include definition)))
-(defstruct (class-definition (:include definition)))
+(defstruct (condition-definition (:include definition))
+  "Structure for condition definitions.")
+(defstruct (structure-definition (:include definition))
+  "Structure for structure definition.")
+(defstruct (class-definition (:include definition))
+  "Structure for class definitions.")
 
 (defgeneric definition-type-name (definition)
   (:documentation "Return DEFINITION's type name.")
-  (:method ((constant constant-definition)) "constant")
-  (:method ((special special-definition)) "special variable")
-  (:method ((macro macro-definition)) "macro")
-  (:method ((function function-definition)) "function")
-  (:method ((generic generic-definition)) "generic function")
-  (:method ((method method-definition)) "method")
-  (:method ((condition condition-definition)) "condition")
-  (:method ((structure structure-definition)) "structure")
-  (:method ((class class-definition)) "class"))
+  (:method ((constant constant-definition))
+    "Return \"constant\""
+    "constant")
+  (:method ((special special-definition))
+    "Return \"special variable\""
+    "special variable")
+  (:method ((macro macro-definition))
+    "Return \"macro\""
+    "macro")
+  (:method ((function function-definition))
+    "Return \"function\""
+    "function")
+  (:method ((generic generic-definition))
+    "Return \"generic function\""
+    "generic function")
+  (:method ((method method-definition))
+    "Return \"method\""
+    "method")
+  (:method ((condition condition-definition))
+    "Return \"condition\""
+    "condition")
+  (:method ((structure structure-definition))
+    "Return \"structure\""
+    "structure")
+  (:method ((class class-definition))
+    "Return \"class\""
+    "class"))
 
 ;; #### PORTME.
 (defun symbol-definition (symbol category)
@@ -159,6 +186,7 @@ object."
 ;; ==========================================================================
 
 (defmethod source ((method method-definition))
+  "Return METHOD's definition source."
   ;; #### PORTME.
   (let* ((defsrc (sb-introspect:find-definition-source
 		  (method-definition-method method))))
@@ -177,27 +205,35 @@ object."
       (sb-introspect:definition-source-pathname defsrc))))
 
 (defmethod source ((constant constant-definition))
+  "Return CONSTANT's definition source."
   (definition-source constant :constant))
 
 (defmethod source ((special special-definition))
+  "Return SPECIAL's definition source."
   (definition-source special :variable))
 
 (defmethod source ((macro macro-definition))
+  "Return MACRO's definition source."
   (definition-source macro :macro))
 
 (defmethod source ((function function-definition))
+  "Return FUNCTION's definition source."
   (definition-source function :function))
 
 (defmethod source ((generic generic-definition))
+  "Return GENERIC's definition source."
   (definition-source generic :generic-function))
 
 (defmethod source ((condition condition-definition))
+  "Return CONDITION's definition source."
   (definition-source condition :condition))
 
 (defmethod source ((structure structure-definition))
+  "Return STRUCTURE's definition source."
   (definition-source structure :structure))
 
 (defmethod source ((class class-definition))
+  "Return CLASS's definition source."
   (definition-source class :class))
 
 
