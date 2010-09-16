@@ -48,6 +48,7 @@
 ;; ==========================================================================
 
 (defmethod source ((package package))
+  "Return PACKAGE's definition source."
   ;; #### PORTME.
   (let* ((defsrc (sb-introspect:find-definition-source package)))
     (when defsrc
@@ -60,13 +61,13 @@
 ;; ==========================================================================
 
 (defun package-external-symbols (package &aux external-symbols)
-  "Return the list of PACKAGE's external symbols."
+  "Return the list of external symbols from PACKAGE."
   (do-external-symbols (symbol package external-symbols)
     (when (eq (symbol-package symbol) package)
       (push symbol external-symbols))))
 
 (defun package-external-definitions (package)
-  "Return the list of PACKAGE's external definitions."
+  "Return the list of external definitions from PACKAGE."
   (loop :for symbol :in (package-external-symbols package)
 	:when (symbol-definitions symbol)
 	:collect :it))
@@ -74,14 +75,14 @@
 (defun package-internal-symbols
     (package &aux (external-symbols (package-external-symbols package))
 		  internal-symbols)
-  "Return the list of PACKAGE's internal definitions."
+  "Return the list of internal definitions from PACKAGE."
   (do-symbols (symbol package internal-symbols)
     (when (and (not (member symbol external-symbols))
 	       (eq (symbol-package symbol) package))
       (push symbol internal-symbols))))
 
 (defun package-internal-definitions (package)
-  "Return the list of PACKAGE's internal definitions."
+  "Return the list of internal definitions from PACKAGE."
   (loop :for symbol :in (package-internal-symbols package)
 	:when (symbol-definitions symbol)
 	:collect :it))
