@@ -89,7 +89,7 @@ Rendering is done on *standard-output*."
 
 (defmethod reference ((component asdf:component) &optional relative-to)
   (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
-    (anchor-name component relative-to)
+    (escape (anchor-name component relative-to))
     (escape component)
     (type-name component)))
 
@@ -158,8 +158,7 @@ Rendering is done on *standard-output*."
 ;; -----------------------
 
 (defmethod title ((source-file asdf:source-file) &optional relative-to)
-  (format nil "The ~A file"
-    (escape (relative-location source-file relative-to))))
+  (format nil "The ~A file" (relative-location source-file relative-to)))
 
 (defmethod index ((cl-source-file asdf:cl-source-file) &optional relative-to)
   (format t "@lispfileindex{~A}@c~%"
@@ -216,7 +215,7 @@ Rendering is done on *standard-output*."
 (defun lisp-file-node
     (file relative-to external-definitions internal-definitions)
   "Create and return a Lisp FILE node."
-  (make-node :name (title file relative-to)
+  (make-node :name (escape (title file relative-to))
 	     :section-name (format nil "@t{~A}"
 			     (escape (relative-location file relative-to)))
 	     :before-menu-contents
@@ -231,7 +230,7 @@ Rendering is done on *standard-output*."
 
 (defun file-node (file relative-to)
   "Create and return a FILE node."
-  (make-node :name (title file relative-to)
+  (make-node :name (escape (title file relative-to))
 	     :section-name (format nil "@t{~A}"
 			     (escape (relative-location file relative-to)))
 	     :before-menu-contents (render-to-string
@@ -322,8 +321,7 @@ components tree."))))
 ;; -----------------------
 
 (defmethod title ((module asdf:module) &optional relative-to)
-  (format nil "The ~A module"
-    (escape (relative-location module relative-to))))
+  (format nil "The ~A module" (relative-location module relative-to)))
 
 (defmethod index ((module asdf:module) &optional relative-to)
   (format t "@moduleindex{~A}@c~%"
@@ -348,7 +346,7 @@ components tree."))))
 
 (defun module-node (module relative-to)
   "Create and return a MODULE node."
-  (make-node :name (title module relative-to)
+  (make-node :name (escape (title module relative-to))
 	     :section-name (format nil "@t{~A}"
 			     (escape (relative-location module relative-to)))
 	     :before-menu-contents
@@ -380,7 +378,7 @@ Modules are listed depth-first from the system components tree.")))))
 
 (defmethod title ((system asdf:system) &optional relative-to)
   (declare (ignore relative-to))
-  (format nil "The ~A system" (escape system)))
+  (format nil "The ~A system" (name system)))
 
 (defmethod index ((system asdf:system) &optional relative-to)
   (declare (ignore relative-to))

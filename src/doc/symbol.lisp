@@ -39,46 +39,44 @@
 
 (defmethod title ((constant constant-definition) &optional relative-to)
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) constant" (escape constant)))
+  (format nil "The ~(~A~) constant" (name constant)))
 
 (defmethod title ((special special-definition) &optional relative-to)
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) special variable" (escape special)))
+  (format nil "The ~(~A~) special variable" (name special)))
 
 (defmethod title ((macro macro-definition) &optional relative-to)
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) macro" (escape macro)))
+  (format nil "The ~(~A~) macro" (name macro)))
 
 (defmethod title ((function function-definition) &optional relative-to)
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) function" (escape function)))
+  (format nil "The ~(~A~) function" (name function)))
 
 (defmethod title ((method method-definition) &optional relative-to)
   (declare (ignore relative-to))
   (format nil "The ~(~A~{ ~A~^~}~{ ~A~^~}~) method"
-    (escape method)
+    (name method)
     ;; #### PORTME.
-    (mapcar #'escape (mapcar #'pretty-specializer
-			     (sb-mop:method-specializers
-			      (method-definition-method method))))
-    (mapcar #'escape (sb-mop:method-qualifiers
-		      (method-definition-method method)))))
+    (mapcar #'pretty-specializer
+	    (sb-mop:method-specializers (method-definition-method method)))
+    (sb-mop:method-qualifiers (method-definition-method method))))
 
 (defmethod title ((generic generic-definition) &optional relative-to)
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) generic function" (escape generic)))
+  (format nil "The ~(~A~) generic function" (name generic)))
 
 (defmethod title ((condition condition-definition) &optional relative-to)
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) condition" (escape condition)))
+  (format nil "The ~(~A~) condition" (name condition)))
 
 (defmethod title ((structure structure-definition) &optional relative-to)
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) structure" (escape structure)))
+  (format nil "The ~(~A~) structure" (name structure)))
 
 (defmethod title ((class class-definition) &optional relative-to)
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) class" (escape class)))
+  (format nil "The ~(~A~) class" (name class)))
 
 ;; #### NOTE: the INDEX methods below only perform sub-indexing because the
 ;; main index entries are created automatically in Texinfo by the @defXXX
@@ -128,7 +126,7 @@
 (defmethod reference ((definition definition) &optional relative-to)
   (declare (ignore relative-to))
   (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
-    (anchor-name definition)
+    (escape (anchor-name definition))
     (escape definition)
     (type-name definition)))
 

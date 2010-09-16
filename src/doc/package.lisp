@@ -39,7 +39,7 @@
 
 (defmethod title ((package package) &optional relative-to)
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) package" (escape package)))
+  (format nil "The ~(~A~) package" (name package)))
 
 (defmethod anchor-name ((package package) &optional relative-to)
   "Return PACKAGE's anchor name."
@@ -125,11 +125,11 @@ Packages are listed by definition order."))))
   "Add SYSTEM's packages node to NODE."
   (dolist (package packages)
     (add-child packages-node
-      (make-node :name (title package)
+      (make-node :name (escape (title package))
 		 :section-name (format nil "@t{~(~A~)}" (escape package))
 		 :before-menu-contents
 		 (render-to-string
-		  (document package (system-directory system)))))))
+		   (document package (system-directory system)))))))
 
 
 ;;; package.lisp ends here
