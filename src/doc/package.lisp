@@ -41,11 +41,6 @@
   (declare (ignore relative-to))
   (format nil "The ~(~A~) package" (name package)))
 
-(defmethod anchor-name ((package package) &optional relative-to)
-  "Return PACKAGE's anchor name."
-  (declare (ignore relative-to))
-  (format nil "~A anchor" (title package)))
-
 (defmethod index ((package package) &optional relative-to)
   (declare (ignore relative-to))
   (format t "@packageindex{~(~A~)}@c~%" (escape package)))

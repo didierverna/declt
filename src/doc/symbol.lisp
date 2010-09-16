@@ -118,11 +118,6 @@
   (declare (ignore relative-to))
   (format t "@tpindex @r{Class, }~(~A~)~%" (escape class)))
 
-(defmethod anchor-name ((definition definition) &optional relative-to)
-  "Return DEFINITION's anchor name."
-  (declare (ignore relative-to))
-  (format nil "~A anchor" (title definition)))
-
 (defmethod reference ((definition definition) &optional relative-to)
   (declare (ignore relative-to))
   (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"

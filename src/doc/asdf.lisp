@@ -83,10 +83,6 @@ Rendering is done on *standard-output*."
 ;; Documentation protocols
 ;; -----------------------
 
-(defmethod anchor-name ((component asdf:component) &optional relative-to)
-  "Return COMPONENT's anchor name."
-  (format nil "~A anchor" (title component relative-to)))
-
 (defmethod reference ((component asdf:component) &optional relative-to)
   (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
     (escape (anchor-name component relative-to))
