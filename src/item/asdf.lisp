@@ -59,21 +59,27 @@
 ;; -------------------
 
 (defmethod component-type-name ((cl-source-file asdf:cl-source-file))
+  "Return \"Lisp file\""
   "Lisp file")
 
 (defmethod component-type-name ((c-source-file asdf:c-source-file))
+  "Return \"C file\""
   "C file")
 
 (defmethod component-type-name ((java-source-file asdf:java-source-file))
+  "Return \"Java file\""
   "Java file")
 
 (defmethod component-type-name ((static-file asdf:static-file))
+  "Return \"File\""
   "File")
 
 (defmethod component-type-name ((doc-file asdf:doc-file))
+  "Return \"Doc file\""
   "Doc file")
 
 (defmethod component-type-name ((html-file asdf:html-file))
+  "Return \"HTML file\""
   "HTML file")
 
 
@@ -87,6 +93,7 @@
 ;; -------------------
 
 (defmethod component-type-name ((module asdf:module))
+  "Return \"module\""
   "module")
 
 
@@ -100,6 +107,7 @@
 ;; -------------------
 
 (defmethod component-type-name ((system asdf:system))
+  "Return \"system\""
   "system")
 
 
@@ -109,31 +117,31 @@
 ;; ---------
 
 (defun lisp-pathnames (system)
-  "Return the list of all Lisp source file pathnames.
+  "Return the list of all ASDF SYSTEM's Lisp source file pathnames.
 The list includes the system definition file."
   (cons (system-definition-pathname system)
 	(mapcar #'component-pathname (lisp-components system))))
 
 (defun system-packages (system)
-  "Return the list of packages defined in SYSTEM."
+  "Return the list of packages defined in ASDF SYSTEM."
   (remove-duplicates (mapcan #'file-packages (lisp-pathnames system))))
 
 (defun system-external-symbols (system)
-  "Return the list of SYSTEM's external symbols."
+  "Return the list of ASDF SYSTEM's external symbols."
   (mapcan #'package-external-symbols (system-packages system)))
 
 (defun system-external-definitions (system)
-  "Return the list of SYSTEM's external definitions."
+  "Return the list of ASDF SYSTEM's external definitions."
   (loop :for symbol :in (system-external-symbols system)
 	:when (symbol-definitions symbol)
 	:nconc :it))
 
 (defun system-internal-symbols (system)
-  "Return the list of SYSTEM's internal symbols."
+  "Return the list of ASDF SYSTEM's internal symbols."
   (mapcan #'package-internal-symbols (system-packages system)))
 
 (defun system-internal-definitions (system)
-  "Return the list of SYSTEM's internal definitions."
+  "Return the list of ASDF SYSTEM's internal definitions."
   (loop :for symbol :in (system-internal-symbols system)
 	:when (symbol-definitions symbol)
 	:nconc :it))
