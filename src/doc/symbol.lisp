@@ -38,22 +38,27 @@
 ;; ==========================================================================
 
 (defmethod title ((constant constant-definition) &optional relative-to)
+  "Return CONSTANT's title."
   (declare (ignore relative-to))
   (format nil "The ~(~A~) constant" (name constant)))
 
 (defmethod title ((special special-definition) &optional relative-to)
+  "Return SPECIAL's title."
   (declare (ignore relative-to))
   (format nil "The ~(~A~) special variable" (name special)))
 
 (defmethod title ((macro macro-definition) &optional relative-to)
+  "Return MACRO's title."
   (declare (ignore relative-to))
   (format nil "The ~(~A~) macro" (name macro)))
 
 (defmethod title ((function function-definition) &optional relative-to)
+  "Return FUNCTION's title."
   (declare (ignore relative-to))
   (format nil "The ~(~A~) function" (name function)))
 
 (defmethod title ((method method-definition) &optional relative-to)
+  "Return METHOD's title."
   (declare (ignore relative-to))
   (format nil "The ~(~A~{ ~A~^~}~{ ~A~^~}~) method"
     (name method)
@@ -63,18 +68,22 @@
     (sb-mop:method-qualifiers (method-definition-method method))))
 
 (defmethod title ((generic generic-definition) &optional relative-to)
+  "Return GENERIC's title."
   (declare (ignore relative-to))
   (format nil "The ~(~A~) generic function" (name generic)))
 
 (defmethod title ((condition condition-definition) &optional relative-to)
+  "Return CONDITION's title."
   (declare (ignore relative-to))
   (format nil "The ~(~A~) condition" (name condition)))
 
 (defmethod title ((structure structure-definition) &optional relative-to)
+  "Return STRUCTURE's title."
   (declare (ignore relative-to))
   (format nil "The ~(~A~) structure" (name structure)))
 
 (defmethod title ((class class-definition) &optional relative-to)
+  "Return CLASS's title."
   (declare (ignore relative-to))
   (format nil "The ~(~A~) class" (name class)))
 
@@ -83,42 +92,52 @@
 ;; routines.
 
 (defmethod index ((constant constant-definition) &optional relative-to)
+  "Render CONSTANT's indexing command."
   (declare (ignore relative-to))
   (format t "@vindex @r{Constant, }~(~A~)~%" (escape constant)))
 
 (defmethod index ((special special-definition) &optional relative-to)
+  "Render SPECIAL's indexing command."
   (declare (ignore relative-to))
   (format t "@vindex @r{Special Variable, }~(~A~)~%" (escape special)))
 
 (defmethod index ((macro macro-definition) &optional relative-to)
+  "Render MACRO's indexing command."
   (declare (ignore relative-to))
   (format t "@findex @r{Macro, }~(~A~)~%" (escape macro)))
 
 (defmethod index ((function function-definition) &optional relative-to)
+  "Render FUNCTION's indexing command."
   (declare (ignore relative-to))
   (format t "@findex @r{Function, }~(~A~)~%" (escape function)))
 
 (defmethod index ((method method-definition) &optional relative-to)
+  "Render METHOD's indexing command."
   (declare (ignore relative-to))
   (format t "@findex @r{Method, }~(~A~)~%" (escape method)))
 
 (defmethod index ((generic generic-definition) &optional relative-to)
+  "Render GENERIC's indexing command."
   (declare (ignore relative-to))
   (format t "@findex @r{Generic Function, }~(~A~)~%" (escape generic)))
 
 (defmethod index ((condition condition-definition) &optional relative-to)
+  "Render CONDITION's indexing command."
   (declare (ignore relative-to))
   (format t "@tpindex @r{Condition, }~(~A~)~%" (escape condition)))
 
 (defmethod index ((structure structure-definition) &optional relative-to)
+  "Render STRUCTURE's indexing command."
   (declare (ignore relative-to))
   (format t "@tpindex @r{Structure, }~(~A~)~%" (escape structure)))
 
 (defmethod index ((class class-definition) &optional relative-to)
+  "Render CLASS's indexing command."
   (declare (ignore relative-to))
   (format t "@tpindex @r{Class, }~(~A~)~%" (escape class)))
 
 (defmethod reference ((definition definition) &optional relative-to)
+  "Render DEFINITION's reference."
   (declare (ignore relative-to))
   (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
     (escape (anchor-name definition))
@@ -139,14 +158,17 @@
     (render-source definition relative-to)))
 
 (defmethod document ((constant constant-definition) relative-to &key)
+  "Render CONSTANT's documentation."
   (@defconstant (string-downcase (definition-symbol constant))
     (document-definition constant relative-to 'variable)))
 
 (defmethod document ((special special-definition) relative-to &key)
+  "Render SPECIAL's documentation."
   (@defspecial (string-downcase (definition-symbol special))
     (document-definition special relative-to 'variable)))
 
 (defmethod document ((macro macro-definition) relative-to &key)
+  "Render MACRO's documentation."
   (@defmac (string-downcase (definition-symbol macro))
       ;; #### PORTME.
       (sb-introspect:function-lambda-list
@@ -154,6 +176,7 @@
     (document-definition macro relative-to 'function)))
 
 (defmethod document ((function function-definition) relative-to &key)
+  "Render FUNCTION's documentation."
   (@defun (string-downcase (definition-symbol function))
       ;; #### PORTME.
       (sb-introspect:function-lambda-list
@@ -161,6 +184,7 @@
     (document-definition function relative-to 'function)))
 
 (defmethod document ((method method-definition) relative-to &key)
+  "Render METHOD's documentation."
   (@defmethod
       ;; #### PORTME:
       (string-downcase (definition-symbol method))
@@ -178,6 +202,7 @@
       (render-source method relative-to))))
 
 (defmethod document ((generic generic-definition) relative-to &key)
+  "Render GENERIC's documentation."
   (@defgeneric (string-downcase (definition-symbol generic))
       ;; #### PORTME.
       (sb-introspect:function-lambda-list
@@ -187,14 +212,17 @@
     (document method relative-to)))
 
 (defmethod document ((condition condition-definition) relative-to &key)
+  "Render CONDITION's documentation."
   (@defcond (string-downcase (definition-symbol condition))
     (document-definition condition relative-to 'type)))
 
 (defmethod document ((structure structure-definition) relative-to &key)
+  "Render STRUCTURE's documentation."
   (@defstruct (string-downcase (definition-symbol structure))
     (document-definition structure relative-to 'type)))
 
 (defmethod document ((class class-definition) relative-to &key)
+  "Render CLASS's documentation."
   (@defclass (string-downcase (definition-symbol class))
     (document-definition class relative-to 'type)))
 
