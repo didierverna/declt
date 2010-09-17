@@ -84,6 +84,7 @@ Rendering is done on *standard-output*."
 ;; -----------------------
 
 (defmethod reference ((component asdf:component) &optional relative-to)
+  "Render COMPONENT's reference."
   (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
     (escape (anchor-name component relative-to))
     (escape component)
@@ -97,6 +98,7 @@ Rendering is done on *standard-output*."
     (call-next-method)))
 
 (defmethod document ((component asdf:component) relative-to &key)
+  "Render COMPONENT's documentation."
   (format t "~@[@item Version~%~
 		  ~A~%~]"
     (escape (component-version component)))
@@ -154,35 +156,43 @@ Rendering is done on *standard-output*."
 ;; -----------------------
 
 (defmethod title ((source-file asdf:source-file) &optional relative-to)
+  "Return SOURCE-FILE's title."
   (format nil "The ~A file" (relative-location source-file relative-to)))
 
 (defmethod index ((cl-source-file asdf:cl-source-file) &optional relative-to)
+  "Render CL-SOURCE-FILE's indexing command."
   (format t "@lispfileindex{~A}@c~%"
     (escape (relative-location cl-source-file relative-to))))
 
 (defmethod index ((c-source-file asdf:c-source-file) &optional relative-to)
+  "Render C-SOURCE-FILE's indexing command."
   (format t "@cfileindex{~A}@c~%"
     (escape (relative-location c-source-file relative-to))))
 
 (defmethod index
+  "Render JAVA-SOURCE-FILE's indexing command."
     ((java-source-file asdf:java-source-file) &optional relative-to)
   (format t "@javafileindex{~A}@c~%"
     (escape (relative-location java-source-file relative-to))))
 
 (defmethod index ((static-file asdf:static-file) &optional relative-to)
+  "Render STATIC-SOURCE-FILE's indexing command."
   (format t "@otherfileindex{~A}@c~%"
     (escape (relative-location static-file relative-to))))
 
 (defmethod index ((doc-file asdf:doc-file) &optional relative-to)
+  "Render DOC-SOURCE-FILE's indexing command."
   (format t "@docfileindex{~A}@c~%"
     (escape (relative-location doc-file relative-to))))
 
 (defmethod index ((html-file asdf:html-file) &optional relative-to)
+  "Render HTML-SOURCE-FILE's indexing command."
   (format t "@htmlfileindex{~A}@c~%"
     (escape (relative-location html-file relative-to))))
 
 (defmethod document ((file asdf:cl-source-file) relative-to
 		     &key external-definitions internal-definitions)
+  "Render FILE's documentation."
   (call-next-method)
   (render-packages (file-packages (component-pathname file)))
   (when external-definitions
@@ -317,13 +327,16 @@ components tree."))))
 ;; -----------------------
 
 (defmethod title ((module asdf:module) &optional relative-to)
+  "Return MODULE's title."
   (format nil "The ~A module" (relative-location module relative-to)))
 
 (defmethod index ((module asdf:module) &optional relative-to)
+  "Render MODULE's indexing command."
   (format t "@moduleindex{~A}@c~%"
     (escape (relative-location module relative-to))))
 
 (defmethod document ((module asdf:module) relative-to &key)
+  "Render MODULE's documentation."
   (call-next-method)
   (let* ((components (asdf:module-components module))
 	 (length (length components)))
@@ -373,14 +386,17 @@ Modules are listed depth-first from the system components tree.")))))
 ;; -----------------------
 
 (defmethod title ((system asdf:system) &optional relative-to)
+  "Return SYSTEM's title."
   (declare (ignore relative-to))
   (format nil "The ~A system" (name system)))
 
 (defmethod index ((system asdf:system) &optional relative-to)
+  "Render SYSTEM's indexing command."
   (declare (ignore relative-to))
   (format t "@systemindex{~A}@c~%" (escape system)))
 
 (defmethod document ((system asdf:system) relative-to &key)
+  "Render SYSTEM's documentation."
   (format t "@item Name~%@t{~A}~%" (escape system))
   (when (system-description system)
     (format t "@item Description~%")
