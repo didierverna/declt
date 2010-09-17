@@ -38,14 +38,17 @@
 ;; ==========================================================================
 
 (defmethod title ((package package) &optional relative-to)
+  "Return PACKAGE's title."
   (declare (ignore relative-to))
   (format nil "The ~(~A~) package" (name package)))
 
 (defmethod index ((package package) &optional relative-to)
+  "Render PACKAGE's indexing command."
   (declare (ignore relative-to))
   (format t "@packageindex{~(~A~)}@c~%" (escape package)))
 
 (defmethod reference ((package package) &optional relative-to)
+  "Render PACKAGE's reference."
   (declare (ignore relative-to))
   (format t "@ref{~A, , @t{~(~A}~)}~%" (anchor-name package) (escape package)))
 
