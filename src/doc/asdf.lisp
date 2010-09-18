@@ -170,8 +170,8 @@ Rendering is done on *standard-output*."
     (escape (relative-location c-source-file relative-to))))
 
 (defmethod index
-  "Render JAVA-SOURCE-FILE's indexing command."
     ((java-source-file asdf:java-source-file) &optional relative-to)
+  "Render JAVA-SOURCE-FILE's indexing command."
   (format t "@javafileindex{~A}@c~%"
     (escape (relative-location java-source-file relative-to))))
 
