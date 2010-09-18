@@ -76,11 +76,11 @@ Rendering is done on *standard-output*."
     ;; advertise the original one.
     (setq source (probe-file source))
     (let ((location (escape (enough-namestring source relative-to))))
-      (format t "@item Source~%")
-      ;; #### FIXME: somewhat ugly. We fake a cl-source-file anchor name.
-      (format t "@ref{The ~A file anchor, , @t{~(~A}~)}~%"
-	location
-	location))))
+      (@tableitem "Source"
+	;; #### FIXME: somewhat ugly. We fake a cl-source-file anchor name.
+	(format t "@ref{The ~A file anchor, , @t{~(~A}~)}~%"
+	  location
+	  location)))))
 
 
 ;;; doc.lisp ends here

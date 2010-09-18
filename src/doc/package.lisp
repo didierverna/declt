@@ -60,21 +60,21 @@
     (let* ((nicknames (package-nicknames package))
 	   (length (length nicknames)))
       (when nicknames
-	(format t "@item Nickname~p~%" length)
-	(if (eq length 1)
-	    (format t "@t{~(~A~)}" (escape (first nicknames)))
-	  (@itemize-list nicknames
-	    :format "@t{~(~A~)}"
-	    :key #'escape))))
+	(@tableitem (format nil "Nickname~p" length)
+	  (if (eq length 1)
+	      (format t "@t{~(~A~)}" (escape (first nicknames)))
+	    (@itemize-list nicknames
+	      :format "@t{~(~A~)}"
+	      :key #'escape)))))
     (let* ((use-list (package-use-list package))
 	   (length (length use-list)))
       (when use-list
-	(format t "@item Use List~%")
-	(if (eq length 1)
-	    (format t "@t{~(~A~)}" (escape (first use-list)))
-	  (@itemize-list (package-use-list package)
-	    :format "@t{~(~A~)}"
-	    :key #'escape))))
+	(@tableitem "Use List"
+	  (if (eq length 1)
+	      (format t "@t{~(~A~)}" (escape (first use-list)))
+	    (@itemize-list (package-use-list package)
+	      :format "@t{~(~A~)}"
+	      :key #'escape)))))
     (render-source package relative-to)
     (let ((external-definitions
 	   (sort (package-external-definitions package) #'string-lessp
@@ -87,23 +87,21 @@
       ;; #### NOTE: since methods are listed directly below the corresponding
       ;; generic function, we don't reference them here explicitely.
       (when external-definitions
-	(format t "@item Exported symbols~%")
-	(@itemize ()
-	  (dolist (definitions external-definitions)
-	    (format t "@item~%")
-	    (reference (first definitions))
-	    (dolist (remaining-definition (cdr definitions))
-	      (write-string ", ")
-	      (reference remaining-definition)))))
+	(@tableitem "Exported symbols"
+	  (@itemize ()
+	    (dolist (definitions external-definitions)
+	      (@item (reference (first definitions))
+		     (dolist (remaining-definition (cdr definitions))
+		       (write-string ", ")
+		       (reference remaining-definition)))))))
       (when internal-definitions
-	(format t "@item Internal symbols~%")
-	(@itemize ()
-	  (dolist (definitions internal-definitions)
-	    (format t "@item~%")
-	    (reference (first definitions))
-	    (dolist (remaining-definition (cdr definitions))
-	      (write-string ", ")
-	      (reference remaining-definition))))))))
+	(@tableitem "Internal symbols"
+	  (@itemize ()
+	    (dolist (definitions internal-definitions)
+	      (@item (reference (first definitions))
+		     (dolist (remaining-definition (cdr definitions))
+		       (write-string ", ")
+		       (reference remaining-definition))))))))))
 
 
 

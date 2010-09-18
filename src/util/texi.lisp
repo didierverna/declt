@@ -106,6 +106,13 @@ ANCHOR should already be escaped for Texinfo.
 Rendering is done on *standard-output*."
   (format t "@anchor{~A}@c~%" anchor))
 
+(defmacro @tableitem (title &body body)
+  "Execute BODY within a table @item TITLE.
+BODY should render on *standard-output*."
+  `(progn
+    (format t "~&@item ~A~%" ,title)
+    ,@body))
+
 (defmacro @table ((&optional (kind :@strong)) &body body)
   "Execute BODY within a @table KIND environment.
 BODY should render on *standard-output*."
@@ -113,6 +120,13 @@ BODY should render on *standard-output*."
     (format t "@table ~(~A~)~%" ,kind)
     ,@body
     (format t "~&@end table~%")))
+
+(defmacro @item (&body body)
+  "Execute BODY within an itemize @item.
+BODY should render on *standard-output*."
+  `(progn
+    (format t "~&@item~%")
+    ,@body))
 
 (defmacro @itemize ((&optional (kind :@bullet)) &body body)
   "Execute BODY within an @itemize KIND environment.
@@ -135,10 +149,11 @@ the rendering is done by calling format, as explained below.
   needed, they should be returned by KEY as multiple values."
   (@itemize (kind)
     (dolist (elt list)
-      (format t "~&@item~%")
-      (if renderer
-	  (funcall renderer elt)
-	(apply #'format t format (multiple-value-list (funcall key elt)))))))
+      (@item
+	(if renderer
+	    (funcall renderer elt)
+	  (apply #'format t format
+		 (multiple-value-list (funcall key elt))))))))
 
 (defmacro @defvr (category name &body body)
   "Execute BODY within a @defvr {CATEGORY} NAME environment.

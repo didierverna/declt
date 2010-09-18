@@ -151,10 +151,10 @@
   (@table ()
     (let ((documentation (documentation (definition-symbol definition) kind)))
       (when documentation
-	(format t "@item Documentation~%")
-	(render-text documentation)))
-    (format t "~&@item Package~%")
-    (reference (symbol-package (definition-symbol definition)))
+	(@tableitem "Documentation"
+	  (render-text documentation))))
+    (@tableitem "Package"
+      (reference (symbol-package (definition-symbol definition))))
     (render-source definition relative-to)))
 
 (defmethod document ((constant constant-definition) relative-to &key)
@@ -197,8 +197,8 @@
       (let ((documentation
 	     (documentation (method-definition-method method) t)))
 	(when documentation
-	  (format t "@item Documentation~%")
-	  (render-text documentation)))
+	  (@tableitem "Documentation"
+	    (render-text documentation))))
       (render-source method relative-to))))
 
 (defmethod document ((generic generic-definition) relative-to &key)

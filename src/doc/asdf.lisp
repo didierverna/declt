@@ -53,12 +53,12 @@ Rendering is done on *standard-output*."
   ;; the installed symlink which is seen, whereas we want to advertise the
   ;; original one.
   (setq pathname (probe-file pathname))
-  (format t "@item Location~%~
-	     ~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
-    (when *link-files*
-      (escape pathname))
-    (escape (enough-namestring pathname relative-to))
-    *link-files*))
+  (@tableitem "Location"
+    (format t "~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
+      (when *link-files*
+	(escape pathname))
+      (escape (enough-namestring pathname relative-to))
+      *link-files*)))
 
 (defun relative-location (component relative-to)
   "Return COMPONENT's location RELATIVE-TO."
@@ -68,10 +68,10 @@ Rendering is done on *standard-output*."
   "Render a list of PACKAGES references."
   (when packages
     (let ((length (length packages)))
-      (format t "@item Package~p~%" length)
-      (if (eq length 1)
-	  (reference (first packages))
-	(@itemize-list packages :renderer #'reference)))))
+      (@tableitem (format nil "Package~p" length)
+	(if (eq length 1)
+	    (reference (first packages))
+	  (@itemize-list packages :renderer #'reference))))))
 
 
 
@@ -114,34 +114,34 @@ Rendering is done on *standard-output*."
 	  (dolist (dependency (cdr op-dependency))
 	    (pushnew dependency dependencies))))
       (setq length (length dependencies))
-      (format t "@item Dependenc~@p~%" length)
-      (if (eq length 1)
-	  (format t "@t{~(~A}~)" (escape (first dependencies)))
-	(@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape))))
+      (@tableitem (format nil "Dependenc~@p" length)
+	(if (eq length 1)
+	    (format t "@t{~(~A}~)" (escape (first dependencies)))
+	  (@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape)))))
   (let ((parent (component-parent component)))
     (when parent
-      (format t "@item Parent~%")
-      (reference parent relative-to)))
+      (@tableitem "Parent"
+	(reference parent relative-to))))
   (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
 	 (when *link-files*
-	   (format t "@item Source Directory~%~
-			@url{file://~A, ignore, @t{~A}}~%"
-	     (escape (component-pathname component))
-	     (escape (component-pathname component))))
+	   (@tableitem "Source Directory"
+	     (format t "@url{file://~A, ignore, @t{~A}}~%"
+	       (escape (component-pathname component))
+	       (escape (component-pathname component)))))
 	 ;; That sucks. I need to fake a cl-source-file reference because
 	 ;; the system file is not an ASDF component per-se.
-	 (format t "@item Definition file~%")
-	 (let ((system-base-name (escape (system-base-name component))))
-	   (format t "@ref{The ~A file anchor, , @t{~(~A}~)} (Lisp file)~%"
-	     system-base-name
-	     system-base-name))
+	 (@tableitem "Definition file"
+	   (let ((system-base-name (escape (system-base-name component))))
+	     (format t "@ref{The ~A file anchor, , @t{~(~A}~)} (Lisp file)~%"
+	       system-base-name
+	       system-base-name)))
 	 (when *link-files*
 	   (let ((directory (escape
 			     (directory-namestring
 			      (system-definition-pathname component)))))
-	     (format t "@item Installation Directory~%~
-			  @url{file://~A, ignore, @t{~A}}~%"
-	       directory directory))))
+	     (@tableitem "Installation Directory"
+	       (format t "@url{file://~A, ignore, @t{~A}}~%"
+		 directory directory)))))
 	(t
 	 (render-location (component-pathname component) relative-to))))
 
@@ -196,11 +196,11 @@ Rendering is done on *standard-output*."
   (call-next-method)
   (render-packages (file-packages (component-pathname file)))
   (when external-definitions
-    (format t "@item Exported definitions~%")
-    (@itemize-list external-definitions :renderer #'reference))
+    (@tableitem "Exported definitions"
+      (@itemize-list external-definitions :renderer #'reference)))
   (when internal-definitions
-    (format t "@item Internal definitions~%")
-    (@itemize-list internal-definitions :renderer #'reference)))
+    (@tableitem "Internal definitions"
+      (@itemize-list internal-definitions :renderer #'reference))))
 
 
 ;; -----
@@ -292,13 +292,13 @@ components tree."))))
 			     (system-definition-pathname system)
 			     internal-definitions)))
 		       (when external-definitions
-			 (format t "@item Exported definitions~%")
-			 (@itemize-list external-definitions
-			   :renderer #'reference))
+			 (@tableitem "Exported definitions"
+			   (@itemize-list external-definitions
+			     :renderer #'reference)))
 		       (when internal-definitions
-			 (format t "@item Internal definitions~%")
-			 (@itemize-list internal-definitions
-			   :renderer #'reference)))))))
+			 (@tableitem "Internal definitions"
+			   (@itemize-list internal-definitions
+			     :renderer #'reference))))))))
     (dolist (file lisp-files)
       (add-child lisp-files-node
 	(lisp-file-node file system-directory
@@ -341,12 +341,12 @@ components tree."))))
   (let* ((components (asdf:module-components module))
 	 (length (length components)))
     (when components
-      (format t "@item Component~p~%" length)
-      (if (eq length 1)
-	  (reference (first components) relative-to)
-	(@itemize-list components
-	  :renderer (lambda (component)
-		      (reference component relative-to)))))))
+      (@tableitem (format nil "Component~p" length)
+	(if (eq length 1)
+	    (reference (first components) relative-to)
+	  (@itemize-list components
+	    :renderer (lambda (component)
+			(reference component relative-to))))))))
 
 
 ;; -----
@@ -397,29 +397,30 @@ Modules are listed depth-first from the system components tree.")))))
 
 (defmethod document ((system asdf:system) relative-to &key)
   "Render SYSTEM's documentation."
-  (format t "@item Name~%@t{~A}~%" (escape system))
+  (@tableitem "Name"
+    (format t "@t{~A}~%" (escape system)))
   (when (system-description system)
-    (format t "@item Description~%")
-    (render-text (system-description system))
-    (fresh-line))
+    (@tableitem "Description"
+      (render-text (system-description system))
+      (fresh-line)))
   (when (system-long-description system)
-    (format t "@item Long Description~%")
-    (render-text (system-long-description system))
-    (fresh-line))
+    (@tableitem "Long Description"
+      (render-text (system-long-description system))
+      (fresh-line)))
   (multiple-value-bind (author email)
       (parse-author-string (system-author system))
     (when (or author email)
-      (format t "@item Author~%~
-		 ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-	(escape author) (and author email) (escape email))))
+      (@tableitem "Author"
+	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
+	  (escape author) (and author email) (escape email)))))
   (multiple-value-bind (maintainer email)
       (parse-author-string (system-maintainer system))
     (when (or maintainer email)
-      (format t "@item Maintainer~%~
-		 ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-	(escape maintainer) (and maintainer email) (escape email))))
+      (@tableitem "Maintainer"
+	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
+	  (escape maintainer) (and maintainer email) (escape email)))))
   (format t "~@[@item License~%~
-		~A~%~]" (escape (system-license system)))
+	     ~A~%~]" (escape (system-license system)))
   (call-next-method))
 
 
