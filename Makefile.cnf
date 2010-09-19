@@ -1,0 +1,47 @@
+### Makefile.cnf --- User level configuration
+
+## Copyright (C) 2010 Didier Verna
+
+## Author:        Didier Verna <didier@lrde.epita.fr>
+## Maintainer:    Didier Verna <didier@lrde.epita.fr>
+## Created:       Sun Sep 19 21:12:41 2010
+## Last Revision: Sun Sep 19 21:13:38 2010
+
+## This file is part of Declt.
+
+## Declt is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License version 3,
+## as published by the Free Software Foundation.
+
+## Declt is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+### Commentary:
+
+## Contents management by FCM version 0.1.
+
+
+### Code:
+
+# Installation prefix.
+# - ASDF file will be symlinked in $(PREFIX)/share/common-lisp/systems
+# - Documentation will end up in $(PREFIX)/share/doc/declt/
+#                            and $(PREFIX)/share/info/
+# If any of these are unsatisfactory, you will need to edit the Makefiles, or
+# do the installation by hand.
+PREFIX := /usr/local
+
+# Programs for generating the documentation:
+MAKEINFO = makeinfo
+TEXI2DVI = texi2dvi
+DVIPS    = dvips
+CONVERT  = convert
+
+### Makefile.cnf ends here
