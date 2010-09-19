@@ -46,8 +46,8 @@
 (defgeneric reference (item &optional relative-to)
   (:documentation "Render ITEM's reference."))
 
-(defgeneric document (item relative-to &key &allow-other-keys)
-  (:documentation "Render ITEM's documentation."))
+(defgeneric document (item system &key &allow-other-keys)
+  (:documentation "Render SYSTEM's ITEM's documentation."))
 
 
 
@@ -65,22 +65,61 @@
   "Render ITEM's anchor."
   (@anchor (anchor-name item relative-to)))
 
-(defun render-source (object relative-to
-		      &aux (source (source object)))
-  "Render an itemized source line for OBJECT, RELATIVE-TO.
+(defvar *link-files* t
+  "Whether to create links to files or directories in the reference manual.
+When true (the default), pathnames are made clickable although the links are
+specific to the machine on which the manual was generated.
+
+Setting this to NIL is preferable for creating reference manuals meant to put
+online, and hence independent of any specific installation.")
+
+(defun render-location (pathname relative-to &optional (title "Location"))
+  "Render an itemized location line for PATHNAME, RELATIVE-TO.
+Rendering is done on *standard-output*."
+  ;; #### NOTE: Probing the pathname as the virtue of dereferencing symlinks.
+  ;; This is good because when the system definition file is involved, it is
+  ;; the installed symlink which is seen, whereas we want to advertise the
+  ;; original one.
+  (setq pathname (probe-file pathname))
+  (@tableitem title
+    (format t "~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
+      (when *link-files*
+	(escape pathname))
+      (escape (enough-namestring pathname relative-to))
+      *link-files*)))
+
+(defun render-source (object system &aux (source (source object)))
+  "Render an itemized source line for SYSTEM's OBJECT.
 Rendering is done on *standard-output*."
   (when source
-    ;; #### NOTE: Probing the pathname as the virtue of dereferencing
-    ;; symlinks. This is good because when the system definition file is
-    ;; involved, it is the installed symlink which is seen, whereas we want to
-    ;; advertise the original one.
-    (setq source (probe-file source))
-    (let ((location (escape (enough-namestring source relative-to))))
-      (@tableitem "Source"
-	;; #### FIXME: somewhat ugly. We fake a cl-source-file anchor name.
-	(format t "@ref{The ~A file anchor, , @t{~(~A}~)}~%"
-	  location
-	  location)))))
+    (cond
+      ;; First, try the system definition file.
+      ((equal source (system-definition-pathname system))
+       ;; #### NOTE: Probing the pathname as the virtue of dereferencing
+       ;; symlinks. This is good because when the system definition file is
+       ;; involved, it is the installed symlink which is seen, whereas we want
+       ;; to advertise the original one.
+       (let ((location
+	      (escape (enough-namestring (probe-file source)
+					 (system-directory system)))))
+	 (@tableitem "Source"
+	   ;; #### FIXME: somewhat ugly. We fake a cl-source-file anchor name.
+	   (format t "@ref{The ~A file anchor, , @t{~(~A}~)} (Lisp file)~%"
+	     location
+	     location))))
+      (t
+       ;; Next, try a SYSTEM's cl-source-file.
+       (let ((cl-source-file
+	      (loop :for file :in (lisp-components system)
+		    :when (equal source (component-pathname file))
+		      :return file)))
+	 (if cl-source-file
+	     (@tableitem "Source"
+	       (reference cl-source-file (system-directory system)))
+	   ;; Otherwise, the source file does not belong to the system. This
+	   ;; may happen for automatically generated sources (sb-grovel does
+	   ;; this for instance). So let's just reference the file itself.
+	   (render-location source (system-directory system) "Source")))))))
 
 
 ;;; doc.lisp ends here

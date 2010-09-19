@@ -52,8 +52,8 @@
   (declare (ignore relative-to))
   (format t "@ref{~A, , @t{~(~A}~)}~%" (anchor-name package) (escape package)))
 
-(defmethod document ((package package) relative-to &key)
-  "Render PACKAGE's documentation."
+(defmethod document ((package package) system &key)
+  "Render SYSTEM's PACKAGE documentation."
   (anchor package)
   (index package)
   (@table ()
@@ -75,7 +75,7 @@
 	    (@itemize-list (package-use-list package)
 	      :format "@t{~(~A~)}"
 	      :key #'escape)))))
-    (render-source package relative-to)
+    (render-source package system)
     (let ((external-definitions
 	   (sort (package-external-definitions package) #'string-lessp
 		 :key (lambda (definitions)
@@ -124,8 +124,7 @@ Packages are listed by definition order."))))
       (make-node :name (escape (title package))
 		 :section-name (format nil "@t{~(~A~)}" (escape package))
 		 :before-menu-contents
-		 (render-to-string
-		   (document package (system-directory system)))))))
+		 (render-to-string (document package system))))))
 
 
 ;;; package.lisp ends here

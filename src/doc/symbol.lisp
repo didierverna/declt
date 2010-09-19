@@ -144,8 +144,8 @@
     (escape definition)
     (type-name definition)))
 
-(defun document-definition (definition relative-to kind)
-  "Render DEFINITION's documentation contents as KIND."
+(defun document-definition (definition system kind)
+  "Render SYSTEM's DEFINITION's documentation contents as KIND."
   (anchor definition)
   (index definition)
   (@table ()
@@ -155,36 +155,36 @@
 	  (render-text documentation))))
     (@tableitem "Package"
       (reference (symbol-package (definition-symbol definition))))
-    (render-source definition relative-to)))
+    (render-source definition system)))
 
-(defmethod document ((constant constant-definition) relative-to &key)
-  "Render CONSTANT's documentation."
+(defmethod document ((constant constant-definition) system &key)
+  "Render SYSTEM's CONSTANT's documentation."
   (@defconstant (string-downcase (definition-symbol constant))
-    (document-definition constant relative-to 'variable)))
+    (document-definition constant system 'variable)))
 
-(defmethod document ((special special-definition) relative-to &key)
-  "Render SPECIAL's documentation."
+(defmethod document ((special special-definition) system &key)
+  "Render SYSTEM's SPECIAL's documentation."
   (@defspecial (string-downcase (definition-symbol special))
-    (document-definition special relative-to 'variable)))
+    (document-definition special system 'variable)))
 
-(defmethod document ((macro macro-definition) relative-to &key)
-  "Render MACRO's documentation."
+(defmethod document ((macro macro-definition) system &key)
+  "Render SYSTEM's MACRO's documentation."
   (@defmac (string-downcase (definition-symbol macro))
       ;; #### PORTME.
       (sb-introspect:function-lambda-list
        (macro-definition-function macro))
-    (document-definition macro relative-to 'function)))
+    (document-definition macro system 'function)))
 
-(defmethod document ((function function-definition) relative-to &key)
-  "Render FUNCTION's documentation."
+(defmethod document ((function function-definition) system &key)
+  "Render SYSTEM's FUNCTION's documentation."
   (@defun (string-downcase (definition-symbol function))
       ;; #### PORTME.
       (sb-introspect:function-lambda-list
        (function-definition-function function))
-    (document-definition function relative-to 'function)))
+    (document-definition function system 'function)))
 
-(defmethod document ((method method-definition) relative-to &key)
-  "Render METHOD's documentation."
+(defmethod document ((method method-definition) system &key)
+  "Render SYSTEM's METHOD's documentation."
   (@defmethod
       ;; #### PORTME:
       (string-downcase (definition-symbol method))
@@ -199,32 +199,32 @@
 	(when documentation
 	  (@tableitem "Documentation"
 	    (render-text documentation))))
-      (render-source method relative-to))))
+      (render-source method system))))
 
-(defmethod document ((generic generic-definition) relative-to &key)
-  "Render GENERIC's documentation."
+(defmethod document ((generic generic-definition) system &key)
+  "Render SYSTEM's GENERIC's documentation."
   (@defgeneric (string-downcase (definition-symbol generic))
       ;; #### PORTME.
       (sb-introspect:function-lambda-list
        (generic-definition-function generic))
-    (document-definition generic relative-to 'function))
+    (document-definition generic system 'function))
   (dolist (method (generic-definition-methods generic))
-    (document method relative-to)))
+    (document method system)))
 
-(defmethod document ((condition condition-definition) relative-to &key)
-  "Render CONDITION's documentation."
+(defmethod document ((condition condition-definition) system &key)
+  "Render SYSTEM's CONDITION's documentation."
   (@defcond (string-downcase (definition-symbol condition))
-    (document-definition condition relative-to 'type)))
+    (document-definition condition system 'type)))
 
-(defmethod document ((structure structure-definition) relative-to &key)
-  "Render STRUCTURE's documentation."
+(defmethod document ((structure structure-definition) system &key)
+  "Render SYSTEM's STRUCTURE's documentation."
   (@defstruct (string-downcase (definition-symbol structure))
-    (document-definition structure relative-to 'type)))
+    (document-definition structure system 'type)))
 
-(defmethod document ((class class-definition) relative-to &key)
-  "Render CLASS's documentation."
+(defmethod document ((class class-definition) system &key)
+  "Render SYSTEM's CLASS's documentation."
   (@defclass (string-downcase (definition-symbol class))
-    (document-definition class relative-to 'type)))
+    (document-definition class system 'type)))
 
 
 
@@ -232,8 +232,8 @@
 ;; Definition Nodes
 ;; ==========================================================================
 
-(defun add-category-node (parent location category definitions relative-to)
-  "Add LOCATION CATEGORY node to PARENT for DEFINITIONS."
+(defun add-category-node (system parent location category definitions)
+  "Add SYSTEM's LOCATION CATEGORY node to PARENT for DEFINITIONS."
   (add-child parent
     (make-node :name (format nil "~@(~A ~A~)" location category)
 	       :section-name (format nil "~@(~A~)" category)
@@ -241,30 +241,29 @@
 	       (render-to-string
 		 (dolist (definition (sort definitions #'string-lessp
 					   :key #'definition-symbol))
-		   (document definition relative-to))))))
+		   (document definition system))))))
 
-(defun add-categories-node (parent location symbols relative-to)
-  "Add all relevant category nodes to PARENT for LOCATION SYMBOLS."
+(defun add-categories-node (system parent location symbols)
+  "Add SYSTEM's category nodes to PARENT for LOCATION SYMBOLS."
   (dolist (category +categories+)
     (let ((category-definitions
 	   (loop :for symbol :in symbols
 		 :when (symbol-definition symbol (first category))
 		 :collect :it)))
       (when category-definitions
-	(add-category-node parent location (second category)
-			   category-definitions relative-to)))))
+	(add-category-node system parent location (second category)
+			   category-definitions)))))
 
 (defun add-definitions-node
     (parent system
-     &aux (system-directory (system-directory system))
-	  (definitions-node
+     &aux (definitions-node
 	      (add-child parent
 		(make-node :name "Definitions"
 			   :synopsis "The symbols documentation"
 			   :before-menu-contents(format nil "~
 Definitions are sorted by export status, category, package, and then by
 lexicographic order.")))))
-  "Add the SYSTEM's definitions node to PARENT."
+  "Add SYSTEM's definitions node to PARENT."
   (loop :for symbols :in (list (system-external-symbols system)
 			       (system-internal-symbols system))
 	:for status :in '("exported" "internal")
@@ -272,7 +271,7 @@ lexicographic order.")))))
 	:do (let ((node (add-child definitions-node
 			  (make-node :name (format nil "~@(~A~) definitions"
 					     status)))))
-	      (add-categories-node node status symbols system-directory))))
+	      (add-categories-node system node status symbols))))
 
 
 ;;; symbol.lisp ends here

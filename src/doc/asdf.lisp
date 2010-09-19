@@ -37,29 +37,6 @@
 ;; Utilities
 ;; ==========================================================================
 
-(defvar *link-files* t
-  "Whether to create links to files or directories in the reference manual.
-When true (the default), pathnames are made clickable although the links are
-specific to the machine on which the manual was generated.
-
-Setting this to NIL is preferable for creating reference manuals meant to put
-online, and hence independent of any specific installation.")
-
-(defun render-location (pathname relative-to)
-  "Render an itemized location line for PATHNAME, RELATIVE-TO.
-Rendering is done on *standard-output*."
-  ;; #### NOTE: Probing the pathname as the virtue of dereferencing symlinks.
-  ;; This is good because when the system definition file is involved, it is
-  ;; the installed symlink which is seen, whereas we want to advertise the
-  ;; original one.
-  (setq pathname (probe-file pathname))
-  (@tableitem "Location"
-    (format t "~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
-      (when *link-files*
-	(escape pathname))
-      (escape (enough-namestring pathname relative-to))
-      *link-files*)))
-
 (defun relative-location (component relative-to)
   "Return COMPONENT's location RELATIVE-TO."
   (enough-namestring (component-pathname component) relative-to))
@@ -90,15 +67,16 @@ Rendering is done on *standard-output*."
     (escape component)
     (type-name component)))
 
-(defmethod document :around ((component asdf:component) relative-to &key)
-  "Index COMPONENT and enclose its documentation in a @table environment."
-  (anchor component relative-to)
-  (index component relative-to)
-  (@table ()
-    (call-next-method)))
+(defmethod document :around ((component asdf:component) system &key
+			     &aux (system-directory (system-directory system)))
+  "Anchor and index SYSTEM's COMPONENT, document it in a @table environment."
+  (anchor component system-directory)
+  (index component system-directory)
+  (@table () (call-next-method)))
 
-(defmethod document ((component asdf:component) relative-to &key)
-  "Render COMPONENT's documentation."
+(defmethod document ((component asdf:component) system &key
+		     &aux (system-directory (system-directory system)))
+  "Render SYSTEM's COMPONENT's documentation."
   (format t "~@[@item Version~%~
 		  ~A~%~]"
     (escape (component-version component)))
@@ -121,7 +99,7 @@ Rendering is done on *standard-output*."
   (let ((parent (component-parent component)))
     (when parent
       (@tableitem "Parent"
-	(reference parent relative-to))))
+	(reference parent system-directory))))
   (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
 	 (when *link-files*
 	   (@tableitem "Source Directory"
@@ -143,7 +121,7 @@ Rendering is done on *standard-output*."
 	       (format t "@url{file://~A, ignore, @t{~A}}~%"
 		 directory directory)))))
 	(t
-	 (render-location (component-pathname component) relative-to))))
+	 (render-location (component-pathname component) system-directory))))
 
 
 
@@ -190,9 +168,9 @@ Rendering is done on *standard-output*."
   (format t "@htmlfileindex{~A}@c~%"
     (escape (relative-location html-file relative-to))))
 
-(defmethod document ((file asdf:cl-source-file) relative-to
+(defmethod document ((file asdf:cl-source-file) system
 		     &key external-definitions internal-definitions)
-  "Render FILE's documentation."
+  "Render SYSTEM's FILE's documentation."
   (call-next-method)
   (render-packages (file-packages (component-pathname file)))
   (when external-definitions
@@ -218,15 +196,16 @@ Rendering is done on *standard-output*."
 	(when (equal (source method) file)
 	  (endpush method file-definitions))))))
 
-(defun lisp-file-node
-    (file relative-to external-definitions internal-definitions)
-  "Create and return a Lisp FILE node."
-  (make-node :name (escape (title file relative-to))
+(defun lisp-file-node (file system external-definitions internal-definitions
+		       &aux (system-directory (system-directory system)))
+  "Create and return a SYSTEM's Lisp FILE node."
+  (make-node :name (escape (title file system-directory))
 	     :section-name (format nil "@t{~A}"
-			     (escape (relative-location file relative-to)))
+			     (escape
+			      (relative-location file system-directory)))
 	     :before-menu-contents
 	     (render-to-string
-	       (document file relative-to
+	       (document file system
 			 :external-definitions
 			 (file-definitions
 			  (component-pathname file) external-definitions)
@@ -234,13 +213,15 @@ Rendering is done on *standard-output*."
 			 (file-definitions
 			  (component-pathname file) internal-definitions)))))
 
-(defun file-node (file relative-to)
-  "Create and return a FILE node."
-  (make-node :name (escape (title file relative-to))
+(defun file-node
+    (file system &aux (system-directory (system-directory system)))
+  "Create and return a SYSTEM's FILE node."
+  (make-node :name (escape (title file system-directory))
 	     :section-name (format nil "@t{~A}"
-			     (escape (relative-location file relative-to)))
-	     :before-menu-contents (render-to-string
-				     (document file relative-to))))
+			     (escape
+			      (relative-location file system-directory)))
+	     :before-menu-contents
+	     (render-to-string (document file system))))
 
 (defun add-files-node
     (node system &aux (system-directory (system-directory system))
@@ -301,7 +282,7 @@ components tree."))))
 			     :renderer #'reference))))))))
     (dolist (file lisp-files)
       (add-child lisp-files-node
-	(lisp-file-node file system-directory
+	(lisp-file-node file system
 			external-definitions internal-definitions))))
   (loop :with other-files-node
     :for files :in other-files
@@ -314,7 +295,7 @@ components tree."))))
 		(make-node :name name :section-name section-name)))
     :and :do (dolist (file files)
 	       (add-child other-files-node
-		 (file-node file system-directory)))))
+		 (file-node file system)))))
 
 
 
@@ -335,35 +316,36 @@ components tree."))))
   (format t "@moduleindex{~A}@c~%"
     (escape (relative-location module relative-to))))
 
-(defmethod document ((module asdf:module) relative-to &key)
-  "Render MODULE's documentation."
+(defmethod document ((module asdf:module) system &key)
+  "Render SYSTEM's MODULE documentation."
   (call-next-method)
   (let* ((components (asdf:module-components module))
 	 (length (length components)))
     (when components
-      (@tableitem (format nil "Component~p" length)
-	(if (eq length 1)
-	    (reference (first components) relative-to)
-	  (@itemize-list components
-	    :renderer (lambda (component)
-			(reference component relative-to))))))))
+      (let ((system-directory (system-directory system)))
+	(@tableitem (format nil "Component~p" length)
+	  (if (eq length 1)
+	      (reference (first components) system-directory)
+	    (@itemize-list components
+	      :renderer (lambda (component)
+			  (reference component system-directory)))))))))
 
 
 ;; -----
 ;; Nodes
 ;; -----
 
-(defun module-node (module relative-to)
-  "Create and return a MODULE node."
-  (make-node :name (escape (title module relative-to))
+(defun module-node (module system
+		    &aux (system-directory (system-directory system)))
+  "Create and return a SYSTEM's MODULE node."
+  (make-node :name (escape (title module system-directory))
 	     :section-name (format nil "@t{~A}"
-			     (escape (relative-location module relative-to)))
+			     (escape
+			      (relative-location module system-directory)))
 	     :before-menu-contents
-	     (render-to-string (document module relative-to))))
+	     (render-to-string (document module system))))
 
-(defun add-modules-node
-    (node system &aux (system-directory (system-directory system))
-		      (modules (module-components system)))
+(defun add-modules-node (node system &aux (modules (module-components system)))
   "Add SYSTEM's modules node to NODE."
   (when modules
     (let ((modules-node
@@ -373,7 +355,7 @@ components tree."))))
 				      (format nil "~
 Modules are listed depth-first from the system components tree.")))))
       (dolist (module modules)
-	(add-child modules-node (module-node module system-directory))))))
+	(add-child modules-node (module-node module system))))))
 
 
 
@@ -395,8 +377,9 @@ Modules are listed depth-first from the system components tree.")))))
   (declare (ignore relative-to))
   (format t "@systemindex{~A}@c~%" (escape system)))
 
-(defmethod document ((system asdf:system) relative-to &key)
+(defmethod document ((system asdf:system) reference-system &key)
   "Render SYSTEM's documentation."
+  (declare (ignore reference-system))
   (@tableitem "Name"
     (format t "@t{~A}~%" (escape system)))
   (when (system-description system)
@@ -421,19 +404,19 @@ Modules are listed depth-first from the system components tree.")))))
 	  (escape maintainer) (and maintainer email) (escape email)))))
   (format t "~@[@item License~%~
 	     ~A~%~]" (escape (system-license system)))
-  (call-next-method))
+  (call-next-method system system))
 
 
 ;; -----
 ;; Nodes
 ;; -----
 
-(defun system-node (system &aux (relative-to (system-directory system)))
+(defun system-node (system)
   "Create and return the SYSTEM node."
   (make-node :name "System"
 	     :synopsis "The system documentation"
 	     :before-menu-contents
-	     (render-to-string (document system relative-to))))
+	     (render-to-string (document system system))))
 
 (defun add-system-node (node system)
   "Add SYSTEM's system node to NODE."
