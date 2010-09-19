@@ -145,7 +145,7 @@ point to the definitions they provide, and those definitions point back to
 package and file in which they can be found."
   :author "Didier Verna <didier@lrde.epita.fr>"
   :maintainer "Didier Verna <didier@lrde.epita.fr>"
-  :license "GNU GPL"
+  :license "GNU GPL version 3"
   :version #.(version :long)
   :serial t
   :components ((:file "package")
