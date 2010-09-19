@@ -102,9 +102,9 @@ embellish the output by detecting potential paragraphs from standalone lines."
 
 (defun @anchor (anchor)
   "Render ANCHOR as an @anchor.
-ANCHOR should already be escaped for Texinfo.
+ANCHOR is escaped for Texinfo prior to rendering.
 Rendering is done on *standard-output*."
-  (format t "@anchor{~A}@c~%" anchor))
+  (format t "@anchor{~A}@c~%" (escape anchor)))
 
 (defmacro @tableitem (title &body body)
   "Execute BODY within a table @item TITLE.
