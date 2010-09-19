@@ -94,47 +94,47 @@
 (defmethod index ((constant constant-definition) &optional relative-to)
   "Render CONSTANT's indexing command."
   (declare (ignore relative-to))
-  (format t "@vindex @r{Constant, }~(~A~)~%" (escape constant)))
+  (format t "@constantsubindex{~(~A~)}@c~%" (escape constant)))
 
 (defmethod index ((special special-definition) &optional relative-to)
   "Render SPECIAL's indexing command."
   (declare (ignore relative-to))
-  (format t "@vindex @r{Special Variable, }~(~A~)~%" (escape special)))
+  (format t "@specialsubindex{~(~A~)}@c~%" (escape special)))
 
 (defmethod index ((macro macro-definition) &optional relative-to)
   "Render MACRO's indexing command."
   (declare (ignore relative-to))
-  (format t "@findex @r{Macro, }~(~A~)~%" (escape macro)))
+  (format t "@macrosubindex{~(~A~)}@c~%" (escape macro)))
 
 (defmethod index ((function function-definition) &optional relative-to)
   "Render FUNCTION's indexing command."
   (declare (ignore relative-to))
-  (format t "@findex @r{Function, }~(~A~)~%" (escape function)))
+  (format t "@functionsubindex{~(~A~)}@c~%" (escape function)))
 
 (defmethod index ((method method-definition) &optional relative-to)
   "Render METHOD's indexing command."
   (declare (ignore relative-to))
-  (format t "@findex @r{Method, }~(~A~)~%" (escape method)))
+  (format t "@methodsubindex{~(~A~)}@c~%" (escape method)))
 
 (defmethod index ((generic generic-definition) &optional relative-to)
   "Render GENERIC's indexing command."
   (declare (ignore relative-to))
-  (format t "@findex @r{Generic Function, }~(~A~)~%" (escape generic)))
+  (format t "@genericsubindex{~(~A~)}@c~%" (escape generic)))
 
 (defmethod index ((condition condition-definition) &optional relative-to)
   "Render CONDITION's indexing command."
   (declare (ignore relative-to))
-  (format t "@tpindex @r{Condition, }~(~A~)~%" (escape condition)))
+  (format t "@conditionsubindex{~(~A~)}@c~%" (escape condition)))
 
 (defmethod index ((structure structure-definition) &optional relative-to)
   "Render STRUCTURE's indexing command."
   (declare (ignore relative-to))
-  (format t "@tpindex @r{Structure, }~(~A~)~%" (escape structure)))
+  (format t "@structuresubindex{~(~A~)}@c~%" (escape structure)))
 
 (defmethod index ((class class-definition) &optional relative-to)
   "Render CLASS's indexing command."
   (declare (ignore relative-to))
-  (format t "@tpindex @r{Class, }~(~A~)~%" (escape class)))
+  (format t "@classsubindex{~(~A~)}@c~%" (escape class)))
 
 (defmethod reference ((definition definition) &optional relative-to)
   "Render DEFINITION's reference."

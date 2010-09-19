@@ -153,6 +153,54 @@ The ~A Reference Manual~@[, version ~A~].
 @cindex File, html, @t{\\name\\}
 @end macro
 
+@c The following macros are meant to be used within @defxxx environments.
+@c Texinfo performs half the indexing job and we do the other half.
+
+@c Constants
+@macro constantsubindex{name}
+@vindex @r{Constant, }\\name\\
+@end macro
+
+@c Special variables
+@macro specialsubindex{name}
+@vindex @r{Special Variable, }\\name\\
+@end macro
+
+@c Macros
+@macro macrosubindex{name}
+@findex @r{Macro, }\\name\\
+@end macro
+
+@c Functions
+@macro functionsubindex{name}
+@findex @r{Function, }\\name\\
+@end macro
+
+@c Methods
+@macro methodsubindex{name}
+@findex @r{Method, }\\name\\
+@end macro
+
+@c Generic Functions
+@macro genericsubindex{name}
+@findex @r{Generic Function, }\\name\\
+@end macro
+
+@c Conditions
+@macro conditionsubindex{name}
+@tpindex @r{Condition, }\\name\\
+@end macro
+
+@c Structures
+@macro structuresubindex{name}
+@tpindex @r{Structure, }\\name\\
+@end macro
+
+@c Classes
+@macro classsubindex{name}
+@tpindex @r{Class, }\\name\\
+@end macro
+
 
 
 @c ====================================================================
