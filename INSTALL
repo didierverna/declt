@@ -46,3 +46,9 @@ in order to get the corresponding format.
 * Uninstalling
 
 Type "make uninstall".
+
+
+* Usage
+
+Declt has a single entry point which is the DECLT function. See the docstring
+for an explanation.
