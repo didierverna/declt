@@ -140,9 +140,9 @@ methods, conditions, structures and classes.
 Reference manuals are generated in Texinfo format which can be subsequently
 converted into info, HTML, DVI, PostScript or PDF. The generated manuals are
 fully indexed and provide a complete set of cross-references between
-documented elements. For instance, files and packages point to the definitions
-they provide, and those definitions point back to package and file in which
-they can be found."
+documentation elements. For instance, files and packages point to the
+definitions they provide, and those definitions point back to package and file
+in which they can be found."
   :author "Didier Verna <didier@lrde.epita.fr>"
   :maintainer "Didier Verna <didier@lrde.epita.fr>"
   :license "GNU GPL version 3"
