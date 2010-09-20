@@ -298,6 +298,7 @@ version ~A on ~A.
 	      &key (library-name (string-downcase (symbol-name system-name)))
 		   (texi-file (format nil "~A.texi" library-name))
 		   (info-file (pathname-name texi-file))
+		   introduction
 		   (subtitle nil subtitlep)
 		   (version nil versionp)
 		   (author nil authorp)
@@ -313,10 +314,12 @@ version ~A on ~A.
   Defaults to LIBRARY-NAME.texi.
 - INFO-FILE is the info file basename sans extension.
   Defaults is built from TEXI-FILE.
+- INTRODUCTION is a potential contents for an introduction chapter.
 - SUBTITLE defaults to the system description.
 - VERSION defaults to the system version.
-- AUTHOR and EMAIL are extracted from the system author.
+- AUTHOR and EMAIL defaults are extracted from the system author.
 - COPYRIGHT-DATE defaults to the current year."
+  (asdf:operate 'asdf:load-op system-name)
   (setq library-name (escape library-name))
   (setq info-file (escape info-file))
   (unless subtitlep
@@ -380,13 +383,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 @end quotation"
 				       library-name
 				       library-name)))
-  (when (system-long-description system)
+  (when introduction
     (add-child *top-node*
       (make-node :name "Introduction"
 		 :synopsis (format nil "What ~A is all about" library-name)
 		 :before-menu-contents
-		 (render-to-string
-		   (render-text (system-long-description system))))))
+		 (render-to-string (render-text introduction)))))
   (let ((*link-files* link-files))
     (add-system-node      *top-node* system)
     (add-modules-node     *top-node* system)
