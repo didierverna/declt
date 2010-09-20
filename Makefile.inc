@@ -36,20 +36,23 @@ SHARE := $(PREFIX)/share
 
 W3DIR := $(HOME)/www/software/lisp/declt
 
-LONG_VERSION := $(shell if test -f ./demo/demo; then	\
-		     ./demo/demo --declt-version=long;	\
-		   elif test -f ../demo/demo; then	\
-		     ../demo/demo --declt-version=long;	\
-		   else					\
-		     echo "unknown";			\
+
+#### FIXME: this breaks the distclean target because version.sh loads declt,
+#### which implies recompiling it!!
+LONG_VERSION  := $(shell if test -f ./version.sh; then	\
+		     ./version.sh | tail -2 | head -1;	\
+		   elif test -f ../version.sh; then     \
+		     ../version.sh | tail -2 | head -1;	\
+		   else                                 \
+		     echo "unknown";                    \
 		   fi)
 
-SHORT_VERSION := $(shell if test -f ./demo/demo; then	\
-		     ./demo/demo --declt-version=short;	\
-		   elif test -f ../demo/demo; then	\
-		     ../demo/demo --declt-version=short;	\
-		   else					\
-		     echo "unknown";			\
+SHORT_VERSION := $(shell if test -f ./version.sh; then	\
+		     ./version.sh | tail -1;		\
+		   elif test -f ../version.sh; then     \
+		     ../version.sh | tail -1;		\
+		   else                                 \
+		     echo "unknown";                    \
 		   fi)
 
 

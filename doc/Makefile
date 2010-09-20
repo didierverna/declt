@@ -5,7 +5,7 @@
 ## Author:        Didier Verna <didier@lrde.epita.fr>
 ## Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ## Created:       Sun Sep 19 21:21:30 2010
-## Last Revision: Mon Sep 20 15:05:14 2010
+## Last Revision: Mon Sep 20 15:35:42 2010
 
 ## This file is part of Declt.
 
