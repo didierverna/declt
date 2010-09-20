@@ -33,7 +33,6 @@
 
 (in-package :com.dvlsoft.declt)
 
-
 (defun render-header (library-name texi-name info-file subtitle version
 		      author email copyright-date current-time-string)
   "Render the header of the Texinfo file."

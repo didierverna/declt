@@ -44,10 +44,7 @@
 
 (ignore-errors (asdf:operate 'asdf:load-op :asdf-binary-locations))
 
-(require 'sb-introspect)
-
 (asdf:operate 'asdf:load-op :com.dvlsoft.declt)
-
 (com.dvlsoft.declt:declt :com.dvlsoft.declt
 			 :library-name "Declt" :texi-file "declt.texi")
 (com.dvlsoft.declt:declt :com.dvlsoft.declt

@@ -45,10 +45,7 @@
 	     #p"/usr/share/common-lisp/systems/"
 	     asdf:*central-registry*))
 
-
 (ignore-errors (asdf:operate 'asdf:load-op :asdf-binary-locations))
-
-(require 'sb-introspect)
 
 (handler-case (asdf:operate 'asdf:load-op :com.dvlsoft.declt)
   (t ()

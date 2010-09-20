@@ -147,6 +147,8 @@ in which they can be found."
   :maintainer "Didier Verna <didier@lrde.epita.fr>"
   :license "GNU GPL version 3"
   :version #.(version :long)
+  ;; #### PORTME.
+  :depends-on (:sb-introspect)
   :serial t
   :components ((:file "package")
 	       (:module "src"
