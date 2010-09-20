@@ -304,6 +304,7 @@ version ~A on ~A.
 		   (author nil authorp)
 		   (email nil emailp)
 		   (copyright-date nil copyright-date-p)
+		   conclusion
 		   (link-files *link-files*)
 	      &aux (system (find-system system-name))
 		   (texi-name (escape (file-namestring texi-file)))
@@ -318,7 +319,9 @@ version ~A on ~A.
 - SUBTITLE defaults to the system description.
 - VERSION defaults to the system version.
 - AUTHOR and EMAIL defaults are extracted from the system author.
-- COPYRIGHT-DATE defaults to the current year."
+- COPYRIGHT-DATE defaults to the current year.
+- CONCLUSION is a potential contents for a conclusion chapter."
+
   (asdf:operate 'asdf:load-op system-name)
   (setq library-name (escape library-name))
   (setq info-file (escape info-file))
@@ -395,6 +398,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     (add-files-node       *top-node* system)
     (add-packages-node    *top-node* system)
     (add-definitions-node *top-node* system))
+  (when conclusion
+    (add-child *top-node*
+      (make-node :name "Conclusion"
+		 :synopsis "Time to go"
+		 :before-menu-contents
+		 (render-to-string (render-text conclusion)))))
   (let ((indexes-node (add-child *top-node*
 			(make-node :name "Indexes"
 				   :synopsis (format nil "~
