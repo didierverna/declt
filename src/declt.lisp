@@ -320,7 +320,9 @@ version ~A on ~A.
 - VERSION defaults to the system version.
 - AUTHOR and EMAIL defaults are extracted from the system author.
 - COPYRIGHT-DATE defaults to the current year.
-- CONCLUSION is a potential contents for a conclusion chapter."
+- CONCLUSION is a potential contents for a conclusion chapter.
+
+See also the special variable *LINK-FILES* for the meaning of LINK-FILES."
 
   (asdf:operate 'asdf:load-op system-name)
   (setq library-name (escape library-name))
