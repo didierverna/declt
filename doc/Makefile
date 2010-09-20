@@ -5,7 +5,7 @@
 ## Author:        Didier Verna <didier@lrde.epita.fr>
 ## Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ## Created:       Sun Sep 19 21:21:30 2010
-## Last Revision: Mon Sep 20 15:35:42 2010
+## Last Revision: Mon Sep 20 17:16:56 2010
 
 ## This file is part of Declt.
 
@@ -50,13 +50,9 @@ all:
 
 ref: info pdf html
 
-all-formats: ref dvi ps
+refweb: pdfweb htmlweb
 
-install-at: $(PDF_FILES) $(HTML_DIRS)
-	install -d $(LOCATION)
-	install -m 644 $(PDF_FILES) $(LOCATION)/
-	install -d -m 755 $(LOCATION)/declt
-	install -m 644 declt/* $(LOCATION)/declt
+all-formats: ref dvi ps
 
 install:
 
@@ -66,7 +62,16 @@ install-ref: $(INFO_FILES)
 	for i in $(INFO_FILES); do			\
 	  install-info --info-dir=$(INFO_DIR) $$i;	\
 	done
-	$(MAKE) install-at LOCATION=$(DECLT_DOC_DIR)
+	install -d $(DECLT_DOC_DIR)
+	install -m 644 $(PDF_FILES) $(DECLT_DOC_DIR)/
+	install -d -m 755 $(DECLT_DOC_DIR)/declt
+	install -m 644 declt/* $(DECLT_DOC_DIR)/declt
+
+install-www: pdfweb htmlweb
+	install -d $(W3DIR)
+	install -m 644 decltweb.pdf $(W3DIR)/declt.pdf
+	install -d -m 755 $(W3DIR)/declt
+	install -m 644 decltweb/* $(W3DIR)/declt
 
 uninstall:
 	-rm -fr $(DECLT_DOC_DIR)
@@ -75,18 +80,20 @@ uninstall:
 	done
 	cd $(INFO_DIR) && rm -f $(ALL_INFO_FILES)
 
-declt.texi:
+declt.texi decltweb.texi:
 	./generate.sh
 
-info: $(INFO_FILES)
+info: declt.info
 
-pdf: $(PDF_FILES)
+pdf: declt.pdf
+pdfweb: decltweb.pdf
 
-html: $(HTML_DIRS)
+html: declt
+htmlweb: decltweb
 
-dvi: $(DVI_FILES)
+dvi: declt.dvi
 
-ps: $(PS_FILES)
+ps: declt.ps
 
 %.info: %.texi
 	$(MAKEINFO) $<
@@ -94,7 +101,7 @@ ps: $(PS_FILES)
 %.pdf: %.texi
 	$(TEXI2DVI) -p $<
 
-$(HTML_DIRS): %: %.texi
+$(HTML_DIRS) decltweb: %: %.texi
 	$(MAKEINFO) --html -o $@ $<
 	touch $@
 
@@ -108,12 +115,11 @@ clean:
 	-rm *.tmp *.fn* *.vr* *.ky* *.tp* *.cp* *.pg *.toc *.aux *.log *~
 
 distclean: clean
-	-rm declt.texi
-	-rm -fr $(HTML_DIRS)						\
-		$(ALL_INFO_FILES) $(PDF_FILES) $(DVI_FILES) $(PS_FILES)
-
-install-www:
-	$(MAKE) install-at LOCATION=$(W3DIR)
+	-rm declt.texi decltweb.texi
+	-rm -fr $(HTML_DIRS) decltweb		\
+		$(ALL_INFO_FILES)		\
+		$(PDF_FILES) decltweb.pdf	\
+		$(DVI_FILES) $(PS_FILES)
 
 
 .PHONY: all all-formats			\

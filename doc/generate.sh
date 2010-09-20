@@ -50,6 +50,9 @@
 
 (com.dvlsoft.declt:declt :com.dvlsoft.declt
 			 :library-name "Declt" :texi-file "declt.texi")
+(com.dvlsoft.declt:declt :com.dvlsoft.declt
+			 :library-name "Declt" :texi-file "decltweb.texi"
+			 :link-files nil)
 
 
 
