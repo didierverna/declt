@@ -56,10 +56,9 @@ clean:
 	-rm *~
 	$(MAKE) gen TARGET=clean
 
-distclean:
-	$(MAKE) clean
-	-rm -fr sbcl-* **/sbcl-*
-	$(MAKE) gen TARGET=clean
+distclean: clean
+	-rm -fr sbcl-*
+	$(MAKE) gen TARGET=distclean
 
 tag:
 	git tag -a -m 'Version $(LONG_VERSION)' 'version-$(SHORT_VERSION)'

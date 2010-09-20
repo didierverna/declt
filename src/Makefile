@@ -39,10 +39,10 @@ install:
 uninstall:
 
 clean:
-	-rm *~
+	-rm *~ */*~ */*/*~
 
 distclean: clean
-	-rm -fr sbcl-* **/sbcl-*
+	-rm -fr sbcl-* */sbcl-* */*/sbcl-*
 
 update-version:
 install-www:
