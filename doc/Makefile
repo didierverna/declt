@@ -5,7 +5,7 @@
 ## Author:        Didier Verna <didier@lrde.epita.fr>
 ## Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ## Created:       Sun Sep 19 21:21:30 2010
-## Last Revision: Sun Sep 19 21:38:02 2010
+## Last Revision: Mon Sep 20 15:05:14 2010
 
 ## This file is part of Declt.
 
@@ -46,9 +46,11 @@ PS_FILES       := $(TEXI_FILES:%.texi=%.ps)
 HTML_DIRS      := $(TEXI_FILES:%.texi=%)
 
 
-all: info pdf html
+all:
 
-all-formats: all dvi ps
+ref: info pdf html
+
+all-formats: ref dvi ps
 
 install-at: $(PDF_FILES) $(HTML_DIRS)
 	install -d $(LOCATION)
@@ -56,7 +58,9 @@ install-at: $(PDF_FILES) $(HTML_DIRS)
 	install -d -m 755 $(LOCATION)/declt
 	install -m 644 declt/* $(LOCATION)/declt
 
-install: $(INFO_FILES)
+install:
+
+install-ref: $(INFO_FILES)
 	install -d $(INFO_DIR)
 	install -m 644 $(ALL_INFO_FILES) $(INFO_DIR)/
 	for i in $(INFO_FILES); do			\
@@ -101,9 +105,10 @@ $(HTML_DIRS): %: %.texi
 	$(DVIPS) -o $@ $<
 
 clean:
-	-rm *.tmp *.fn* *.vr* *.ky* *.tp *.cp* *.pg *.toc *.aux *.log *~
+	-rm *.tmp *.fn* *.vr* *.ky* *.tp* *.cp* *.pg *.toc *.aux *.log *~
 
 distclean: clean
+	-rm declt.texi
 	-rm -fr $(HTML_DIRS)						\
 		$(ALL_INFO_FILES) $(PDF_FILES) $(DVI_FILES) $(PS_FILES)
 

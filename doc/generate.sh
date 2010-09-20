@@ -36,10 +36,12 @@
 (require :asdf)
 
 (setf asdf:*central-registry*
-      (list* #p"../"
+      (list* (merge-pathnames "share/common-lisp/systems/"
+			      (user-homedir-pathname))
 	     #p"/usr/local/share/common-lisp/systems/"
 	     #p"/usr/share/common-lisp/systems/"
 	     asdf:*central-registry*))
+
 (ignore-errors (asdf:operate 'asdf:load-op :asdf-binary-locations))
 
 (require 'sb-introspect)

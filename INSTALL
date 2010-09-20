@@ -11,23 +11,36 @@ The Declt distribution has the following shape:
 * Building
 
 ** Edit Makefile.cnf if needed
-All make targets from the toplevel propagate to the subdirectories.
-
-** Type "make" from the toplevel directory
-The build phase generates the documentation. In fact, the only documentation
-is the Declt reference manual, which is generated automatically by Declt
-itself.
-
-By default, documentation is built in info, PDF and HTML formats. If you want
-other formats (DVI and PostScript are available), type "make all-formats" in
-the doc directory. You can also type individually "make dvi" and/or "make ps"
-in order to get the corresponding format.
+In fact, threre is nothing to build, technically, but you may still want to
+tweak some settings there. All make targets from the toplevel propagate to the
+subdirectories. 
 
 
 * Installing
 
 ** Type "make install" from the toplevel directory
-This installs the ASDF system file, the data and the documentation.
+This installs the ASDF system file to the desired location.
+
+
+* Building and installing the documentation
+Declt can generate its own reference manual, although this should be done only
+after having installed it properly. That is why the reference manual is not
+built by default.
+
+After typing "make install" do the following to build and install the
+refernece manual:
+
+1/ Edit doc/generate.sh if asdf:*central-registery* needs tweaking.
+
+2/ Type:
+cd doc
+make ref
+make install-ref
+
+By default, documentation is built in info, PDF and HTML formats. If you want
+other formats (DVI and PostScript are available), type "make all-formats".
+You can also type individually "make dvi" and/or "make ps" 
+in order to get the corresponding format.
 
 
 * Uninstalling
