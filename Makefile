@@ -77,7 +77,7 @@ install-www:
 	-install -m 644 *.tar.gz $(W3DIR)/attic/
 	echo '$(LONG_VERSION)' > $(W3DIR)/version.txt
 	chmod 644 $(W3DIR)/version.txt
-	echo '<? lref ("declt/attic/declt-$(SHORT_VERSION).tar.gz", "here"); ?>'\
+	echo '<? lref ("declt/attic/declt-$(SHORT_VERSION).tar.gz", contents ("ici", "here")); ?>' \
 	  > $(W3DIR)/current.txt
 	$(MAKE) gen TARGET=install-www
 
