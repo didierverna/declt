@@ -30,8 +30,14 @@
 
 ### Code:
 
+TOP_DIR := ..
+
 include ../Makefile.cnf
+
+all:
+
 include ../Makefile.inc
+include ../version.inc
 
 INFO_DIR     := $(PREFIX)/share/info
 DOC_DIR	     := $(SHARE)/doc
@@ -45,8 +51,6 @@ DVI_FILES      := $(TEXI_FILES:%.texi=%.dvi)
 PS_FILES       := $(TEXI_FILES:%.texi=%.ps)
 HTML_DIRS      := $(TEXI_FILES:%.texi=%)
 
-
-all:
 
 ref: info pdf html
 

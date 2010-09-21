@@ -30,30 +30,11 @@
 
 ### Code:
 
-PERL := perl
-
 SHARE := $(PREFIX)/share
-
 W3DIR := $(HOME)/www/software/lisp/declt
 
-
-#### FIXME: this breaks the distclean target because version.sh loads declt,
-#### which implies recompiling it!!
-LONG_VERSION  := $(shell if test -f ./version.sh; then	\
-		     ./version.sh | tail -2 | head -1;	\
-		   elif test -f ../version.sh; then     \
-		     ../version.sh | tail -2 | head -1;	\
-		   else                                 \
-		     echo "unknown";                    \
-		   fi)
-
-SHORT_VERSION := $(shell if test -f ./version.sh; then	\
-		     ./version.sh | tail -1;		\
-		   elif test -f ../version.sh; then     \
-		     ../version.sh | tail -1;		\
-		   else                                 \
-		     echo "unknown";                    \
-		   fi)
+$(TOP_DIR)/version.inc:
+	$(TOP_DIR)/version.sh | tail -2 > $@
 
 
 ### Makefile.inc ends here

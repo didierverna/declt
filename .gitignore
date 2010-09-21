@@ -1,5 +1,7 @@
 sbcl-*/
 
+version.inc
+
 doc/declt*/
 doc/declt*.texi
 doc/declt*.pdf

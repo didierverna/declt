@@ -30,10 +30,14 @@
 
 ### Code:
 
+TOP_DIR := ..
+
 include ../Makefile.cnf
-include ../Makefile.inc
 
 all:
+
+include ../Makefile.inc
+include ../version.inc
 
 install:
 uninstall:

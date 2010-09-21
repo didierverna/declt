@@ -32,17 +32,20 @@
 
 ### Code:
 
-SUBDIRS := src doc
+TOP_DIR := .
 
 include Makefile.cnf
-include Makefile.inc
-
-SYSTEMS_DIR := $(SHARE)/common-lisp/systems
-ASDF_FILE   := com.dvlsoft.declt.asd
-
 
 all:
 	$(MAKE) gen TARGET=all
+
+include Makefile.inc
+include version.inc
+
+SUBDIRS     := src doc
+SYSTEMS_DIR := $(SHARE)/common-lisp/systems
+ASDF_FILE   := com.dvlsoft.declt.asd
+
 
 install:
 	ln -fs "`pwd`/$(ASDF_FILE)" "$(SYSTEMS_DIR)/"
@@ -56,9 +59,11 @@ clean:
 	-rm *~
 	$(MAKE) gen TARGET=clean
 
+# #### NOTE: propagate to the subdirs first, otherwise, version.inc will keep
+# on being reconstructed.
 distclean: clean
-	-rm -fr sbcl-*
 	$(MAKE) gen TARGET=distclean
+	-rm -fr version.inc sbcl-*
 
 tag:
 	git tag -a -m 'Version $(LONG_VERSION)' 'version-$(SHORT_VERSION)'

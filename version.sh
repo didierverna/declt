@@ -7,7 +7,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Sun Sep 19 21:32:07 2010
-;; Last Revision: Mon Sep 20 16:26:10 2010
+;; Last Revision: Tue Sep 21 09:34:05 2010
 
 ;; This file is part of Declt.
 
@@ -52,7 +52,8 @@
      (format t "unknown~%unknown~%")
      (sb-ext:quit)))
 
-(format t "~A~%~A~%"
+(format t "LONG_VERSION  := ~A~%~
+	   SHORT_VERSION := ~A~%"
   (com.dvlsoft.declt:version :long)
   (com.dvlsoft.declt:version :short))
 
