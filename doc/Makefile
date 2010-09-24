@@ -61,28 +61,28 @@ all-formats: ref dvi ps
 install:
 
 install-ref: $(INFO_FILES)
-	install -d $(INFO_DIR)
-	install -m 644 $(ALL_INFO_FILES) $(INFO_DIR)/
+	install -d "$(INFO_DIR)"
+	install -m 644 $(ALL_INFO_FILES) "$(INFO_DIR)/"
 	for i in $(INFO_FILES); do			\
-	  install-info --info-dir=$(INFO_DIR) $$i;	\
+	  install-info --info-dir="$(INFO_DIR)" $$i;	\
 	done
-	install -d $(DECLT_DOC_DIR)
-	install -m 644 $(PDF_FILES) $(DECLT_DOC_DIR)/
-	install -d -m 755 $(DECLT_DOC_DIR)/declt
-	install -m 644 declt/* $(DECLT_DOC_DIR)/declt
+	install -d "$(DECLT_DOC_DIR)"
+	install -m 644 $(PDF_FILES) "$(DECLT_DOC_DIR)/"
+	install -d -m 755 "$(DECLT_DOC_DIR)/declt"
+	install -m 644 declt/* "$(DECLT_DOC_DIR)/declt/"
 
 install-www: pdfweb htmlweb
-	install -d $(W3DIR)
-	install -m 644 decltweb.pdf $(W3DIR)/declt.pdf
-	install -d -m 755 $(W3DIR)/declt
-	install -m 644 decltweb/* $(W3DIR)/declt
+	install -d "$(W3DIR)"
+	install -m 644 decltweb.pdf "$(W3DIR)/declt.pdf"
+	install -d -m 755 "$(W3DIR)/declt"
+	install -m 644 decltweb/* "$(W3DIR)/declt/"
 
 uninstall:
-	-rm -fr $(DECLT_DOC_DIR)
+	-rm -fr "$(DECLT_DOC_DIR)"
 	for i in $(INFO_FILES); do				\
-	  install-info --remove --info-dir=$(INFO_DIR) $$i;	\
+	  install-info --remove --info-dir="$(INFO_DIR)" $$i;	\
 	done
-	cd $(INFO_DIR) && rm -f $(ALL_INFO_FILES)
+	cd "$(INFO_DIR)" && rm -f $(ALL_INFO_FILES)
 
 declt.texi decltweb.texi:
 	./generate.sh
