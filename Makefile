@@ -63,7 +63,9 @@ clean:
 # on being reconstructed.
 distclean: clean
 	$(MAKE) gen TARGET=distclean
-	-rm -fr version.inc sbcl-*
+	-rm -fr version.inc
+	-rm -fr sbcl-* # for ASDF Binary Locations
+	-rm -fr "${HOME}"/.cache/common-lisp/sbcl-*"`pwd`" # for ASDF 2
 
 tag:
 	git tag -a -m 'Version $(LONG_VERSION)' 'version-$(SHORT_VERSION)'

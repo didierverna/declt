@@ -30,12 +30,13 @@ built by default.
 After typing "make install" do the following to build and install the
 reference manual:
 
-1/ Edit doc/generate.sh if asdf:*central-registery* needs tweaking.
+1/ cd doc
 
-2/ Type:
-cd doc
-make ref
-make install-ref
+2/ Edit doc/generate.sh if ASDF 1's "central registery" or ASDF 2's "source
+   registry" needs tweaking.
+
+3/ make ref
+   make install-ref
 
 By default, documentation is built in info, PDF and HTML formats. If you want
 other formats (DVI and PostScript are available), type "make all-formats". You
