@@ -49,7 +49,7 @@
 
 (handler-case (asdf:operate 'asdf:load-op :com.dvlsoft.declt)
   (t ()
-     (format t "unknown~%unknown~%")
+     (format t "LONG_VERSION := unknown~%SHORT_VERSION := unknown~%")
      (sb-ext:quit)))
 
 (format t "LONG_VERSION  := ~A~%~
