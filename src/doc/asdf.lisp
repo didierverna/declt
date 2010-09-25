@@ -104,8 +104,8 @@
 	 (when *link-files*
 	   (@tableitem "Source Directory"
 	     (format t "@url{file://~A, ignore, @t{~A}}~%"
-	       (escape (system-source-directory component))
-	       (escape (system-source-directory component)))))
+	       (escape (component-pathname component))
+	       (escape (component-pathname component)))))
 	 ;; That sucks. I need to fake a cl-source-file reference because
 	 ;; the system file is not an ASDF component per-se.
 	 (@tableitem "Definition file"

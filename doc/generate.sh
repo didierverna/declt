@@ -7,7 +7,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Sun Sep 19 21:32:07 2010
-;; Last Revision: Fri Sep 24 15:14:53 2010
+;; Last Revision: Sun Sep 19 21:33:20 2010
 
 ;; This file is part of Declt.
 
@@ -35,21 +35,14 @@
 
 (require :asdf)
 
-#-asdf2 (setf asdf:*central-registry*
-	      (list* (merge-pathnames "share/common-lisp/systems/"
-				      (user-homedir-pathname))
-		     #p"/usr/local/share/common-lisp/systems/"
-		     #p"/usr/share/common-lisp/systems/"
-		     asdf:*central-registry*))
-#+asdf2 (asdf:initialize-source-registry
-	 `(:source-registry
-	   (:directory ,(merge-pathnames "share/common-lisp/systems/"
-					 (user-homedir-pathname)))
-	   (:directory "/usr/local/share/common-lisp/systems")
-	   (:directory "/usr/share/common-lisp/systems")
-	   :inherit-configuration))
+(setf asdf:*central-registry*
+      (list* (merge-pathnames "share/common-lisp/systems/"
+			      (user-homedir-pathname))
+	     #p"/usr/local/share/common-lisp/systems/"
+	     #p"/usr/share/common-lisp/systems/"
+	     asdf:*central-registry*))
 
-#-asdf2 (ignore-errors (asdf:operate 'asdf:load-op :asdf-binary-locations))
+(ignore-errors (asdf:operate 'asdf:load-op :asdf-binary-locations))
 
 (asdf:operate 'asdf:load-op :com.dvlsoft.declt)
 (com.dvlsoft.declt:declt :com.dvlsoft.declt

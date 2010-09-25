@@ -51,7 +51,6 @@
     :component-relative-pathname
     :component-parent
     ;; Some functions that we can import directly.
-    :system-source-directory
     :find-system)
   (:export
    ;; From com.dvlsoft.declt.asd:
