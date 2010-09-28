@@ -91,6 +91,7 @@ install-www: dist
 	  > "$(W3DIR)/latest.txt"
 	chmod 644 "$(W3DIR)/latest.txt"
 	$(MAKE) gen TARGET=install-www
+	git push --mirror "$(W3DIR)/declt.git"
 	cd "$(W3DIR)"					\
 	  && ln -fs attic/$(TARBALL) latest.tar.gz	\
 	  && ln -fs attic/$(SIGNATURE) latest.tar.gz.asc
