@@ -8,35 +8,31 @@ The Declt distribution has the following shape:
 ./doc/		;; documentation
 
 
-* Building
+* Installing the code
 
-** Edit Makefile.cnf if needed
-In fact, threre is nothing to build, technically, but you may still want to
-tweak some settings there. All make targets from the toplevel propagate to the
-subdirectories. 
+** Edit Makefile.cnf
+to tweak some installation parameters.
+
+** For ASDF 1
+*** make install
+This will create the system file symlink.
+
+** For ASDF 2
+There is nothing to do if you're located somewhere in the source registry.
 
 
-* Installing
+* Building and installing the reference manual
+Declt can generate its own reference manual.
 
-** Type "make install" from the toplevel directory
-This installs the ASDF system file to the desired location.
+For ASDF 1, you need to have type "make install" first (that is why the
+reference manual is not built by default). For ASDF 2, there is no
+prerequisite as long as you're located somewhere in the source registry.
 
-
-* Building and installing the documentation
-Declt can generate its own reference manual, although this should be done only
-after having installed it properly. That is why the reference manual is not
-built by default.
-
-After typing "make install" do the following to build and install the
-reference manual:
-
-1/ cd doc
-
-2/ Edit doc/generate.sh if ASDF 1's "central registery" or ASDF 2's "source
-   registry" needs tweaking.
-
-3/ make ref
-   make install-ref
+*** cd doc
+*** Edit doc/generate.sh
+most notably if asdf's *central-registry* or source registry needs tweaking. 
+*** make ref
+*** make install-ref
 
 By default, documentation is built in info, PDF and HTML formats. If you want
 other formats (DVI and PostScript are available), type "make all-formats". You
