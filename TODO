@@ -13,3 +13,7 @@ to find the corresponding component.
 * Cleanup up the string-downcase issue
 so that it would be easier afterwards to provide an option for case behavior.
 
+* Canonicalize pathnames
+If the system definition pathname or definition sources contain funky stuff
+like ./, ../ or even are symlinks, the cross-references will most probably
+break. We need to work on canonical pathnames.
