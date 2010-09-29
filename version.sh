@@ -46,19 +46,19 @@
 		     asdf:*central-registry*))
 #+asdf2 (asdf:initialize-source-registry
 	 `(:source-registry
-	   (:directory ".")
 	   (:directory "..")
-	   (:directory ,(merge-pathnames "share/common-lisp/systems/"
-					 (user-homedir-pathname)))
-	   (:directory "/usr/local/share/common-lisp/systems")
-	   (:directory "/usr/share/common-lisp/systems")
+	   (:directory ".")
+	   (:tree ,(merge-pathnames "science/src/common-lisp/"
+				    (user-homedir-pathname)))
+	   (:tree "/usr/local/src/common-lisp/")
+	   (:tree "/usr/share/common-lisp/source/")
 	   :inherit-configuration))
 
 #-asdf2 (ignore-errors (asdf:operate 'asdf:load-op :asdf-binary-locations))
 
 (handler-case (asdf:operate 'asdf:load-op :com.dvlsoft.declt)
   (t ()
-     (format t "unknown~%unknown~%")
+     (format t "LONG_VERSION := unknown~%SHORT_VERSION := unknown~%")
      (sb-ext:quit)))
 
 (format t "LONG_VERSION  := ~A~%~
