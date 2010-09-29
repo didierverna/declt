@@ -43,7 +43,6 @@
 		     asdf:*central-registry*))
 #+asdf2 (asdf:initialize-source-registry
 	 `(:source-registry
-	   (:directory "..")
 	   (:tree ,(merge-pathnames "science/src/common-lisp/"
 				    (user-homedir-pathname)))
 	   (:tree "/usr/local/src/common-lisp/")
