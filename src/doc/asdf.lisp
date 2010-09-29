@@ -101,25 +101,31 @@
       (@tableitem "Parent"
 	(reference parent system-directory))))
   (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
-	 (when *link-files*
-	   (@tableitem "Source Directory"
-	     (format t "@url{file://~A, ignore, @t{~A}}~%"
-	       (escape (system-source-directory component))
-	       (escape (system-source-directory component)))))
-	 ;; That sucks. I need to fake a cl-source-file reference because
-	 ;; the system file is not an ASDF component per-se.
+	 ;; That sucks. I need to fake a cl-source-file reference because the
+	 ;; system file is not an ASDF component per-se.
 	 (@tableitem "Definition file"
 	   (let ((system-base-name (escape (system-base-name component))))
 	     (format t "@ref{The ~A file anchor, , @t{~(~A}~)} (Lisp file)~%"
 	       system-base-name
 	       system-base-name)))
 	 (when *link-files*
-	   (let ((directory (escape
-			     (directory-namestring
-			      (system-definition-pathname component)))))
-	     (@tableitem "Installation Directory"
+	   (let ((system-source-directory
+		  (escape (system-source-directory component)))
+		 (installation-directory
+		  (escape
+		   (directory-namestring
+		    (probe-file (system-definition-pathname component))))))
+	     (@tableitem "Source Directory"
 	       (format t "@url{file://~A, ignore, @t{~A}}~%"
-		 directory directory)))))
+		 system-source-directory
+		 system-source-directory))
+	     ;; With ASDF 2, we're not supposed to use the systems directory
+	     ;; convention anymore, so the installation directory might just
+	     ;; be the source one.
+	     (unless (string= system-source-directory installation-directory)
+	       (@tableitem "Installation Directory"
+		 (format t "@url{file://~A, ignore, @t{~A}}~%"
+		   installation-directory installation-directory))))))
 	(t
 	 (render-location (component-pathname component) system-directory))))
 
