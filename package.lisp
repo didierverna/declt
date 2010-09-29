@@ -50,6 +50,7 @@
     :component-pathname
     :component-relative-pathname
     :component-parent
+    :system-source-directory
     ;; Some functions that we can import directly.
     :find-system)
   (:export
