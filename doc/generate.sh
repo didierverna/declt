@@ -7,7 +7,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Sun Sep 19 21:32:07 2010
-;; Last Revision: Sun Sep 19 21:33:20 2010
+;; Last Revision: Thu Sep 30 16:32:55 2010
 
 ;; This file is part of Declt.
 
@@ -41,14 +41,6 @@
 		     #p"/usr/local/share/common-lisp/systems/"
 		     #p"/usr/share/common-lisp/systems/"
 		     asdf:*central-registry*))
-#+asdf2 (asdf:initialize-source-registry
-	 `(:source-registry
-	   (:tree ,(merge-pathnames "science/src/common-lisp/"
-				    (user-homedir-pathname)))
-	   (:tree "/usr/local/src/common-lisp/")
-	   (:tree "/usr/share/common-lisp/source/")
-	   :inherit-configuration))
-
 #-asdf2 (ignore-errors (asdf:operate 'asdf:load-op :asdf-binary-locations))
 
 (asdf:operate 'asdf:load-op :com.dvlsoft.declt)
