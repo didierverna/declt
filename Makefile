@@ -51,9 +51,8 @@ TARBALL   := $(DIST_NAME).tar.gz
 SIGNATURE := $(TARBALL).asc
 
 
-install:
+install-system:
 	ln -fs "`pwd`/$(ASDF_FILE)" "$(SYSTEMS_DIR)/"
-	$(MAKE) gen TARGET=install
 
 uninstall:
 	-rm -f "$(SYSTEMS_DIR)/$(ASDF_FILE)"

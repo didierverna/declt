@@ -1,48 +1,42 @@
 						             -*- outline -*-
 
-* Anatomy of the tarball
+* Anatomy of the source tree
 
-The Declt distribution has the following shape:
+The Declt source tree has the following shape:
 
 ./src/		;; source directory
 ./doc/		;; documentation
 
 
-* Installing the code
+* Configuration
+You may need to edit Makefile.cnf and doc/generate.sh in order to tweak some
+installation parameters.
 
-** Edit Makefile.cnf
-to tweak some installation parameters.
 
-** For ASDF 1
-*** make install
-This will create the system file symlink.
-
-** For ASDF 2
-There is nothing to do if you're located somewhere in the source registry.
+* Building and installing
+There is nothing to build or install, so no need to type "make" or "make
+install". If you're using ASDF 1 however, you will want to "make
+install-system" in order to create the system file symlink where appropriate.
 
 
 * Building and installing the reference manual
 Declt can generate its own reference manual.
 
-For ASDF 1, you need to have type "make install" first (that is why the
-reference manual is not built by default). For ASDF 2, there is no
-prerequisite as long as you're located somewhere in the source registry.
+If you're using ASDF 1, you need to have typed "make install-system" first
+(that is why the reference manual is not built by default).
 
-*** cd doc
-*** Edit doc/generate.sh
-most notably if asdf's *central-registry* or source registry needs tweaking. 
-*** make ref
-*** make install-ref
+To generate the reference manual, type "make ref".
+To install it, type "make install-ref".
 
-By default, documentation is built in info, PDF and HTML formats. If you want
-other formats (DVI and PostScript are available), type "make all-formats". You
-can also type individually "make dvi" and/or "make ps" in order to get the
-corresponding format.
+By default, the reference manual is built in info, PDF and HTML formats. If
+you want other formats (DVI and PostScript are available), type "make
+all-formats". You can also type individually "make dvi" and/or "make ps" in
+order to get the corresponding format.
 
-Finally, "make ref" also generates a "web" version of the reference manual
-Texinfo source called decltweb.texi (see *link-files* for an explanation). If
-you want to compare this version and the standard one, you can typeset the web
-versions using "make pdfweb" and "make htmlweb".
+Finally, note that "make ref" also generates a "web" version of the reference
+manual Texinfo source called doc/decltweb.texi (see *link-files* for an
+explanation). If you want to compare this version and the standard one, you
+can typeset the web versions using "make pdfweb" and "make htmlweb".
 
 
 * Uninstalling
