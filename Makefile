@@ -55,15 +55,15 @@ install-system:
 	ln -fs "`pwd`/$(ASDF_FILE)" "$(SYSTEMS_DIR)/"
 
 uninstall:
-	-rm -f "$(SYSTEMS_DIR)/$(ASDF_FILE)"
 	$(MAKE) gen TARGET=uninstall
+	-rm -f "$(SYSTEMS_DIR)/$(ASDF_FILE)"
 
 clean:
-	-rm *~
 	$(MAKE) gen TARGET=clean
+	-rm *~
 
-# #### NOTE: propagate to the subdirs first, otherwise, version.inc will keep
-# on being reconstructed.
+# #### NOTE: be sure to propagate to the subdirs first, otherwise, version.inc
+# will keep on being reconstructed.
 distclean: clean
 	$(MAKE) gen TARGET=distclean
 	-rm *.tar.gz *.tar.gz.asc
@@ -112,12 +112,13 @@ $(SIGNATURE): $(TARBALL)
 .DEFAULT:
 	$(MAKE) gen TARGET=$@
 
-.PHONY: all			\
-	install uninstall	\
-	clean distclean		\
-	tag			\
-	tar gpg dist		\
-	install-www		\
+.PHONY: all		\
+	install-system	\
+	uninstall	\
+	clean distclean	\
+	tag		\
+	tar gpg dist	\
+	install-www	\
 	gen
 
 

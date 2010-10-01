@@ -58,8 +58,6 @@ refweb: pdfweb htmlweb
 
 all-formats: ref dvi ps
 
-install:
-
 install-ref: $(INFO_FILES)
 	install -d $(INFO_DIR)
 	install -m 644 $(ALL_INFO_FILES) $(INFO_DIR)/
@@ -126,11 +124,11 @@ distclean: clean
 		$(DVI_FILES) $(PS_FILES)
 
 
-.PHONY: all all-formats			\
-	install-at install uninstall	\
-	info pdf dvi ps html		\
-	clean distclean			\
-	install-www
+.PHONY: all					\
+	ref refweb all-formats			\
+	install-ref install-www uninstall	\
+	info pdf pdfweb html htmlweb dvi ps	\
+	clean distclean
 
 
 ### Makefile ends here
