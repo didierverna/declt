@@ -33,7 +33,7 @@
 SHARE := $(PREFIX)/share
 W3DIR := $(HOME)/www/software/lisp/declt
 
-$(TOP_DIR)/version.inc:
+$(TOP_DIR)/version.inc: $(TOP_DIR)/version.sh $(TOP_DIR)/com.dvlsoft.declt.asd
 	$(TOP_DIR)/version.sh | tail -2 > $@
 
 
