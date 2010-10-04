@@ -44,11 +44,14 @@
 #-asdf2 (ignore-errors (asdf:operate 'asdf:load-op :asdf-binary-locations))
 
 (asdf:operate 'asdf:load-op :com.dvlsoft.declt)
-(com.dvlsoft.declt:declt :com.dvlsoft.declt
-			 :library-name "Declt" :texi-file "declt.texi")
-(com.dvlsoft.declt:declt :com.dvlsoft.declt
-			 :library-name "Declt" :texi-file "decltweb.texi"
-			 :link-files nil)
+
+(if (and (second sb-ext:*posix-argv*)
+	 (string= (second sb-ext:*posix-argv*) "--web"))
+    (com.dvlsoft.declt:declt :com.dvlsoft.declt
+			     :library-name "Declt" :texi-file "decltweb.texi"
+			     :link-files nil)
+  (com.dvlsoft.declt:declt :com.dvlsoft.declt
+			   :library-name "Declt" :texi-file "declt.texi"))
 
 
 

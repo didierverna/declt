@@ -82,8 +82,11 @@ uninstall:
 	done
 	cd $(INFO_DIR) && rm -f $(ALL_INFO_FILES)
 
-declt.texi decltweb.texi:
+declt.texi: generate.sh
 	./generate.sh
+
+decltweb.texi: generate.sh
+	./generate.sh --web
 
 info: declt.info
 

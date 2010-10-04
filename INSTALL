@@ -33,10 +33,9 @@ you want other formats (DVI and PostScript are available), type "make
 all-formats". You can also type individually "make dvi" and/or "make ps" in
 order to get the corresponding format.
 
-Finally, note that "make ref" also generates a "web" version of the reference
-manual Texinfo source called doc/decltweb.texi (see *link-files* for an
-explanation). If you want to compare this version and the standard one, you
-can typeset the web versions using "make pdfweb" and "make htmlweb".
+You may also generate a "web", unlinked version of the reference manual (see
+the variable *link-files* for an explanation) by typing "make refweb" or "make
+pdfweb" and "make htmlweb" individually.
 
 
 * Uninstalling
