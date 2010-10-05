@@ -57,7 +57,7 @@
 #-asdf2 (ignore-errors (asdf:operate 'asdf:load-op :asdf-binary-locations))
 
 (handler-case (asdf:operate 'asdf:load-op :com.dvlsoft.declt)
-  (t ()
+  (error ()
      (format t "LONG_VERSION := unknown~%SHORT_VERSION := unknown~%")
      (sb-ext:quit)))
 
