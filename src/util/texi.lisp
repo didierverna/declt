@@ -184,8 +184,8 @@ BODY should render on *standard-output*."
 	specializer))
   ;; #### PORTME.
   (:method ((specializer sb-mop:eql-specializer))
-    "Return the (eql object) list corresponding to SPECIALIZER."
-    `(eql ,(sb-mop:eql-specializer-object specializer))))
+    "Return the (eql object) list corresponding to SPECIALIZER in a string."
+    (format nil "~A" `(eql ,(sb-mop:eql-specializer-object specializer)))))
 
 ;; Based on Edi Weitz's write-lambda-list* from documentation-template.
 (defun render-lambda-list (lambda-list &optional specializers)
@@ -213,8 +213,6 @@ Rendering is done on *standard-output*."
 	       (if (and specializer (not (eq specializer t)))
 		   (format t "(~A @t{~(~A~)})"
 		     (escape part)
-		     ;; #### FIXME: this will break with eql specializers,
-		     ;; right ?!
 		     (escape specializer))
 		 (write-string (escape part)))))))))
 
