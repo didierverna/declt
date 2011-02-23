@@ -409,25 +409,4 @@ This structure holds Texinfo nodes."
   (render-node *top-node* 0)
   (values))
 
-
-
-;;; Local Variables:
-;;; eval: (put '@itemize      'common-lisp-indent-function 1)
-;;; eval: (put '@table        'common-lisp-indent-function 1)
-;;; eval: (put '@itemize-list 'common-lisp-indent-function 1)
-;;; eval: (put '@defvr        'common-lisp-indent-function 1)
-;;; eval: (put '@defconstant  'common-lisp-indent-function 1)
-;;; eval: (put '@defspecial   'common-lisp-indent-function 1)
-;;; eval: (put '@defmac       'common-lisp-indent-function 2)
-;;; eval: (put '@defun        'common-lisp-indent-function 2)
-;;; eval: (put '@deffn        'common-lisp-indent-function 3)
-;;; eval: (put '@defgeneric   'common-lisp-indent-function 2)
-;;; eval: (put '@defmethod    'common-lisp-indent-function 4)
-;;; eval: (put '@deftp        'common-lisp-indent-function 2)
-;;; eval: (put '@defstruct    'common-lisp-indent-function 1)
-;;; eval: (put '@defcond      'common-lisp-indent-function 1)
-;;; eval: (put '@defclass     'common-lisp-indent-function 1)
-;;; eval: (put 'add-child     'common-lisp-indent-function 1)
-;;; End:
-
 ;;; texi.lisp ends here
