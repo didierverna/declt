@@ -106,7 +106,7 @@ declt-%.info: %.texi
 	$(MAKEINFO) $<
 
 %.pdf: %.texi
-	$(TEXI2DVI) -p $<
+	$(TEXI2PDF) $<
 
 $(HTML_DIRS) webreference: %: %.texi
 	$(MAKEINFO) --html -o $@ $<

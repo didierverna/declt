@@ -57,15 +57,15 @@ SBCL_PATH  := sbcl
 #ABCL_PATH  := abcl
 
 
-# Programs for generating the documentation:
+# Required external programs:
 MAKEINFO = makeinfo
 TEXI2DVI = texi2dvi
+TEXI2PDF = texi2pdf
 DVIPS    = dvips
 CONVERT  = convert
-INSTALL-INFO = install-info
 
-# Other programs:
 INSTALL = install
+INSTALL-INFO = install-info
 
 
 ### Makefile.cnf ends here
