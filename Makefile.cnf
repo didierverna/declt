@@ -62,6 +62,10 @@ MAKEINFO = makeinfo
 TEXI2DVI = texi2dvi
 DVIPS    = dvips
 CONVERT  = convert
+INSTALL-INFO = install-info
+
+# Other programs:
+INSTALL = install
 
 
 ### Makefile.cnf ends here

@@ -84,8 +84,8 @@ gpg: $(SIGNATURE)
 dist: tar gpg
 
 install-www: dist
-	-install -m 644 $(TARBALL)   "$(W3DIR)/attic/"
-	-install -m 644 $(SIGNATURE) "$(W3DIR)/attic/"
+	-$(INSTALL) -m 644 $(TARBALL)   "$(W3DIR)/attic/"
+	-$(INSTALL) -m 644 $(SIGNATURE) "$(W3DIR)/attic/"
 	echo "\
 <? lref (\"declt/attic/declt-$(SHORT_VERSION).tar.gz\", \
 	 contents (\"Dernière version\", \"Latest version\")); ?> \

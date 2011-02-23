@@ -38,10 +38,10 @@ include $(TOP_DIR)/Makefile.inc
 include $(TOP_DIR)/version.inc
 
 
-INFO_DIR        := $(PREFIX)/share/info
-DOC_DIR	        := $(SHARE)/doc
+INFO_DIR      := $(PREFIX)/share/info
+DOC_DIR	      := $(SHARE)/doc
 DECLT_DOC_DIR := $(DOC_DIR)/declt
-TEXI_FILES      :=
+TEXI_FILES    := reference.texi
 
 INFO_FILES     := $(TEXI_FILES:%.texi=declt-%.info)
 PDF_FILES      := $(TEXI_FILES:%.texi=%.pdf)
@@ -53,68 +53,48 @@ HTML_DIRS      := $(TEXI_FILES:%.texi=%)
 
 all: info pdf html
 
-ref: info-ref pdf-ref html-ref
-
 webref: pdf-webref html-webref
 
 all-formats: all dvi ps
 
-all-formats-ref: ref dvi-ref ps-ref
-
 install-at: $(PDF_FILES) $(HTML_DIRS)
-	install -d "$(LOCATION)"
-#	install -m 644 $(PDF_FILES) "$(LOCATION)/"
-#	install -d -m 755 "$(LOCATION)/user"
-#	install -m 644 user/* "$(LOCATION)/user/"
+	$(INSTALL) -d "$(LOCATION)"
+	$(INSTALL) -m 644 $(PDF_FILES) "$(LOCATION)/"
+	for i in $(HTML_DIRS); do			\
+	  $(INSTALL) -d -m 755 "$(LOCATION)/$$i" ;		\
+	  $(INSTALL) -m 644 $$i/* "$(LOCATION)/$$i/" ;	\
+	done
 
 install: $(INFO_FILES)
-	install -d "$(INFO_DIR)"
-#	install -m 644 $(ALL_INFO_FILES) "$(INFO_DIR)/"
+	$(INSTALL) -d "$(INFO_DIR)"
+	$(INSTALL) -m 644 $(ALL_INFO_FILES) "$(INFO_DIR)/"
 	for i in $(INFO_FILES); do			\
-	  install-info --info-dir="$(INFO_DIR)" $$i;	\
+	  $(INSTALL-INFO) --info-dir="$(INFO_DIR)" $$i;	\
 	done
 	$(MAKE) install-at LOCATION="$(DECLT_DOC_DIR)"
 	-for i in $(DVI_FILES) $(PS_FILES); do			\
-	  test -f $$i && install -m 644 $$i "$(DECLT_DOC_DIR)";	\
-	done
-	-if test -f declt-reference.info; then			\
-	  install -m 644 declt-reference.info* "$(INFO_DIR)/" ;	\
-	  install-info --info-dir="$(INFO_DIR)" declt-reference.info ;\
-	fi
-	-if test -f reference.pdf ; then				\
-	  install -m 644 reference.pdf "$(DECLT_DOC_DIR)/" ;		\
-	fi
-	-if test -d reference ; then					\
-	  install -d -m 755 "$(DECLT_DOC_DIR)/reference" ;		\
-	  install -m 644 reference/* "$(DECLT_DOC_DIR)/reference/" ;	\
-	fi
-	-for i in reference.dvi reference.ps; do			\
-	  test -f $$i && install -m 644 $$i "$(DECLT_DOC_DIR)";	\
+	  test -f $$i && $(INSTALL) -m 644 $$i "$(DECLT_DOC_DIR)";	\
 	done
 
 uninstall:
 	-rm -fr "$(DECLT_DOC_DIR)"
-	for i in $(INFO_FILES) declt-reference.info; do	\
-	  install-info --remove --info-dir="$(INFO_DIR)" $$i;	\
+	for i in $(INFO_FILES); do				\
+	  $(INSTALL-INFO) --remove --info-dir="$(INFO_DIR)" $$i;	\
 	done
-	cd "$(INFO_DIR)" && rm -f $(ALL_INFO_FILES) declt-reference.info*
+	cd "$(INFO_DIR)" && rm -f $(ALL_INFO_FILES)
 
 info: $(INFO_FILES)
-info-ref: declt-reference.info
 
 pdf: $(PDF_FILES)
-pdf-ref: reference.pdf
 pdf-webref: webreference.pdf
 
 html: $(HTML_DIRS)
-html-ref: reference
 html-webref: webreference
 
 dvi: $(DVI_FILES)
-dvi-ref: reference.dvi
 
 ps: $(PS_FILES)
-ps-ref: reference.ps
+
 
 reference.texi: generate.cl
 	$(SBCL_PATH) $(SBCL_EXEC) ./generate.cl
@@ -128,7 +108,7 @@ declt-%.info: %.texi
 %.pdf: %.texi
 	$(TEXI2DVI) -p $<
 
-$(HTML_DIRS) reference webreference: %: %.texi
+$(HTML_DIRS) webreference: %: %.texi
 	$(MAKEINFO) --html -o $@ $<
 	touch $@
 
@@ -145,7 +125,7 @@ clean:
 	-rm *.tmp *.fn* *.vr* *.ky* *.tp* *.cp* *.pg *.toc *.aux *.log *~
 
 distclean: clean
-	-rm -fr declt.eps webreference* declt-reference* reference*	\
+	-rm -fr declt.eps webreference*					\
 		$(HTML_DIRS)						\
 		$(ALL_INFO_FILES) $(PDF_FILES) $(DVI_FILES) $(PS_FILES)
 
@@ -157,20 +137,20 @@ update-version:
 
 install-www: webref
 	$(MAKE) install-at LOCATION="$(W3DIR)"
-	install -m 644 webreference.pdf "$(W3DIR)/reference.pdf"
-	install -d -m 755 "$(W3DIR)/reference"
-	install -m 644 webreference/* "$(W3DIR)/reference/"
+	$(INSTALL) -m 644 webreference.pdf "$(W3DIR)/reference.pdf"
+	$(INSTALL) -d -m 755 "$(W3DIR)/reference"
+	$(INSTALL) -m 644 webreference/* "$(W3DIR)/reference/"
 
 
-.PHONY: all ref webref all-formats all-formats-ref	\
-	install-at install uninstall			\
-	info info-ref					\
-	pdf pdf-ref pdf-webref				\
-	html html-ref html-webref			\
-	dvi dvi-ref					\
-	ps ps-ref					\
-	clean distclean					\
-	update-version					\
+.PHONY: all webref all-formats		\
+	install-at install uninstall	\
+	info				\
+	pdf pdf-webref			\
+	html html-webref		\
+	dvi				\
+	ps				\
+	clean distclean			\
+	update-version			\
 	install-www
 
 
