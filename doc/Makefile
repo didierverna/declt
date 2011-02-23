@@ -84,7 +84,7 @@ install: $(INFO_FILES)
 	-if test -f reference.pdf ; then				\
 	  install -m 644 reference.pdf "$(DECLT_DOC_DIR)/" ;		\
 	fi
-	-if test -f reference ; then					\
+	-if test -d reference ; then					\
 	  install -d -m 755 "$(DECLT_DOC_DIR)/reference" ;		\
 	  install -m 644 reference/* "$(DECLT_DOC_DIR)/reference/" ;	\
 	fi
