@@ -61,6 +61,8 @@
    :+release-status-level+
    :+release-name+
    :version
+   ;; From package.lisp:
+   :nickname-package
    ;; From src/doc/asdf.lisp:
    :*link-files*
    ;; From src/declt.lisp:
