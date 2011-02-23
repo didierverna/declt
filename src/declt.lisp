@@ -33,35 +33,59 @@
 
 (in-package :com.dvlsoft.declt)
 
+(define-constant +licenses+
+    '((:bsd
+       "The BSD License"
+       "Permission to use, copy, modify, and distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THIS SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.")
+      (:gpl
+       "The GNU GPL License"
+       "This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
+
+
+
 (defun render-header (library-name texi-name info-file subtitle version
-		      author email copyright-date current-time-string)
+		      author email license copyright-date current-time-string)
   "Render the header of the Texinfo file."
-  (format t "\\input texinfo
+  (format t "\\input texinfo~2%@c ~A --- Reference manual~2%" texi-name)
 
-@c ~A --- Reference manual
+  (when license
+    (format t "@c Copyright (C) ~A ~A~2%@c This file is part of ~A.~2%"
+      copyright-date author library-name)
+    (with-input-from-string (str (caddr license))
+      (loop :for line := (read-line str nil :eof)
+	 :until (eq line :eof)
+	 :do (format t "@c ~A~%" line)))
+    (terpri)
+    (terpri))
 
-~A@c This file is part of ~A.
+  (format t "@c Commentary:~2%~
+	     @c Generated automatically by Declt version ~A~%~
+	     @c on ~A.~3%"
+    (version :long) current-time-string)
 
-@c ~A is free software; you can redistribute it and/or modify
-@c it under the terms of the GNU General Public License version 3,
-@c as published by the Free Software Foundation.
-
-@c ~A is distributed in the hope that it will be useful,
-@c but WITHOUT ANY WARRANTY; without even the implied warranty of
-@c MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-@c GNU General Public License for more details.
-
-@c You should have received a copy of the GNU General Public License
-@c along with this program; if not, write to the Free Software
-@c Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-
-@c Commentary:
-
-@c Generated automatically by Declt version ~A
-@c on ~A.
-
-
+  (format t "~
 @c ====================================================================
 @c Header
 @c ====================================================================
@@ -69,10 +93,10 @@
 @setfilename ~A.info
 @settitle The ~A Reference Manual
 @afourpaper
-@c %**end of header
+@c %**end of header~4%"
+    info-file library-name)
 
-
-
+  (format t "~
 @c ====================================================================
 @c Settings
 @c ====================================================================
@@ -80,10 +104,10 @@
 @setcontentsaftertitlepage
 @documentdescription
 The ~A Reference Manual~@[, version ~A~].
-@end documentdescription
+@end documentdescription~4%"
+    library-name version)
 
-
-
+  (format t "~
 @c ====================================================================
 @c New Commands
 @c ====================================================================
@@ -198,26 +222,28 @@ The ~A Reference Manual~@[, version ~A~].
 @c Classes
 @macro classsubindex{name}
 @tpindex @r{Class, }\\name\\
-@end macro
+@end macro~4%")
 
-
-
+  (format t "~
 @c ====================================================================
 @c Info Category and Directory
 @c ====================================================================
 @dircategory Common Lisp
 @direntry
 * ~A Reference: (~A). The ~A Reference Manual.
-@end direntry
+@end direntry~4%"
+    library-name info-file library-name)
 
-
-
+  (when license
+    (format t "~
 @c ====================================================================
 @c Copying
 @c ====================================================================
 @copying
 @quotation
-~APermission is granted to make and distribute verbatim copies of this
+Copyright @copyright{} ~A ~A
+
+Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
 preserved on all copies.
 
@@ -230,20 +256,16 @@ notice identical to this one except for the removal of this paragraph
 @end ignore
 Permission is granted to copy and distribute modified versions of this
 manual under the conditions for verbatim copying, provided also that the
-sections entitled ``Copying'' and ``GNU General Public License'' are
-included exactly as in the original, and provided that the entire
-resulting derived work is distributed under the terms of a permission
-notice identical to this one.
+section entitled ``Copying'' is included exactly as in the original.
 
 Permission is granted to copy and distribute translations of this manual
 into another language, under the above conditions for modified versions,
-except that this permission notice may be stated in a translation
-approved by the Free Software Foundation.
+except that this permission notice may be translated as well.
 @end quotation
-@end copying
+@end copying~4%"
+    copyright-date author))
 
-
-
+  (format t "~
 @c ====================================================================
 @c Title Page
 @c ====================================================================
@@ -254,44 +276,25 @@ approved by the Free Software Foundation.
 @quotation
 This manual was generated automatically by Declt
 version ~A on ~A.
-@end quotation
-@vskip 0pt plus 1filll
-@insertcopying
-@end titlepage
-
-
-
-@c ====================================================================
-@c Table of Contents
-@c ====================================================================
-@contents
-"
-    texi-name ;; @c ~A --- Reference manual
-    (if (or copyright-date author) ;; ~A
-	(format nil "@c Copyright (C) ~@[~A~]~:[~; ~]~@[~A~]~%~%"
-	  copyright-date (and copyright-date author) author))
-    library-name ;; @c This file is part of ~A.
-    library-name ;; @c ~A is free software...
-    library-name ;; @c ~A is distributed...
-    (version :long) current-time-string ;; Generated automatically...
-    info-file ;; @setfilename ~A.info
-    library-name ;; @settitle...
-    library-name version ;; @documentdescription...
-    library-name info-file library-name ;; @direntry...
-    (if (or copyright-date author) ;; @quotation...
-	(format nil "Copyright @copyright{} ~@[~A~]~:[~; ~]~@[~A~].~%~%"
-	  copyright-date (and copyright-date author) author)
-      "")
-    library-name ;; @title...
-    (if (or subtitle version) ;; ~A
+@end quotation~%"
+    library-name
+    (if (or subtitle version)
 	(format nil "@subtitle ~@[~A~]~:[~;, ~]~@[version ~A~]~%"
 	  subtitle (and subtitle version) version)
       "")
-    (if (or author email) ;; ~A
-	(format nil "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-	  author (and author email) email)
-      "")
-    (version :long) current-time-string)) ;; This manual was...
+    (format nil "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
+       author email email)
+    (version :long)
+    current-time-string)
+  (when license
+    (format t "@vskip 0pt plus 1filll~%@insertcopying~%"))
+  (format t "@end titlepage~4%")
+
+  (format t "~
+@c ====================================================================
+@c Table of Contents
+@c ====================================================================
+@contents~%"))
 
 (defun declt (system-name
 	      &key (library-name (string-downcase (symbol-name system-name)))
@@ -300,9 +303,10 @@ version ~A on ~A.
 		   introduction
 		   (subtitle nil subtitlep)
 		   (version nil versionp)
-		   (author nil authorp)
+		   author
 		   (email nil emailp)
-		   (copyright-date nil copyright-date-p)
+		   license
+		   copyright-date
 		   conclusion
 		   (link-files *link-files*)
 	      &aux (system (find-system system-name))
@@ -318,12 +322,17 @@ version ~A on ~A.
 - SUBTITLE defaults to the system description.
 - VERSION defaults to the system version.
 - AUTHOR and EMAIL defaults are extracted from the system author.
+- LICENSE defaults to nil (possible values are: :BSD and :GPL).
 - COPYRIGHT-DATE defaults to the current year.
 - CONCLUSION is a potential contents for a conclusion chapter.
 
 See also the special variable *LINK-FILES* for the meaning of LINK-FILES."
 
+  ;; First load the target system. If this fails, there's no point in working
+  ;; hard on the rest.
   (asdf:operate 'asdf:load-op system-name)
+
+  ;; Next, post-process some parameters.
   (setq library-name (escape library-name))
   (setq info-file (escape info-file))
   (unless subtitlep
@@ -338,21 +347,24 @@ See also the special variable *LINK-FILES* for the meaning of LINK-FILES."
     (setq version (escape version)))
   (multiple-value-bind (system-author system-email)
       (parse-author-string (system-author system))
-    (unless authorp
+    (unless author
       (setq author system-author))
-    (when author
-      (setq author (escape author)))
+    (if author
+	(setq author (escape author))
+      (error "Author must be provided."))
     (setq email (if emailp email system-email)))
   (when email
     (setq email (escape email)))
-  (unless copyright-date-p
-    (setq copyright-date
-	  (multiple-value-bind (second minute hour date month year)
-	      (get-decoded-time)
-	    (declare (ignore second minute hour date month))
-	    (format nil "~A" year))))
-  (when copyright-date
-    (setq copyright-date (escape copyright-date)))
+  (when license
+    (setq license (assoc license +licenses+))
+    (unless license
+      (error "License not found.")))
+  (setq copyright-date
+	(escape (or copyright-date
+		    (multiple-value-bind (second minute hour date month year)
+			(get-decoded-time)
+		      (declare (ignore second minute hour date month))
+		      (format nil "~A" year)))))
   (setq *top-node*
 	(make-node :name "Top"
 		   :section-name (format nil "The ~A Reference Manual"
@@ -366,27 +378,16 @@ on ~A."
 					   version
 					   (escape (version :long))
 					   current-time-string)
-		   :after-menu-contents "@insertcopying"))
-  (add-child *top-node*
-    (make-node :name "Copying"
-	       :synopsis "The GNU General Public License"
-	       :section-type :unnumbered
-	       :before-menu-contents (format nil "@quotation
-~A is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License version 3,
-as published by the Software Foundation.
-
-~A is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-675 Mass Ave, Cambridge, MA 02139, USA.
-@end quotation"
-				       library-name
-				       library-name)))
+		   :after-menu-contents (when license "@insertcopying")))
+  (when license
+    (add-child *top-node*
+      (make-node :name "Copying"
+		 :synopsis (cadr license)
+		 :section-type :unnumbered
+		 :before-menu-contents (format nil "@quotation~@
+						    ~A~@
+						    @end quotation"
+					 (escape (caddr license))))))
   (when introduction
     (add-child *top-node*
       (make-node :name "Introduction"
@@ -437,7 +438,7 @@ Concepts, functions, variables and data types")
 		    :if-exists :supersede
 		    :if-does-not-exist :create)
     (render-header library-name texi-name info-file subtitle version author
-		   email copyright-date current-time-string)
+		   email license copyright-date current-time-string)
     (render-nodes)
     (format t "~%@bye~%~%@c ~A ends here~%" texi-name))
   (values))
