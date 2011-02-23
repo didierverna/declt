@@ -1,11 +1,9 @@
 ;;; texi.lisp --- Texinfo format utilities
 
-;; Copyright (C) 2010 Didier Verna
+;; Copyright (C) 2010, 2011 Didier Verna
 
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
-;; Created:       Tue Aug 24 11:48:19 2010
-;; Last Revision: Wed Sep  8 14:28:52 2010
 
 ;; This file is part of Declt.
 

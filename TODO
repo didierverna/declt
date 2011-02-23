@@ -1,19 +1,28 @@
                                                              -*- outline -*-
 
-* Index dependencies
+* Copyright (C) 2010, 2011 Didier Verna
+
+This file is part of Declt.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+
+** Index dependencies
 ASDF maintains dependencies as a list of names only, so this makes it harder
 to find the corresponding component.
 
-* See about shadowed symbols
+** See about shadowed symbols
 
-* See sb-introspect for a list of other things that we could possibly document
+** See sb-introspect for a list of other things that we could possibly document
 
-* Sort out the case of (setf blah).
+** Sort out the case of (setf blah).
 
-* Cleanup up the string-downcase issue
+** Cleanup up the string-downcase issue
 so that it would be easier afterwards to provide an option for case behavior.
 
-* Canonicalize pathnames
+** Canonicalize pathnames
 If the system definition pathname or definition sources contain funky stuff
 like ./, ../ or even are symlinks, the cross-references will most probably
 break. We need to work on canonical pathnames.

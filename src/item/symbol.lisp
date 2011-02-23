@@ -1,11 +1,9 @@
 ;;; symbol.lisp --- Symbol based items
 
-;; Copyright (C) 2010 Didier Verna
+;; Copyright (C) 2010, 2011 Didier Verna
 
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
-;; Created:       Thu Sep  9 11:31:55 2010
-;; Last Revision: Thu Sep  9 11:53:54 2010
 
 ;; This file is part of Declt.
 

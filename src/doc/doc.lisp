@@ -1,11 +1,9 @@
 ;;; doc.lisp --- Items documentation
 
-;; Copyright (C) 2010 Didier Verna
+;; Copyright (C) 2010, 2011 Didier Verna
 
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
-;; Created:       Thu Sep  9 12:31:11 2010
-;; Last Revision: Fri Sep 10 13:20:32 2010
 
 ;; This file is part of Declt.
 

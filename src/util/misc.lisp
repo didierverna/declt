@@ -1,11 +1,9 @@
 ;;; misc.lisp --- Miscellaneous utilities
 
-;; Copyright (C) 2010 Didier Verna
+;; Copyright (C) 2010, 2011 Didier Verna
 
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
-;; Created:       Thu Sep  9 11:17:04 2010
-;; Last Revision: Thu Sep  9 11:18:41 2010
 
 ;; This file is part of Declt.
 

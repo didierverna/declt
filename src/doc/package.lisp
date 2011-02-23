@@ -1,11 +1,9 @@
 ;;; package.lisp --- Package documentation
 
-;; Copyright (C) 2010 Didier Verna
+;; Copyright (C) 2010, 2011 Didier Verna
 
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
-;; Created:       Wed Sep  1 16:04:00 2010
-;; Last Revision: Sun Sep  5 21:54:36 2010
 
 ;; This file is part of Declt.
 

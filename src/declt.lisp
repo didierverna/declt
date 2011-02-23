@@ -1,11 +1,9 @@
 ;;; declt.lisp --- Entry points
 
-;; Copyright (C) 2010 Didier Verna
+;; Copyright (C) 2010, 2011 Didier Verna
 
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
-;; Created:       Mon Aug 23 17:47:05 2010
-;; Last Revision: Mon Aug 23 17:47:05 2010
 
 ;; This file is part of Declt.
 
@@ -32,6 +30,7 @@
 ;;; Code:
 
 (in-package :com.dvlsoft.declt)
+
 
 (define-constant +licenses+
     '((:bsd
@@ -62,7 +61,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
-
 
 
 (defun render-header (library-name texi-name info-file subtitle version

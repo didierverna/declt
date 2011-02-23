@@ -1,11 +1,9 @@
 ;;; asdf.lisp --- ASDF Items
 
-;; Copyright (C) 2010 Didier Verna
+;; Copyright (C) 2010, 2011 Didier Verna
 
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
-;; Created:       Thu Sep  9 11:40:40 2010
-;; Last Revision: Thu Sep  9 15:28:05 2010
 
 ;; This file is part of Declt.
 

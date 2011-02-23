@@ -1,11 +1,9 @@
 ;;; com.dvlsoft.declt.asd --- ASDF system definition
 
-;; Copyright (C) 2010 Didier Verna
+;; Copyright (C) 2010, 2011 Didier Verna
 
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
-;; Created:       Mon Aug 23 17:28:39 2010
-;; Last Revision: Mon Aug 23 18:41:36 2010
 
 ;; This file is part of Declt.
 
@@ -145,7 +143,7 @@ definitions they provide, and those definitions point back to package and file
 in which they can be found."
   :author "Didier Verna <didier@lrde.epita.fr>"
   :maintainer "Didier Verna <didier@lrde.epita.fr>"
-  :license "GNU GPL version 3"
+  :license "GNU GPL"
   :version #.(version :long)
   ;; #### PORTME.
   :depends-on (:sb-introspect)
