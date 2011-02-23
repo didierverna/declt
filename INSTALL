@@ -1,49 +1,53 @@
 						             -*- outline -*-
 
-* Anatomy of the source tree
+* Copyright (C) 2011 Didier Verna
 
-The Declt source tree has the following shape:
+This file is part of Declt.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+
+* Anatomy of the tarball
+The Declt distribution has the following shape:
 
 ./src/		;; source directory
 ./doc/		;; documentation
+./emacs/        ;; Emacs edition utilities
+
+
+* Portability
 
 
 * Configuration
-You may need to edit Makefile.cnf and doc/generate.sh in order to tweak some
-installation parameters.
+Edit Makefile.cnf to your specific needs.
 
 
-* Building and installing
-There is nothing to build or install, so no need to type "make" or "make
-install". If you're using ASDF 1 however, you will want to "make
-install-system" in order to create the system file symlink where appropriate.
+* Pre-installation
+If you're using ASDF 1, you need to "make install-system" before anything else
+in order to create the system file symlink where appropriate. Otherwise (ASDF
+2), we assume that you have unpacked somewhere in the source registry.
 
 
-* Building and installing the reference manual
-Declt can generate its own reference manual.
-
-If you're using ASDF 1, you need to have typed "make install-system" first
-(that is why the reference manual is not built by default).
-
-To generate the reference manual, type "make ref".
-To install it, type "make install-ref".
-
-By default, the reference manual is built in info, PDF and HTML formats. If
-you want other formats (DVI and PostScript are available), type "make
-all-formats". You can also type individually "make dvi" and/or "make ps" in
-order to get the corresponding format.
-
-You may also generate a "web", unlinked version of the reference manual (see
-the variable *link-files* for an explanation) by typing "make refweb" or "make
-pdfweb" and "make htmlweb" individually.
+* Build
+There's nothing to build by default. Declt can create its own reference manual
+however. In order to do that, type "make ref". By default, the reference
+manual is generated in info, PDF and HTML formats. If you want other formats
+(DVI and PostScript are available), type "make all-formats-ref". You can also
+individually type "make dvi-ref" and/or "make ps-ref" in order to get the
+corresponding format only.
 
 
-* Uninstalling
+* Installation
+Typing "make install" will install all generated versions of the reference
+manual that you may have created.
 
+
+* Uninstallation
 Type "make uninstall".
 
 
 * Usage
-
 Declt has a single entry point which is the DECLT function. See the docstring
 for an explanation.

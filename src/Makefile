@@ -1,26 +1,23 @@
 ### Makefile --- Source directory
 
-## Copyright (C) 2010 Didier Verna
+## Copyright (C) 2011 Didier Verna
 
 ## Author:        Didier Verna <didier@lrde.epita.fr>
 ## Maintainer:    Didier Verna <didier@lrde.epita.fr>
-## Created:       Sun Sep 19 21:17:33 2010
-## Last Revision: Sun Sep 19 21:17:41 2010
 
 ## This file is part of Declt.
 
-## Declt is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License version 3,
-## as published by the Free Software Foundation.
+## Permission to use, copy, modify, and distribute this software for any
+## purpose with or without fee is hereby granted, provided that the above
+## copyright notice and this permission notice appear in all copies.
 
-## Declt is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
-
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+## THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+## WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+## MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+## ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+## WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+## ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+## OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 ### Commentary:
@@ -32,26 +29,27 @@
 
 TOP_DIR := ..
 
-include ../Makefile.cnf
+include $(TOP_DIR)/Makefile.cnf
+
+hack: all
+
+include $(TOP_DIR)/Makefile.inc
+
 
 all:
 
-include ../Makefile.inc
-include ../version.inc
-
-install:
-uninstall:
-
 clean:
-	-rm *~ */*~ */*/*~
+	-rm *~
 
 distclean: clean
-	-rm -fr sbcl-* */sbcl-* */*/sbcl-* # for ASDF Binary Locations
-
-update-version:
+	-rm -fr $($(LISP)_BINLOC)-*	\
+		*/$($(LISP)_BINLOC)-*	\
+		*/*/$($(LISP)_BINLOC)-*
+install:
+uninstall:
 install-www:
 
-.PHONY: all install uninstall clean distclean update-version install-www
+.PHONY: hack all clean distclean install uninstall install-www
 
 
 ### Makefile ends here

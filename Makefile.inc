@@ -1,26 +1,23 @@
 ### Makefile.inc --- Inclusion part
 
-## Copyright (C) 2010 Didier Verna
+## Copyright (C) 2011 Didier Verna
 
 ## Author:        Didier Verna <didier@lrde.epita.fr>
 ## Maintainer:    Didier Verna <didier@lrde.epita.fr>
-## Created:       Sun Sep 19 21:14:02 2010
-## Last Revision: Sun Sep 19 21:15:04 2010
 
 ## This file is part of Declt.
 
-## Declt is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License version 3,
-## as published by the Free Software Foundation.
+## Permission to use, copy, modify, and distribute this software for any
+## purpose with or without fee is hereby granted, provided that the above
+## copyright notice and this permission notice appear in all copies.
 
-## Declt is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
-
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+## THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+## WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+## MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+## ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+## WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+## ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+## OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 ### Commentary:
@@ -30,11 +27,39 @@
 
 ### Code:
 
+PERL := perl
+
 SHARE := $(PREFIX)/share
+
 W3DIR := $(HOME)/www/software/lisp/declt
 
-$(TOP_DIR)/version.inc: $(TOP_DIR)/version.sh $(TOP_DIR)/com.dvlsoft.declt.asd
-	$(TOP_DIR)/version.sh | tail -2 > $@
+SBCL_CACHE  := sbcl
+SBCL_BINLOC := sbcl
+SBCL_EXEC   := --script
+
+#CMUCL_CACHE  := cmu
+#CMUCL_BINLOC := cmu
+#CMUCL_EXEC   := -load
+
+#CCL_CACHE  := ccl
+#CCL_BINLOC := openmcl
+#CCL_EXEC   := --load
+
+#ECL_CACHE  := ecl
+#ECL_BINLOC := ecl
+#ECL_EXEC   := -load
+
+#CLISP_CACHE  := clisp
+#CLISP_BINLOC := clisp
+#CLISP_EXEC   := -i
+
+#ABCL_CACHE  := abcl
+#ABCL_BINLOC := abcl
+#ABCL_EXEC   := --load
+
+$(TOP_DIR)/version.inc: $(TOP_DIR)/version.cl \
+			$(TOP_DIR)/com.dvlsoft.declt.asd
+	$($(LISP)_PATH) $($(LISP)_EXEC) $(TOP_DIR)/version.cl | tail -2 > $@
 
 
 ### Makefile.inc ends here

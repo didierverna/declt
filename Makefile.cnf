@@ -1,26 +1,23 @@
 ### Makefile.cnf --- User level configuration
 
-## Copyright (C) 2010 Didier Verna
+## Copyright (C) 2011 Didier Verna
 
 ## Author:        Didier Verna <didier@lrde.epita.fr>
 ## Maintainer:    Didier Verna <didier@lrde.epita.fr>
-## Created:       Sun Sep 19 21:12:41 2010
-## Last Revision: Thu Sep 30 16:33:11 2010
 
 ## This file is part of Declt.
 
-## Declt is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License version 3,
-## as published by the Free Software Foundation.
+## Permission to use, copy, modify, and distribute this software for any
+## purpose with or without fee is hereby granted, provided that the above
+## copyright notice and this permission notice appear in all copies.
 
-## Declt is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
-
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+## THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+## WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+## MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+## ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+## WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+## ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+## OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 ### Commentary:
@@ -38,10 +35,32 @@
 # do the installation by hand.
 PREFIX := /usr/local
 
+# Lisp implementation to use (for some installation processing steps only):
+# Currently, only SBCL is supported
+LISP := SBCL
+
+# Implementation paths:
+SBCL_PATH  := sbcl
+#CMUCL_PATH := lisp
+#CCL_PATH   := ccl
+#ECL_PATH   := ecl
+# -q is needed to remove 'bye' for version.cl to work properly.
+#CLISP_PATH := CC=$(CC) clisp -q
+
+# For ABCL, we need something slightly different.
+#ABCL_JAR   := /usr/local/src/common-lisp/abcl/dist/abcl.jar
+#JAVA       := java
+#JAVAC      := javac
+#JAR        := jar
+#SED        := sed
+#ABCL_PATH  := abcl
+
+
 # Programs for generating the documentation:
 MAKEINFO = makeinfo
 TEXI2DVI = texi2dvi
 DVIPS    = dvips
+CONVERT  = convert
 
 
 ### Makefile.cnf ends here
