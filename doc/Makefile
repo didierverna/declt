@@ -63,19 +63,19 @@ all-formats-ref: ref dvi-ref ps-ref
 
 install-at: $(PDF_FILES) $(HTML_DIRS)
 	install -d "$(LOCATION)"
-	install -m 644 $(PDF_FILES) "$(LOCATION)/"
-	install -d -m 755 "$(LOCATION)/user"
-	install -m 644 user/* "$(LOCATION)/user/"
+#	install -m 644 $(PDF_FILES) "$(LOCATION)/"
+#	install -d -m 755 "$(LOCATION)/user"
+#	install -m 644 user/* "$(LOCATION)/user/"
 
 install: $(INFO_FILES)
 	install -d "$(INFO_DIR)"
-	install -m 644 $(ALL_INFO_FILES) "$(INFO_DIR)/"
+#	install -m 644 $(ALL_INFO_FILES) "$(INFO_DIR)/"
 	for i in $(INFO_FILES); do			\
 	  install-info --info-dir="$(INFO_DIR)" $$i;	\
 	done
-	$(MAKE) install-at LOCATION="$(CLON_DOC_DIR)"
+	$(MAKE) install-at LOCATION="$(DECLT_DOC_DIR)"
 	-for i in $(DVI_FILES) $(PS_FILES); do			\
-	  test -f $$i && install -m 644 $$i "$(CLON_DOC_DIR)";	\
+	  test -f $$i && install -m 644 $$i "$(DECLT_DOC_DIR)";	\
 	done
 	-if test -f declt-reference.info; then			\
 	  install -m 644 declt-reference.info* "$(INFO_DIR)/" ;	\
