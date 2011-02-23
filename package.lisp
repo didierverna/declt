@@ -67,4 +67,19 @@
    :declt))
 
 
+(in-package :com.dvlsoft.declt)
+
+
+;; -------------------
+;; External utilities:
+;; -------------------
+
+(defun nickname-package (&optional (nickname :declt))
+  "Add NICKNAME (:DECLT by default) to the :COM.DVLSOFT.DECLT package."
+  (rename-package :com.dvlsoft.declt
+		  (package-name :com.dvlsoft.declt)
+		  (adjoin nickname (package-nicknames :com.dvlsoft.declt)
+			  :test #'string-equal)))
+
+
 ;;; package.lisp ends here
