@@ -38,10 +38,11 @@ include $(TOP_DIR)/Makefile.inc
 include $(TOP_DIR)/version.inc
 
 
-INFO_DIR      := $(PREFIX)/share/info
-DOC_DIR	      := $(SHARE)/doc
-DECLT_DOC_DIR := $(DOC_DIR)/declt
-TEXI_FILES    := reference.texi
+INFO_DIR       := $(PREFIX)/share/info
+DOC_DIR	       := $(SHARE)/doc
+DECLT_DOC_DIR  := $(DOC_DIR)/declt
+GEN_TEXI_FILES := reference.texi
+TEXI_FILES     := $(GEN_TEXI_FILES)
 
 INFO_FILES     := $(TEXI_FILES:%.texi=declt-%.info)
 PDF_FILES      := $(TEXI_FILES:%.texi=%.pdf)
@@ -125,7 +126,7 @@ clean:
 	-rm *.tmp *.fn* *.vr* *.ky* *.tp* *.cp* *.pg *.toc *.aux *.log *~
 
 distclean: clean
-	-rm -fr declt.eps webreference*					\
+	-rm -fr $(GEN_TEXI_FILES:%.texi=%)* webreference*		\
 		$(HTML_DIRS)						\
 		$(ALL_INFO_FILES) $(PDF_FILES) $(DVI_FILES) $(PS_FILES)
 
@@ -140,7 +141,6 @@ install-www: webref
 	$(INSTALL) -m 644 webreference.pdf "$(W3DIR)/reference.pdf"
 	$(INSTALL) -d -m 755 "$(W3DIR)/reference"
 	$(INSTALL) -m 644 webreference/* "$(W3DIR)/reference/"
-
 
 .PHONY: all webref all-formats		\
 	install-at install uninstall	\
