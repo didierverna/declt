@@ -14,10 +14,10 @@ The Declt distribution has the following shape:
 
 ./src/		;; source directory
 ./doc/		;; documentation
-./emacs/        ;; Emacs edition utilities
 
 
 * Portability
+Declt is an SBCL-only application (at least for now).
 
 
 * Configuration
@@ -31,17 +31,16 @@ in order to create the system file symlink where appropriate. Otherwise (ASDF
 
 
 * Build
-There's nothing to build by default. Declt can create its own reference manual
-however. In order to do that, type "make ref". By default, the reference
-manual is generated in info, PDF and HTML formats. If you want other formats
-(DVI and PostScript are available), type "make all-formats-ref". You can also
-individually type "make dvi-ref" and/or "make ps-ref" in order to get the
-corresponding format only.
+Type "make" to compile the reference manual. A side-effect of this is to also
+compile the library. By default, the reference manual is built in info, PDF
+and HTML formats. If you want other formats (DVI and PostScript are
+available), type "make all-formats". You can also individually type "make dvi"
+and/or "make ps" in order to get the corresponding format only.
 
 
 * Installation
-Typing "make install" will install all generated versions of the reference
-manual that you may have created.
+Type "make install" to install the reference manual. All generated versions
+that are found are installed.
 
 
 * Uninstallation
