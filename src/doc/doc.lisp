@@ -71,20 +71,28 @@ specific to the machine on which the manual was generated.
 Setting this to NIL is preferable for creating reference manuals meant to put
 online, and hence independent of any specific installation.")
 
-(defun render-location (pathname relative-to &optional (title "Location"))
+;; #### NOTE: the use of PROBE-FILE below has two purposes:
+;; 1/ making sure that the file does exist, so that it can actually be linked
+;;    properly,
+;; 2/ dereferencing an (ASDF 1) installed system file symlink (what we get) in
+;;    order to link the actual file (what we want).
+;; #### FIXME: not a Declt bug, but currently, SBCL sets the source file of
+;; COPY-<struct> functions to its own target-defstruct.lisp file.
+(defun render-location (pathname relative-to
+			&optional (title "Location")
+			&aux (probed-pathname (probe-file pathname))
+			     (link-files (and *link-files* probed-pathname)))
   "Render an itemized location line for PATHNAME, RELATIVE-TO.
 Rendering is done on *standard-output*."
-  ;; #### NOTE: Probing the pathname as the virtue of dereferencing symlinks.
-  ;; This is good because when the system definition file is involved, it is
-  ;; the installed symlink which is seen, whereas we want to advertise the
-  ;; original one.
-  (setq pathname (probe-file pathname))
   (@tableitem title
     (format t "~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
-      (when *link-files*
-	(escape pathname))
-      (escape (enough-namestring pathname relative-to))
-      *link-files*)))
+      (when link-files
+	(escape probed-pathname))
+      (escape (if probed-pathname
+		  (enough-namestring probed-pathname relative-to)
+		(concatenate 'string (namestring pathname)
+			     " (not found)")))
+      link-files)))
 
 (defun render-source (object system &aux (source (source object)))
   "Render an itemized source line for SYSTEM's OBJECT.
