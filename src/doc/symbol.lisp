@@ -177,7 +177,7 @@
     (document-definition macro system 'function)))
 
 (defmethod document ((function function-definition) system
-		     &key (name (definition-symbol function)))
+		     &key (name (function-definition-symbol function)))
   "Render SYSTEM's FUNCTION's documentation."
   (@defun (format nil "~(~A~)" name)
       ;; #### PORTME.
