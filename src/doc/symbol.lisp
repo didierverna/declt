@@ -176,23 +176,21 @@
        (macro-definition-function macro))
     (document-definition macro system 'function)))
 
-(defmethod document ((function function-definition) system &key)
+(defmethod document ((function function-definition) system
+		     &key (name (definition-symbol function)))
   "Render SYSTEM's FUNCTION's documentation."
-  (@defun (string-downcase (definition-symbol function))
+  (@defun (format nil "~(~A~)" name)
       ;; #### PORTME.
       (sb-introspect:function-lambda-list
        (function-definition-function function))
-    (document-definition function system 'function)))
+    (document-definition function system 'function :name name)))
 
-(defmethod document ((setter setter-definition) system
-		     &key
-		     &aux (setter-name `(setf ,(definition-symbol setter))))
+(defmethod document
+    ((setter setter-definition) system
+     &key
+     &aux (setter-name `(setf ,(setter-definition-symbol setter))))
   "Render SYSTEM's SETTER function's documentation."
-  (@defun (format nil "~(~A~)" setter-name)
-      ;; #### PORTME.
-      (sb-introspect:function-lambda-list
-       (function-definition-function setter))
-    (document-definition setter system 'function :name setter-name)))
+  (call-next-method setter system :name setter-name))
 
 (defmethod document ((method method-definition) system &key)
   "Render SYSTEM's METHOD's documentation."
