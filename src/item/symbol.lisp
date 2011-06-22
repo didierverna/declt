@@ -42,6 +42,7 @@
       (:special   "special variables")
       (:macro     "macros")
       (:function  "functions")
+      (:setter    "setters")
       (:generic   "generic functions")
       (:condition "conditions")
       (:structure "structures")
@@ -67,6 +68,8 @@ object."
   "Structure for macro definitions.")
 (defstruct (function-definition (:include functional-definition))
   "Structure for ordinary function definitions.")
+(defstruct (setter-definition (:include function-definition))
+  "Structure for ordinary setter function definitions.")
 
 (defstruct (method-definition (:include definition))
   "Structure for method definitions.
@@ -106,6 +109,12 @@ This structure holds the list of methods."
 		(not (symbol-definition symbol :generic)))
        (make-function-definition :symbol symbol
 				 :function (fdefinition symbol))))
+    (:setter
+     (let ((setter-name `(setf ,symbol)))
+       (when (and (fboundp setter-name)
+		  (not nil #+nil(symbol-definition symbol :generic-setter)))
+	 (make-setter-definition :symbol symbol
+				 :function (fdefinition setter-name)))))
     (:generic
      (when (and (fboundp symbol)
 		(typep (fdefinition symbol) 'generic-function))
@@ -148,6 +157,10 @@ This structure holds the list of methods."
   "Return DEFINITION's symbol name."
   (name (definition-symbol definition)))
 
+(defmethod name ((setter setter-definition))
+  "Return SETTER's name, that is (setf <name>)."
+  (format nil "(SETF ~A)" (name (setter-definition-symbol setter))))
+
 
 
 ;; ==========================================================================
@@ -169,13 +182,14 @@ This structure holds the list of methods."
 ;; #### PORTME.
 ;; #### FIXME: why does f-d-s-b-n return a list? How can there be several
 ;; sources?
-(defun definition-source (definition type)
+(defun definition-source
+    (definition type &key (name (definition-symbol definition))
+		     &aux (defsrc
+			   (car (sb-introspect:find-definition-sources-by-name
+				 name type))))
   "Return DEFINITION's source for TYPE."
-  (let ((defsrc (car (sb-introspect:find-definition-sources-by-name
-		      (definition-symbol definition)
-		      type))))
-    (when defsrc
-      (sb-introspect:definition-source-pathname defsrc))))
+  (when defsrc
+    (sb-introspect:definition-source-pathname defsrc)))
 
 (defmethod source ((constant constant-definition))
   "Return CONSTANT's definition source."
@@ -192,6 +206,11 @@ This structure holds the list of methods."
 (defmethod source ((function function-definition))
   "Return FUNCTION's definition source."
   (definition-source function :function))
+
+(defmethod source ((setter setter-definition))
+  "Return SETTER function's definition source."
+  (definition-source setter :function
+    :name `(setf ,(definition-symbol setter))))
 
 (defmethod source ((generic generic-definition))
   "Return GENERIC's definition source."
@@ -226,6 +245,7 @@ This structure holds the list of methods."
   "Return \"macro\""
   "macro")
 
+;; #### NOTE: applies to setters as well
 (defmethod type-name ((function function-definition))
   "Return \"function\""
   "function")

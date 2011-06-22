@@ -50,6 +50,7 @@
   (declare (ignore relative-to))
   (format nil "The ~(~A~) macro" (name macro)))
 
+;; #### NOTE: applies to setters as well
 (defmethod title ((function function-definition) &optional relative-to)
   "Return FUNCTION's title."
   (declare (ignore relative-to))
@@ -104,6 +105,7 @@
   (declare (ignore relative-to))
   (format t "@macrosubindex{~(~A~)}@c~%" (escape macro)))
 
+;; #### NOTE: applies to setters as well
 (defmethod index ((function function-definition) &optional relative-to)
   "Render FUNCTION's indexing command."
   (declare (ignore relative-to))
@@ -142,12 +144,13 @@
     (escape definition)
     (type-name definition)))
 
-(defun document-definition (definition system kind)
+(defun document-definition
+    (definition system kind &key (name (definition-symbol definition)))
   "Render SYSTEM's DEFINITION's documentation contents as KIND."
   (anchor definition)
   (index definition)
   (@table ()
-    (let ((documentation (documentation (definition-symbol definition) kind)))
+    (let ((documentation (documentation name kind)))
       (when documentation
 	(@tableitem "Documentation"
 	  (render-text documentation))))
@@ -180,6 +183,16 @@
       (sb-introspect:function-lambda-list
        (function-definition-function function))
     (document-definition function system 'function)))
+
+(defmethod document ((setter setter-definition) system
+		     &key
+		     &aux (setter-name `(setf ,(definition-symbol setter))))
+  "Render SYSTEM's SETTER function's documentation."
+  (@defun (format nil "~(~A~)" setter-name)
+      ;; #### PORTME.
+      (sb-introspect:function-lambda-list
+       (function-definition-function setter))
+    (document-definition setter system 'function :name setter-name)))
 
 (defmethod document ((method method-definition) system &key)
   "Render SYSTEM's METHOD's documentation."
