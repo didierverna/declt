@@ -54,11 +54,13 @@
 ;; Utilities
 ;; ==========================================================================
 
-(defun escape (object)
-  "When OBJECT, escape its name for Texinfo."
+(defun escape (object &optional other-chars)
+  "When OBJECT, escape its name for Texinfo.
+The escaped characters are @, {, } and optionally a list of OTHER-CHARS."
   (when object
     (coerce (loop :for char :across (name object)
-		  :if (member char '(#\@ #\{ #\})) :collect #\@
+		  :if (member char (append '(#\@ #\{ #\}) other-chars))
+		  :collect #\@
 		  :collect char)
 	    'string)))
 
@@ -219,7 +221,7 @@ Rendering is done on *standard-output*."
 NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-    (format t "@defmac ~A " (escape ,name))
+    (format t "@defmac ~A " (escape ,name '(#\ )))
     (render-lambda-list ,lambda-list)
     (terpri)
     ,@body
@@ -230,7 +232,7 @@ BODY should render on *standard-output*."
 NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-    (format t "@defun ~A " (escape ,name))
+    (format t "@defun ~A " (escape ,name '(#\ )))
     (render-lambda-list ,lambda-list)
     (terpri)
     ,@body
@@ -243,7 +245,7 @@ CATEGORY, NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for
 Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-    (format t "@deffn {~A} ~A " (escape ,category) (escape ,name))
+    (format t "@deffn {~A} ~A " (escape ,category) (escape ,name '(#\ )))
     (render-lambda-list ,lambda-list ,specializers)
     (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape ,qualifiers))
     ,@body
@@ -269,7 +271,7 @@ BODY should render on *standard-output*."
 CATEGORY and NAME are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-    (format t "@deftp {~A} ~A~%"  (escape ,category) (escape ,name))
+    (format t "@deftp {~A} ~A~%"  (escape ,category) (escape ,name '(#\ )))
     ,@body
     (format t "~&@end deftp~%")))
 
