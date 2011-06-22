@@ -38,15 +38,16 @@
 ;; #### NOTE: +CATEGORIES+ and SYMBOL-DEFINITION don't handle methods, because
 ;; those are listed directly as part of generic function definitions.
 (define-constant +categories+
-    '((:constant  "constants")
-      (:special   "special variables")
-      (:macro     "macros")
-      (:function  "functions")
-      (:setter    "setter functions")
-      (:generic   "generic functions")
-      (:condition "conditions")
-      (:structure "structures")
-      (:class     "classes"))
+    '((:constant       "constants")
+      (:special        "special variables")
+      (:macro          "macros")
+      (:function       "functions")
+      (:setter         "setter functions")
+      (:generic        "generic functions")
+      (:generic-setter "generic setter functions")
+      (:condition      "conditions")
+      (:structure      "structures")
+      (:class          "classes"))
   "The list of definition categories.")
 
 (defstruct definition
@@ -75,11 +76,17 @@ object."
   "Structure for method definitions.
 This structure holds the method object."
   (method)) ;; method object
+(defstruct (setter-method-definition (:include method-definition))
+  "Structure for setter method definitions.
+This structure holds the method object.")
 
 (defstruct (generic-definition (:include functional-definition))
   "Structure for generic function definitions.
 This structure holds the list of methods."
   (methods)) ;; list of method objects
+(defstruct (generic-setter-definition (:include generic-definition))
+  "Structure for generic setter function definitions.
+This structure holds the list of methods.")
 
 (defstruct (condition-definition (:include definition))
   "Structure for condition definitions.")
@@ -112,7 +119,7 @@ This structure holds the list of methods."
     (:setter
      (let ((setter-name `(setf ,symbol)))
        (when (and (fboundp setter-name)
-		  (not nil #+nil(symbol-definition symbol :generic-setter)))
+		  (not (symbol-definition symbol :generic-setter)))
 	 (make-setter-definition :symbol symbol
 				 :function (fdefinition setter-name)))))
     (:generic
@@ -126,6 +133,18 @@ This structure holds the list of methods."
 						   :method method))
 			 (sb-mop:generic-function-methods
 			  (fdefinition symbol))))))
+    (:generic-setter
+     (let ((setter-name `(setf ,symbol)))
+       (when (and (fboundp setter-name)
+		  (typep (fdefinition setter-name) 'generic-function))
+	 (make-generic-setter-definition
+	  :symbol symbol
+	  :function (fdefinition setter-name)
+	  :methods (mapcar (lambda (method)
+			     (make-setter-method-definition :symbol symbol
+							    :method method))
+			   (sb-mop:generic-function-methods
+			    (fdefinition setter-name)))))))
     (:condition
      (let ((class (find-class symbol nil)))
        (when (and class (typep class 'sb-pcl::condition-class))
@@ -157,9 +176,22 @@ This structure holds the list of methods."
   "Return DEFINITION's symbol name."
   (name (definition-symbol definition)))
 
+;; #### NOTE: all of these methods are in fact equivalent. That's the
+;; drawback of using structures instead of classes, which limits the
+;; inheritance expressiveness.
 (defmethod name ((setter setter-definition))
   "Return SETTER's name, that is (setf <name>)."
   (format nil "(SETF ~A)" (name (setter-definition-symbol setter))))
+
+(defmethod name ((setter-method setter-method-definition))
+  "Return SETTER-METHOD's name, that is (setf <name>)."
+  (format nil "(SETF ~A)"
+    (name (setter-method-definition-symbol setter-method))))
+
+(defmethod name ((generic-setter generic-setter-definition))
+  "Return GENERIC-SETTER's name, that is (setf <name>)."
+  (format nil "(SETF ~A)"
+    (name (generic-setter-definition-symbol generic-setter))))
 
 
 
@@ -171,6 +203,7 @@ This structure holds the list of methods."
 ;; Source protocol
 ;; ---------------
 
+;; #### NOTE: this applies to setter methods as well
 (defmethod source ((method method-definition))
   "Return METHOD's definition source."
   ;; #### PORTME.
@@ -216,6 +249,11 @@ This structure holds the list of methods."
   "Return GENERIC's definition source."
   (definition-source generic :generic-function))
 
+(defmethod source ((generic-setter generic-setter-definition))
+  "Return GENERIC-SETTER function's definition source."
+  (definition-source generic-setter :generic-function
+    :name `(setf ,(definition-symbol generic-setter))))
+
 (defmethod source ((condition condition-definition))
   "Return CONDITION's definition source."
   (definition-source condition :condition))
@@ -250,10 +288,12 @@ This structure holds the list of methods."
   "Return \"function\""
   "function")
 
+;; #### NOTE: applies to generic setters as well
 (defmethod type-name ((generic generic-definition))
   "Return \"generic function\""
   "generic function")
 
+;; #### NOTE: applies to setter methods as well
 (defmethod type-name ((method method-definition))
   "Return \"method\""
   "method")

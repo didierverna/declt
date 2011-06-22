@@ -56,6 +56,7 @@
   (declare (ignore relative-to))
   (format nil "The ~(~A~) function" (name function)))
 
+;; #### NOTE: applies to setter methods as well
 (defmethod title ((method method-definition) &optional relative-to)
   "Return METHOD's title."
   (declare (ignore relative-to))
@@ -66,6 +67,7 @@
 	    (sb-mop:method-specializers (method-definition-method method)))
     (sb-mop:method-qualifiers (method-definition-method method))))
 
+;; #### NOTE: applies to generic setters as well
 (defmethod title ((generic generic-definition) &optional relative-to)
   "Return GENERIC's title."
   (declare (ignore relative-to))
@@ -111,11 +113,13 @@
   (declare (ignore relative-to))
   (format t "@functionsubindex{~(~A~)}@c~%" (escape function)))
 
+;; #### NOTE: applies to setter methods as well
 (defmethod index ((method method-definition) &optional relative-to)
   "Render METHOD's indexing command."
   (declare (ignore relative-to))
   (format t "@methodsubindex{~(~A~)}@c~%" (escape method)))
 
+;; #### NOTE: applies to generic setters as well
 (defmethod index ((generic generic-definition) &optional relative-to)
   "Render GENERIC's indexing command."
   (declare (ignore relative-to))
@@ -192,11 +196,12 @@
   "Render SYSTEM's SETTER function's documentation."
   (call-next-method setter system :name setter-name))
 
-(defmethod document ((method method-definition) system &key)
+(defmethod document ((method method-definition) system
+		     &key (name (definition-symbol method)))
   "Render SYSTEM's METHOD's documentation."
   (@defmethod
       ;; #### PORTME:
-      (string-downcase (definition-symbol method))
+      (format nil "~(~A~)" name)
       (sb-mop:method-lambda-list (method-definition-method method))
       (sb-mop:method-specializers (method-definition-method method))
       (sb-mop:method-qualifiers (method-definition-method method))
@@ -210,15 +215,24 @@
 	    (render-text documentation))))
       (render-source method system))))
 
-(defmethod document ((generic generic-definition) system &key)
-  "Render SYSTEM's GENERIC's documentation."
-  (@defgeneric (string-downcase (definition-symbol generic))
+(defmethod document ((generic generic-definition) system
+		     &key (name (generic-definition-symbol generic)))
+  "Render SYSTEM's GENERIC function's documentation."
+  (@defgeneric (format nil "~(~A~)" name)
       ;; #### PORTME.
       (sb-introspect:function-lambda-list
        (generic-definition-function generic))
-    (document-definition generic system 'function))
+    (document-definition generic system 'function :name name))
   (dolist (method (generic-definition-methods generic))
-    (document method system)))
+    (document method system :name name)))
+
+(defmethod document
+    ((generic-setter generic-setter-definition) system
+     &key
+     &aux (generic-setter-name
+	   `(setf ,(generic-setter-definition-symbol generic-setter))))
+  "Render SYSTEM's GENERIC-SETTER function's documentation."
+  (call-next-method generic-setter system :name generic-setter-name))
 
 (defmethod document ((condition condition-definition) system &key)
   "Render SYSTEM's CONDITION's documentation."
