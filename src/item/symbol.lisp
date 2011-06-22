@@ -42,7 +42,7 @@
       (:special   "special variables")
       (:macro     "macros")
       (:function  "functions")
-      (:setter    "setters")
+      (:setter    "setter functions")
       (:generic   "generic functions")
       (:condition "conditions")
       (:structure "structures")
