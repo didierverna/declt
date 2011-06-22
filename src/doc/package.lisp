@@ -88,18 +88,14 @@
 	(@tableitem "Exported symbols"
 	  (@itemize ()
 	    (dolist (definitions external-definitions)
-	      (@item (reference (first definitions))
-		     (dolist (remaining-definition (cdr definitions))
-		       (write-string ", ")
-		       (reference remaining-definition)))))))
+	      (dolist (definition definitions)
+		(@item (reference definition)))))))
       (when internal-definitions
 	(@tableitem "Internal symbols"
 	  (@itemize ()
 	    (dolist (definitions internal-definitions)
-	      (@item (reference (first definitions))
-		     (dolist (remaining-definition (cdr definitions))
-		       (write-string ", ")
-		       (reference remaining-definition))))))))))
+	      (dolist (definition definitions)
+		(@item (reference definition))))))))))
 
 
 
