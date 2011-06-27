@@ -38,28 +38,28 @@
 (defmethod title ((constant constant-definition) &optional relative-to)
   "Return CONSTANT's title."
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) constant" (name constant)))
+  (format nil "the ~(~A~) constant" (name constant)))
 
 (defmethod title ((special special-definition) &optional relative-to)
   "Return SPECIAL's title."
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) special variable" (name special)))
+  (format nil "the ~(~A~) special variable" (name special)))
 
 (defmethod title ((macro macro-definition) &optional relative-to)
   "Return MACRO's title."
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) macro" (name macro)))
+  (format nil "the ~(~A~) macro" (name macro)))
 
 (defmethod title ((function function-definition) &optional relative-to)
   "Return FUNCTION's title."
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) function" (name function)))
+  (format nil "the ~(~A~) function" (name function)))
 
 ;; #### NOTE: applies to writer methods as well
 (defmethod title ((method method-definition) &optional relative-to)
   "Return METHOD's title."
   (declare (ignore relative-to))
-  (format nil "The ~(~A~{ ~A~^~}~{ ~A~^~}~) method"
+  (format nil "the ~(~A~{ ~A~^~}~{ ~A~^~}~) method"
     (name method)
     ;; #### PORTME.
     (mapcar #'pretty-specializer
@@ -70,22 +70,22 @@
 (defmethod title ((generic generic-definition) &optional relative-to)
   "Return GENERIC's title."
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) generic function" (name generic)))
+  (format nil "the ~(~A~) generic function" (name generic)))
 
 (defmethod title ((condition condition-definition) &optional relative-to)
   "Return CONDITION's title."
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) condition" (name condition)))
+  (format nil "the ~(~A~) condition" (name condition)))
 
 (defmethod title ((structure structure-definition) &optional relative-to)
   "Return STRUCTURE's title."
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) structure" (name structure)))
+  (format nil "the ~(~A~) structure" (name structure)))
 
 (defmethod title ((class class-definition) &optional relative-to)
   "Return CLASS's title."
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) class" (name class)))
+  (format nil "the ~(~A~) class" (name class)))
 
 ;; #### NOTE: the INDEX methods below only perform sub-indexing because the
 ;; main index entries are created automatically in Texinfo by the @defXXX

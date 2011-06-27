@@ -103,7 +103,7 @@
 	 ;; system file is not an ASDF component per-se.
 	 (@tableitem "Definition file"
 	   (let ((system-base-name (escape (system-base-name component))))
-	     (format t "@ref{go to The ~A file, , @t{~(~A}~)} (Lisp file)~%"
+	     (format t "@ref{go to the ~A file, , @t{~(~A}~)} (Lisp file)~%"
 	       system-base-name
 	       system-base-name)))
 	 (when *link-files*
@@ -139,7 +139,7 @@
 
 (defmethod title ((source-file asdf:source-file) &optional relative-to)
   "Return SOURCE-FILE's title."
-  (format nil "The ~A file" (relative-location source-file relative-to)))
+  (format nil "the ~A file" (relative-location source-file relative-to)))
 
 (defmethod index ((cl-source-file asdf:cl-source-file) &optional relative-to)
   "Render CL-SOURCE-FILE's indexing command."
@@ -206,7 +206,8 @@
 (defun lisp-file-node (file system external-definitions internal-definitions
 		       &aux (system-directory (system-directory system)))
   "Create and return a SYSTEM's Lisp FILE node."
-  (make-node :name (escape (title file system-directory))
+  (make-node :name (escape (format nil "~@(~A~)"
+			     (title file system-directory)))
 	     :section-name (format nil "@t{~A}"
 			     (escape
 			      (relative-location file system-directory)))
@@ -223,7 +224,8 @@
 (defun file-node
     (file system &aux (system-directory (system-directory system)))
   "Create and return a SYSTEM's FILE node."
-  (make-node :name (escape (title file system-directory))
+  (make-node :name (escape (format nil "~@(~A~)"
+			     (title file system-directory)))
 	     :section-name (format nil "@t{~A}"
 			     (escape
 			      (relative-location file system-directory)))
@@ -263,7 +265,7 @@ components tree."))))
 		 :before-menu-contents
 		 (render-to-string
 		   (@anchor
-		    (format nil "go to The ~A file" system-base-name))
+		    (format nil "go to the ~A file" system-base-name))
 		   (format t "@lispfileindex{~A}@c~%" system-base-name)
 		   (@table ()
 		     (render-location (system-definition-pathname system)
@@ -316,7 +318,7 @@ components tree."))))
 
 (defmethod title ((module asdf:module) &optional relative-to)
   "Return MODULE's title."
-  (format nil "The ~A module" (relative-location module relative-to)))
+  (format nil "the ~A module" (relative-location module relative-to)))
 
 (defmethod index ((module asdf:module) &optional relative-to)
   "Render MODULE's indexing command."
@@ -345,7 +347,8 @@ components tree."))))
 (defun module-node (module system
 		    &aux (system-directory (system-directory system)))
   "Create and return a SYSTEM's MODULE node."
-  (make-node :name (escape (title module system-directory))
+  (make-node :name (escape (format nil "~@(~A~)"
+			     (title module system-directory)))
 	     :section-name (format nil "@t{~A}"
 			     (escape
 			      (relative-location module system-directory)))
@@ -377,7 +380,7 @@ Modules are listed depth-first from the system components tree.")))))
 (defmethod title ((system asdf:system) &optional relative-to)
   "Return SYSTEM's title."
   (declare (ignore relative-to))
-  (format nil "The ~A system" (name system)))
+  (format nil "the ~A system" (name system)))
 
 (defmethod index ((system asdf:system) &optional relative-to)
   "Render SYSTEM's indexing command."

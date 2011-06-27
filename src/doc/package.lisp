@@ -38,7 +38,7 @@
 (defmethod title ((package package) &optional relative-to)
   "Return PACKAGE's title."
   (declare (ignore relative-to))
-  (format nil "The ~(~A~) package" (name package)))
+  (format nil "the ~(~A~) package" (name package)))
 
 (defmethod index ((package package) &optional relative-to)
   "Render PACKAGE's indexing command."
@@ -121,7 +121,7 @@ Packages are listed by definition order."))))
   "Add SYSTEM's packages node to NODE."
   (dolist (package packages)
     (add-child packages-node
-      (make-node :name (escape (title package))
+      (make-node :name (escape (format nil "~@(~A~)" (title package)))
 		 :section-name (format nil "@t{~(~A~)}" (escape package))
 		 :before-menu-contents
 		 (render-to-string (document package system))))))

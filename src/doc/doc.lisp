@@ -110,7 +110,7 @@ Rendering is done on *standard-output*."
 					 (system-directory system)))))
 	 (@tableitem "Source"
 	   ;; #### FIXME: somewhat ugly. We fake a cl-source-file anchor name.
-	   (format t "@ref{go to The ~A file, , @t{~(~A}~)} (Lisp file)~%"
+	   (format t "@ref{go to the ~A file, , @t{~(~A}~)} (Lisp file)~%"
 	     location
 	     location))))
       (t
