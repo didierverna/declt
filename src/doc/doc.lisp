@@ -57,7 +57,7 @@
 ;; anchors for our items and link to them instead.
 (defun anchor-name (item &optional relative-to)
   "Return ITEM's anchor name."
-  (format nil "~A anchor" (title item relative-to)))
+  (format nil "go to ~A" (title item relative-to)))
 
 (defun anchor (item &optional relative-to)
   "Render ITEM's anchor."
@@ -110,7 +110,7 @@ Rendering is done on *standard-output*."
 					 (system-directory system)))))
 	 (@tableitem "Source"
 	   ;; #### FIXME: somewhat ugly. We fake a cl-source-file anchor name.
-	   (format t "@ref{The ~A file anchor, , @t{~(~A}~)} (Lisp file)~%"
+	   (format t "@ref{go to The ~A file, , @t{~(~A}~)} (Lisp file)~%"
 	     location
 	     location))))
       (t

@@ -103,7 +103,7 @@
 	 ;; system file is not an ASDF component per-se.
 	 (@tableitem "Definition file"
 	   (let ((system-base-name (escape (system-base-name component))))
-	     (format t "@ref{The ~A file anchor, , @t{~(~A}~)} (Lisp file)~%"
+	     (format t "@ref{go to The ~A file, , @t{~(~A}~)} (Lisp file)~%"
 	       system-base-name
 	       system-base-name)))
 	 (when *link-files*
@@ -263,7 +263,7 @@ components tree."))))
 		 :before-menu-contents
 		 (render-to-string
 		   (@anchor
-		    (format nil "The ~A file anchor" system-base-name))
+		    (format nil "go to The ~A file" system-base-name))
 		   (format t "@lispfileindex{~A}@c~%" system-base-name)
 		   (@table ()
 		     (render-location (system-definition-pathname system)
