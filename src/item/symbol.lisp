@@ -37,6 +37,15 @@
 
 ;; #### NOTE: +CATEGORIES+ and SYMBOL-DEFINITION don't handle methods, because
 ;; those are listed directly as part of generic function definitions.
+
+;; #### NOTE: the order in +CATEGORIES+ is important (see
+;; ADD-CATEGORIES-NODE). Also, setter structures don't store the complete
+;; function name (setf <name>) but only the original symbol. This, in
+;; conjunction with the order in +CATEGORIES+ and the fact that definitions
+;; are sorted by symbol-name, ensures that setters are listed immediately
+;; after the corresponding getter in package and file nodes (see the DOCUMENT
+;; methods for packages and lisp source files).
+
 (define-constant +categories+
     '((:constant       "constants")
       (:special        "special variables")
