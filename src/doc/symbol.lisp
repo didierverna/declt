@@ -50,7 +50,6 @@
   (declare (ignore relative-to))
   (format nil "The ~(~A~) macro" (name macro)))
 
-;; #### NOTE: applies to writers as well
 (defmethod title ((function function-definition) &optional relative-to)
   "Return FUNCTION's title."
   (declare (ignore relative-to))
@@ -107,7 +106,6 @@
   (declare (ignore relative-to))
   (format t "@macrosubindex{~(~A~)}@c~%" (escape macro)))
 
-;; #### NOTE: applies to writers as well
 (defmethod index ((function function-definition) &optional relative-to)
   "Render FUNCTION's indexing command."
   (declare (ignore relative-to))
@@ -180,11 +178,11 @@
        (macro-definition-function macro))
     (document-definition macro system 'function)))
 
+;; #### PORTME.
 (defmethod document ((function function-definition) system
 		     &key (name (function-definition-symbol function)))
   "Render SYSTEM's FUNCTION's documentation."
   (@defun (format nil "~(~A~)" name)
-      ;; #### PORTME.
       (sb-introspect:function-lambda-list
        (function-definition-function function))
     (document-definition function system 'function :name name)))
@@ -195,6 +193,49 @@
      &aux (writer-name `(setf ,(writer-definition-symbol writer))))
   "Render SYSTEM's WRITER function's documentation."
   (call-next-method writer system :name writer-name))
+
+;; #### PORTME.
+(defmethod document ((accessor accessor-definition) system &key)
+  "Render SYSTEM's ACCESSOR's documentation."
+  (cond ((and (equal (source accessor)
+		     (source (accessor-definition-writer accessor)))
+	      (equal (sb-introspect:function-lambda-list
+		      (accessor-definition-function accessor))
+		     ;; #### NOTE: the writer has a first additional
+		     ;; lambda-list argument of NEW-VALUE that we must skip
+		     ;; before comparing.
+		     (cdr (sb-introspect:function-lambda-list
+			   (writer-definition-function
+			    (accessor-definition-writer accessor)))))
+	      (let ((function-doc (documentation
+				   (accessor-definition-symbol accessor)
+				   'function))
+		    (writer-doc (documentation
+				 (writer-definition-symbol
+				  (accessor-definition-writer accessor))
+				 'function)))
+		(or (and function-doc writer-doc
+			 (string= function-doc writer-doc))
+		    (null writer-doc)
+		    (and (not (null writer-doc)) (null function-doc)))))
+	 (@defun (format nil  "~(~A~)" (accessor-definition-symbol accessor))
+		 (sb-introspect:function-lambda-list
+		  (accessor-definition-function accessor))
+		 (@defunx (format nil  "~(~A~)"
+			    `(setf ,(writer-definition-symbol
+				     (accessor-definition-writer accessor))))
+			  (sb-introspect:function-lambda-list
+			   (writer-definition-function
+			    (accessor-definition-writer accessor))))
+		 (anchor (accessor-definition-writer accessor))
+		 (index (accessor-definition-writer accessor))
+		 (document-definition accessor system 'function)))
+	(t
+	 (@defun (format nil "~(~A~)" (accessor-definition-symbol accessor))
+		 (sb-introspect:function-lambda-list
+		  (accessor-definition-function accessor))
+		 (document-definition accessor system 'function))
+	 (document (accessor-definition-writer accessor) system))))
 
 (defmethod document ((method method-definition) system
 		     &key (name (definition-symbol method)))
@@ -270,19 +311,9 @@
   "Add SYSTEM's category nodes to PARENT for LOCATION SYMBOLS."
   (dolist (category +categories+)
     (case (first category)
-      ;; #### NOTE: we use a rather ugly hack below to avoid explicit Writers
-      ;; and Generic Writers sections in the documentation. We prefer to group
-      ;; writers and getter together when that it possible.
-      (:function
-       (let ((category-definitions
-	      (loop :for symbol :in symbols
-		    :when (symbol-definition symbol :function)
-		    :collect :it
-		    :when (symbol-definition symbol :writer)
-		    :collect :it)))
-	 (when category-definitions
-	   (add-category-node system parent location (second category)
-			      category-definitions))))
+      ;; #### NOTE: we use a rather ugly hack below to avoid explicit Generic
+      ;; Writers sections in the documentation. We prefer to group writers and
+      ;; getters together when that it possible.
       (:generic
        (let ((category-definitions
 	      (loop :for symbol :in symbols
@@ -293,7 +324,7 @@
 	 (when category-definitions
 	   (add-category-node system parent location (second category)
 			      category-definitions))))
-      ((:writer :generic-writer))
+      (:generic-writer)
       (otherwise
        (let ((category-definitions
 	      (loop :for symbol :in symbols

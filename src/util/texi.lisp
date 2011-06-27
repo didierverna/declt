@@ -227,6 +227,12 @@ BODY should render on *standard-output*."
     ,@body
     (format t "~&@end defmac~%")))
 
+(defun @defunx (name lambda-list)
+  "Render @defunx NAME LAMBDA-LIST on *standard-output*."
+  (format t "@defunx ~A " (escape name '(#\ )))
+  (render-lambda-list lambda-list)
+  (terpri))
+
 (defmacro @defun (name lambda-list &body body)
   "Execute BODY within a @defun NAME LAMBDA-LIST environment.
 NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.

@@ -41,17 +41,16 @@
 ;; #### NOTE: the order in +CATEGORIES+ is important (see
 ;; ADD-CATEGORIES-NODE). Also, writer structures don't store the complete
 ;; function name (setf <name>) but only the original symbol. This, in
-;; conjunction with the order in +CATEGORIES+ and the fact that definitions
-;; are sorted by symbol-name, ensures that writers are listed immediately
-;; after the corresponding getter in package and file nodes (see the DOCUMENT
-;; methods for packages and lisp source files).
+;; conjunction with the fact that definitions are sorted by symbol-name,
+;; ensures that standalone writers (not associated with readers) are listed in
+;; proper lexicographic order regardless of the SETF part of their name (and
+;; although that part still appears in the documentation).
 
 (define-constant +categories+
     '((:constant       "constants")
       (:special        "special variables")
       (:macro          "macros")
       (:function       "functions")
-      (:writer         "writer functions")
       (:generic        "generic functions")
       (:generic-writer "generic writer functions")
       (:condition      "conditions")
@@ -74,12 +73,17 @@ This structure holds the symbol naming the definition."
 This structure holds the the function, generic function or macro function
 object."
   (function)) ;; function, generic function or macro function objet
+
 (defstruct (macro-definition (:include functional-definition))
   "Structure for macro definitions.")
+
 (defstruct (function-definition (:include functional-definition))
   "Structure for ordinary function definitions.")
 (defstruct (writer-definition (:include function-definition))
   "Structure for ordinary writer function definitions.")
+(defstruct (accessor-definition (:include function-definition))
+  "Structure for accessor function definitions."
+  (writer)) ;; writer object
 
 (defstruct (method-definition (:include definition))
   "Structure for method definitions.
@@ -120,17 +124,30 @@ This structure holds the list of methods.")
        (when function
 	 (make-macro-definition :symbol symbol :function function))))
     (:function
-     (when (and (fboundp symbol)
-		(not (symbol-definition symbol :macro))
-		(not (symbol-definition symbol :generic)))
-       (make-function-definition :symbol symbol
-				 :function (fdefinition symbol))))
-    (:writer
-     (let ((writer-name `(setf ,symbol)))
-       (when (and (fboundp writer-name)
-		  (not (symbol-definition symbol :generic-writer)))
-	 (make-writer-definition :symbol symbol
-				 :function (fdefinition writer-name)))))
+     (let ((function
+	    (when (and (fboundp symbol)
+		       (not (macro-function symbol))
+		       (not (typep (fdefinition symbol) 'generic-function)))
+	      (fdefinition symbol)))
+	   (writer
+	    (let ((writer-name `(setf ,symbol)))
+	      (when (and (fboundp writer-name)
+			 (not (typep (fdefinition writer-name)
+				     'generic-function)))
+		(fdefinition writer-name)))))
+       (cond ((and function writer)
+	      (make-accessor-definition :symbol symbol
+					:function function
+					:writer
+					(make-writer-definition
+					 :symbol symbol
+					 :function writer)))
+	     (function
+	      (make-function-definition :symbol symbol
+					:function function))
+	     (writer
+	      (make-writer-definition :symbol symbol
+				      :function writer)))))
     (:generic
      (when (and (fboundp symbol)
 		(typep (fdefinition symbol) 'generic-function))
@@ -185,9 +202,9 @@ This structure holds the list of methods.")
   "Return DEFINITION's symbol name."
   (name (definition-symbol definition)))
 
-;; #### NOTE: all of these methods are in fact equivalent. That's the
-;; drawback of using structures instead of classes, which limits the
-;; inheritance expressiveness.
+;; #### NOTE: all of these methods are in fact equivalent. That's the drawback
+;; of using structures instead of classes, which limits the inheritance
+;; expressiveness (otherwise I could have used a writer mixin or something)..
 (defmethod name ((writer writer-definition))
   "Return WRITER's name, that is (setf <name>)."
   (format nil "(SETF ~A)" (name (writer-definition-symbol writer))))
@@ -292,7 +309,6 @@ This structure holds the list of methods.")
   "Return \"macro\""
   "macro")
 
-;; #### NOTE: applies to writers as well
 (defmethod type-name ((function function-definition))
   "Return \"function\""
   "function")
