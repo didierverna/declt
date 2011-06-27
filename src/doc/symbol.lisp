@@ -231,10 +231,7 @@
 		 (index (accessor-definition-writer accessor))
 		 (document-definition accessor system 'function)))
 	(t
-	 (@defun (format nil "~(~A~)" (accessor-definition-symbol accessor))
-		 (sb-introspect:function-lambda-list
-		  (accessor-definition-function accessor))
-		 (document-definition accessor system 'function))
+	 (call-next-method)
 	 (document (accessor-definition-writer accessor) system))))
 
 (defmethod document ((method method-definition) system
