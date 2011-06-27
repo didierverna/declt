@@ -39,10 +39,10 @@
 ;; those are listed directly as part of generic function definitions.
 
 ;; #### NOTE: the order in +CATEGORIES+ is important (see
-;; ADD-CATEGORIES-NODE). Also, setter structures don't store the complete
+;; ADD-CATEGORIES-NODE). Also, writer structures don't store the complete
 ;; function name (setf <name>) but only the original symbol. This, in
 ;; conjunction with the order in +CATEGORIES+ and the fact that definitions
-;; are sorted by symbol-name, ensures that setters are listed immediately
+;; are sorted by symbol-name, ensures that writers are listed immediately
 ;; after the corresponding getter in package and file nodes (see the DOCUMENT
 ;; methods for packages and lisp source files).
 
@@ -51,9 +51,9 @@
       (:special        "special variables")
       (:macro          "macros")
       (:function       "functions")
-      (:setter         "setter functions")
+      (:writer         "writer functions")
       (:generic        "generic functions")
-      (:generic-setter "generic setter functions")
+      (:generic-writer "generic writer functions")
       (:condition      "conditions")
       (:structure      "structures")
       (:class          "classes"))
@@ -78,23 +78,23 @@ object."
   "Structure for macro definitions.")
 (defstruct (function-definition (:include functional-definition))
   "Structure for ordinary function definitions.")
-(defstruct (setter-definition (:include function-definition))
-  "Structure for ordinary setter function definitions.")
+(defstruct (writer-definition (:include function-definition))
+  "Structure for ordinary writer function definitions.")
 
 (defstruct (method-definition (:include definition))
   "Structure for method definitions.
 This structure holds the method object."
   (method)) ;; method object
-(defstruct (setter-method-definition (:include method-definition))
-  "Structure for setter method definitions.
+(defstruct (writer-method-definition (:include method-definition))
+  "Structure for writer method definitions.
 This structure holds the method object.")
 
 (defstruct (generic-definition (:include functional-definition))
   "Structure for generic function definitions.
 This structure holds the list of methods."
   (methods)) ;; list of method objects
-(defstruct (generic-setter-definition (:include generic-definition))
-  "Structure for generic setter function definitions.
+(defstruct (generic-writer-definition (:include generic-definition))
+  "Structure for generic writer function definitions.
 This structure holds the list of methods.")
 
 (defstruct (condition-definition (:include definition))
@@ -125,12 +125,12 @@ This structure holds the list of methods.")
 		(not (symbol-definition symbol :generic)))
        (make-function-definition :symbol symbol
 				 :function (fdefinition symbol))))
-    (:setter
-     (let ((setter-name `(setf ,symbol)))
-       (when (and (fboundp setter-name)
-		  (not (symbol-definition symbol :generic-setter)))
-	 (make-setter-definition :symbol symbol
-				 :function (fdefinition setter-name)))))
+    (:writer
+     (let ((writer-name `(setf ,symbol)))
+       (when (and (fboundp writer-name)
+		  (not (symbol-definition symbol :generic-writer)))
+	 (make-writer-definition :symbol symbol
+				 :function (fdefinition writer-name)))))
     (:generic
      (when (and (fboundp symbol)
 		(typep (fdefinition symbol) 'generic-function))
@@ -142,18 +142,18 @@ This structure holds the list of methods.")
 						   :method method))
 			 (sb-mop:generic-function-methods
 			  (fdefinition symbol))))))
-    (:generic-setter
-     (let ((setter-name `(setf ,symbol)))
-       (when (and (fboundp setter-name)
-		  (typep (fdefinition setter-name) 'generic-function))
-	 (make-generic-setter-definition
+    (:generic-writer
+     (let ((writer-name `(setf ,symbol)))
+       (when (and (fboundp writer-name)
+		  (typep (fdefinition writer-name) 'generic-function))
+	 (make-generic-writer-definition
 	  :symbol symbol
-	  :function (fdefinition setter-name)
+	  :function (fdefinition writer-name)
 	  :methods (mapcar (lambda (method)
-			     (make-setter-method-definition :symbol symbol
+			     (make-writer-method-definition :symbol symbol
 							    :method method))
 			   (sb-mop:generic-function-methods
-			    (fdefinition setter-name)))))))
+			    (fdefinition writer-name)))))))
     (:condition
      (let ((class (find-class symbol nil)))
        (when (and class (typep class 'sb-pcl::condition-class))
@@ -188,19 +188,19 @@ This structure holds the list of methods.")
 ;; #### NOTE: all of these methods are in fact equivalent. That's the
 ;; drawback of using structures instead of classes, which limits the
 ;; inheritance expressiveness.
-(defmethod name ((setter setter-definition))
-  "Return SETTER's name, that is (setf <name>)."
-  (format nil "(SETF ~A)" (name (setter-definition-symbol setter))))
+(defmethod name ((writer writer-definition))
+  "Return WRITER's name, that is (setf <name>)."
+  (format nil "(SETF ~A)" (name (writer-definition-symbol writer))))
 
-(defmethod name ((setter-method setter-method-definition))
-  "Return SETTER-METHOD's name, that is (setf <name>)."
+(defmethod name ((writer-method writer-method-definition))
+  "Return WRITER-METHOD's name, that is (setf <name>)."
   (format nil "(SETF ~A)"
-    (name (setter-method-definition-symbol setter-method))))
+    (name (writer-method-definition-symbol writer-method))))
 
-(defmethod name ((generic-setter generic-setter-definition))
-  "Return GENERIC-SETTER's name, that is (setf <name>)."
+(defmethod name ((generic-writer generic-writer-definition))
+  "Return GENERIC-WRITER's name, that is (setf <name>)."
   (format nil "(SETF ~A)"
-    (name (generic-setter-definition-symbol generic-setter))))
+    (name (generic-writer-definition-symbol generic-writer))))
 
 
 
@@ -212,7 +212,7 @@ This structure holds the list of methods.")
 ;; Source protocol
 ;; ---------------
 
-;; #### NOTE: this applies to setter methods as well
+;; #### NOTE: this applies to writer methods as well
 (defmethod source ((method method-definition))
   "Return METHOD's definition source."
   ;; #### PORTME.
@@ -249,19 +249,19 @@ This structure holds the list of methods.")
   "Return FUNCTION's definition source."
   (definition-source function :function))
 
-(defmethod source ((setter setter-definition))
-  "Return SETTER function's definition source."
-  (definition-source setter :function
-    :name `(setf ,(definition-symbol setter))))
+(defmethod source ((writer writer-definition))
+  "Return WRITER function's definition source."
+  (definition-source writer :function
+    :name `(setf ,(definition-symbol writer))))
 
 (defmethod source ((generic generic-definition))
   "Return GENERIC's definition source."
   (definition-source generic :generic-function))
 
-(defmethod source ((generic-setter generic-setter-definition))
-  "Return GENERIC-SETTER function's definition source."
-  (definition-source generic-setter :generic-function
-    :name `(setf ,(definition-symbol generic-setter))))
+(defmethod source ((generic-writer generic-writer-definition))
+  "Return GENERIC-WRITER function's definition source."
+  (definition-source generic-writer :generic-function
+    :name `(setf ,(definition-symbol generic-writer))))
 
 (defmethod source ((condition condition-definition))
   "Return CONDITION's definition source."
@@ -292,17 +292,17 @@ This structure holds the list of methods.")
   "Return \"macro\""
   "macro")
 
-;; #### NOTE: applies to setters as well
+;; #### NOTE: applies to writers as well
 (defmethod type-name ((function function-definition))
   "Return \"function\""
   "function")
 
-;; #### NOTE: applies to generic setters as well
+;; #### NOTE: applies to generic writers as well
 (defmethod type-name ((generic generic-definition))
   "Return \"generic function\""
   "generic function")
 
-;; #### NOTE: applies to setter methods as well
+;; #### NOTE: applies to writer methods as well
 (defmethod type-name ((method method-definition))
   "Return \"method\""
   "method")

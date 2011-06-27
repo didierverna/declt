@@ -50,13 +50,13 @@
   (declare (ignore relative-to))
   (format nil "The ~(~A~) macro" (name macro)))
 
-;; #### NOTE: applies to setters as well
+;; #### NOTE: applies to writers as well
 (defmethod title ((function function-definition) &optional relative-to)
   "Return FUNCTION's title."
   (declare (ignore relative-to))
   (format nil "The ~(~A~) function" (name function)))
 
-;; #### NOTE: applies to setter methods as well
+;; #### NOTE: applies to writer methods as well
 (defmethod title ((method method-definition) &optional relative-to)
   "Return METHOD's title."
   (declare (ignore relative-to))
@@ -67,7 +67,7 @@
 	    (sb-mop:method-specializers (method-definition-method method)))
     (sb-mop:method-qualifiers (method-definition-method method))))
 
-;; #### NOTE: applies to generic setters as well
+;; #### NOTE: applies to generic writers as well
 (defmethod title ((generic generic-definition) &optional relative-to)
   "Return GENERIC's title."
   (declare (ignore relative-to))
@@ -107,19 +107,19 @@
   (declare (ignore relative-to))
   (format t "@macrosubindex{~(~A~)}@c~%" (escape macro)))
 
-;; #### NOTE: applies to setters as well
+;; #### NOTE: applies to writers as well
 (defmethod index ((function function-definition) &optional relative-to)
   "Render FUNCTION's indexing command."
   (declare (ignore relative-to))
   (format t "@functionsubindex{~(~A~)}@c~%" (escape function)))
 
-;; #### NOTE: applies to setter methods as well
+;; #### NOTE: applies to writer methods as well
 (defmethod index ((method method-definition) &optional relative-to)
   "Render METHOD's indexing command."
   (declare (ignore relative-to))
   (format t "@methodsubindex{~(~A~)}@c~%" (escape method)))
 
-;; #### NOTE: applies to generic setters as well
+;; #### NOTE: applies to generic writers as well
 (defmethod index ((generic generic-definition) &optional relative-to)
   "Render GENERIC's indexing command."
   (declare (ignore relative-to))
@@ -190,11 +190,11 @@
     (document-definition function system 'function :name name)))
 
 (defmethod document
-    ((setter setter-definition) system
+    ((writer writer-definition) system
      &key
-     &aux (setter-name `(setf ,(setter-definition-symbol setter))))
-  "Render SYSTEM's SETTER function's documentation."
-  (call-next-method setter system :name setter-name))
+     &aux (writer-name `(setf ,(writer-definition-symbol writer))))
+  "Render SYSTEM's WRITER function's documentation."
+  (call-next-method writer system :name writer-name))
 
 (defmethod document ((method method-definition) system
 		     &key (name (definition-symbol method)))
@@ -227,12 +227,12 @@
     (document method system :name name)))
 
 (defmethod document
-    ((generic-setter generic-setter-definition) system
+    ((generic-writer generic-writer-definition) system
      &key
-     &aux (generic-setter-name
-	   `(setf ,(generic-setter-definition-symbol generic-setter))))
-  "Render SYSTEM's GENERIC-SETTER function's documentation."
-  (call-next-method generic-setter system :name generic-setter-name))
+     &aux (generic-writer-name
+	   `(setf ,(generic-writer-definition-symbol generic-writer))))
+  "Render SYSTEM's GENERIC-WRITER function's documentation."
+  (call-next-method generic-writer system :name generic-writer-name))
 
 (defmethod document ((condition condition-definition) system &key)
   "Render SYSTEM's CONDITION's documentation."
@@ -270,15 +270,15 @@
   "Add SYSTEM's category nodes to PARENT for LOCATION SYMBOLS."
   (dolist (category +categories+)
     (case (first category)
-      ;; #### NOTE: we use a rather ugly hack below to avoid explicit Setters
-      ;; and Generic Setters sections in the documentation. We prefer to group
-      ;; setters and getter together when that it possible.
+      ;; #### NOTE: we use a rather ugly hack below to avoid explicit Writers
+      ;; and Generic Writers sections in the documentation. We prefer to group
+      ;; writers and getter together when that it possible.
       (:function
        (let ((category-definitions
 	      (loop :for symbol :in symbols
 		    :when (symbol-definition symbol :function)
 		    :collect :it
-		    :when (symbol-definition symbol :setter)
+		    :when (symbol-definition symbol :writer)
 		    :collect :it)))
 	 (when category-definitions
 	   (add-category-node system parent location (second category)
@@ -288,12 +288,12 @@
 	      (loop :for symbol :in symbols
 		    :when (symbol-definition symbol :generic)
 		    :collect :it
-		    :when (symbol-definition symbol :generic-setter)
+		    :when (symbol-definition symbol :generic-writer)
 		    :collect :it)))
 	 (when category-definitions
 	   (add-category-node system parent location (second category)
 			      category-definitions))))
-      ((:setter :generic-setter))
+      ((:writer :generic-writer))
       (otherwise
        (let ((category-definitions
 	      (loop :for symbol :in symbols
