@@ -152,6 +152,7 @@ in which they can be found."
 	       (:module "src"
 		 :serial t
 		 :components ((:module "util"
+				:serial t
 				:components ((:file "misc")
 					     (:file "asdf")
 					     (:file "texi")))
