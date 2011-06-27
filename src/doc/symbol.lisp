@@ -269,13 +269,39 @@
 (defun add-categories-node (system parent location symbols)
   "Add SYSTEM's category nodes to PARENT for LOCATION SYMBOLS."
   (dolist (category +categories+)
-    (let ((category-definitions
-	   (loop :for symbol :in symbols
-		 :when (symbol-definition symbol (first category))
-		 :collect :it)))
-      (when category-definitions
-	(add-category-node system parent location (second category)
-			   category-definitions)))))
+    (case (first category)
+      ;; #### NOTE: we use a rather ugly hack below to avoid explicit Setters
+      ;; and Generic Setters sections in the documentation. We prefer to group
+      ;; setters and getter together when that it possible.
+      (:function
+       (let ((category-definitions
+	      (loop :for symbol :in symbols
+		    :when (symbol-definition symbol :function)
+		    :collect :it
+		    :when (symbol-definition symbol :setter)
+		    :collect :it)))
+	 (when category-definitions
+	   (add-category-node system parent location (second category)
+			      category-definitions))))
+      (:generic
+       (let ((category-definitions
+	      (loop :for symbol :in symbols
+		    :when (symbol-definition symbol :generic)
+		    :collect :it
+		    :when (symbol-definition symbol :generic-setter)
+		    :collect :it)))
+	 (when category-definitions
+	   (add-category-node system parent location (second category)
+			      category-definitions))))
+      ((:setter :generic-setter))
+      (otherwise
+       (let ((category-definitions
+	      (loop :for symbol :in symbols
+		    :when (symbol-definition symbol (first category))
+		    :collect :it)))
+	 (when category-definitions
+	   (add-category-node system parent location (second category)
+			      category-definitions)))))))
 
 (defun add-definitions-node
     (parent system
