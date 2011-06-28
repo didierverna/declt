@@ -252,67 +252,54 @@ This structure holds the generic writer function definition."
 ;; Source protocol
 ;; ---------------
 
-(defmethod source ((method method-definition))
-  "Return METHOD's definition source."
-  ;; #### PORTME.
-  (let* ((defsrc (sb-introspect:find-definition-source
-		  (method-definition-method method))))
-    (when defsrc
-      (sb-introspect:definition-source-pathname defsrc))))
-
+;; #### NOTE: SB-INTROSPECT:FIND-DEFINITION-SOURCES-BY-NAME may return
+;; multiple sources (e.g. if we were to ask it for methods) so we take the
+;; first one. That is okay because we actually use it only when there can be
+;; only one definition source.
 ;; #### PORTME.
-;; #### FIXME: why does f-d-s-b-n return a list? How can there be several
-;; sources?
-(defun definition-source
-    (definition type &key (name (definition-symbol definition))
-		     &aux (defsrc
-			   (car (sb-introspect:find-definition-sources-by-name
-				 name type))))
+(defun definition-source-by-name
+    (definition type
+     &key (name (definition-symbol definition))
+     &aux (defsrc (car (sb-introspect:find-definition-sources-by-name
+			name type))))
   "Return DEFINITION's source for TYPE."
   (when defsrc
     (sb-introspect:definition-source-pathname defsrc)))
 
+(defun definition-source
+    (object &aux (defsrc (sb-introspect:find-definition-source object)))
+  "Return OBJECT's definition source."
+  (when defsrc
+    (sb-introspect:definition-source-pathname defsrc)))
+
+
 (defmethod source ((constant constant-definition))
   "Return CONSTANT's definition source."
-  (definition-source constant :constant))
+  (definition-source-by-name constant :constant))
 
 (defmethod source ((special special-definition))
   "Return SPECIAL's definition source."
-  (definition-source special :variable))
+  (definition-source-by-name special :variable))
 
-(defmethod source ((macro macro-definition))
-  "Return MACRO's definition source."
-  (definition-source macro :macro))
+(defmethod source ((funcoid functional-definition))
+  "Return FUNCOID's definition source."
+  (definition-source (functional-definition-function funcoid)))
 
-(defmethod source ((function function-definition))
-  "Return FUNCTION's definition source."
-  (definition-source function :function))
-
-(defmethod source ((writer writer-definition))
-  "Return WRITER function's definition source."
-  (definition-source writer :function
-    :name `(setf ,(definition-symbol writer))))
-
-(defmethod source ((generic generic-definition))
-  "Return GENERIC's definition source."
-  (definition-source generic :generic-function))
-
-(defmethod source ((generic-writer generic-writer-definition))
-  "Return GENERIC-WRITER function's definition source."
-  (definition-source generic-writer :generic-function
-    :name `(setf ,(definition-symbol generic-writer))))
+(defmethod source ((method method-definition))
+  "Return METHOD's definition source."
+  (definition-source (method-definition-method method)))
 
 (defmethod source ((condition condition-definition))
   "Return CONDITION's definition source."
-  (definition-source condition :condition))
+  (definition-source-by-name condition :condition))
 
 (defmethod source ((structure structure-definition))
   "Return STRUCTURE's definition source."
-  (definition-source structure :structure))
+  (definition-source-by-name structure :structure))
 
 (defmethod source ((class class-definition))
   "Return CLASS's definition source."
-  (definition-source class :class))
+  (definition-source-by-name class :class))
 
 
 ;; ------------------
