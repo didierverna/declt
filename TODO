@@ -13,11 +13,7 @@ notice and this notice are preserved.
 ASDF maintains dependencies as a list of names only, so this makes it harder
 to find the corresponding component.
 
-** See about shadowed symbols
-
 ** See sb-introspect for a list of other things that we could possibly document
-
-** Sort out the case of (setf blah).
 
 ** Cleanup up the string-downcase issue
 so that it would be easier afterwards to provide an option for case behavior.
