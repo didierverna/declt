@@ -260,7 +260,8 @@ BODY should render on *standard-output*."
 (defun @defgenericx (name lambda-list)
   "Render @deffnx {Generic Function} NAME LAMBDA-LIST on *standard-output*"
   (format t "@deffnx {Generic Function} ~A " (escape name '(#\ )))
-  (render-lambda-list lambda-list))
+  (render-lambda-list lambda-list)
+  (terpri))
 
 (defmacro @defgeneric (name lambda-list &body body)
   "Execute BODY within a @deffn {Generic Function} NAME LAMBDA-LIST environment.
