@@ -303,8 +303,8 @@
 			 (string= function-doc writer-doc))
 		    (null writer-doc)
 		    (and (not (null writer-doc)) (null function-doc)))))
-	 (@defun (format nil  "~(~A~)"
-		   (generic-accessor-definition-symbol generic-accessor))
+	 (@defgeneric (format nil  "~(~A~)"
+			(generic-accessor-definition-symbol generic-accessor))
 	     (sb-introspect:function-lambda-list
 	      (generic-accessor-definition-function generic-accessor))
 	   (@defgenericx (format nil  "~(~A~)"
