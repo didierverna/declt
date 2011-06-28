@@ -55,7 +55,6 @@
   (declare (ignore relative-to))
   (format nil "the ~(~A~) function" (name function)))
 
-;; #### NOTE: applies to writer methods as well
 (defmethod title ((method method-definition) &optional relative-to)
   "Return METHOD's title."
   (declare (ignore relative-to))
@@ -66,7 +65,6 @@
 	    (sb-mop:method-specializers (method-definition-method method)))
     (sb-mop:method-qualifiers (method-definition-method method))))
 
-;; #### NOTE: applies to generic writers as well
 (defmethod title ((generic generic-definition) &optional relative-to)
   "Return GENERIC's title."
   (declare (ignore relative-to))
@@ -111,13 +109,11 @@
   (declare (ignore relative-to))
   (format t "@functionsubindex{~(~A~)}@c~%" (escape function)))
 
-;; #### NOTE: applies to writer methods as well
 (defmethod index ((method method-definition) &optional relative-to)
   "Render METHOD's indexing command."
   (declare (ignore relative-to))
   (format t "@methodsubindex{~(~A~)}@c~%" (escape method)))
 
-;; #### NOTE: applies to generic writers as well
 (defmethod index ((generic generic-definition) &optional relative-to)
   "Render GENERIC's indexing command."
   (declare (ignore relative-to))
@@ -253,6 +249,11 @@
 	    (render-text documentation))))
       (render-source method system))))
 
+(defmethod document ((method writer-method-definition) system &key)
+  "Render SYSTEM's writer METHOD's documentation."
+  (call-next-method method system
+		    :name `(setf ,(writer-method-definition-symbol method))))
+
 (defmethod document ((generic generic-definition) system
 		     &key (name (generic-definition-symbol generic)))
   "Render SYSTEM's GENERIC function's documentation."
@@ -262,7 +263,7 @@
        (generic-definition-function generic))
     (document-definition generic system 'function :name name))
   (dolist (method (generic-definition-methods generic))
-    (document method system :name name)))
+    (document method system)))
 
 (defmethod document
     ((generic-writer generic-writer-definition) system
@@ -271,6 +272,63 @@
 	   `(setf ,(generic-writer-definition-symbol generic-writer))))
   "Render SYSTEM's GENERIC-WRITER function's documentation."
   (call-next-method generic-writer system :name generic-writer-name))
+
+;; #### PORTME.
+(defmethod document
+    ((generic-accessor generic-accessor-definition) system &key)
+  "Render SYSTEM's generic ACCESSOR's documentation."
+  (cond ((and (equal (source generic-accessor)
+		     (source (generic-accessor-definition-writer
+			      generic-accessor)))
+	      (equal (sb-introspect:function-lambda-list
+		      (generic-accessor-definition-function
+		       generic-accessor))
+		     ;; #### NOTE: the writer has a first additional
+		     ;; lambda-list argument of NEW-VALUE that we must skip
+		     ;; before comparing.
+		     (cdr (sb-introspect:function-lambda-list
+			   (generic-writer-definition-function
+			    (generic-accessor-definition-writer
+			     generic-accessor)))))
+	      (let ((function-doc (documentation
+				   (generic-accessor-definition-symbol
+				    generic-accessor)
+				   'function))
+		    (writer-doc (documentation
+				 (generic-writer-definition-symbol
+				  (generic-accessor-definition-writer
+				   generic-accessor))
+				 'function)))
+		(or (and function-doc writer-doc
+			 (string= function-doc writer-doc))
+		    (null writer-doc)
+		    (and (not (null writer-doc)) (null function-doc)))))
+	 (@defun (format nil  "~(~A~)"
+		   (generic-accessor-definition-symbol generic-accessor))
+	     (sb-introspect:function-lambda-list
+	      (generic-accessor-definition-function generic-accessor))
+	   (@defgenericx (format nil  "~(~A~)"
+			   `(setf ,(generic-writer-definition-symbol
+				    (generic-accessor-definition-writer
+				     generic-accessor))))
+			 (sb-introspect:function-lambda-list
+			  (generic-writer-definition-function
+			   (generic-accessor-definition-writer
+			    generic-accessor))))
+	   (anchor (generic-accessor-definition-writer generic-accessor))
+	   (index (generic-accessor-definition-writer generic-accessor))
+	   (document-definition generic-accessor system 'function))
+	 (dolist (method
+		   (generic-accessor-definition-methods generic-accessor))
+	   (document method system))
+	 (dolist (method
+		   (generic-writer-definition-methods
+		    (generic-accessor-definition-writer generic-accessor)))
+	   (document method system)))
+	(t
+	 (call-next-method)
+	 (document (generic-accessor-definition-writer generic-accessor)
+		   system))))
 
 (defmethod document ((condition condition-definition) system &key)
   "Render SYSTEM's CONDITION's documentation."
@@ -307,29 +365,13 @@
 (defun add-categories-node (system parent location symbols)
   "Add SYSTEM's category nodes to PARENT for LOCATION SYMBOLS."
   (dolist (category +categories+)
-    (case (first category)
-      ;; #### NOTE: we use a rather ugly hack below to avoid explicit Generic
-      ;; Writers sections in the documentation. We prefer to group writers and
-      ;; getters together when that it possible.
-      (:generic
-       (let ((category-definitions
-	      (loop :for symbol :in symbols
-		    :when (symbol-definition symbol :generic)
-		    :collect :it
-		    :when (symbol-definition symbol :generic-writer)
-		    :collect :it)))
-	 (when category-definitions
-	   (add-category-node system parent location (second category)
-			      category-definitions))))
-      (:generic-writer)
-      (otherwise
-       (let ((category-definitions
-	      (loop :for symbol :in symbols
-		    :when (symbol-definition symbol (first category))
-		    :collect :it)))
-	 (when category-definitions
-	   (add-category-node system parent location (second category)
-			      category-definitions)))))))
+    (let ((category-definitions
+	   (loop :for symbol :in symbols
+		 :when (symbol-definition symbol (first category))
+		 :collect :it)))
+      (when category-definitions
+	(add-category-node system parent location (second category)
+			   category-definitions)))))
 
 (defun add-definitions-node
     (parent system

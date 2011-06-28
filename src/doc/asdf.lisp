@@ -201,6 +201,15 @@
     (when (generic-definition-p definition)
       (dolist (method (generic-definition-methods definition))
 	(when (equal (source method) file)
+	  (endpush method file-definitions))))
+    (when (generic-accessor-definition-p definition)
+      (when (equal (source (generic-accessor-definition-writer definition))
+		   file)
+	(endpush (generic-accessor-definition-writer definition)
+		 file-definitions))
+      (dolist (method (generic-writer-definition-methods
+		       (generic-accessor-definition-writer definition)))
+	(when (equal (source method) file)
 	  (endpush method file-definitions))))))
 
 (defun lisp-file-node (file system external-definitions internal-definitions

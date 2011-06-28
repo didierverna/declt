@@ -52,7 +52,6 @@
       (:macro          "macros")
       (:function       "functions")
       (:generic        "generic functions")
-      (:generic-writer "generic writer functions")
       (:condition      "conditions")
       (:structure      "structures")
       (:class          "classes"))
@@ -86,20 +85,22 @@ object."
   (writer)) ;; writer object
 
 (defstruct (method-definition (:include definition))
-  "Structure for method definitions.
+  "Base structure for method definitions.
 This structure holds the method object."
-  (method)) ;; method object
+  (method))
 (defstruct (writer-method-definition (:include method-definition))
-  "Structure for writer method definitions.
-This structure holds the method object.")
+  "Structure for writer method definitions.")
 
 (defstruct (generic-definition (:include functional-definition))
   "Structure for generic function definitions.
-This structure holds the list of methods."
-  (methods)) ;; list of method objects
+This structure holds the list of method definitions."
+  (methods))
 (defstruct (generic-writer-definition (:include generic-definition))
-  "Structure for generic writer function definitions.
-This structure holds the list of methods.")
+  "Structure for generic writer function definitions.")
+(defstruct (generic-accessor-definition (:include generic-definition))
+  "Structure for generic accessor function definitions.
+This structure holds the generic writer function definition."
+  (writer))
 
 (defstruct (condition-definition (:include definition))
   "Structure for condition definitions.")
@@ -149,28 +150,49 @@ This structure holds the list of methods.")
 	      (make-writer-definition :symbol symbol
 				      :function writer)))))
     (:generic
-     (when (and (fboundp symbol)
-		(typep (fdefinition symbol) 'generic-function))
-       (make-generic-definition
-	:symbol symbol
-	:function (fdefinition symbol)
-	:methods (mapcar (lambda (method)
-			   (make-method-definition :symbol symbol
-						   :method method))
-			 (sb-mop:generic-function-methods
-			  (fdefinition symbol))))))
-    (:generic-writer
-     (let ((writer-name `(setf ,symbol)))
-       (when (and (fboundp writer-name)
-		  (typep (fdefinition writer-name) 'generic-function))
-	 (make-generic-writer-definition
-	  :symbol symbol
-	  :function (fdefinition writer-name)
-	  :methods (mapcar (lambda (method)
-			     (make-writer-method-definition :symbol symbol
-							    :method method))
-			   (sb-mop:generic-function-methods
-			    (fdefinition writer-name)))))))
+     (let ((function
+	    (when (and (fboundp symbol)
+		       (typep (fdefinition symbol) 'generic-function))
+	      (fdefinition symbol)))
+	   (writer
+	    (let ((writer-name `(setf ,symbol)))
+	      (when (and (fboundp writer-name)
+			 (typep (fdefinition writer-name) 'generic-function))
+		(fdefinition writer-name)))))
+       (cond ((and function writer)
+	      (make-generic-accessor-definition
+	       :symbol symbol
+	       :function function
+	       :methods (mapcar (lambda (method)
+				  (make-method-definition :symbol symbol
+							  :method method))
+				(sb-mop:generic-function-methods function))
+	       :writer (make-generic-writer-definition
+			:symbol symbol
+			:function writer
+			:methods
+			(mapcar (lambda (method)
+				  (make-writer-method-definition
+				   :symbol symbol
+				   :method method))
+				(sb-mop:generic-function-methods writer)))))
+	     (function
+	      (make-generic-definition
+	       :symbol symbol
+	       :function function
+	       :methods (mapcar (lambda (method)
+				  (make-method-definition :symbol symbol
+							  :method method))
+				(sb-mop:generic-function-methods function))))
+	     (writer
+	      (make-generic-writer-definition
+	       :symbol symbol
+	       :function writer
+	       :methods (mapcar (lambda (method)
+				  (make-writer-method-definition
+				   :symbol symbol
+				   :method method))
+				(sb-mop:generic-function-methods writer)))))))
     (:condition
      (let ((class (find-class symbol nil)))
        (when (and class (typep class 'sb-pcl::condition-class))
@@ -229,7 +251,6 @@ This structure holds the list of methods.")
 ;; Source protocol
 ;; ---------------
 
-;; #### NOTE: this applies to writer methods as well
 (defmethod source ((method method-definition))
   "Return METHOD's definition source."
   ;; #### PORTME.
@@ -313,12 +334,10 @@ This structure holds the list of methods.")
   "Return \"function\""
   "function")
 
-;; #### NOTE: applies to generic writers as well
 (defmethod type-name ((generic generic-definition))
   "Return \"generic function\""
   "generic function")
 
-;; #### NOTE: applies to writer methods as well
 (defmethod type-name ((method method-definition))
   "Return \"method\""
   "method")
