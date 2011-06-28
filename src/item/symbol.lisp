@@ -60,7 +60,7 @@
 (defstruct definition
   "Base structure for definitions named by symbols.
 This structure holds the symbol naming the definition."
-  (symbol)) ;; symbol naming the definition
+  (symbol))
 
 (defstruct (constant-definition (:include definition))
   "Structure for constant definitions.")
@@ -71,7 +71,7 @@ This structure holds the symbol naming the definition."
   "Base structure for definitions of functional values.
 This structure holds the the function, generic function or macro function
 object."
-  (function)) ;; function, generic function or macro function objet
+  (function))
 
 (defstruct (macro-definition (:include functional-definition))
   "Structure for macro definitions.")
@@ -81,8 +81,9 @@ object."
 (defstruct (writer-definition (:include function-definition))
   "Structure for ordinary writer function definitions.")
 (defstruct (accessor-definition (:include function-definition))
-  "Structure for accessor function definitions."
-  (writer)) ;; writer object
+  "Structure for accessor function definitions.
+This structure holds the writer function definition."
+  (writer))
 
 (defstruct (method-definition (:include definition))
   "Base structure for method definitions.
