@@ -270,6 +270,15 @@ BODY should render on *standard-output*."
   `(@deffn ("Generic Function" ,name ,lambda-list)
     ,@body))
 
+(defun @defmethodx (name lambda-list specializers qualifiers)
+  "Render @deffnx {Method} NAME LAMBDA-LIST on *standard-output*.
+NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for Texinfo prior
+to rendering."
+  (format t "@deffnx {Method} ~A " (escape name '(#\ )))
+  (render-lambda-list lambda-list specializers)
+  (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape qualifiers))
+  (terpri))
+
 (defmacro @defmethod (name lambda-list specializers qualifiers &body body)
   "Execute BODY within a @deffn {Method} NAME LAMBDA-LIST environment.
 NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for Texinfo prior

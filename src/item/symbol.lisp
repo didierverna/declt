@@ -91,6 +91,10 @@ This structure holds the method object."
   (method))
 (defstruct (writer-method-definition (:include method-definition))
   "Structure for writer method definitions.")
+(defstruct (accessor-method-definition (:include method-definition))
+  "Structure for accessor method definitions.
+This structure holds the writer method definition."
+  (writer))
 
 (defstruct (generic-definition (:include functional-definition))
   "Structure for generic function definitions.
@@ -161,22 +165,55 @@ This structure holds the generic writer function definition."
 			 (typep (fdefinition writer-name) 'generic-function))
 		(fdefinition writer-name)))))
        (cond ((and function writer)
+	      ;; #### NOTE: for a generic accessor function, we store accessor
+	      ;; methods in the generic accessor function definition, along
+	      ;; with standard methods. Only writer-only methods are stored in
+	      ;; the generic writer function definition.
 	      (make-generic-accessor-definition
 	       :symbol symbol
 	       :function function
-	       :methods (mapcar (lambda (method)
-				  (make-method-definition :symbol symbol
-							  :method method))
-				(sb-mop:generic-function-methods function))
+	       :methods
+	       (mapcar
+		(lambda (method)
+		  (let ((writer-method
+			 (find-method writer
+				      (method-qualifiers method)
+				      ;; #### FIXME: I'm not sure if the first
+				      ;; argument (NEW-VALUE) of a writer
+				      ;; method always has a specializer of
+				      ;; T...
+				      (cons t
+					    (sb-mop:method-specializers
+					     method)))))
+		    (if writer-method
+			(make-accessor-method-definition
+			 :symbol symbol
+			 :method method
+			 :writer (make-writer-method-definition
+				  :symbol symbol
+				  :method writer-method))
+		      (make-method-definition :symbol symbol
+					      :method method))))
+		(sb-mop:generic-function-methods function))
 	       :writer (make-generic-writer-definition
 			:symbol symbol
 			:function writer
 			:methods
-			(mapcar (lambda (method)
-				  (make-writer-method-definition
-				   :symbol symbol
-				   :method method))
-				(sb-mop:generic-function-methods writer)))))
+			(mapcan
+			 (lambda (method)
+			   (unless (find-method function
+						(method-qualifiers method)
+						;; #### NOTE: don't forget to
+						;; remove the first
+						;; (NEW-VALUE) specializer
+						;; from the writer method.
+						(cdr
+						 (sb-mop:method-specializers
+						  method)))
+			     (list (make-writer-method-definition
+				    :symbol symbol
+				    :method method))))
+			 (sb-mop:generic-function-methods writer)))))
 	     (function
 	      (make-generic-definition
 	       :symbol symbol
@@ -227,7 +264,7 @@ This structure holds the generic writer function definition."
 
 ;; #### NOTE: all of these methods are in fact equivalent. That's the drawback
 ;; of using structures instead of classes, which limits the inheritance
-;; expressiveness (otherwise I could have used a writer mixin or something)..
+;; expressiveness (otherwise I could have used a writer mixin or something).
 (defmethod name ((writer writer-definition))
   "Return WRITER's name, that is (setf <name>)."
   (format nil "(SETF ~A)" (name (writer-definition-symbol writer))))
@@ -300,6 +337,43 @@ This structure holds the generic writer function definition."
 (defmethod source ((class class-definition))
   "Return CLASS's definition source."
   (definition-source-by-name class :class))
+
+
+;; -----------------------------------
+;; Definition file definition protocol
+;; -----------------------------------
+
+(defgeneric definition-file-definitions (definition file)
+  (:documentation
+   "Return the list of definitions from DEFINITION that belong to FILE.")
+  (:method (definition file)
+    "Default method for definitions not containing sub-definitions."
+    (when (equal (source definition) file)
+      (list definition)))
+  (:method ((accessor accessor-definition) file)
+    "Handle ACCESSOR and its writer function."
+    (nconc (call-next-method)
+	   (definition-file-definitions
+	       (accessor-definition-writer accessor)
+	       file)))
+  (:method ((accessor-method accessor-method-definition) file)
+    "Handle ACCESSOR-METHOD and its writer method."
+    (nconc (call-next-method)
+	   (definition-file-definitions
+	       (accessor-method-definition-writer accessor-method)
+	       file)))
+  (:method ((generic generic-definition) file)
+    "Handle GENERIC function and its methods."
+    (nconc (call-next-method)
+	   (mapcan (lambda (method)
+		     (definition-file-definitions method file))
+		   (generic-definition-methods generic))))
+  (:method ((generic-accessor generic-accessor-definition) file)
+    "Handle GENERIC-ACCESSOR and its generic writer function."
+    (nconc (call-next-method)
+	   (definition-file-definitions
+	       (generic-accessor-definition-writer generic-accessor)
+	       file))))
 
 
 ;; ------------------

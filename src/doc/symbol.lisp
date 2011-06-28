@@ -230,18 +230,18 @@
 	 (call-next-method)
 	 (document (accessor-definition-writer accessor) system))))
 
+;; #### PORTME:
 (defmethod document ((method method-definition) system
 		     &key (name (definition-symbol method)))
   "Render SYSTEM's METHOD's documentation."
   (@defmethod
-      ;; #### PORTME:
       (format nil "~(~A~)" name)
       (sb-mop:method-lambda-list (method-definition-method method))
       (sb-mop:method-specializers (method-definition-method method))
       (sb-mop:method-qualifiers (method-definition-method method))
+    (anchor method)
+    (index method)
     (@table ()
-      (anchor method)
-      (index method)
       (let ((documentation
 	     (documentation (method-definition-method method) t)))
 	(when documentation
@@ -253,6 +253,68 @@
   "Render SYSTEM's writer METHOD's documentation."
   (call-next-method method system
 		    :name `(setf ,(writer-method-definition-symbol method))))
+
+;; #### PORTME.
+(defmethod document ((method accessor-method-definition) system &key)
+  "Render SYSTEM's accessor METHOD's documentation."
+  (cond ((and (equal (source method)
+		     (source (accessor-method-definition-writer method)))
+	      (equal (sb-mop:method-lambda-list
+		      (accessor-method-definition-method method))
+		     ;; #### NOTE: the writer has a first additional
+		     ;; lambda-list argument of NEW-VALUE that we must skip
+		     ;; before comparing.
+		     (cdr (sb-mop:method-lambda-list
+			   (writer-method-definition-method
+			    (accessor-method-definition-writer method)))))
+	      (let ((method-doc (documentation
+				 (accessor-method-definition-method method)
+				 t))
+		    (writer-doc (documentation
+				 (writer-method-definition-method
+				  (accessor-method-definition-writer method))
+				 t)))
+		(or (and method-doc writer-doc
+			 (string= method-doc writer-doc))
+		    (null writer-doc)
+		    (and (not (null writer-doc)) (null method-doc)))))
+	 (@defmethod
+	     (format nil  "~(~A~)"
+	       (accessor-method-definition-symbol method))
+	     (sb-mop:method-lambda-list
+	      (accessor-method-definition-method method))
+	     (sb-mop:method-specializers
+	      (accessor-method-definition-method method))
+	     (sb-mop:method-qualifiers
+	      (accessor-method-definition-method method))
+	   (@defmethodx (format nil  "~(~A~)"
+			  `(setf ,(writer-method-definition-symbol
+				   (accessor-method-definition-writer
+				    method))))
+			(sb-mop:method-lambda-list
+			 (writer-method-definition-method
+			  (accessor-method-definition-writer method)))
+			(sb-mop:method-specializers
+			 (writer-method-definition-method
+			  (accessor-method-definition-writer method)))
+			(sb-mop:method-qualifiers
+			 (writer-method-definition-method
+			  (accessor-method-definition-writer method))))
+	   (anchor (accessor-method-definition-writer method))
+	   (index (accessor-method-definition-writer method))
+	   (anchor method)
+	   (index method)
+	   (@table ()
+	     (let ((documentation
+		    (documentation (accessor-method-definition-method method)
+				   t)))
+	       (when documentation
+		 (@tableitem "Documentation"
+		   (render-text documentation))))
+	     (render-source method system))))
+	(t
+	 (call-next-method)
+	 (document (accessor-method-definition-writer method) system))))
 
 (defmethod document ((generic generic-definition) system
 		     &key (name (generic-definition-symbol generic)))

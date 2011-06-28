@@ -189,28 +189,13 @@
 ;; Nodes
 ;; -----
 
-(defun file-definitions (file definitions &aux file-definitions)
+(defun file-definitions (file definitions)
   "Return the subset of DEFINITIONS that come from FILE."
-  (dolist (definition definitions
-	      (sort file-definitions #'string-lessp :key #'definition-symbol))
-    (when (equal (source definition) file)
-      (endpush definition file-definitions))
-    (when (and (accessor-definition-p definition)
-	       (equal (source (accessor-definition-writer definition)) file))
-      (endpush (accessor-definition-writer definition) file-definitions))
-    (when (generic-definition-p definition)
-      (dolist (method (generic-definition-methods definition))
-	(when (equal (source method) file)
-	  (endpush method file-definitions))))
-    (when (generic-accessor-definition-p definition)
-      (when (equal (source (generic-accessor-definition-writer definition))
-		   file)
-	(endpush (generic-accessor-definition-writer definition)
-		 file-definitions))
-      (dolist (method (generic-writer-definition-methods
-		       (generic-accessor-definition-writer definition)))
-	(when (equal (source method) file)
-	  (endpush method file-definitions))))))
+  (sort (mapcan (lambda (definition)
+		  (definition-file-definitions definition file))
+		definitions)
+	#'string-lessp
+	:key #'definition-symbol))
 
 (defun lisp-file-node (file system external-definitions internal-definitions
 		       &aux (system-directory (system-directory system)))
