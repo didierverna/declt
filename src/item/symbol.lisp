@@ -60,7 +60,7 @@
 (defstruct definition
   "Base structure for definitions named by symbols.
 This structure holds the symbol naming the definition."
-  (symbol))
+  symbol)
 
 (defstruct (constant-definition (:include definition))
   "Structure for constant definitions.")
@@ -71,7 +71,7 @@ This structure holds the symbol naming the definition."
   "Base structure for definitions of functional values.
 This structure holds the the function, generic function or macro function
 object."
-  (function))
+  function)
 
 (defstruct (macro-definition (:include functional-definition))
   "Structure for macro definitions.")
@@ -83,29 +83,29 @@ object."
 (defstruct (accessor-definition (:include function-definition))
   "Structure for accessor function definitions.
 This structure holds the writer function definition."
-  (writer))
+  writer)
 
 (defstruct (method-definition (:include definition))
   "Base structure for method definitions.
 This structure holds the method object."
-  (method))
+  method)
 (defstruct (writer-method-definition (:include method-definition))
   "Structure for writer method definitions.")
 (defstruct (accessor-method-definition (:include method-definition))
   "Structure for accessor method definitions.
 This structure holds the writer method definition."
-  (writer))
+  writer)
 
 (defstruct (generic-definition (:include functional-definition))
   "Structure for generic function definitions.
 This structure holds the list of method definitions."
-  (methods))
+  methods)
 (defstruct (generic-writer-definition (:include generic-definition))
   "Structure for generic writer function definitions.")
 (defstruct (generic-accessor-definition (:include generic-definition))
   "Structure for generic accessor function definitions.
 This structure holds the generic writer function definition."
-  (writer))
+  writer)
 
 (defstruct (condition-definition (:include definition))
   "Structure for condition definitions.")
@@ -131,39 +131,37 @@ This structure holds the generic writer function definition."
 	 (make-macro-definition :symbol symbol :function function))))
     (:function
      (let ((function
-	    (when (and (fboundp symbol)
-		       (not (macro-function symbol))
-		       (not (typep (fdefinition symbol) 'generic-function)))
-	      (fdefinition symbol)))
+	     (when (and (fboundp symbol)
+			(not (macro-function symbol))
+			(not (typep (fdefinition symbol) 'generic-function)))
+	       (fdefinition symbol)))
 	   (writer
-	    (let ((writer-name `(setf ,symbol)))
-	      (when (and (fboundp writer-name)
-			 (not (typep (fdefinition writer-name)
-				     'generic-function)))
-		(fdefinition writer-name)))))
+	     (let ((writer-name `(setf ,symbol)))
+	       (when (and (fboundp writer-name)
+			  (not (typep (fdefinition writer-name)
+				      'generic-function)))
+		 (fdefinition writer-name)))))
        (cond ((and function writer)
-	      (make-accessor-definition :symbol symbol
-					:function function
-					:writer
-					(make-writer-definition
-					 :symbol symbol
-					 :function writer)))
+	      (make-accessor-definition
+	       :symbol symbol
+	       :function function
+	       :writer (make-writer-definition
+			:symbol symbol
+			:function writer)))
 	     (function
-	      (make-function-definition :symbol symbol
-					:function function))
+	      (make-function-definition :symbol symbol :function function))
 	     (writer
-	      (make-writer-definition :symbol symbol
-				      :function writer)))))
+	      (make-writer-definition :symbol symbol :function writer)))))
     (:generic
      (let ((function
-	    (when (and (fboundp symbol)
-		       (typep (fdefinition symbol) 'generic-function))
-	      (fdefinition symbol)))
+	     (when (and (fboundp symbol)
+			(typep (fdefinition symbol) 'generic-function))
+	       (fdefinition symbol)))
 	   (writer
-	    (let ((writer-name `(setf ,symbol)))
-	      (when (and (fboundp writer-name)
-			 (typep (fdefinition writer-name) 'generic-function))
-		(fdefinition writer-name)))))
+	     (let ((writer-name `(setf ,symbol)))
+	       (when (and (fboundp writer-name)
+			  (typep (fdefinition writer-name) 'generic-function))
+		 (fdefinition writer-name)))))
        (cond ((and function writer)
 	      ;; #### NOTE: for a generic accessor function, we store accessor
 	      ;; methods in the generic accessor function definition, along
@@ -176,15 +174,15 @@ This structure holds the generic writer function definition."
 	       (mapcar
 		(lambda (method)
 		  (let ((writer-method
-			 (find-method writer
-				      (method-qualifiers method)
-				      ;; #### FIXME: I'm not sure if the first
-				      ;; argument (NEW-VALUE) of a writer
-				      ;; method always has a specializer of
-				      ;; T...
-				      (cons t
-					    (sb-mop:method-specializers
-					     method)))))
+			  (find-method writer
+				       (method-qualifiers method)
+				       ;; #### FIXME: I'm not sure if the
+				       ;; first argument (NEW-VALUE) of a
+				       ;; writer method always has a
+				       ;; specializer of T...
+				       (cons t
+					     (sb-mop:method-specializers
+					      method)))))
 		    (if writer-method
 			(make-accessor-method-definition
 			 :symbol symbol
@@ -192,8 +190,7 @@ This structure holds the generic writer function definition."
 			 :writer (make-writer-method-definition
 				  :symbol symbol
 				  :method writer-method))
-		      (make-method-definition :symbol symbol
-					      :method method))))
+		      (make-method-definition :symbol symbol :method method))))
 		(sb-mop:generic-function-methods function))
 	       :writer (make-generic-writer-definition
 			:symbol symbol
@@ -250,7 +247,7 @@ This structure holds the generic writer function definition."
   "Return all definitions named by SYMBOL if any."
   (loop :for category :in (mapcar #'first +categories+)
 	:when (symbol-definition symbol category)
-	:collect :it))
+	  :collect :it))
 
 
 
@@ -354,14 +351,14 @@ This structure holds the generic writer function definition."
     "Handle ACCESSOR and its writer function."
     (nconc (call-next-method)
 	   (definition-file-definitions
-	       (accessor-definition-writer accessor)
-	       file)))
+	    (accessor-definition-writer accessor)
+	    file)))
   (:method ((accessor-method accessor-method-definition) file)
     "Handle ACCESSOR-METHOD and its writer method."
     (nconc (call-next-method)
 	   (definition-file-definitions
-	       (accessor-method-definition-writer accessor-method)
-	       file)))
+	    (accessor-method-definition-writer accessor-method)
+	    file)))
   (:method ((generic generic-definition) file)
     "Handle GENERIC function and its methods."
     (nconc (call-next-method)
@@ -372,8 +369,8 @@ This structure holds the generic writer function definition."
     "Handle GENERIC-ACCESSOR and its generic writer function."
     (nconc (call-next-method)
 	   (definition-file-definitions
-	       (generic-accessor-definition-writer generic-accessor)
-	       file))))
+	    (generic-accessor-definition-writer generic-accessor)
+	    file))))
 
 
 ;; ------------------
