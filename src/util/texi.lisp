@@ -58,9 +58,9 @@
   "When OBJECT, escape its name for Texinfo.
 The escaped characters are @, {, } and optionally a list of OTHER-CHARS."
   (when object
-    (coerce (loop :for char :across (name object)
+    (coerce (loop :for char across (name object)
 		  :if (member char (append '(#\@ #\{ #\}) other-chars))
-		  :collect #\@
+		    :collect #\@
 		  :collect char)
 	    'string)))
 
@@ -89,14 +89,16 @@ embellish the output by detecting potential paragraphs from standalone lines."
       (loop :for (ln1 mnl1p) :=    (read-next-line str)
 			     :then (list ln2 mnl2p)
 	    :for (ln2 mnl2p) :=    (read-next-line str)
-			     :then (read-next-line str)
+	      :then (read-next-line str)
 	    :until (eq ln1 :eof)
 	    :if (zerop (length ln1))
 	      :do (terpri)
-	    :else :if (eq ln2 :eof)
-	      :do (format t "~A~@[~%~]" (escape ln1) (not mnl1p))
-	    :else :if (> (- 78 (length ln1)) (first-word-length ln2))
-	      :do (format t "~A@*~%" (escape ln1))
+	    :else
+	      :if (eq ln2 :eof)
+		:do (format t "~A~@[~%~]" (escape ln1) (not mnl1p))
+	    :else
+	      :if (> (- 78 (length ln1)) (first-word-length ln2))
+		:do (format t "~A@*~%" (escape ln1))
 	    :else
 	      :do (format t "~A~%" (escape ln1))))))
 
@@ -110,31 +112,31 @@ Rendering is done on *standard-output*."
   "Execute BODY within a table @item TITLE.
 BODY should render on *standard-output*."
   `(progn
-    (format t "~&@item ~A~%" ,title)
-    ,@body))
+     (format t "~&@item ~A~%" ,title)
+     ,@body))
 
 (defmacro @table ((&optional (kind :@strong)) &body body)
   "Execute BODY within a @table KIND environment.
 BODY should render on *standard-output*."
   `(progn
-    (format t "@table ~(~A~)~%" ,kind)
-    ,@body
-    (format t "~&@end table~%")))
+     (format t "@table ~(~A~)~%" ,kind)
+     ,@body
+     (format t "~&@end table~%")))
 
 (defmacro @item (&body body)
   "Execute BODY within an itemize @item.
 BODY should render on *standard-output*."
   `(progn
-    (format t "~&@item~%")
-    ,@body))
+     (format t "~&@item~%")
+     ,@body))
 
 (defmacro @itemize ((&optional (kind :@bullet)) &body body)
   "Execute BODY within an @itemize KIND environment.
 BODY should render on *standard-output*."
   `(progn
-    (format t "@itemize ~(~A~)~%" ,kind)
-    ,@body
-    (format t "~&@end itemize~%")))
+     (format t "@itemize ~(~A~)~%" ,kind)
+     ,@body
+     (format t "~&@end itemize~%")))
 
 (defun @itemize-list
     (list &key renderer (kind :@bullet) (format "~A") (key #'identity))
@@ -160,9 +162,9 @@ the rendering is done by calling format, as explained below.
 CATEGORY and NAME are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-    (format t "@defvr {~A} ~A~%" (escape ,category) (escape ,name))
-    ,@body
-    (format t "~&@end defvr~%")))
+     (format t "@defvr {~A} ~A~%" (escape ,category) (escape ,name))
+     ,@body
+     (format t "~&@end defvr~%")))
 
 (defmacro @defconstant (name &body body)
   "Execute BODY within a @defvr {Constant} NAME environment.
@@ -188,44 +190,44 @@ BODY should render on *standard-output*."
     (format nil "~A" `(eql ,(sb-mop:eql-specializer-object specializer)))))
 
 ;; Based on Edi Weitz's write-lambda-list* from documentation-template.
-(defun render-lambda-list (lambda-list &optional specializers)
+(defun render-lambda-list (lambda-list &optional specializers
+				       &aux (firstp t)
+					    after-required-args-p)
   "Render LAMBDA-LIST with potential SPECIALIZERS.
 LAMBDA-LIST and SPECIALIZERS are escaped for Texinfo prior to rendering.
 Rendering is done on *standard-output*."
-  (let ((firstp t)
-	after-required-args-p)
-    (dolist (part lambda-list)
-      (when (and (consp part) after-required-args-p)
-	(setq part (first part)))
-      (unless firstp
-	(write-char #\Space))
-      (setq firstp nil)
-      (cond ((consp part)
-	     (write-char #\()
-	     (render-lambda-list part)
-	     (write-char #\)))
-	    ((member part '(&optional &rest &key &allow-other-keys
-			    &aux &environment &whole &body))
-	     (setq after-required-args-p t)
-	     (format t "~(~A~)" part))
-	    (t
-	     (let ((specializer (pretty-specializer (pop specializers))))
-	       (if (and specializer (not (eq specializer t)))
-		   (format t "(~A @t{~(~A~)})"
-		     (escape part)
-		     (escape specializer))
-		 (write-string (escape part)))))))))
+  (dolist (part lambda-list)
+    (when (and (consp part) after-required-args-p)
+      (setq part (first part)))
+    (unless firstp
+      (write-char #\Space))
+    (setq firstp nil)
+    (cond ((consp part)
+	   (write-char #\()
+	   (render-lambda-list part)
+	   (write-char #\)))
+	  ((member part '(&optional &rest &key &allow-other-keys
+			  &aux &environment &whole &body))
+	   (setq after-required-args-p t)
+	   (format t "~(~A~)" part))
+	  (t
+	   (let ((specializer (pretty-specializer (pop specializers))))
+	     (if (and specializer (not (eq specializer t)))
+		 (format t "(~A @t{~(~A~)})"
+		   (escape part)
+		   (escape specializer))
+	       (write-string (escape part))))))))
 
 (defmacro @defmac (name lambda-list &body body)
   "Execute BODY within a @defmac NAME LAMBDA-LIST environment.
 NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-    (format t "@defmac ~A " (escape ,name '(#\ )))
-    (render-lambda-list ,lambda-list)
-    (terpri)
-    ,@body
-    (format t "~&@end defmac~%")))
+     (format t "@defmac ~A " (escape ,name '(#\ )))
+     (render-lambda-list ,lambda-list)
+     (terpri)
+     ,@body
+     (format t "~&@end defmac~%")))
 
 (defun @defunx (name lambda-list)
   "Render @defunx NAME LAMBDA-LIST on *standard-output*."
@@ -238,11 +240,11 @@ BODY should render on *standard-output*."
 NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-    (format t "@defun ~A " (escape ,name '(#\ )))
-    (render-lambda-list ,lambda-list)
-    (terpri)
-    ,@body
-    (format t "~&@end defun~%")))
+     (format t "@defun ~A " (escape ,name '(#\ )))
+     (render-lambda-list ,lambda-list)
+     (terpri)
+     ,@body
+     (format t "~&@end defun~%")))
 
 (defmacro @deffn ((category name lambda-list &optional specializers qualifiers)
 		  &body body)
@@ -251,11 +253,11 @@ CATEGORY, NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for
 Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-    (format t "@deffn {~A} ~A " (escape ,category) (escape ,name '(#\ )))
-    (render-lambda-list ,lambda-list ,specializers)
-    (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape ,qualifiers))
-    ,@body
-    (format t "~&@end deffn~%")))
+     (format t "@deffn {~A} ~A " (escape ,category) (escape ,name '(#\ )))
+     (render-lambda-list ,lambda-list ,specializers)
+     (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape ,qualifiers))
+     ,@body
+     (format t "~&@end deffn~%")))
 
 (defun @defgenericx (name lambda-list)
   "Render @deffnx {Generic Function} NAME LAMBDA-LIST on *standard-output*"
@@ -268,7 +270,7 @@ BODY should render on *standard-output*."
 NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(@deffn ("Generic Function" ,name ,lambda-list)
-    ,@body))
+     ,@body))
 
 (defun @defmethodx (name lambda-list specializers qualifiers)
   "Render @deffnx {Method} NAME LAMBDA-LIST on *standard-output*.
@@ -285,16 +287,16 @@ NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for Texinfo prior
 to rendering.
 BODY should render on *standard-output*."
   `(@deffn ("Method" ,name ,lambda-list ,specializers ,qualifiers)
-    ,@body))
+     ,@body))
 
 (defmacro @deftp (category name &body body)
   "Execute BODY within a @deftp {CATEGORY} NAME environment.
 CATEGORY and NAME are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-    (format t "@deftp {~A} ~A~%"  (escape ,category) (escape ,name '(#\ )))
-    ,@body
-    (format t "~&@end deftp~%")))
+     (format t "@deftp {~A} ~A~%"  (escape ,category) (escape ,name '(#\ )))
+     ,@body
+     (format t "~&@end deftp~%")))
 
 (defmacro @defstruct (name &body body)
   "Execute BODY within a @deftp {Structure} NAME environment.
@@ -318,7 +320,7 @@ BODY should render on *standard-output*."
   "Execute BODY with *standard-output* redirected to a string.
 Return that string."
   `(with-output-to-string (*standard-output*)
-    ,@body))
+     ,@body))
 
 
 
@@ -327,12 +329,12 @@ Return that string."
 ;; ==========================================================================
 
 (define-constant +section-names+
-  '((:numbered   nil
-     "chapter"    "section"       "subsection"       "subsubsection")
-    (:unnumbered "top"
-     "unnumbered" "unnumberedsec" "unnumberedsubsec" "unnumberedsubsubsec")
-    (:appendix   nil
-     "appendix"   "appendixsec"   "appendixsubsec"   "appendixsubsubsec" ))
+    '((:numbered   nil
+       "chapter"    "section"       "subsection"       "subsubsection")
+      (:unnumbered "top"
+       "unnumbered" "unnumberedsec" "unnumberedsubsec" "unnumberedsubsubsec")
+      (:appendix   nil
+       "appendix"   "appendixsec"   "appendixsubsec"   "appendixsubsubsec" ))
   "The numbered, unumbered and appendix section names sorted by level.")
 
 (defvar *top-node* nil
@@ -354,16 +356,16 @@ This structure holds Texinfo nodes."
   before-menu-contents      ;; contents before the menu
   after-menu-contents)      ;; contents after the menu
 
-(defun add-child (parent child)
+(defun add-child (parent child
+		  &aux (previous (car (last (node-children parent)))))
   "Add CHILD node to PARENT node and return CHILD."
-  (let ((previous (car (last (node-children parent)))))
-    (cond (previous
-	   (setf (node-next previous) child)
-	   (endpush child (node-children parent)))
-	  (t
-	   (setf (node-children parent) (list child))))
-    (setf (node-previous child) previous)
-    (setf (node-up child) parent))
+  (cond (previous
+	 (setf (node-next previous) child)
+	 (endpush child (node-children parent)))
+	(t
+	 (setf (node-children parent) (list child))))
+  (setf (node-previous child) previous)
+  (setf (node-up child) parent)
   child)
 
 (defun render-node (node level)
