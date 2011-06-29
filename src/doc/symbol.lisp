@@ -166,10 +166,10 @@
   (@defspecial (string-downcase (definition-symbol special))
     (document-definition special system 'variable)))
 
+;; #### PORTME.
 (defmethod document ((macro macro-definition) system &key)
   "Render SYSTEM's MACRO's documentation."
   (@defmac (string-downcase (definition-symbol macro))
-      ;; #### PORTME.
       (sb-introspect:function-lambda-list
        (macro-definition-function macro))
     (document-definition macro system 'function)))
@@ -215,17 +215,17 @@
 		    (null writer-doc)
 		    (and (not (null writer-doc)) (null function-doc)))))
 	 (@defun (format nil  "~(~A~)" (accessor-definition-symbol accessor))
-		 (sb-introspect:function-lambda-list
-		  (accessor-definition-function accessor))
-		 (@defunx (format nil  "~(~A~)"
-			    `(setf ,(writer-definition-symbol
-				     (accessor-definition-writer accessor))))
-			  (sb-introspect:function-lambda-list
-			   (writer-definition-function
-			    (accessor-definition-writer accessor))))
-		 (anchor (accessor-definition-writer accessor))
-		 (index (accessor-definition-writer accessor))
-		 (document-definition accessor system 'function)))
+	     (sb-introspect:function-lambda-list
+	      (accessor-definition-function accessor))
+	   (@defunx (format nil  "~(~A~)"
+		      `(setf ,(writer-definition-symbol
+			       (accessor-definition-writer accessor))))
+		    (sb-introspect:function-lambda-list
+		     (writer-definition-function
+		      (accessor-definition-writer accessor))))
+	   (anchor (accessor-definition-writer accessor))
+	   (index (accessor-definition-writer accessor))
+	   (document-definition accessor system 'function)))
 	(t
 	 (call-next-method)
 	 (document (accessor-definition-writer accessor) system))))
@@ -243,7 +243,7 @@
     (index method)
     (@table ()
       (let ((documentation
-	     (documentation (method-definition-method method) t)))
+	      (documentation (method-definition-method method) t)))
 	(when documentation
 	  (@tableitem "Documentation"
 	    (render-text documentation))))
@@ -306,8 +306,8 @@
 	   (index method)
 	   (@table ()
 	     (let ((documentation
-		    (documentation (accessor-method-definition-method method)
-				   t)))
+		     (documentation (accessor-method-definition-method method)
+				    t)))
 	       (when documentation
 		 (@tableitem "Documentation"
 		   (render-text documentation))))
@@ -316,11 +316,11 @@
 	 (call-next-method)
 	 (document (accessor-method-definition-writer method) system))))
 
+;; #### PORTME.
 (defmethod document ((generic generic-definition) system
 		     &key (name (generic-definition-symbol generic)))
   "Render SYSTEM's GENERIC function's documentation."
   (@defgeneric (format nil "~(~A~)" name)
-      ;; #### PORTME.
       (sb-introspect:function-lambda-list
        (generic-definition-function generic))
     (document-definition generic system 'function :name name))
@@ -381,11 +381,11 @@
 	   (index (generic-accessor-definition-writer generic-accessor))
 	   (document-definition generic-accessor system 'function))
 	 (dolist (method
-		   (generic-accessor-definition-methods generic-accessor))
+		  (generic-accessor-definition-methods generic-accessor))
 	   (document method system))
 	 (dolist (method
-		   (generic-writer-definition-methods
-		    (generic-accessor-definition-writer generic-accessor)))
+		  (generic-writer-definition-methods
+		   (generic-accessor-definition-writer generic-accessor)))
 	   (document method system)))
 	(t
 	 (call-next-method)
@@ -416,21 +416,21 @@
 (defun add-category-node (system parent location category definitions)
   "Add SYSTEM's LOCATION CATEGORY node to PARENT for DEFINITIONS."
   (add-child parent
-    (make-node :name (format nil "~@(~A ~A~)" location category)
-	       :section-name (format nil "~@(~A~)" category)
-	       :before-menu-contents
-	       (render-to-string
-		 (dolist (definition (sort definitions #'string-lessp
-					   :key #'definition-symbol))
-		   (document definition system))))))
+	     (make-node :name (format nil "~@(~A ~A~)" location category)
+			:section-name (format nil "~@(~A~)" category)
+			:before-menu-contents
+			(render-to-string
+			  (dolist (definition (sort definitions #'string-lessp
+						    :key #'definition-symbol))
+			    (document definition system))))))
 
 (defun add-categories-node (system parent location symbols)
   "Add SYSTEM's category nodes to PARENT for LOCATION SYMBOLS."
   (dolist (category +categories+)
     (let ((category-definitions
-	   (loop :for symbol :in symbols
-		 :when (symbol-definition symbol (first category))
-		 :collect :it)))
+	    (loop :for symbol :in symbols
+		  :when (symbol-definition symbol (first category))
+		    :collect :it)))
       (when category-definitions
 	(add-category-node system parent location (second category)
 			   category-definitions)))))
@@ -438,10 +438,10 @@
 (defun add-definitions-node
     (parent system
      &aux (definitions-node
-	      (add-child parent
-		(make-node :name "Definitions"
-			   :synopsis "The symbols documentation"
-			   :before-menu-contents(format nil "~
+	   (add-child parent
+		      (make-node :name "Definitions"
+				 :synopsis "The symbols documentation"
+				 :before-menu-contents(format nil "~
 Definitions are sorted by export status, category, package, and then by
 lexicographic order.")))))
   "Add SYSTEM's definitions node to PARENT."
@@ -449,10 +449,11 @@ lexicographic order.")))))
 			       (system-internal-symbols system))
 	:for status :in '("exported" "internal")
 	:when symbols
-	:do (let ((node (add-child definitions-node
-			  (make-node :name (format nil "~@(~A~) definitions"
-					     status)))))
-	      (add-categories-node system node status symbols))))
+	  :do (let ((node (add-child definitions-node
+				     (make-node
+				      :name (format nil "~@(~A~) definitions"
+					      status)))))
+		(add-categories-node system node status symbols))))
 
 
 ;;; symbol.lisp ends here
