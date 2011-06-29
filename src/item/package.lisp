@@ -49,12 +49,12 @@
 ;; Source protocol
 ;; ---------------
 
-(defmethod source ((package package))
+;; #### PORTME.
+(defmethod source
+    ((package package)
+     &aux (defsrc (sb-introspect:find-definition-source package)))
   "Return PACKAGE's definition source."
-  ;; #### PORTME.
-  (let* ((defsrc (sb-introspect:find-definition-source package)))
-    (when defsrc
-      (sb-introspect:definition-source-pathname defsrc))))
+  (when defsrc (sb-introspect:definition-source-pathname defsrc)))
 
 
 
@@ -72,7 +72,7 @@
   "Return the list of external definitions from PACKAGE."
   (loop :for symbol :in (package-external-symbols package)
 	:when (symbol-definitions symbol)
-	:collect :it))
+	  :collect :it))
 
 (defun package-internal-symbols
     (package &aux (external-symbols (package-external-symbols package))
@@ -87,7 +87,7 @@
   "Return the list of internal definitions from PACKAGE."
   (loop :for symbol :in (package-internal-symbols package)
 	:when (symbol-definitions symbol)
-	:collect :it))
+	  :collect :it))
 
 
 ;;; package.lisp ends here
