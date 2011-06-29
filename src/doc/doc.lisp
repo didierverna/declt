@@ -106,8 +106,8 @@ Rendering is done on *standard-output*."
        ;; involved, it is the installed symlink which is seen, whereas we want
        ;; to advertise the original one.
        (let ((location
-	      (escape (enough-namestring (probe-file source)
-					 (system-directory system)))))
+	       (escape (enough-namestring (probe-file source)
+					  (system-directory system)))))
 	 (@tableitem "Source"
 	   ;; #### FIXME: somewhat ugly. We fake a cl-source-file anchor name.
 	   (format t "@ref{go to the ~A file, , @t{~(~A}~)} (Lisp file)~%"
@@ -116,9 +116,9 @@ Rendering is done on *standard-output*."
       (t
        ;; Next, try a SYSTEM's cl-source-file.
        (let ((cl-source-file
-	      (loop :for file :in (lisp-components system)
-		    :when (equal source (component-pathname file))
-		      :return file)))
+	       (loop :for file :in (lisp-components system)
+		     :when (equal source (component-pathname file))
+		       :return file)))
 	 (if cl-source-file
 	     (@tableitem "Source"
 	       (reference cl-source-file (system-directory system)))
