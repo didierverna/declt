@@ -62,8 +62,8 @@
 	  (if (eq length 1)
 	      (format t "@t{~(~A~)}" (escape (first nicknames)))
 	    (@itemize-list nicknames
-	      :format "@t{~(~A~)}"
-	      :key #'escape)))))
+			   :format "@t{~(~A~)}"
+			   :key #'escape)))))
     (let* ((use-list (package-use-list package))
 	   (length (length use-list)))
       (when use-list
@@ -71,8 +71,8 @@
 	  (if (eq length 1)
 	      (format t "@t{~(~A~)}" (escape (first use-list)))
 	    (@itemize-list (package-use-list package)
-	      :format "@t{~(~A~)}"
-	      :key #'escape)))))
+			   :format "@t{~(~A~)}"
+			   :key #'escape)))))
     (render-source package system)
     ;; #### NOTE: a package documentation currently includes the list of
     ;; *symbols* in that package, not the corresponding definitions. This
@@ -83,13 +83,13 @@
     ;; parentheses is the one of the first available definition for the symbol
     ;; (see +CATEGORIES+ for the priority order).
     (let ((external-definitions
-	   (sort (package-external-definitions package) #'string-lessp
-		 :key (lambda (definitions)
-			(definition-symbol (first definitions)))))
+	    (sort (package-external-definitions package) #'string-lessp
+		  :key (lambda (definitions)
+			 (definition-symbol (first definitions)))))
 	  (internal-definitions
-	   (sort (package-internal-definitions package) #'string-lessp
-		 :key (lambda (definitions)
-			(definition-symbol (first definitions))))))
+	    (sort (package-internal-definitions package) #'string-lessp
+		  :key (lambda (definitions)
+			 (definition-symbol (first definitions))))))
       (when external-definitions
 	(@tableitem "Exported symbols"
 	  (@itemize ()
@@ -113,18 +113,18 @@
     (node system
      &aux (packages-node
 	   (add-child node
-	     (make-node :name "Packages"
-			:synopsis "The packages documentation"
-			:before-menu-contents (format nil "~
+		      (make-node :name "Packages"
+				 :synopsis "The packages documentation"
+				 :before-menu-contents (format nil "~
 Packages are listed by definition order."))))
 	  (packages (system-packages system)))
   "Add SYSTEM's packages node to NODE."
   (dolist (package packages)
     (add-child packages-node
-      (make-node :name (escape (format nil "~@(~A~)" (title package)))
-		 :section-name (format nil "@t{~(~A~)}" (escape package))
-		 :before-menu-contents
-		 (render-to-string (document package system))))))
-
+	       (make-node :name (escape (format nil "~@(~A~)" (title package)))
+			  :section-name (format nil "@t{~(~A~)}"
+					  (escape package))
+			  :before-menu-contents
+			  (render-to-string (document package system))))))
 
 ;;; package.lisp ends here
