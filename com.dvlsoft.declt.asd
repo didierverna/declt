@@ -31,20 +31,21 @@
 (in-package :cl-user)
 
 (defpackage :com.dvlsoft.declt.asdf
-    (:use :cl)
-  (:export :define-constant
-	   :+release-major-level+
-	   :+release-minor-level+
-	   :+release-status+ :+release-status-level+
-	   :+release-name+
-	   :version))
+  (:use :cl)
+  (:export
+   :define-constant
+   :+release-major-level+
+   :+release-minor-level+
+   :+release-status+ :+release-status-level+
+   :+release-name+
+   :version))
 
 
 (in-package :com.dvlsoft.declt.asdf)
 
 (defmacro define-constant (name value &optional doc)
   `(defconstant ,name (if (boundp ',name) (symbol-value ',name) ,value)
-    ,@(when doc (list doc))))
+     ,@(when doc (list doc))))
 
 (defconstant +release-major-level+ 1
   "The major level of this release.")
@@ -126,6 +127,7 @@ version, a patchlevel of 0 is ignored in the output."
 	    +release-status+ +release-status-level+
 	    +release-name+))
 
+;; #### PORTME.
 (asdf:defsystem :com.dvlsoft.declt
   :description "Documentation Extractor from Common Lisp to Texinfo."
   :long-description
@@ -145,30 +147,29 @@ in which they can be found."
   :maintainer "Didier Verna <didier@lrde.epita.fr>"
   :license "GNU GPL"
   :version #.(version :long)
-  ;; #### PORTME.
   :depends-on (:sb-introspect)
   :serial t
   :components ((:file "package")
 	       (:module "src"
-		 :serial t
-		 :components ((:module "util"
-				:serial t
-				:components ((:file "misc")
-					     (:file "asdf")
-					     (:file "texi")))
-			      (:module "item"
-				:serial t
-				:components ((:file "item")
-					     (:file "symbol")
-					     (:file "package")
-					     (:file "asdf")))
-			      (:module "doc"
-				:serial t
-				:components ((:file "doc")
-					     (:file "symbol")
-					     (:file "package")
-					     (:file "asdf")))
-			      (:file "declt")))))
+		:serial t
+		:components ((:module "util"
+			      :serial t
+			      :components ((:file "misc")
+					   (:file "asdf")
+					   (:file "texi")))
+			     (:module "item"
+			      :serial t
+			      :components ((:file "item")
+					   (:file "symbol")
+					   (:file "package")
+					   (:file "asdf")))
+			     (:module "doc"
+			      :serial t
+			      :components ((:file "doc")
+					   (:file "symbol")
+					   (:file "package")
+					   (:file "asdf")))
+			     (:file "declt")))))
 
 
 ;;; com.dvlsoft.declt.asd ends here
