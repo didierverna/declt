@@ -241,59 +241,58 @@
 				 asdf:static-file)))
 		      (files-node
 		       (add-child node
-				  (make-node
-				   :name "Files"
-				   :synopsis "The files documentation"
-				   :before-menu-contents (format nil "~
+			 (make-node
+			  :name "Files"
+			  :synopsis "The files documentation"
+			  :before-menu-contents (format nil "~
 Files are sorted by type and then listed depth-first from the system
 components tree."))))
 		      (lisp-files-node
 		       (add-child files-node
-				  (make-node :name "Lisp files"
-					     :section-name "Lisp"))))
+			 (make-node :name "Lisp files"
+				    :section-name "Lisp"))))
   "Add SYSTEM's files node to NODE."
   (let ((system-base-name (escape (system-base-name system)))
 	(external-definitions (system-external-definitions system))
 	(internal-definitions (system-internal-definitions system)))
     (add-child lisp-files-node
-	       ;; That sucks. I need to fake a file-node call because the
-	       ;; system file is not an ASDF component per-se.
-	       (make-node :name (format nil "The ~A file" system-base-name)
-			  :section-name (format nil "@t{~A}" system-base-name)
-			  :before-menu-contents
-			  (render-to-string
-			    (@anchor
-			     (format nil "go to the ~A file" system-base-name))
-			    (format t "@lispfileindex{~A}@c~%"
-			      system-base-name)
-			    (@table ()
-			      (render-location
-			       (system-definition-pathname system)
-			       system-directory)
-			      (render-packages
-			       (file-packages
-				(system-definition-pathname system)))
-			      (let ((external-definitions
-				      (file-definitions
-				       (system-definition-pathname system)
-				       external-definitions))
-				    (internal-definitions
-				      (file-definitions
-				       (system-definition-pathname system)
-				       internal-definitions)))
-				(when external-definitions
-				  (@tableitem "Exported definitions"
-				    (@itemize-list external-definitions
-						   :renderer #'reference)))
-				(when internal-definitions
-				  (@tableitem "Internal definitions"
-				    (@itemize-list internal-definitions
-						   :renderer
-						   #'reference))))))))
+      ;; That sucks. I need to fake a file-node call because the system file
+      ;; is not an ASDF component per-se.
+      (make-node :name (format nil "The ~A file" system-base-name)
+		 :section-name (format nil "@t{~A}" system-base-name)
+		 :before-menu-contents
+		 (render-to-string
+		   (@anchor
+		    (format nil "go to the ~A file" system-base-name))
+		   (format t "@lispfileindex{~A}@c~%"
+		     system-base-name)
+		   (@table ()
+		     (render-location
+		      (system-definition-pathname system)
+		      system-directory)
+		     (render-packages
+		      (file-packages
+		       (system-definition-pathname system)))
+		     (let ((external-definitions
+			     (file-definitions
+			      (system-definition-pathname system)
+			      external-definitions))
+			   (internal-definitions
+			     (file-definitions
+			      (system-definition-pathname system)
+			      internal-definitions)))
+		       (when external-definitions
+			 (@tableitem "Exported definitions"
+			   (@itemize-list external-definitions
+					  :renderer #'reference)))
+		       (when internal-definitions
+			 (@tableitem "Internal definitions"
+			   (@itemize-list internal-definitions
+					  :renderer #'reference))))))))
     (dolist (file lisp-files)
       (add-child lisp-files-node
-		 (lisp-file-node file system
-				 external-definitions internal-definitions))))
+	(lisp-file-node file system
+			external-definitions internal-definitions))))
   (loop :with other-files-node
 	:for files :in other-files
 	:for name :in '("C files" "Java files" "Doc files" "HTML files"
@@ -302,11 +301,11 @@ components tree."))))
 	:when files
 	  :do (setq other-files-node
 		    (add-child files-node
-			       (make-node :name name
-					  :section-name section-name)))
+		      (make-node :name name
+				 :section-name section-name)))
 	:and :do (dolist (file files)
 		   (add-child other-files-node
-			      (file-node file system)))))
+		     (file-node file system)))))
 
 
 

@@ -416,13 +416,13 @@
 (defun add-category-node (system parent location category definitions)
   "Add SYSTEM's LOCATION CATEGORY node to PARENT for DEFINITIONS."
   (add-child parent
-	     (make-node :name (format nil "~@(~A ~A~)" location category)
-			:section-name (format nil "~@(~A~)" category)
-			:before-menu-contents
-			(render-to-string
-			  (dolist (definition (sort definitions #'string-lessp
-						    :key #'definition-symbol))
-			    (document definition system))))))
+    (make-node :name (format nil "~@(~A ~A~)" location category)
+	       :section-name (format nil "~@(~A~)" category)
+	       :before-menu-contents
+	       (render-to-string
+		 (dolist (definition (sort definitions #'string-lessp
+					   :key #'definition-symbol))
+		   (document definition system))))))
 
 (defun add-categories-node (system parent location symbols)
   "Add SYSTEM's category nodes to PARENT for LOCATION SYMBOLS."
@@ -439,9 +439,9 @@
     (parent system
      &aux (definitions-node
 	   (add-child parent
-		      (make-node :name "Definitions"
-				 :synopsis "The symbols documentation"
-				 :before-menu-contents(format nil "~
+	     (make-node :name "Definitions"
+			:synopsis "The symbols documentation"
+			:before-menu-contents(format nil "~
 Definitions are sorted by export status, category, package, and then by
 lexicographic order.")))))
   "Add SYSTEM's definitions node to PARENT."
@@ -450,9 +450,9 @@ lexicographic order.")))))
 	:for status :in '("exported" "internal")
 	:when symbols
 	  :do (let ((node (add-child definitions-node
-				     (make-node
-				      :name (format nil "~@(~A~) definitions"
-					      status)))))
+			    (make-node
+			     :name (format nil "~@(~A~) definitions"
+				     status)))))
 		(add-categories-node system node status symbols))))
 
 

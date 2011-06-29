@@ -356,6 +356,7 @@ This structure holds Texinfo nodes."
   before-menu-contents      ;; contents before the menu
   after-menu-contents)      ;; contents after the menu
 
+#+swank (swank:eval-in-emacs '(put 'add-child 'common-lisp-indent-function 1))
 (defun add-child (parent child
 		  &aux (previous (car (last (node-children parent)))))
   "Add CHILD node to PARENT node and return CHILD."

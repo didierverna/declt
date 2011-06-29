@@ -113,18 +113,17 @@
     (node system
      &aux (packages-node
 	   (add-child node
-		      (make-node :name "Packages"
-				 :synopsis "The packages documentation"
-				 :before-menu-contents (format nil "~
+	     (make-node :name "Packages"
+			:synopsis "The packages documentation"
+			:before-menu-contents (format nil "~
 Packages are listed by definition order."))))
 	  (packages (system-packages system)))
   "Add SYSTEM's packages node to NODE."
   (dolist (package packages)
     (add-child packages-node
-	       (make-node :name (escape (format nil "~@(~A~)" (title package)))
-			  :section-name (format nil "@t{~(~A~)}"
-					  (escape package))
-			  :before-menu-contents
-			  (render-to-string (document package system))))))
+      (make-node :name (escape (format nil "~@(~A~)" (title package)))
+		 :section-name (format nil "@t{~(~A~)}" (escape package))
+		 :before-menu-contents
+		 (render-to-string (document package system))))))
 
 ;;; package.lisp ends here
