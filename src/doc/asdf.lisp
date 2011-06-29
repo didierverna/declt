@@ -65,14 +65,17 @@
     (escape component)
     (type-name component)))
 
-(defmethod document :around ((component asdf:component) system &key
-			     &aux (system-directory (system-directory system)))
+(defmethod document :around
+    ((component asdf:component) system
+     &key
+     &aux (system-directory (system-directory system)))
   "Anchor and index SYSTEM's COMPONENT, document it in a @table environment."
   (anchor component system-directory)
   (index component system-directory)
   (@table () (call-next-method)))
 
-(defmethod document ((component asdf:component) system &key
+(defmethod document ((component asdf:component) system
+		     &key
 		     &aux (system-directory (system-directory system)))
   "Render SYSTEM's COMPONENT's documentation."
   (format t "~@[@item Version~%~
@@ -108,11 +111,11 @@
 	       system-base-name)))
 	 (when *link-files*
 	   (let ((system-source-directory
-		  (escape (system-source-directory component)))
+		   (escape (system-source-directory component)))
 		 (installation-directory
-		  (escape
-		   (directory-namestring
-		    (probe-file (system-definition-pathname component))))))
+		   (escape
+		    (directory-namestring
+		     (probe-file (system-definition-pathname component))))))
 	     (@tableitem "Source Directory"
 	       (format t "@url{file://~A, ignore, @t{~A}}~%"
 		 system-source-directory
@@ -238,67 +241,72 @@
 				 asdf:static-file)))
 		      (files-node
 		       (add-child node
-			 (make-node :name "Files"
-				    :synopsis "The files documentation"
-				    :before-menu-contents (format nil "~
+				  (make-node
+				   :name "Files"
+				   :synopsis "The files documentation"
+				   :before-menu-contents (format nil "~
 Files are sorted by type and then listed depth-first from the system
 components tree."))))
 		      (lisp-files-node
 		       (add-child files-node
-			 (make-node :name "Lisp files"
-				    :section-name "Lisp"))))
+				  (make-node :name "Lisp files"
+					     :section-name "Lisp"))))
   "Add SYSTEM's files node to NODE."
   (let ((system-base-name (escape (system-base-name system)))
 	(external-definitions (system-external-definitions system))
 	(internal-definitions (system-internal-definitions system)))
     (add-child lisp-files-node
-      ;; That sucks. I need to fake a file-node call because the system file
-      ;; is not an ASDF component per-se.
-      (make-node :name (format nil "The ~A file" system-base-name)
-		 :section-name (format nil "@t{~A}" system-base-name)
-		 :before-menu-contents
-		 (render-to-string
-		   (@anchor
-		    (format nil "go to the ~A file" system-base-name))
-		   (format t "@lispfileindex{~A}@c~%" system-base-name)
-		   (@table ()
-		     (render-location (system-definition-pathname system)
-				      system-directory)
-		     (render-packages
-		      (file-packages
-		       (system-definition-pathname system)))
-		     (let ((external-definitions
-			    (file-definitions
-			     (system-definition-pathname system)
-			     external-definitions))
-			   (internal-definitions
-			    (file-definitions
-			     (system-definition-pathname system)
-			     internal-definitions)))
-		       (when external-definitions
-			 (@tableitem "Exported definitions"
-			   (@itemize-list external-definitions
-			     :renderer #'reference)))
-		       (when internal-definitions
-			 (@tableitem "Internal definitions"
-			   (@itemize-list internal-definitions
-			     :renderer #'reference))))))))
+	       ;; That sucks. I need to fake a file-node call because the
+	       ;; system file is not an ASDF component per-se.
+	       (make-node :name (format nil "The ~A file" system-base-name)
+			  :section-name (format nil "@t{~A}" system-base-name)
+			  :before-menu-contents
+			  (render-to-string
+			    (@anchor
+			     (format nil "go to the ~A file" system-base-name))
+			    (format t "@lispfileindex{~A}@c~%"
+			      system-base-name)
+			    (@table ()
+			      (render-location
+			       (system-definition-pathname system)
+			       system-directory)
+			      (render-packages
+			       (file-packages
+				(system-definition-pathname system)))
+			      (let ((external-definitions
+				      (file-definitions
+				       (system-definition-pathname system)
+				       external-definitions))
+				    (internal-definitions
+				      (file-definitions
+				       (system-definition-pathname system)
+				       internal-definitions)))
+				(when external-definitions
+				  (@tableitem "Exported definitions"
+				    (@itemize-list external-definitions
+						   :renderer #'reference)))
+				(when internal-definitions
+				  (@tableitem "Internal definitions"
+				    (@itemize-list internal-definitions
+						   :renderer
+						   #'reference))))))))
     (dolist (file lisp-files)
       (add-child lisp-files-node
-	(lisp-file-node file system
-			external-definitions internal-definitions))))
+		 (lisp-file-node file system
+				 external-definitions internal-definitions))))
   (loop :with other-files-node
-    :for files :in other-files
-    :for name :in '("C files" "Java files" "Doc files" "HTML files"
-		    "Other files")
-    :for section-name :in '("C" "Java" "Doc" "HTML" "Other")
-    :when files
-    :do (setq other-files-node
-	      (add-child files-node
-		(make-node :name name :section-name section-name)))
-    :and :do (dolist (file files)
-	       (add-child other-files-node
-		 (file-node file system)))))
+	:for files :in other-files
+	:for name :in '("C files" "Java files" "Doc files" "HTML files"
+			"Other files")
+	:for section-name :in '("C" "Java" "Doc" "HTML" "Other")
+	:when files
+	  :do (setq other-files-node
+		    (add-child files-node
+			       (make-node :name name
+					  :section-name section-name)))
+	:and :do (dolist (file files)
+		   (add-child other-files-node
+			      (file-node file system)))))
 
 
 
@@ -330,8 +338,9 @@ components tree."))))
 	  (if (eq length 1)
 	      (reference (first components) system-directory)
 	    (@itemize-list components
-	      :renderer (lambda (component)
-			  (reference component system-directory)))))))))
+			   :renderer
+			   (lambda (component)
+			     (reference component system-directory)))))))))
 
 
 ;; -----
@@ -353,10 +362,10 @@ components tree."))))
   "Add SYSTEM's modules node to NODE."
   (when modules
     (let ((modules-node
-	   (add-child node (make-node :name "Modules"
-				      :synopsis "The modules documentation"
-				      :before-menu-contents
-				      (format nil "~
+	    (add-child node (make-node :name "Modules"
+				       :synopsis "The modules documentation"
+				       :before-menu-contents
+				       (format nil "~
 Modules are listed depth-first from the system components tree.")))))
       (dolist (module modules)
 	(add-child modules-node (module-node module system))))))
