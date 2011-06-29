@@ -73,8 +73,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
       copyright-date author library-name)
     (with-input-from-string (str (caddr license))
       (loop :for line := (read-line str nil :eof)
-	 :until (eq line :eof)
-	 :do (format t "@c ~A~%" line)))
+	    :until (eq line :eof)
+	    :do (format t "@c ~A~%" line)))
     (terpri)
     (terpri))
 
@@ -379,18 +379,19 @@ on ~A."
 		   :after-menu-contents (when license "@insertcopying")))
   (when license
     (add-child *top-node*
-      (make-node :name "Copying"
-		 :synopsis (cadr license)
-		 :section-type :unnumbered
-		 :before-menu-contents (format nil "@quotation~@
+	       (make-node :name "Copying"
+			  :synopsis (cadr license)
+			  :section-type :unnumbered
+			  :before-menu-contents (format nil "@quotation~@
 						    ~A~@
 						    @end quotation"
-					 (escape (caddr license))))))
+						  (escape (caddr license))))))
   (when introduction
     (add-child *top-node*
-      (make-node :name "Introduction"
-		 :synopsis (format nil "What ~A is all about" library-name)
-		 :before-menu-contents introduction)))
+	       (make-node :name "Introduction"
+			  :synopsis (format nil "What ~A is all about"
+				      library-name)
+			  :before-menu-contents introduction)))
   (let ((*link-files* link-files))
     (add-system-node      *top-node* system)
     (add-modules-node     *top-node* system)
@@ -399,42 +400,42 @@ on ~A."
     (add-definitions-node *top-node* system))
   (when conclusion
     (add-child *top-node*
-      (make-node :name "Conclusion"
-		 :synopsis "Time to go"
-		 :before-menu-contents
-		 (render-to-string (render-text conclusion)))))
+	       (make-node :name "Conclusion"
+			  :synopsis "Time to go"
+			  :before-menu-contents
+			  (render-to-string (render-text conclusion)))))
   (let ((indexes-node (add-child *top-node*
-			(make-node :name "Indexes"
-				   :synopsis (format nil "~
+				 (make-node :name "Indexes"
+					    :synopsis (format nil "~
 Concepts, functions, variables and data types")
-				   :section-type :appendix))))
+					    :section-type :appendix))))
     (add-child indexes-node
-      (make-node :name "Concept index"
-		 :section-type :appendix
-		 :section-name "Concepts"
-		 :before-menu-contents "@printindex cp"
-		 :after-menu-contents "@page"))
+	       (make-node :name "Concept index"
+			  :section-type :appendix
+			  :section-name "Concepts"
+			  :before-menu-contents "@printindex cp"
+			  :after-menu-contents "@page"))
     (add-child indexes-node
-      (make-node :name "Function index"
-		 :section-type :appendix
-		 :section-name "Functions"
-		 :before-menu-contents "@printindex fn"
-		 :after-menu-contents "@page"))
+	       (make-node :name "Function index"
+			  :section-type :appendix
+			  :section-name "Functions"
+			  :before-menu-contents "@printindex fn"
+			  :after-menu-contents "@page"))
     (add-child indexes-node
-      (make-node :name "Variable index"
-		 :section-type :appendix
-		 :section-name "Variables"
-		 :before-menu-contents "@printindex vr"
-		 :after-menu-contents "@page"))
+	       (make-node :name "Variable index"
+			  :section-type :appendix
+			  :section-name "Variables"
+			  :before-menu-contents "@printindex vr"
+			  :after-menu-contents "@page"))
     (add-child indexes-node
-      (make-node :name "Data type index"
-		 :section-type :appendix
-		 :section-name "Data types"
-		 :before-menu-contents "@printindex tp")))
+	       (make-node :name "Data type index"
+			  :section-type :appendix
+			  :section-name "Data types"
+			  :before-menu-contents "@printindex tp")))
   (with-open-file (*standard-output* texi-file
-		    :direction :output
-		    :if-exists :supersede
-		    :if-does-not-exist :create)
+				     :direction :output
+				     :if-exists :supersede
+				     :if-does-not-exist :create)
     (render-header library-name texi-name info-file subtitle version author
 		   email license copyright-date current-time-string)
     (render-nodes)
