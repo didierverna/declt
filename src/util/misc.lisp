@@ -57,15 +57,15 @@
       (- tz))))
 
 ;; Stolen from Tinaa.
-(defun parse-author-string (string)
+(defun parse-author-string
+    (string &aux (pos-< (position #\< string :test #'char-equal))
+		 (pos-> (position #\> string :test #'char-equal)))
   "Parse STRING as \"NAME <EMAIL>\".
 Return NAME and EMAIL as two values."
-  (let ((pos-< (position #\< string :test #'char-equal))
-	(pos-> (position #\> string :test #'char-equal)))
-    (if (and pos-< pos-> (< pos-< pos->))
-	(values (subseq string 0 (1- pos-<))
-		(subseq string (1+ pos-<) pos->))
-      string)))
+  (if (and pos-< pos-> (< pos-< pos->))
+      (values (subseq string 0 (1- pos-<))
+	      (subseq string (1+ pos-<) pos->))
+    string))
 
 
 
@@ -87,7 +87,7 @@ Return NAME and EMAIL as two values."
 	  :until (eq form :eof)
 	  :if (and (consp form)
 		   (eq (car form) 'defpackage))
-	  :collect (find-package (cadr form)))))
+	    :collect (find-package (cadr form)))))
 
 
 ;;; misc.lisp ends here
