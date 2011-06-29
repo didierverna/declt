@@ -134,7 +134,7 @@ The list includes the system definition file."
   "Return the list of ASDF SYSTEM's external definitions."
   (loop :for symbol :in (system-external-symbols system)
 	:when (symbol-definitions symbol)
-	:nconc :it))
+	  :nconc :it))
 
 (defun system-internal-symbols (system)
   "Return the list of ASDF SYSTEM's internal symbols."
@@ -144,7 +144,7 @@ The list includes the system definition file."
   "Return the list of ASDF SYSTEM's internal definitions."
   (loop :for symbol :in (system-internal-symbols system)
 	:when (symbol-definitions symbol)
-	:nconc :it))
+	  :nconc :it))
 
 
 ;;; asdf.lisp ends here
