@@ -5,7 +5,7 @@
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
 ;; Created:       Mon Aug 23 17:41:36 2010
-;; Last Revision: Mon Aug 23 17:46:26 2010
+;; Last Revision: Wed Jun 29 13:49:14 2011
 
 ;; This file is part of Declt.
 
@@ -33,7 +33,7 @@
 (in-package :cl-user)
 
 (defpackage :com.dvlsoft.declt
-    (:use :cl)
+  (:use :cl)
   (:import-from :com.dvlsoft.declt.asdf
     :define-constant
     :+release-major-level+
