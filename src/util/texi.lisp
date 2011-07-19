@@ -90,7 +90,7 @@ embellish the output by detecting potential paragraphs from standalone lines."
       (loop :for (ln1 mnl1p) :=    (read-next-line str)
 			     :then (list ln2 mnl2p)
 	    :for (ln2 mnl2p) :=    (read-next-line str)
-	      :then (read-next-line str)
+			     :then (read-next-line str)
 	    :until (eq ln1 :eof)
 	    :if (zerop (length ln1))
 	      :do (terpri)
@@ -357,7 +357,7 @@ This structure holds Texinfo nodes."
   before-menu-contents      ;; contents before the menu
   after-menu-contents)      ;; contents after the menu
 
-#+swank (swank:eval-in-emacs '(put 'add-child 'common-lisp-indent-function 1))
+#i(add-child 1)
 (defun add-child (parent child
 		  &aux (previous (car (last (node-children parent)))))
   "Add CHILD node to PARENT node and return CHILD."
