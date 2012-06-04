@@ -183,7 +183,8 @@ This structure holds the generic writer function definition."
 				       ;; specializer of T...
 				       (cons t
 					     (sb-mop:method-specializers
-					      method)))))
+					      method))
+				       nil)))
 		    (if writer-method
 			(make-accessor-method-definition
 			 :symbol symbol
@@ -207,7 +208,8 @@ This structure holds the generic writer function definition."
 						;; from the writer method.
 						(cdr
 						 (sb-mop:method-specializers
-						  method)))
+						  method))
+						nil)
 			     (list (make-writer-method-definition
 				    :symbol symbol
 				    :method method))))
