@@ -56,12 +56,12 @@ Current options are:
 - :swank-eval-in-emacs (Boolean).")
 
 (defun configuration (key)
-  "Return KEY's value in the current Climb configuration."
-  (getf cl-user::com.dvlsoft.climb.configuration key))
+  "Return KEY's value in the current Declt configuration."
+  (getf cl-user::com.dvlsoft.declt.configuration key))
 
 (defun set-configuration (key value)
-  "Set KEY to VALUE in the current Climb configuration."
-  (setf (getf cl-user::com.dvlsoft.climb.configuration key) value))
+  "Set KEY to VALUE in the current Declt configuration."
+  (setf (getf cl-user::com.dvlsoft.declt.configuration key) value))
 
 (defsetf configuration set-configuration)
 
