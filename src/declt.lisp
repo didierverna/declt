@@ -63,9 +63,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 
-
 (defun render-header (library-name texi-name info-file subtitle version
-		      author email license copyright-date current-time-string)
+		      author email license declt-notice
+		      copyright-date current-time-string)
   "Render the header of the Texinfo file."
   (format t "\\input texinfo~2%@c ~A --- Reference manual~2%" texi-name)
 
@@ -270,23 +270,29 @@ except that this permission notice may be translated as well.
 @c ====================================================================
 @titlepage
 @title The ~A Reference Manual
-~A~A
-@page
-@quotation
-This manual was generated automatically by Declt
-version ~A on ~A.
-@end quotation~%"
+~A~A~%"
     library-name
     (if (or subtitle version)
 	(format nil "@subtitle ~@[~A~]~:[~;, ~]~@[version ~A~]~%"
 	  subtitle (and subtitle version) version)
       "")
     (format nil "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-       author email email)
-    (version :long)
-    current-time-string)
+       author email email))
+
+  (when (or declt-notice license)
+    (format t "@page~%"))
+
+  (when declt-notice
+    (format t "~
+@quotation
+This manual was generated automatically by Declt ~A on ~A.
+@end quotation~%"
+    (version declt-notice)
+    current-time-string))
+
   (when license
     (format t "@vskip 0pt plus 1filll~%@insertcopying~%"))
+
   (format t "@end titlepage~4%")
 
   (format t "~
@@ -305,6 +311,7 @@ version ~A on ~A.
 		   author
 		   (email nil emailp)
 		   license
+		   (declt-notice :long)
 		   copyright-date
 		   conclusion
 		   (link-files *link-files*)
@@ -322,6 +329,8 @@ version ~A on ~A.
 - VERSION defaults to the system version.
 - AUTHOR and EMAIL defaults are extracted from the system author.
 - LICENSE defaults to nil (possible values are: :BSD and :GPL).
+- DECLT-NOTICE is a small paragraph about automatic manual generatiopn by
+  Declt. Possible values are nil, :short and :long (the default).
 - COPYRIGHT-DATE defaults to the current year.
 - CONCLUSION is a potential contents for a conclusion chapter.
 
@@ -437,7 +446,8 @@ Concepts, functions, variables and data types")
 				     :if-exists :supersede
 				     :if-does-not-exist :create)
     (render-header library-name texi-name info-file subtitle version author
-		   email license copyright-date current-time-string)
+		   email license declt-notice
+		   copyright-date current-time-string)
     (render-nodes)
     (format t "~%@bye~%~%@c ~A ends here~%" texi-name))
   (values))
