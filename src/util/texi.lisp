@@ -203,9 +203,9 @@ Rendering is done on *standard-output*."
     (unless firstp
       (write-char #\Space))
     (setq firstp nil)
-    (cond ((consp part)
+    (cond ((listp part)
 	   (write-char #\()
-	   (render-lambda-list part)
+	   (when (consp part) (render-lambda-list part))
 	   (write-char #\)))
 	  ((member part '(&optional &rest &key &allow-other-keys
 			  &aux &environment &whole &body))
