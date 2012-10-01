@@ -76,11 +76,10 @@
 			   :key #'escape)))))
     (render-source package system)
     ;; #### NOTE: a package documentation currently includes the list of
-    ;; /symbols/ in that package, not the corresponding definitions. This
-    ;; means that methods don't appear in the list (because they are
-    ;; referenced under the generic function definition object) and that only
-    ;; standalone writers appear (because the other ones are referenced under
-    ;; the accessor function definition).
+    ;; categorized definitions only. This means that methods don't appear in
+    ;; the list (because they are referenced under the generic function
+    ;; definition object) and that only standalone writers appear (because the
+    ;; other ones are referenced under the accessor function definition).
     (let ((external-definitions
 	    (sort (package-external-definitions package) #'string-lessp
 		  :key (lambda (definitions)
@@ -90,13 +89,13 @@
 		  :key (lambda (definitions)
 			 (definition-symbol (first definitions))))))
       (when external-definitions
-	(@tableitem "Exported symbols"
+	(@tableitem "Exported definitions"
 	  (@itemize ()
 	    (dolist (definitions external-definitions)
 	      (dolist (definition definitions)
 		(@item (reference definition)))))))
       (when internal-definitions
-	(@tableitem "Internal symbols"
+	(@tableitem "Internal definitions"
 	  (@itemize ()
 	    (dolist (definitions internal-definitions)
 	      (dolist (definition definitions)
