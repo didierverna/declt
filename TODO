@@ -1,6 +1,6 @@
                                                              -*- outline -*-
 
-* Copyright (C) 2010, 2011 Didier Verna
+* Copyright (C) 2010, 2011, 2012 Didier Verna
 
 This file is part of Declt.
 
@@ -14,6 +14,8 @@ ASDF maintains dependencies as a list of names only, so this makes it harder
 to find the corresponding component.
 
 ** See sb-introspect for a list of other things that we could possibly document
+That would be symbol-macros, compiler-macros, types, setf expanders and method
+combinations.
 
 ** Cleanup up the string-downcase issue
 so that it would be easier afterwards to provide an option for case behavior.
