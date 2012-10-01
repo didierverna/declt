@@ -338,9 +338,6 @@ Return that string."
        "appendix"   "appendixsec"   "appendixsubsec"   "appendixsubsubsec" ))
   "The numbered, unumbered and appendix section names sorted by level.")
 
-(defvar *top-node* nil
-  "The Top node.")
-
 ;; #### NOTE: all contents in the NODE structure must be already escaped for
 ;; Texinfo.
 (defstruct node
@@ -431,9 +428,9 @@ This structure holds Texinfo nodes."
   (dolist (child (node-children node))
     (render-node child (1+ level))))
 
-(defun render-nodes ()
-  "Render the whole nodes hierarchy."
-  (render-node *top-node* 0)
+(defun render-nodes-hierarchy (node)
+  "Render the whole nodes hierarchy starting at toplevel NODE."
+  (render-node node 0)
   (values))
 
 ;;; texi.lisp ends here

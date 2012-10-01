@@ -401,83 +401,85 @@ See also the special variable *LINK-FILES* for the meaning of LINK-FILES."
 			(get-decoded-time)
 		      (declare (ignore second minute hour date month))
 		      (format nil "~A" year)))))
-  (setq *top-node*
-	(make-node :name "Top"
-		   :section-name (format nil "The ~A Reference Manual"
-				   library-name)
-		   :section-type :unnumbered
-		   :before-menu-contents (format nil "~
+
+  ;; Construct the nodes hierarchy.
+  (let ((top-node
+	  (make-node :name "Top"
+		     :section-name (format nil "The ~A Reference Manual"
+				     library-name)
+		     :section-type :unnumbered
+		     :before-menu-contents (format nil "~
 This is the ~A Reference Manual~@[, version ~A~],
 generated automatically by Declt version ~A
 on ~A."
-					   library-name
-					   version
-					   (escape (version :long))
-					   current-time-string)
-		   :after-menu-contents (when license "@insertcopying")))
-  (when license
-    (add-child *top-node*
-      (make-node :name "Copying"
-		 :synopsis (cadr license)
-		 :section-type :unnumbered
-		 :before-menu-contents (format nil "@quotation~@
+					     library-name
+					     version
+					     (escape (version :long))
+					     current-time-string)
+		     :after-menu-contents (when license "@insertcopying"))))
+    (when license
+      (add-child top-node
+	(make-node :name "Copying"
+		   :synopsis (cadr license)
+		   :section-type :unnumbered
+		   :before-menu-contents (format nil "@quotation~@
 						    ~A~@
 						    @end quotation"
-					 (escape (caddr license))))))
-  (when introduction
-    (add-child *top-node*
-      (make-node :name "Introduction"
-		 :synopsis (format nil "What ~A is all about" library-name)
-		 :before-menu-contents introduction)))
-  (let ((*link-files* link-files))
-    (add-system-node      *top-node* system)
-    (add-modules-node     *top-node* system)
-    (add-files-node       *top-node* system)
-    (add-packages-node    *top-node* system)
-    (add-definitions-node *top-node* system))
-  (when conclusion
-    (add-child *top-node*
-      (make-node :name "Conclusion"
-		 :synopsis "Time to go"
-		 :before-menu-contents
-		 (render-to-string (render-text conclusion)))))
-  (let ((indexes-node (add-child *top-node*
-			(make-node :name "Indexes"
-				   :synopsis (format nil "~
+					   (escape (caddr license))))))
+    (when introduction
+      (add-child top-node
+	(make-node :name "Introduction"
+		   :synopsis (format nil "What ~A is all about" library-name)
+		   :before-menu-contents introduction)))
+    (let ((*link-files* link-files))
+      (add-system-node      top-node system)
+      (add-modules-node     top-node system)
+      (add-files-node       top-node system)
+      (add-packages-node    top-node system)
+      (add-definitions-node top-node system))
+    (when conclusion
+      (add-child top-node
+	(make-node :name "Conclusion"
+		   :synopsis "Time to go"
+		   :before-menu-contents
+		   (render-to-string (render-text conclusion)))))
+    (let ((indexes-node (add-child top-node
+			  (make-node :name "Indexes"
+				     :synopsis (format nil "~
 Concepts, functions, variables and data types")
-				   :section-type :appendix))))
-    (add-child indexes-node
-      (make-node :name "Concept index"
-		 :section-type :appendix
-		 :section-name "Concepts"
-		 :before-menu-contents "@printindex cp"
-		 :after-menu-contents "@page"))
-    (add-child indexes-node
-      (make-node :name "Function index"
-		 :section-type :appendix
-		 :section-name "Functions"
-		 :before-menu-contents "@printindex fn"
-		 :after-menu-contents "@page"))
-    (add-child indexes-node
-      (make-node :name "Variable index"
-		 :section-type :appendix
-		 :section-name "Variables"
-		 :before-menu-contents "@printindex vr"
-		 :after-menu-contents "@page"))
-    (add-child indexes-node
-      (make-node :name "Data type index"
-		 :section-type :appendix
-		 :section-name "Data types"
-		 :before-menu-contents "@printindex tp")))
-  (with-open-file (*standard-output* texi-file
-				     :direction :output
-				     :if-exists :supersede
-				     :if-does-not-exist :create)
-    (render-header library-name texi-name info-file subtitle version author
-		   email license declt-notice
-		   copyright-date current-time-string)
-    (render-nodes)
-    (format t "~%@bye~%~%@c ~A ends here~%" texi-name))
+				     :section-type :appendix))))
+      (add-child indexes-node
+	(make-node :name "Concept index"
+		   :section-type :appendix
+		   :section-name "Concepts"
+		   :before-menu-contents "@printindex cp"
+		   :after-menu-contents "@page"))
+      (add-child indexes-node
+	(make-node :name "Function index"
+		   :section-type :appendix
+		   :section-name "Functions"
+		   :before-menu-contents "@printindex fn"
+		   :after-menu-contents "@page"))
+      (add-child indexes-node
+	(make-node :name "Variable index"
+		   :section-type :appendix
+		   :section-name "Variables"
+		   :before-menu-contents "@printindex vr"
+		   :after-menu-contents "@page"))
+      (add-child indexes-node
+	(make-node :name "Data type index"
+		   :section-type :appendix
+		   :section-name "Data types"
+		   :before-menu-contents "@printindex tp")))
+    (with-open-file (*standard-output* texi-file
+				       :direction :output
+				       :if-exists :supersede
+				       :if-does-not-exist :create)
+      (render-header library-name texi-name info-file subtitle version author
+		     email license declt-notice
+		     copyright-date current-time-string)
+      (render-nodes-hierarchy top-node)
+      (format t "~%@bye~%~%@c ~A ends here~%" texi-name)))
   (values))
 
 
