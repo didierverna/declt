@@ -1,6 +1,6 @@
 ;;; package.lisp --- Package documentation
 
-;; Copyright (C) 2010, 2011 Didier Verna
+;; Copyright (C) 2010, 2011, 2012 Didier Verna
 
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
@@ -76,13 +76,11 @@
 			   :key #'escape)))))
     (render-source package system)
     ;; #### NOTE: a package documentation currently includes the list of
-    ;; *symbols* in that package, not the corresponding definitions. This
+    ;; /symbols/ in that package, not the corresponding definitions. This
     ;; means that methods don't appear in the list (because they are
     ;; referenced under the generic function definition object) and that only
     ;; standalone writers appear (because the other ones are referenced under
-    ;; the accessor function definition). The type indication which appears in
-    ;; parentheses is the one of the first available definition for the symbol
-    ;; (see +CATEGORIES+ for the priority order).
+    ;; the accessor function definition).
     (let ((external-definitions
 	    (sort (package-external-definitions package) #'string-lessp
 		  :key (lambda (definitions)

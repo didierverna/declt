@@ -25,9 +25,5 @@ If the system definition pathname or definition sources contain funky stuff
 like ./, ../ or even are symlinks, the cross-references will most probably
 break. We need to work on canonical pathnames.
 
-** Package documentation
-Currently we list the symbols only, and their first definition link. When a
-symbol has multiple definitions, maybe we could list/link them all.
-
 ** Document class slots
 and point back to slot accessors.
