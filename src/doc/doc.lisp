@@ -38,7 +38,9 @@
 
 (defstruct context
   "The documentation context structure."
-  system)     ;; the ASDF system we are documenting
+  system
+  external-definitions
+  internal-definitions)
 
 
 ;; This is used rather often so it is worth a shortcut

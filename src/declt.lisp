@@ -404,7 +404,10 @@ See also the special variable *LINK-FILES* for the meaning of LINK-FILES."
 
   ;; Construct the nodes hierarchy.
   (let ((*link-files* link-files)
-	(context (make-context :system system))
+	(context (make-context
+		  :system system
+		  :external-definitions (system-external-definitions system)
+		  :internal-definitions (system-internal-definitions system)))
 	(top-node
 	  (make-node :name "Top"
 		     :section-name (format nil "The ~A Reference Manual"

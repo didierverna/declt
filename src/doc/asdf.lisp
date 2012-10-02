@@ -173,11 +173,25 @@
   (format t "@htmlfileindex{~A}@c~%"
     (escape (relative-location html-file relative-to))))
 
-(defmethod document ((lisp-file asdf:cl-source-file) context
-		     &key external-definitions internal-definitions)
-  "Render LISP-FILE's documentation in CONTEXT."
+(defun file-definitions (file definitions)
+  "Return the subset of DEFINITIONS that come from FILE."
+  (sort (mapcan (lambda (definition)
+		  (definition-file-definitions definition file))
+		definitions)
+	#'string-lessp
+	:key #'definition-symbol))
+
+(defmethod document
+    ((file asdf:cl-source-file) context
+     &key
+     &aux (pathname (component-pathname file))
+	  (external-definitions
+	   (file-definitions pathname (context-external-definitions context)))
+	  (internal-definitions
+	   (file-definitions pathname (context-internal-definitions context))))
+  "Render lisp FILE's documentation in CONTEXT."
   (call-next-method)
-  (render-packages (file-packages (component-pathname lisp-file)))
+  (render-packages (file-packages pathname))
   (when external-definitions
     (@tableitem "Exported definitions"
       (@itemize-list external-definitions :renderer #'reference)))
@@ -189,30 +203,6 @@
 ;; -----
 ;; Nodes
 ;; -----
-
-(defun file-definitions (file definitions)
-  "Return the subset of DEFINITIONS that come from FILE."
-  (sort (mapcan (lambda (definition)
-		  (definition-file-definitions definition file))
-		definitions)
-	#'string-lessp
-	:key #'definition-symbol))
-
-(defun lisp-file-node (file context external-definitions internal-definitions
-		       &aux (relative-to (context-directory context)))
-  "Create and return a Lisp FILE node in CONTEXT."
-  (make-node :name (escape (format nil "~@(~A~)" (title file relative-to)))
-	     :section-name (format nil "@t{~A}"
-			     (escape (relative-location file relative-to)))
-	     :before-menu-contents
-	     (render-to-string
-	       (document file context
-			 :external-definitions
-			 (file-definitions
-			  (component-pathname file) external-definitions)
-			 :internal-definitions
-			 (file-definitions
-			  (component-pathname file) internal-definitions)))))
 
 (defun file-node
     (file context &aux (relative-to (context-directory context)))
@@ -246,9 +236,7 @@ components tree."))))
 			    (make-node :name "Lisp files"
 				       :section-name "Lisp"))))
   "Add the files node to PARENT in CONTEXT."
-  (let ((system-base-name (escape (system-base-name system)))
-	(external-definitions (system-external-definitions system))
-	(internal-definitions (system-internal-definitions system)))
+  (let ((system-base-name (escape (system-base-name system))))
     (add-child lisp-files-node
       ;; That sucks. I need to fake a file-node call because the system file
       ;; is not an ASDF component per-se.
@@ -267,11 +255,11 @@ components tree."))))
 		     (let ((external-definitions
 			     (file-definitions
 			      (system-definition-pathname system)
-			      external-definitions))
+			      (context-external-definitions context)))
 			   (internal-definitions
 			     (file-definitions
 			      (system-definition-pathname system)
-			      internal-definitions)))
+			      (context-internal-definitions context))))
 		       (when external-definitions
 			 (@tableitem "Exported definitions"
 			   (@itemize-list external-definitions
@@ -279,11 +267,9 @@ components tree."))))
 		       (when internal-definitions
 			 (@tableitem "Internal definitions"
 			   (@itemize-list internal-definitions
-					  :renderer #'reference))))))))
-    (dolist (file lisp-files)
-      (add-child lisp-files-node
-	(lisp-file-node file context
-			external-definitions internal-definitions))))
+					  :renderer #'reference)))))))))
+  (dolist (file lisp-files)
+    (add-child lisp-files-node (file-node file context)))
   (loop :with other-files-node
 	:for files :in other-files
 	:for name :in '("C files" "Java files" "Doc files" "HTML files"
