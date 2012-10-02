@@ -144,8 +144,8 @@
     (type-name definition)))
 
 (defun document-definition
-    (definition system kind &key (name (definition-symbol definition)))
-  "Render SYSTEM's DEFINITION's documentation contents as KIND."
+    (definition context kind &key (name (definition-symbol definition)))
+  "Render DEFINITION's documentation contents as KIND in CONTEXT."
   (anchor definition)
   (index definition)
   (@table ()
@@ -155,45 +155,43 @@
 	  (render-text documentation))))
     (@tableitem "Package"
       (reference (symbol-package (definition-symbol definition))))
-    (render-source definition system)))
+    (render-source definition context)))
 
-(defmethod document ((constant constant-definition) system &key)
-  "Render SYSTEM's CONSTANT's documentation."
+(defmethod document ((constant constant-definition) context &key)
+  "Render CONSTANT's documentation in CONTEXT."
   (@defconstant (string-downcase (definition-symbol constant))
-    (document-definition constant system 'variable)))
+    (document-definition constant context 'variable)))
 
-(defmethod document ((special special-definition) system &key)
-  "Render SYSTEM's SPECIAL's documentation."
+(defmethod document ((special special-definition) context &key)
+  "Render SPECIAL variable's documentation in CONTEXT."
   (@defspecial (string-downcase (definition-symbol special))
-    (document-definition special system 'variable)))
+    (document-definition special context 'variable)))
 
 ;; #### PORTME.
-(defmethod document ((macro macro-definition) system &key)
-  "Render SYSTEM's MACRO's documentation."
+(defmethod document ((macro macro-definition) context &key)
+  "Render MACRO's documentation in CONTEXT."
   (@defmac (string-downcase (definition-symbol macro))
       (sb-introspect:function-lambda-list
        (macro-definition-function macro))
-    (document-definition macro system 'function)))
+    (document-definition macro context 'function)))
 
 ;; #### PORTME.
-(defmethod document ((function function-definition) system
+(defmethod document ((function function-definition) context
 		     &key (name (function-definition-symbol function)))
-  "Render SYSTEM's FUNCTION's documentation."
+  "Render FUNCTION's documentation in CONTEXT."
   (@defun (format nil "~(~A~)" name)
       (sb-introspect:function-lambda-list
        (function-definition-function function))
-    (document-definition function system 'function :name name)))
+    (document-definition function context 'function :name name)))
 
-(defmethod document
-    ((writer writer-definition) system
-     &key
-     &aux (writer-name `(setf ,(writer-definition-symbol writer))))
-  "Render SYSTEM's WRITER function's documentation."
-  (call-next-method writer system :name writer-name))
+(defmethod document ((writer writer-definition) context &key)
+  "Render WRITER's documentation in CONTEXT."
+  (call-next-method writer context
+		    :name `(setf ,(writer-definition-symbol writer))))
 
 ;; #### PORTME.
-(defmethod document ((accessor accessor-definition) system &key)
-  "Render SYSTEM's ACCESSOR's documentation."
+(defmethod document ((accessor accessor-definition) context &key)
+  "Render ACCESSOR's documentation in CONTEXT."
   (cond ((and (equal (source accessor)
 		     (source (accessor-definition-writer accessor)))
 	      (equal (sb-introspect:function-lambda-list
@@ -226,15 +224,15 @@
 		      (accessor-definition-writer accessor))))
 	   (anchor (accessor-definition-writer accessor))
 	   (index (accessor-definition-writer accessor))
-	   (document-definition accessor system 'function)))
+	   (document-definition accessor context 'function)))
 	(t
 	 (call-next-method)
-	 (document (accessor-definition-writer accessor) system))))
+	 (document (accessor-definition-writer accessor) context))))
 
 ;; #### PORTME:
-(defmethod document ((method method-definition) system
+(defmethod document ((method method-definition) context
 		     &key (name (definition-symbol method)))
-  "Render SYSTEM's METHOD's documentation."
+  "Render METHOD's documentation in CONTEXT."
   (@defmethod
       (format nil "~(~A~)" name)
       (sb-mop:method-lambda-list (method-definition-method method))
@@ -248,16 +246,16 @@
 	(when documentation
 	  (@tableitem "Documentation"
 	    (render-text documentation))))
-      (render-source method system))))
+      (render-source method context))))
 
-(defmethod document ((method writer-method-definition) system &key)
-  "Render SYSTEM's writer METHOD's documentation."
-  (call-next-method method system
+(defmethod document ((method writer-method-definition) context &key)
+  "Render writer METHOD's documentation in CONTEXT."
+  (call-next-method method context
 		    :name `(setf ,(writer-method-definition-symbol method))))
 
 ;; #### PORTME.
-(defmethod document ((method accessor-method-definition) system &key)
-  "Render SYSTEM's accessor METHOD's documentation."
+(defmethod document ((method accessor-method-definition) context &key)
+  "Render accessor METHOD's documentation in CONTEXT."
   (cond ((and (equal (source method)
 		     (source (accessor-method-definition-writer method)))
 	      (equal (sb-mop:method-lambda-list
@@ -312,101 +310,90 @@
 	       (when documentation
 		 (@tableitem "Documentation"
 		   (render-text documentation))))
-	     (render-source method system))))
+	     (render-source method context))))
 	(t
 	 (call-next-method)
-	 (document (accessor-method-definition-writer method) system))))
+	 (document (accessor-method-definition-writer method) context))))
 
 ;; #### PORTME.
-(defmethod document ((generic generic-definition) system
+(defmethod document ((generic generic-definition) context
 		     &key (name (generic-definition-symbol generic)))
-  "Render SYSTEM's GENERIC function's documentation."
+  "Render GENERIC's documentation in CONTEXT."
   (@defgeneric (format nil "~(~A~)" name)
       (sb-introspect:function-lambda-list
        (generic-definition-function generic))
-    (document-definition generic system 'function :name name))
+    (document-definition generic context 'function :name name))
   (dolist (method (generic-definition-methods generic))
-    (document method system)))
+    (document method context)))
 
-(defmethod document
-    ((generic-writer generic-writer-definition) system
-     &key
-     &aux (generic-writer-name
-	   `(setf ,(generic-writer-definition-symbol generic-writer))))
-  "Render SYSTEM's GENERIC-WRITER function's documentation."
-  (call-next-method generic-writer system :name generic-writer-name))
+(defmethod document ((writer generic-writer-definition) context &key)
+  "Render generic WRITER's documentation in CONTEXT."
+  (call-next-method writer context
+		    :name `(setf ,(generic-writer-definition-symbol writer))))
 
 ;; #### PORTME.
-(defmethod document
-    ((generic-accessor generic-accessor-definition) system &key)
-  "Render SYSTEM's generic ACCESSOR's documentation."
-  (cond ((and (equal (source generic-accessor)
-		     (source (generic-accessor-definition-writer
-			      generic-accessor)))
+(defmethod document ((accessor generic-accessor-definition) context &key)
+  "Render generic ACCESSOR's documentation in CONTEXT."
+  (cond ((and (equal (source accessor)
+		     (source (generic-accessor-definition-writer accessor)))
 	      (equal (sb-introspect:function-lambda-list
-		      (generic-accessor-definition-function
-		       generic-accessor))
+		      (generic-accessor-definition-function accessor))
 		     ;; #### NOTE: the writer has a first additional
 		     ;; lambda-list argument of NEW-VALUE that we must skip
 		     ;; before comparing.
 		     (cdr (sb-introspect:function-lambda-list
 			   (generic-writer-definition-function
-			    (generic-accessor-definition-writer
-			     generic-accessor)))))
-	      (let ((function-doc (documentation
-				   (generic-accessor-definition-symbol
-				    generic-accessor)
-				   'function))
-		    (writer-doc (documentation
-				 (generic-writer-definition-symbol
-				  (generic-accessor-definition-writer
-				   generic-accessor))
-				 'function)))
+			    (generic-accessor-definition-writer accessor)))))
+	      (let ((function-doc
+		      (documentation
+		       (generic-accessor-definition-symbol accessor)
+		       'function))
+		    (writer-doc
+		      (documentation
+		       (generic-writer-definition-symbol
+			(generic-accessor-definition-writer accessor))
+		       'function)))
 		(or (and function-doc writer-doc
 			 (string= function-doc writer-doc))
 		    (null writer-doc)
 		    (and (not (null writer-doc)) (null function-doc)))))
 	 (@defgeneric (format nil  "~(~A~)"
-			(generic-accessor-definition-symbol generic-accessor))
+			(generic-accessor-definition-symbol accessor))
 	     (sb-introspect:function-lambda-list
-	      (generic-accessor-definition-function generic-accessor))
+	      (generic-accessor-definition-function accessor))
 	   (@defgenericx (format nil  "~(~A~)"
 			   `(setf ,(generic-writer-definition-symbol
 				    (generic-accessor-definition-writer
-				     generic-accessor))))
+				     accessor))))
 			 (sb-introspect:function-lambda-list
 			  (generic-writer-definition-function
-			   (generic-accessor-definition-writer
-			    generic-accessor))))
-	   (anchor (generic-accessor-definition-writer generic-accessor))
-	   (index (generic-accessor-definition-writer generic-accessor))
-	   (document-definition generic-accessor system 'function))
-	 (dolist (method
-		  (generic-accessor-definition-methods generic-accessor))
-	   (document method system))
-	 (dolist (method
-		  (generic-writer-definition-methods
-		   (generic-accessor-definition-writer generic-accessor)))
-	   (document method system)))
+			   (generic-accessor-definition-writer accessor))))
+	   (anchor (generic-accessor-definition-writer accessor))
+	   (index (generic-accessor-definition-writer accessor))
+	   (document-definition accessor context 'function))
+	 (dolist (method (generic-accessor-definition-methods accessor))
+	   (document method context))
+	 (dolist (method (generic-writer-definition-methods
+			  (generic-accessor-definition-writer accessor)))
+	   (document method context)))
 	(t
 	 (call-next-method)
-	 (document (generic-accessor-definition-writer generic-accessor)
-		   system))))
+	 (document (generic-accessor-definition-writer accessor) context))))
 
-(defmethod document ((condition condition-definition) system &key)
-  "Render SYSTEM's CONDITION's documentation."
+(defmethod document ((condition condition-definition) context &key)
+  "Render CONDITION's documentation in CONTEXT."
   (@defcond (string-downcase (definition-symbol condition))
-    (document-definition condition system 'type)))
+    (document-definition condition context 'type)))
 
-(defmethod document ((structure structure-definition) system &key)
-  "Render SYSTEM's STRUCTURE's documentation."
+(defmethod document ((structure structure-definition) context &key)
+  "Render STRUCTURE's documentation in CONTEXT."
   (@defstruct (string-downcase (definition-symbol structure))
-    (document-definition structure system 'type)))
+    (document-definition structure context 'type)))
 
-(defmethod document ((class class-definition) system &key)
-  "Render SYSTEM's CLASS's documentation."
+(defmethod document ((class class-definition) context &key)
+  "Render CLASS's documentation in CONTEXT."
   (@defclass (string-downcase (definition-symbol class))
-    (document-definition class system 'type)))
+    (document-definition class context 'type)))
 
 
 
@@ -414,30 +401,30 @@
 ;; Definition Nodes
 ;; ==========================================================================
 
-(defun add-category-node (system parent location category definitions)
-  "Add SYSTEM's LOCATION CATEGORY node to PARENT for DEFINITIONS."
+(defun add-category-node (parent context status category definitions)
+  "Add the STATUS CATEGORY node to PARENT for DEFINITIONS in CONTEXT."
   (add-child parent
-    (make-node :name (format nil "~@(~A ~A~)" location category)
+    (make-node :name (format nil "~@(~A ~A~)" status category)
 	       :section-name (format nil "~@(~A~)" category)
 	       :before-menu-contents
 	       (render-to-string
 		 (dolist (definition (sort definitions #'string-lessp
 					   :key #'definition-symbol))
-		   (document definition system))))))
+		   (document definition context))))))
 
-(defun add-categories-node (system parent location symbols)
-  "Add SYSTEM's category nodes to PARENT for LOCATION SYMBOLS."
+(defun add-categories-node (parent context status symbols)
+  "Add the STATUS SYMBOLS categories nodes to PARENT in CONTEXT."
   (dolist (category +categories+)
     (let ((category-definitions
 	    (loop :for symbol :in symbols
 		  :when (symbol-definition symbol (first category))
 		    :collect :it)))
       (when category-definitions
-	(add-category-node system parent location (second category)
+	(add-category-node parent context status (second category)
 			   category-definitions)))))
 
 (defun add-definitions-node
-    (parent system
+    (parent context
      &aux (definitions-node
 	   (add-child parent
 	     (make-node :name "Definitions"
@@ -445,16 +432,17 @@
 			:before-menu-contents(format nil "~
 Definitions are sorted by export status, category, package, and then by
 lexicographic order.")))))
-  "Add SYSTEM's definitions node to PARENT."
-  (loop :for symbols :in (list (system-external-symbols system)
-			       (system-internal-symbols system))
-	:for status :in '("exported" "internal")
+  "Add the definitions node to PARENT in CONTEXT."
+  (loop	:for status :in '("exported" "internal")
+	:for symbols :in (list
+			  (system-external-symbols (context-system context))
+			  (system-internal-symbols (context-system context)))
 	:when symbols
 	  :do (let ((node (add-child definitions-node
 			    (make-node
 			     :name (format nil "~@(~A~) definitions"
 				     status)))))
-		(add-categories-node system node status symbols))))
+		(add-categories-node node context status symbols))))
 
 
 ;;; symbol.lisp ends here

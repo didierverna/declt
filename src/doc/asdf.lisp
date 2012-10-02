@@ -67,18 +67,18 @@
     (type-name component)))
 
 (defmethod document :around
-    ((component asdf:component) system
+    ((component asdf:component) context
      &key
-     &aux (system-directory (system-directory system)))
-  "Anchor and index SYSTEM's COMPONENT, document it in a @table environment."
-  (anchor component system-directory)
-  (index component system-directory)
+     &aux (relative-to (context-directory context)))
+  "Anchor and index COMPONENT in CONTEXT. Document it in a @table environment."
+  (anchor component relative-to)
+  (index component relative-to)
   (@table () (call-next-method)))
 
-(defmethod document ((component asdf:component) system
+(defmethod document ((component asdf:component) context
 		     &key
-		     &aux (system-directory (system-directory system)))
-  "Render SYSTEM's COMPONENT's documentation."
+		     &aux (relative-to (context-directory context)))
+  "Render COMPONENT's documentation in CONTEXT."
   (format t "~@[@item Version~%~
 		  ~A~%~]"
     (escape (component-version component)))
@@ -99,9 +99,7 @@
 	    (format t "@t{~(~A}~)" (escape (first dependencies)))
 	  (@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape)))))
   (let ((parent (component-parent component)))
-    (when parent
-      (@tableitem "Parent"
-	(reference parent system-directory))))
+    (when parent (@tableitem "Parent" (reference parent relative-to))))
   (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
 	 ;; That sucks. I need to fake a cl-source-file reference because the
 	 ;; system file is not an ASDF component per-se.
@@ -129,7 +127,7 @@
 		 (format t "@url{file://~A, ignore, @t{~A}}~%"
 		   installation-directory installation-directory))))))
 	(t
-	 (render-location (component-pathname component) system-directory))))
+	 (render-location (component-pathname component) relative-to))))
 
 
 
@@ -145,42 +143,41 @@
   "Return SOURCE-FILE's title."
   (format nil "the ~A file" (relative-location source-file relative-to)))
 
-(defmethod index ((cl-source-file asdf:cl-source-file) &optional relative-to)
-  "Render CL-SOURCE-FILE's indexing command."
+(defmethod index ((lisp-file asdf:cl-source-file) &optional relative-to)
+  "Render LISP-FILE's indexing command."
   (format t "@lispfileindex{~A}@c~%"
-    (escape (relative-location cl-source-file relative-to))))
+    (escape (relative-location lisp-file relative-to))))
 
-(defmethod index ((c-source-file asdf:c-source-file) &optional relative-to)
-  "Render C-SOURCE-FILE's indexing command."
+(defmethod index ((c-file asdf:c-source-file) &optional relative-to)
+  "Render C-FILE's indexing command."
   (format t "@cfileindex{~A}@c~%"
-    (escape (relative-location c-source-file relative-to))))
+    (escape (relative-location c-file relative-to))))
 
-(defmethod index
-    ((java-source-file asdf:java-source-file) &optional relative-to)
-  "Render JAVA-SOURCE-FILE's indexing command."
+(defmethod index ((java-file asdf:java-source-file) &optional relative-to)
+  "Render JAVA-FILE's indexing command."
   (format t "@javafileindex{~A}@c~%"
-    (escape (relative-location java-source-file relative-to))))
+    (escape (relative-location java-file relative-to))))
 
 (defmethod index ((static-file asdf:static-file) &optional relative-to)
-  "Render STATIC-SOURCE-FILE's indexing command."
+  "Render STATIC-FILE's indexing command."
   (format t "@otherfileindex{~A}@c~%"
     (escape (relative-location static-file relative-to))))
 
 (defmethod index ((doc-file asdf:doc-file) &optional relative-to)
-  "Render DOC-SOURCE-FILE's indexing command."
+  "Render DOC-FILE's indexing command."
   (format t "@docfileindex{~A}@c~%"
     (escape (relative-location doc-file relative-to))))
 
 (defmethod index ((html-file asdf:html-file) &optional relative-to)
-  "Render HTML-SOURCE-FILE's indexing command."
+  "Render HTML-FILE's indexing command."
   (format t "@htmlfileindex{~A}@c~%"
     (escape (relative-location html-file relative-to))))
 
-(defmethod document ((file asdf:cl-source-file) system
+(defmethod document ((lisp-file asdf:cl-source-file) context
 		     &key external-definitions internal-definitions)
-  "Render SYSTEM's FILE's documentation."
+  "Render LISP-FILE's documentation in CONTEXT."
   (call-next-method)
-  (render-packages (file-packages (component-pathname file)))
+  (render-packages (file-packages (component-pathname lisp-file)))
   (when external-definitions
     (@tableitem "Exported definitions"
       (@itemize-list external-definitions :renderer #'reference)))
@@ -201,17 +198,15 @@
 	#'string-lessp
 	:key #'definition-symbol))
 
-(defun lisp-file-node (file system external-definitions internal-definitions
-		       &aux (system-directory (system-directory system)))
-  "Create and return a SYSTEM's Lisp FILE node."
-  (make-node :name (escape (format nil "~@(~A~)"
-			     (title file system-directory)))
+(defun lisp-file-node (file context external-definitions internal-definitions
+		       &aux (relative-to (context-directory context)))
+  "Create and return a Lisp FILE node in CONTEXT."
+  (make-node :name (escape (format nil "~@(~A~)" (title file relative-to)))
 	     :section-name (format nil "@t{~A}"
-			     (escape
-			      (relative-location file system-directory)))
+			     (escape (relative-location file relative-to)))
 	     :before-menu-contents
 	     (render-to-string
-	       (document file system
+	       (document file context
 			 :external-definitions
 			 (file-definitions
 			  (component-pathname file) external-definitions)
@@ -220,39 +215,37 @@
 			  (component-pathname file) internal-definitions)))))
 
 (defun file-node
-    (file system &aux (system-directory (system-directory system)))
-  "Create and return a SYSTEM's FILE node."
-  (make-node :name (escape (format nil "~@(~A~)"
-			     (title file system-directory)))
+    (file context &aux (relative-to (context-directory context)))
+  "Create and return a FILE node in CONTEXT."
+  (make-node :name (escape (format nil "~@(~A~)" (title file relative-to)))
 	     :section-name (format nil "@t{~A}"
-			     (escape
-			      (relative-location file system-directory)))
-	     :before-menu-contents
-	     (render-to-string (document file system))))
+			     (escape (relative-location file relative-to)))
+	     :before-menu-contents (render-to-string (document file context))))
 
 (defun add-files-node
-    (node system &aux (system-directory (system-directory system))
-		      (lisp-files (lisp-components system))
-		      (other-files
-		       (mapcar (lambda (type) (components system type))
-			       '(asdf:c-source-file
-				 asdf:java-source-file
-				 asdf:doc-file
-				 asdf:html-file
-				 asdf:static-file)))
-		      (files-node
-		       (add-child node
-			 (make-node
-			  :name "Files"
-			  :synopsis "The files documentation"
-			  :before-menu-contents (format nil "~
+    (parent context &aux (relative-to (context-directory context))
+			 (system (context-system context))
+			 (lisp-files (lisp-components system))
+			 (other-files
+			  (mapcar (lambda (type) (components system type))
+				  '(asdf:c-source-file
+				    asdf:java-source-file
+				    asdf:doc-file
+				    asdf:html-file
+				    asdf:static-file)))
+			 (files-node
+			  (add-child parent
+			    (make-node
+			     :name "Files"
+			     :synopsis "The files documentation"
+			     :before-menu-contents (format nil "~
 Files are sorted by type and then listed depth-first from the system
 components tree."))))
-		      (lisp-files-node
-		       (add-child files-node
-			 (make-node :name "Lisp files"
-				    :section-name "Lisp"))))
-  "Add SYSTEM's files node to NODE."
+			 (lisp-files-node
+			  (add-child files-node
+			    (make-node :name "Lisp files"
+				       :section-name "Lisp"))))
+  "Add the files node to PARENT in CONTEXT."
   (let ((system-base-name (escape (system-base-name system)))
 	(external-definitions (system-external-definitions system))
 	(internal-definitions (system-internal-definitions system)))
@@ -265,15 +258,12 @@ components tree."))))
 		 (render-to-string
 		   (@anchor
 		    (format nil "go to the ~A file" system-base-name))
-		   (format t "@lispfileindex{~A}@c~%"
-		     system-base-name)
+		   (format t "@lispfileindex{~A}@c~%" system-base-name)
 		   (@table ()
 		     (render-location
-		      (system-definition-pathname system)
-		      system-directory)
+		      (system-definition-pathname system) relative-to)
 		     (render-packages
-		      (file-packages
-		       (system-definition-pathname system)))
+		      (file-packages (system-definition-pathname system)))
 		     (let ((external-definitions
 			     (file-definitions
 			      (system-definition-pathname system)
@@ -292,7 +282,7 @@ components tree."))))
 					  :renderer #'reference))))))))
     (dolist (file lisp-files)
       (add-child lisp-files-node
-	(lisp-file-node file system
+	(lisp-file-node file context
 			external-definitions internal-definitions))))
   (loop :with other-files-node
 	:for files :in other-files
@@ -305,8 +295,7 @@ components tree."))))
 		      (make-node :name name
 				 :section-name section-name)))
 	:and :do (dolist (file files)
-		   (add-child other-files-node
-		     (file-node file system)))))
+		   (add-child other-files-node (file-node file context)))))
 
 
 
@@ -327,48 +316,48 @@ components tree."))))
   (format t "@moduleindex{~A}@c~%"
     (escape (relative-location module relative-to))))
 
-(defmethod document ((module asdf:module) system &key)
-  "Render SYSTEM's MODULE documentation."
+(defmethod document ((module asdf:module) context &key)
+  "Render MODULE's documentation in CONTEXT."
   (call-next-method)
   (let* ((components (asdf:module-components module))
 	 (length (length components)))
     (when components
-      (let ((system-directory (system-directory system)))
+      (let ((relative-to (context-directory context)))
 	(@tableitem (format nil "Component~p" length)
 	  (if (eq length 1)
-	      (reference (first components) system-directory)
+	      (reference (first components) relative-to)
 	    (@itemize-list components
 			   :renderer
 			   (lambda (component)
-			     (reference component system-directory)))))))))
+			     (reference component relative-to)))))))))
 
 
 ;; -----
 ;; Nodes
 ;; -----
 
-(defun module-node (module system
-		    &aux (system-directory (system-directory system)))
-  "Create and return a SYSTEM's MODULE node."
-  (make-node :name (escape (format nil "~@(~A~)"
-			     (title module system-directory)))
+(defun module-node (module context
+		    &aux (relative-to (context-directory context)))
+  "Create and return a MODULE node in CONTEXT."
+  (make-node :name (escape (format nil "~@(~A~)" (title module relative-to)))
 	     :section-name (format nil "@t{~A}"
-			     (escape
-			      (relative-location module system-directory)))
+			     (escape (relative-location module relative-to)))
 	     :before-menu-contents
-	     (render-to-string (document module system))))
+	     (render-to-string (document module context))))
 
-(defun add-modules-node (node system &aux (modules (module-components system)))
-  "Add SYSTEM's modules node to NODE."
+(defun add-modules-node
+    (parent context
+     &aux (modules (module-components (context-system context))))
+  "Add the modules node to PARENT in CONTEXT."
   (when modules
     (let ((modules-node
-	    (add-child node (make-node :name "Modules"
-				       :synopsis "The modules documentation"
-				       :before-menu-contents
-				       (format nil "~
+	    (add-child parent (make-node :name "Modules"
+					 :synopsis "The modules documentation"
+					 :before-menu-contents
+					 (format nil "~
 Modules are listed depth-first from the system components tree.")))))
       (dolist (module modules)
-	(add-child modules-node (module-node module system))))))
+	(add-child modules-node (module-node module context))))))
 
 
 
@@ -390,9 +379,8 @@ Modules are listed depth-first from the system components tree.")))))
   (declare (ignore relative-to))
   (format t "@systemindex{~A}@c~%" (escape system)))
 
-(defmethod document ((system asdf:system) reference-system &key)
-  "Render SYSTEM's documentation."
-  (declare (ignore reference-system))
+(defmethod document ((system asdf:system) context &key)
+  "Render SYSTEM's documentation in CONTEXT."
   (@tableitem "Name"
     (format t "@t{~A}~%" (escape system)))
   (when (system-description system)
@@ -417,23 +405,23 @@ Modules are listed depth-first from the system components tree.")))))
 	  (escape maintainer) (and maintainer email) (escape email)))))
   (format t "~@[@item License~%~
 	     ~A~%~]" (escape (system-license system)))
-  (call-next-method system system))
+  (call-next-method))
 
 
 ;; -----
 ;; Nodes
 ;; -----
 
-(defun system-node (system)
-  "Create and return the SYSTEM node."
+(defun system-node (context)
+  "Create and return the system node in CONTEXT."
   (make-node :name "System"
 	     :synopsis "The system documentation"
 	     :before-menu-contents
-	     (render-to-string (document system system))))
+	     (render-to-string (document (context-system context) context))))
 
-(defun add-system-node (node system)
-  "Add SYSTEM's system node to NODE."
-  (add-child node (system-node system)))
+(defun add-system-node (parent context)
+  "Add the system node to PARENT in CONTEXT."
+  (add-child parent (system-node context)))
 
 
 ;;; asdf.lisp ends here

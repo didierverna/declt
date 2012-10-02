@@ -33,6 +33,22 @@
 
 
 ;; ==========================================================================
+;; Documentation Contexts
+;; ==========================================================================
+
+(defstruct context
+  "The documentation context structure."
+  system)     ;; the ASDF system we are documenting
+
+
+;; This is used rather often so it is worth a shortcut
+(defun context-directory (context)
+  "Return CONTEXT's system directory."
+  (system-directory (context-system context)))
+
+
+
+;; ==========================================================================
 ;; Documentation Protocols
 ;; ==========================================================================
 
@@ -45,8 +61,8 @@
 (defgeneric reference (item &optional relative-to)
   (:documentation "Render ITEM's reference."))
 
-(defgeneric document (item system &key &allow-other-keys)
-  (:documentation "Render SYSTEM's ITEM's documentation."))
+(defgeneric document (item context &key &allow-other-keys)
+  (:documentation "Render ITEM's documentation in CONTEXT."))
 
 
 
@@ -95,8 +111,11 @@ Rendering is done on *standard-output*."
 			     " (not found)")))
       link-files)))
 
-(defun render-source (object system &aux (source (source object)))
-  "Render an itemized source line for SYSTEM's OBJECT.
+(defun render-source (object context
+		      &aux (source (source object))
+			   (system (context-system context))
+			   (relative-to (context-directory context)))
+  "Render an itemized source line for OBJECT in CONTEXT.
 Rendering is done on *standard-output*."
   (when source
     (cond
@@ -107,8 +126,7 @@ Rendering is done on *standard-output*."
        ;; involved, it is the installed symlink which is seen, whereas we want
        ;; to advertise the original one.
        (let ((location
-	       (escape (enough-namestring (probe-file source)
-					  (system-directory system)))))
+	       (escape (enough-namestring (probe-file source) relative-to))))
 	 (@tableitem "Source"
 	   ;; #### FIXME: somewhat ugly. We fake a cl-source-file anchor name.
 	   (format t "@ref{go to the ~A file, , @t{~(~A}~)} (Lisp file)~%"
@@ -122,11 +140,11 @@ Rendering is done on *standard-output*."
 		       :return file)))
 	 (if cl-source-file
 	     (@tableitem "Source"
-	       (reference cl-source-file (system-directory system)))
+	       (reference cl-source-file relative-to))
 	   ;; Otherwise, the source file does not belong to the system. This
 	   ;; may happen for automatically generated sources (sb-grovel does
 	   ;; this for instance). So let's just reference the file itself.
-	   (render-location source (system-directory system) "Source")))))))
+	   (render-location source relative-to "Source")))))))
 
 
 ;;; doc.lisp ends here

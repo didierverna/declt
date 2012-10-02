@@ -51,8 +51,8 @@
   (declare (ignore relative-to))
   (format t "@ref{~A, , @t{~(~A}~)}~%" (anchor-name package) (escape package)))
 
-(defmethod document ((package package) system &key)
-  "Render SYSTEM's PACKAGE documentation."
+(defmethod document ((package package) context &key)
+  "Render PACKAGE's documentation in CONTEXT."
   (anchor package)
   (index package)
   (@table ()
@@ -74,7 +74,7 @@
 	    (@itemize-list (package-use-list package)
 			   :format "@t{~(~A~)}"
 			   :key #'escape)))))
-    (render-source package system)
+    (render-source package context)
     ;; #### NOTE: a package documentation currently includes the list of
     ;; categorized definitions only. This means that methods don't appear in
     ;; the list (because they are referenced under the generic function
@@ -108,20 +108,20 @@
 ;; ==========================================================================
 
 (defun add-packages-node
-    (node system
+    (parent context
      &aux (packages-node
-	   (add-child node
+	   (add-child parent
 	     (make-node :name "Packages"
 			:synopsis "The packages documentation"
 			:before-menu-contents (format nil "~
 Packages are listed by definition order."))))
-	  (packages (system-packages system)))
-  "Add SYSTEM's packages node to NODE."
+	  (packages (system-packages (context-system context))))
+  "Add the packages node to PARENT in CONTEXT."
   (dolist (package packages)
     (add-child packages-node
       (make-node :name (escape (format nil "~@(~A~)" (title package)))
 		 :section-name (format nil "@t{~(~A~)}" (escape package))
 		 :before-menu-contents
-		 (render-to-string (document package system))))))
+		 (render-to-string (document package context))))))
 
 ;;; package.lisp ends here
