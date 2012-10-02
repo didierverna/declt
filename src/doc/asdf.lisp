@@ -36,10 +36,6 @@
 ;; Utilities
 ;; ==========================================================================
 
-(defun relative-location (component relative-to)
-  "Return COMPONENT's location RELATIVE-TO."
-  (enough-namestring (component-pathname component) relative-to))
-
 (defun render-packages (packages)
   "Render a list of PACKAGES references."
   (when packages

@@ -74,6 +74,10 @@
 ;; Miscellaneous
 ;; ==========================================================================
 
+(defun relative-location (component relative-to)
+  "Return COMPONENT's location RELATIVE-TO."
+  (enough-namestring (component-pathname component) relative-to))
+
 (defun components (module type)
   "Return the list of all components of (sub)TYPE from ASDF MODULE."
   ;; #### NOTE: we accept subtypes of TYPE because ASDF components might be
