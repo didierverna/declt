@@ -403,7 +403,8 @@ See also the special variable *LINK-FILES* for the meaning of LINK-FILES."
 		      (format nil "~A" year)))))
 
   ;; Construct the nodes hierarchy.
-  (let ((top-node
+  (let ((*link-files* link-files)
+	(top-node
 	  (make-node :name "Top"
 		     :section-name (format nil "The ~A Reference Manual"
 				     library-name)
@@ -431,12 +432,11 @@ on ~A."
 	(make-node :name "Introduction"
 		   :synopsis (format nil "What ~A is all about" library-name)
 		   :before-menu-contents introduction)))
-    (let ((*link-files* link-files))
-      (add-system-node      top-node system)
-      (add-modules-node     top-node system)
-      (add-files-node       top-node system)
-      (add-packages-node    top-node system)
-      (add-definitions-node top-node system))
+    (add-system-node      top-node system)
+    (add-modules-node     top-node system)
+    (add-files-node       top-node system)
+    (add-packages-node    top-node system)
+    (add-definitions-node top-node system)
     (when conclusion
       (add-child top-node
 	(make-node :name "Conclusion"
@@ -478,7 +478,7 @@ Concepts, functions, variables and data types")
       (render-header library-name texi-name info-file subtitle version author
 		     email license declt-notice
 		     copyright-date current-time-string)
-      (render-nodes-hierarchy top-node)
+      (render-top-node top-node)
       (format t "~%@bye~%~%@c ~A ends here~%" texi-name)))
   (values))
 

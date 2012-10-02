@@ -428,7 +428,7 @@ This structure holds Texinfo nodes."
   (dolist (child (node-children node))
     (render-node child (1+ level))))
 
-(defun render-nodes-hierarchy (node)
+(defun render-top-node (node)
   "Render the whole nodes hierarchy starting at toplevel NODE."
   (render-node node 0)
   (values))
