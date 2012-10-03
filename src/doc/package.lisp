@@ -81,25 +81,17 @@
     ;; definition object) and that only standalone writers appear (because the
     ;; other ones are referenced under the accessor function definition).
     (let ((external-definitions
-	    (sort (package-external-definitions package) #'string-lessp
-		  :key (lambda (definitions)
-			 (definition-symbol (first definitions)))))
-	  (internal-definitions
-	    (sort (package-internal-definitions package) #'string-lessp
-		  :key (lambda (definitions)
-			 (definition-symbol (first definitions))))))
+	    (package-definitions package
+				 (context-external-definitions context))))
       (when external-definitions
 	(@tableitem "Exported definitions"
-	  (@itemize ()
-	    (dolist (definitions external-definitions)
-	      (dolist (definition definitions)
-		(@item (reference definition)))))))
+	  (@itemize-list external-definitions :renderer #'reference))))
+    (let ((internal-definitions
+	    (package-definitions package
+				 (context-internal-definitions context))))
       (when internal-definitions
 	(@tableitem "Internal definitions"
-	  (@itemize ()
-	    (dolist (definitions internal-definitions)
-	      (dolist (definition definitions)
-		(@item (reference definition))))))))))
+	  (@itemize-list internal-definitions :renderer #'reference))))))
 
 
 

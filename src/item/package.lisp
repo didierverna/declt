@@ -69,12 +69,6 @@
     (when (eq (symbol-package symbol) package)
       (push symbol external-symbols))))
 
-(defun package-external-definitions (package)
-  "Return the list of external definitions from PACKAGE."
-  (loop :for symbol :in (package-external-symbols package)
-	:when (symbol-definitions symbol)
-	  :collect :it))
-
 (defun package-internal-symbols
     (package &aux (external-symbols (package-external-symbols package))
 		  internal-symbols)
@@ -84,11 +78,15 @@
 	       (eq (symbol-package symbol) package))
       (push symbol internal-symbols))))
 
-(defun package-internal-definitions (package)
-  "Return the list of internal definitions from PACKAGE."
-  (loop :for symbol :in (package-internal-symbols package)
-	:when (symbol-definitions symbol)
-	  :collect :it))
+(defun package-definitions (package definitions)
+  "Return the subset of DEFINITIONS that belong to PACKAGE."
+  (sort (mapcan (lambda (definition)
+		  (when (eq (symbol-package (definition-symbol definition))
+			    package)
+		    (list definition)))
+		definitions)
+	#'string-lessp
+	:key #'definition-symbol))
 
 
 ;;; package.lisp ends here
