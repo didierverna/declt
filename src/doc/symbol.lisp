@@ -143,6 +143,9 @@
     (escape definition)
     (type-name definition)))
 
+;; #### FIXME: we should abstract this more than just DOCUMENT-DEFINITION.
+;; Some methods below do not use it (e.g. for classes) but their code is still
+;; quite similar.
 (defun document-definition
     (definition context kind &key (name (definition-symbol definition)))
   "Render DEFINITION's documentation contents as KIND in CONTEXT."
@@ -393,7 +396,42 @@
 (defmethod document ((class class-definition) context &key)
   "Render CLASS's documentation in CONTEXT."
   (@defclass (string-downcase (definition-symbol class))
-    (document-definition class context 'type)))
+    (anchor class)
+    (index class)
+    (@table ()
+      (let ((documentation (documentation (definition-symbol class) 'type)))
+	(when documentation
+	  (@tableitem "Documentation"
+	    (render-text documentation))))
+      (@tableitem "Package"
+	(reference (symbol-package (definition-symbol class))))
+      (render-source class context)
+      ;; #### FIXME: use REFERENCE again below when the definitions pool is
+      ;; implemented.
+      (let ((superclasses (class-definition-direct-superclasses class)))
+	(when superclasses
+	  (let ((length (length superclasses)))
+	    (@tableitem "Direct superclasses"
+	      (if (= length 1)
+		  (format t "@t{~(~A}~) (class)~%"
+		    (escape (first superclasses)))
+		#+()(reference (first superclasses))
+		(@itemize-list superclasses :renderer #+()#'reference
+			       (lambda (item)
+				 (format t "@t{~(~A}~) (class)~%"
+				   (escape item)))))))))
+      (let ((subclasses (class-definition-direct-subclasses class)))
+	(when subclasses
+	  (let ((length (length subclasses)))
+	    (@tableitem "Direct subclasses"
+	      (if (= length 1)
+		  (format t "@t{~(~A}~) (class)~%"
+		    (escape (first subclasses)))
+		#+()(reference (first subclasses))
+		(@itemize-list subclasses :renderer #+()#'reference
+			       (lambda (item)
+				 (format t "@t{~(~A}~) (class)~%"
+				   (escape item))))))))))))
 
 
 

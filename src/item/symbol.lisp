@@ -36,16 +36,22 @@
 ;; Symbol-based Items
 ;; ==========================================================================
 
-;; #### NOTE: +CATEGORIES+ and SYMBOL-DEFINITION don't handle methods, because
-;; those are listed directly as part of generic function definitions.
+;; #### NOTE: when constructing the context lists of external and internal
+;; definitions, only the definitions listed in +CATEGORIES+ appear. This is
+;; because these lists follow the structure of the Definitions chapter in the
+;; generated manual. For instance, methods are listed under the corresponding
+;; generic function, so they don't represent a category of its own.
 
 ;; #### NOTE: the order in +CATEGORIES+ is important (see
-;; ADD-CATEGORIES-NODE). Also, writer structures don't store the complete
-;; function name (setf <name>) but only the original symbol. This, in
-;; conjunction with the fact that definitions are sorted by symbol-name,
-;; ensures that standalone writers (not associated with readers) are listed in
-;; proper lexicographic order regardless of the SETF part of their name (and
-;; although that part still appears in the documentation).
+;; ADD-CATEGORIES-NODE). It conditions the order of appearance of the
+;; definitions in the generated manual.
+
+;; #### NOTE: writer structures don't store the complete function name (setf
+;; <name>) but only the original symbol. This, in conjunction with the fact
+;; that definitions are sorted by symbol-name, ensures that standalone writers
+;; (not associated with readers) are listed in proper lexicographic order
+;; regardless of the SETF part of their name (although that part still appears
+;; in the documentation).
 
 (define-constant +categories+
     '((:constant       "constants")
@@ -113,9 +119,16 @@ This structure holds the generic writer function definition."
 (defstruct (structure-definition (:include definition))
   "Structure for structure definition.")
 (defstruct (class-definition (:include definition))
-  "Structure for class definitions.")
+  "Structure for class definitions.
+This structure holds the direct superclasses and direct subclasses
+definitions."
+  direct-superclasses
+  direct-subclasses)
 
 
+;; #### FIXME: because definitions may constitue a cyclic graph, we really
+;; need to maintain a pool of them with references, instead to creating
+;; multiple identical objects.
 ;; #### PORTME.
 (defun symbol-definition (symbol category)
   "Return a SYMBOL definition of CATEGORY if any."
@@ -244,7 +257,20 @@ This structure holds the generic writer function definition."
        (when (and class
 		  (not (symbol-definition symbol :condition))
 		  (not (symbol-definition symbol :structure)))
-	 (make-class-definition :symbol symbol))))))
+	 (make-class-definition
+	  :symbol symbol
+	  ;; #### FIXME: create real definitions below once the definition
+	  ;; pool is implemented.
+	  :direct-superclasses
+	  (mapcar #'class-name
+		  #+()(lambda (class)
+			(symbol-definition (class-name class) :class))
+		  (reverse (sb-mop:class-direct-superclasses class)))
+	  :direct-subclasses
+	  (mapcar #'class-name
+		  #+()(lambda (class)
+			(symbol-definition (class-name class) :class))
+		  (reverse (sb-mop:class-direct-subclasses class)))))))))
 
 (defun symbol-definitions (symbol)
   "Return all definitions named by SYMBOL if any."

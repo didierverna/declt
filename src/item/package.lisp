@@ -83,6 +83,11 @@
 ;; Definition package definitions protocol
 ;; ---------------------------------------
 
+;; #### NOTE: contrary to DEFINITION-FILE-DEFINITIONS, this function could be
+;; optimized a bit. For instance, when we figure out that a generic function
+;; does belong to a package, we know that all methods do to because they share
+;; the same name. This means that we could save some package name comparison
+;; tests.
 (defgeneric definition-package-definitions (definition package)
   (:documentation
    "Return the list of definitions from DEFINITION that belong to PACKAGE.")
