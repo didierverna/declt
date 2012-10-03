@@ -75,11 +75,6 @@
 			   :format "@t{~(~A~)}"
 			   :key #'escape)))))
     (render-source package context)
-    ;; #### NOTE: a package documentation currently includes the list of
-    ;; categorized definitions only. This means that methods don't appear in
-    ;; the list (because they are referenced under the generic function
-    ;; definition object) and that only standalone writers appear (because the
-    ;; other ones are referenced under the accessor function definition).
     (let ((external-definitions
 	    (package-definitions package
 				 (context-external-definitions context))))
