@@ -375,6 +375,15 @@ This structure holds the generic writer function definition."
 	    (generic-accessor-definition-writer generic-accessor)
 	    file))))
 
+(defun file-definitions (file definitions)
+  "Return the subset of DEFINITIONS that come from FILE."
+  (sort (mapcan (lambda (definition)
+		  (definition-file-definitions definition file))
+		definitions)
+	#'string-lessp
+	:key #'definition-symbol))
+
+
 
 ;; ------------------
 ;; Type name protocol

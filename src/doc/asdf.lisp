@@ -169,14 +169,6 @@
   (format t "@htmlfileindex{~A}@c~%"
     (escape (relative-location html-file relative-to))))
 
-(defun file-definitions (file definitions)
-  "Return the subset of DEFINITIONS that come from FILE."
-  (sort (mapcan (lambda (definition)
-		  (definition-file-definitions definition file))
-		definitions)
-	#'string-lessp
-	:key #'definition-symbol))
-
 (defmethod document
     ((file asdf:cl-source-file) context
      &key
