@@ -81,6 +81,51 @@
   "HTML file")
 
 
+;; ------------------------------------
+;; Definition file definitions protocol
+;; ------------------------------------
+
+(defgeneric definition-file-definitions (definition file)
+  (:documentation
+   "Return the list of definitions from DEFINITION that belong to FILE.")
+  (:method (definition file)
+    "Default method for definitions not containing sub-definitions."
+    (when (equal (source definition) file)
+      (list definition)))
+  (:method ((accessor accessor-definition) file)
+    "Handle ACCESSOR and its writer function."
+    (nconc (call-next-method)
+	   (definition-file-definitions
+	    (accessor-definition-writer accessor)
+	    file)))
+  (:method ((accessor-method accessor-method-definition) file)
+    "Handle ACCESSOR-METHOD and its writer method."
+    (nconc (call-next-method)
+	   (definition-file-definitions
+	    (accessor-method-definition-writer accessor-method)
+	    file)))
+  (:method ((generic generic-definition) file)
+    "Handle GENERIC function and its methods."
+    (nconc (call-next-method)
+	   (mapcan (lambda (method)
+		     (definition-file-definitions method file))
+		   (generic-definition-methods generic))))
+  (:method ((generic-accessor generic-accessor-definition) file)
+    "Handle GENERIC-ACCESSOR and its generic writer function."
+    (nconc (call-next-method)
+	   (definition-file-definitions
+	    (generic-accessor-definition-writer generic-accessor)
+	    file))))
+
+(defun file-definitions (file definitions)
+  "Return the subset of DEFINITIONS that belong to FILE."
+  (sort (mapcan (lambda (definition)
+		  (definition-file-definitions definition file))
+		definitions)
+	#'string-lessp
+	:key #'definition-symbol))
+
+
 
 ;; ==========================================================================
 ;; Modules
