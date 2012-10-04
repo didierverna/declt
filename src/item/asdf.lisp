@@ -1,6 +1,6 @@
 ;;; asdf.lisp --- ASDF Items
 
-;; Copyright (C) 2010, 2011 Didier Verna
+;; Copyright (C) 2010, 2011, 2012 Didier Verna
 
 ;; Author:        Didier Verna <didier@lrde.epita.fr>
 ;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
@@ -117,11 +117,12 @@
 	    (generic-accessor-definition-writer generic-accessor)
 	    file))))
 
+;; #### FIXME: pool iteration should be abstracted away. We shouldn't need to
+;; know it's a hash table here.
 (defun file-definitions (file definitions)
   "Return the subset of DEFINITIONS that belong to FILE."
-  (sort (mapcan (lambda (definition)
-		  (definition-file-definitions definition file))
-		definitions)
+  (sort (loop :for definition :being :the :hash-values :in definitions
+	      :nconc (definition-file-definitions definition file))
 	#'string-lessp
 	:key #'definition-symbol))
 
@@ -176,21 +177,9 @@ The list includes the system definition file."
   "Return the list of ASDF SYSTEM's external symbols."
   (mapcan #'package-external-symbols (system-packages system)))
 
-(defun system-external-definitions (system)
-  "Return the list of ASDF SYSTEM's external definitions."
-  (loop :for symbol :in (system-external-symbols system)
-	:when (symbol-definitions symbol)
-	  :nconc :it))
-
 (defun system-internal-symbols (system)
   "Return the list of ASDF SYSTEM's internal symbols."
   (mapcan #'package-internal-symbols (system-packages system)))
-
-(defun system-internal-definitions (system)
-  "Return the list of ASDF SYSTEM's internal definitions."
-  (loop :for symbol :in (system-internal-symbols system)
-	:when (symbol-definitions symbol)
-	  :nconc :it))
 
 
 ;;; asdf.lisp ends here

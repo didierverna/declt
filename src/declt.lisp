@@ -329,6 +329,21 @@ This manual was generated automatically by Declt ~A on ~A.
 @c ====================================================================
 @contents~%"))
 
+(defun add-external-definitions (context)
+  "Add all external definitions to CONTEXT."
+  (dolist (symbol (system-external-symbols (context-system context)))
+    (add-symbol-definitions symbol (context-external-definitions context))))
+
+(defun add-internal-definitions (context)
+  "Add all internal definitions to CONTEXT."
+  (dolist (symbol (system-internal-symbols (context-system context)))
+    (add-symbol-definitions symbol (context-internal-definitions context))))
+
+(defun add-definitions (context)
+  "Add all definitions to CONTEXT."
+  (add-external-definitions context)
+  (add-internal-definitions context))
+
 (defun declt (system-name
 	      &key (library-name (string-downcase (symbol-name system-name)))
 		   (texi-file (format nil "~A.texi" library-name))
@@ -406,8 +421,8 @@ See also the special variable *LINK-FILES* for the meaning of LINK-FILES."
   (let ((*link-files* link-files)
 	(context (make-context
 		  :system system
-		  :external-definitions (system-external-definitions system)
-		  :internal-definitions (system-internal-definitions system)))
+		  :external-definitions (make-definition-pool)
+		  :internal-definitions (make-definition-pool)))
 	(top-node
 	  (make-node :name "Top"
 		     :section-name (format nil "The ~A Reference Manual"
@@ -422,6 +437,7 @@ on ~A."
 					     (escape (version :long))
 					     current-time-string)
 		     :after-menu-contents (when license "@insertcopying"))))
+    (add-definitions context)
     (when license
       (add-child top-node
 	(make-node :name "Copying"

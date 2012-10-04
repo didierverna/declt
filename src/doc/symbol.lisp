@@ -450,13 +450,16 @@
 					   :key #'definition-symbol))
 		   (document definition context))))))
 
-(defun add-categories-node (parent context status symbols)
-  "Add the STATUS SYMBOLS categories nodes to PARENT in CONTEXT."
+(defun add-categories-node (parent context status definitions)
+  "Add the STATUS DEFINITIONS categories nodes to PARENT in CONTEXT."
   (dolist (category +categories+)
     (let ((category-definitions
-	    (loop :for symbol :in symbols
-		  :when (symbol-definition symbol (first category))
-		    :collect :it)))
+	    ;; #### FIXME: definitions iterating should be abstracted away. We
+	    ;; shouldn't need to know it's a hash table here.
+	    (loop :for key :being :the :hash-keys :in definitions
+		  :when (eq (second key) (first category))
+		    :collect
+		    (find-definition (first key) (second key) definitions t))))
       (when category-definitions
 	(add-category-node parent context status (second category)
 			   category-definitions)))))
@@ -472,15 +475,17 @@ Definitions are sorted by export status, category, package, and then by
 lexicographic order.")))))
   "Add the definitions node to PARENT in CONTEXT."
   (loop	:for status :in '("exported" "internal")
-	:for symbols :in (list
-			  (system-external-symbols (context-system context))
-			  (system-internal-symbols (context-system context)))
-	:when symbols
+	:for definitions :in (list
+			      (context-external-definitions context)
+			      (context-internal-definitions context))
+	;; #### FIXME: pool count should be abstracted away. We shouldn't need
+	;; to know it's a hash table here.
+	:unless (zerop (hash-table-count definitions))
 	  :do (let ((node (add-child definitions-node
 			    (make-node
 			     :name (format nil "~@(~A~) definitions"
 				     status)))))
-		(add-categories-node node context status symbols))))
+		(add-categories-node node context status definitions))))
 
 
 ;;; symbol.lisp ends here
