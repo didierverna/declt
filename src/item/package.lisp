@@ -120,14 +120,11 @@
 	    (generic-accessor-definition-writer generic-accessor)
 	    package))))
 
-;; #### FIXME: pool iteration should be abstracted away. We shouldn't need to
-;; know it's a hash table here.
 (defun package-definitions (package definitions)
   "Return the subset of DEFINITIONS that belong to PACKAGE."
-  (sort (loop :for definition :being :the :hash-values :in definitions
-	      :nconc (definition-package-definitions definition package))
-	#'string-lessp
-	:key #'definition-symbol))
+  (mapcan-definitions-pool
+   (lambda (definition) (definition-package-definitions definition package))
+   definitions))
 
 
 ;;; package.lisp ends here

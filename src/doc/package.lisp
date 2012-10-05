@@ -80,13 +80,17 @@
 				 (context-external-definitions context))))
       (when external-definitions
 	(@tableitem "Exported definitions"
-	  (@itemize-list external-definitions :renderer #'reference))))
+	  (@itemize-list
+	   (sort external-definitions #'string-lessp :key #'definition-symbol)
+	   :renderer #'reference))))
     (let ((internal-definitions
 	    (package-definitions package
 				 (context-internal-definitions context))))
       (when internal-definitions
 	(@tableitem "Internal definitions"
-	  (@itemize-list internal-definitions :renderer #'reference))))))
+	  (@itemize-list
+	   (sort internal-definitions #'string-lessp :key #'definition-symbol)
+	   :renderer #'reference))))))
 
 
 
