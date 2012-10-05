@@ -377,15 +377,18 @@ If ERRORP, throw an error if not found. Otherwise, just return NIL."
 ;;   2. it also makes it easier to handle foreign definitions (that we don't
 ;;      want to add in the definitions pools) bacause at that time, we know
 ;;      that if a definition doesn't exist in the pools, then it is foreign.
+;; #### PORTME.
 (defun finalize-definitions (pool1 pool2)
   "Finalize the definitions in POOL1 and POOL2.
 Currently, this means resolving sub and superclasses."
   (labels ((classes-definitions (classes)
 	     (mapcar
 	      (lambda (name)
-		;; #### NOTE: there may be intermixing of conditions,
-		;; structures and classes in inheritance graphs, so we need to
-		;; handle that.
+		;; #### NOTE: documenting inheritance works here because SBCL
+		;; uses classes for reprensenting structures and conditions,
+		;; which is not required by the standard. It also means that
+		;; there may be intermixing of conditions, structures and
+		;; classes in inheritance graphs, so we need to handle that.
 		(or  (find-definition (list name :class) pool1)
 		     (find-definition (list name :class) pool2)
 		     (find-definition (list name :structure) pool1)
@@ -395,14 +398,15 @@ Currently, this means resolving sub and superclasses."
 		     (make-classoid-definition :symbol name :foreignp t)))
 	      (reverse (mapcar #'class-name classes))))
 	   (finalize (pool)
-	     (dolist (definition (category-definitions :class pool))
-	       (let ((class (find-class (definition-symbol definition))))
-		 (setf (class-definition-parents definition)
-		       (classes-definitions
-			(sb-mop:class-direct-superclasses class)))
-		 (setf (class-definition-children definition)
-		       (classes-definitions
-			(sb-mop:class-direct-subclasses class)))))))
+	     (dolist (category '(:class :structure :condition))
+	       (dolist (definition (category-definitions category pool))
+		 (let ((class (find-class (definition-symbol definition))))
+		   (setf (classoid-definition-parents definition)
+			 (classes-definitions
+			  (sb-mop:class-direct-superclasses class)))
+		   (setf (classoid-definition-children definition)
+			 (classes-definitions
+			  (sb-mop:class-direct-subclasses class))))))))
     (finalize pool1)
     (finalize pool2)))
 

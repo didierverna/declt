@@ -391,43 +391,47 @@
 	 (call-next-method)
 	 (document (generic-accessor-definition-writer accessor) context))))
 
+(defmethod document ((classoid classoid-definition) context &key)
+  "Render CLASSOID's documentation in CONTEXT."
+  (anchor classoid)
+  (index classoid)
+  (@table ()
+    (let ((documentation (documentation (definition-symbol classoid) 'type)))
+      (when documentation
+	(@tableitem "Documentation"
+	  (render-text documentation))))
+    (@tableitem "Package"
+      (reference (symbol-package (definition-symbol classoid))))
+    (render-source classoid context)
+    (let ((superclasses (classoid-definition-parents classoid)))
+      (when superclasses
+	(let ((length (length superclasses)))
+	  (@tableitem "Direct superclasses"
+	    (if (= length 1)
+		(reference (first superclasses))
+	      (@itemize-list superclasses :renderer #'reference))))))
+    (let ((subclasses (classoid-definition-children classoid)))
+      (when subclasses
+	(let ((length (length subclasses)))
+	  (@tableitem "Direct subclasses"
+	    (if (= length 1)
+		(reference (first subclasses))
+	      (@itemize-list subclasses :renderer #'reference))))))))
+
 (defmethod document ((condition condition-definition) context &key)
   "Render CONDITION's documentation in CONTEXT."
   (@defcond (string-downcase (definition-symbol condition))
-    (document-definition condition context 'type)))
+    (call-next-method)))
 
 (defmethod document ((structure structure-definition) context &key)
   "Render STRUCTURE's documentation in CONTEXT."
   (@defstruct (string-downcase (definition-symbol structure))
-    (document-definition structure context 'type)))
+    (call-next-method)))
 
 (defmethod document ((class class-definition) context &key)
   "Render CLASS's documentation in CONTEXT."
   (@defclass (string-downcase (definition-symbol class))
-    (anchor class)
-    (index class)
-    (@table ()
-      (let ((documentation (documentation (definition-symbol class) 'type)))
-	(when documentation
-	  (@tableitem "Documentation"
-	    (render-text documentation))))
-      (@tableitem "Package"
-	(reference (symbol-package (definition-symbol class))))
-      (render-source class context)
-      (let ((superclasses (class-definition-parents class)))
-	(when superclasses
-	  (let ((length (length superclasses)))
-	    (@tableitem "Direct superclasses"
-	      (if (= length 1)
-		  (reference (first superclasses))
-		(@itemize-list superclasses :renderer #'reference))))))
-      (let ((subclasses (class-definition-children class)))
-	(when subclasses
-	  (let ((length (length subclasses)))
-	    (@tableitem "Direct subclasses"
-	      (if (= length 1)
-		  (reference (first subclasses))
-		(@itemize-list subclasses :renderer #'reference)))))))))
+    (call-next-method)))
 
 
 
