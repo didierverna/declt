@@ -40,14 +40,14 @@
 			     ;; but we don't care
 			     :info-file "declt-webreference"
 			     :license :gpl
-			     :copyright-date "2010, 2011, 2012"
-			     :link-files nil)
+			     :copyright-date "2010, 2011, 2012")
   (com.dvlsoft.declt:declt :com.dvlsoft.declt
 			   :library-name "Declt"
 			   :texi-file "reference.texi"
 			   :info-file "declt-reference"
+			   :license :gpl
 			   :copyright-date "2010, 2011, 2012"
-			   :license :gpl))
+			   :hyperlinks t))
 
 (sb-ext:quit)
 
