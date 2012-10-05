@@ -28,10 +28,6 @@ break. We need to work on canonical pathnames.
 ** Document class slots
 and point back to slot accessors.
 
-** Package documentation
-Currently we list the symbols only, and their first definition link. When a
-symbol has multiple definitions, maybe we could list/link them all.
-
 ** Call graphs
 Cf.
 sb-introspect:who-calls
