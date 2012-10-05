@@ -421,8 +421,8 @@ See also the special variable *LINK-FILES* for the meaning of LINK-FILES."
   (let ((*link-files* link-files)
 	(context (make-context
 		  :system system
-		  :external-definitions (make-definition-pool)
-		  :internal-definitions (make-definition-pool)))
+		  :external-definitions (make-definitions-pool)
+		  :internal-definitions (make-definitions-pool)))
 	(top-node
 	  (make-node :name "Top"
 		     :section-name (format nil "The ~A Reference Manual"

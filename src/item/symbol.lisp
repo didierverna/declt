@@ -140,13 +140,17 @@ definitions."
 ;; Definition pools
 ;; ----------------
 
-(defun make-definition-pool ()
-  "Create and return a new definition pool.
-A definition pool is a hash table of categorized definitions.
+(defun make-definitions-pool ()
+  "Create and return a new definitions pool.
+A definitions pool is a hash table of categorized definitions.
 Keys must be of the form (NAME :CATEGORY).
   - NAME is the symbol naming the definition,
   - :CATEGORY is one listed in +CATEGORIES+."
   (make-hash-table :test 'equal))
+
+(defun definitions-pool-size (pool)
+  "Return the number of elements in definitions POOL."
+  (hash-table-count pool))
 
 (defun find-definition (key pool &optional errorp)
   "Find a definition matching KEY for SYMBOL in POOL.

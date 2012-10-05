@@ -473,9 +473,7 @@ lexicographic order.")))))
 	:for definitions :in (list
 			      (context-external-definitions context)
 			      (context-internal-definitions context))
-	;; #### FIXME: pool count should be abstracted away. We shouldn't need
-	;; to know it's a hash table here.
-	:unless (zerop (hash-table-count definitions))
+	:unless (zerop (definitions-pool-size definitions))
 	  :do (let ((node (add-child definitions-node
 			    (make-node
 			     :name (format nil "~@(~A~) definitions"
