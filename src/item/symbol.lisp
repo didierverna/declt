@@ -152,6 +152,11 @@ Keys must be of the form (NAME :CATEGORY).
   "Return the number of elements in definitions POOL."
   (hash-table-count pool))
 
+(defun mapcan-definitions-pool (function pool)
+  "Like MAPCAN, but work on a definitions POOL."
+  (loop :for definition :being :the :hash-values :in pool
+	:nconc (funcall function definition)))
+
 (defun find-definition (key pool &optional errorp)
   "Find a definition matching KEY for SYMBOL in POOL.
 KEY must be of the form (NAME :CATEGORY).

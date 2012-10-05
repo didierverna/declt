@@ -117,12 +117,11 @@
 	    (generic-accessor-definition-writer generic-accessor)
 	    file))))
 
-;; #### FIXME: pool iteration should be abstracted away. We shouldn't need to
-;; know it's a hash table here.
 (defun file-definitions (file definitions)
   "Return the subset of DEFINITIONS that belong to FILE."
-  (loop :for definition :being :the :hash-values :in definitions
-	:nconc (definition-file-definitions definition file)))
+  (mapcan-definitions-pool
+   (lambda (definition) (definition-file-definitions definition file))
+   definitions))
 
 
 
