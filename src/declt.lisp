@@ -360,7 +360,7 @@ This manual was generated automatically by Declt ~A on ~A.
 		   (declt-notice :long)
 		   copyright-date
 		   conclusion
-		   (link-files *link-files*)
+		   hyperlinks
 	      &aux (system (find-system system-name))
 		   (texi-name (escape (file-namestring texi-file)))
 		   (current-time-string (escape (current-time-string))))
@@ -379,8 +379,10 @@ This manual was generated automatically by Declt ~A on ~A.
   Declt. Possible values are nil, :short and :long (the default).
 - COPYRIGHT-DATE defaults to the current year.
 - CONCLUSION is a potential contents for a conclusion chapter.
-
-See also the special variable *LINK-FILES* for the meaning of LINK-FILES."
+- HYPERLINKS is whether to create hyperlinks to files or directories in the
+  reference manual. Note that those links being specific to the machine on
+  which the manual was generated, it is preferable to keep it to NIL for
+  creating reference manuals meant to be put online."
 
   ;; First load the target system. If this fails, there's no point in working
   ;; hard on the rest.
@@ -421,11 +423,11 @@ See also the special variable *LINK-FILES* for the meaning of LINK-FILES."
 		      (format nil "~A" year)))))
 
   ;; Construct the nodes hierarchy.
-  (let ((*link-files* link-files)
-	(context (make-context
+  (let ((context (make-context
 		  :system system
 		  :external-definitions (make-definitions-pool)
-		  :internal-definitions (make-definitions-pool)))
+		  :internal-definitions (make-definitions-pool)
+		  :hyperlinksp hyperlinks))
 	(top-node
 	  (make-node :name "Top"
 		     :section-name (format nil "The ~A Reference Manual"

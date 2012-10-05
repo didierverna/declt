@@ -104,7 +104,7 @@
 	     (format t "@ref{go to the ~A file, , @t{~(~A}~)} (Lisp file)~%"
 	       system-base-name
 	       system-base-name)))
-	 (when *link-files*
+	 (when (context-hyperlinksp context)
 	   (let ((system-source-directory
 		   (escape (system-source-directory component)))
 		 (installation-directory
@@ -123,7 +123,10 @@
 		 (format t "@url{file://~A, ignore, @t{~A}}~%"
 		   installation-directory installation-directory))))))
 	(t
-	 (render-location (component-pathname component) relative-to))))
+	 (render-location
+	  (component-pathname component)
+	  relative-to
+	  (context-hyperlinksp context)))))
 
 
 
@@ -241,7 +244,9 @@ components tree."))))
 		   (format t "@lispfileindex{~A}@c~%" system-base-name)
 		   (@table ()
 		     (render-location
-		      (system-definition-pathname system) relative-to)
+		      (system-definition-pathname system)
+		      relative-to
+		      (context-hyperlinksp context))
 		     (render-packages
 		      (file-packages (system-definition-pathname system)))
 		     (let ((external-definitions

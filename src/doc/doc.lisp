@@ -40,7 +40,8 @@
   "The documentation context structure."
   system
   external-definitions
-  internal-definitions)
+  internal-definitions
+  hyperlinksp)
 
 
 ;; This is used rather often so it is worth a shortcut
@@ -82,13 +83,6 @@
   "Render ITEM's anchor."
   (@anchor (anchor-name item relative-to)))
 
-(defvar *link-files* t
-  "Whether to create links to files or directories in the reference manual.
-When true (the default), pathnames are made clickable although the links are
-specific to the machine on which the manual was generated.
-
-Setting this to NIL is preferable for creating reference manuals meant to put
-online, and hence independent of any specific installation.")
 
 ;; #### NOTE: the use of PROBE-FILE below has two purposes:
 ;; 1/ making sure that the file does exist, so that it can actually be linked
@@ -97,21 +91,22 @@ online, and hence independent of any specific installation.")
 ;;    order to link the actual file (what we want).
 ;; #### FIXME: not a Declt bug, but currently, SBCL sets the source file of
 ;; COPY-<struct> functions to its own target-defstruct.lisp file.
-(defun render-location (pathname relative-to
+(defun render-location (pathname relative-to hyperlinksp
 			&optional (title "Location")
 			&aux (probed-pathname (probe-file pathname))
-			     (link-files (and *link-files* probed-pathname)))
+			     (hyperlinkp (and hyperlinksp probed-pathname)))
   "Render an itemized location line for PATHNAME, RELATIVE-TO.
+When HYPERLINKSP, create a hyperlink to the location.
 Rendering is done on *standard-output*."
   (@tableitem title
     (format t "~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
-      (when link-files
+      (when hyperlinkp
 	(escape probed-pathname))
       (escape (if probed-pathname
 		  (enough-namestring probed-pathname relative-to)
 		(concatenate 'string (namestring pathname)
 			     " (not found)")))
-      link-files)))
+      hyperlinkp)))
 
 (defun render-source (object context
 		      &aux (source (source object))
@@ -146,7 +141,8 @@ Rendering is done on *standard-output*."
 	   ;; Otherwise, the source file does not belong to the system. This
 	   ;; may happen for automatically generated sources (sb-grovel does
 	   ;; this for instance). So let's just reference the file itself.
-	   (render-location source relative-to "Source")))))))
+	   (render-location
+	    source relative-to (context-hyperlinksp context) "Source")))))))
 
 
 ;;; doc.lisp ends here
