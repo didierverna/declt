@@ -391,10 +391,15 @@
 	 (call-next-method)
 	 (document (generic-accessor-definition-writer accessor) context))))
 
-(defmethod document ((classoid classoid-definition) context &key)
-  "Render CLASSOID's documentation in CONTEXT."
-  (@defcond (string-downcase (definition-symbol classoid))
-    (document-definition classoid context 'type)))
+(defmethod document ((condition condition-definition) context &key)
+  "Render CONDITION's documentation in CONTEXT."
+  (@defcond (string-downcase (definition-symbol condition))
+    (document-definition condition context 'type)))
+
+(defmethod document ((structure structure-definition) context &key)
+  "Render STRUCTURE's documentation in CONTEXT."
+  (@defstruct (string-downcase (definition-symbol structure))
+    (document-definition structure context 'type)))
 
 (defmethod document ((class class-definition) context &key)
   "Render CLASS's documentation in CONTEXT."
