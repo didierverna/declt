@@ -454,12 +454,7 @@
   "Add the STATUS DEFINITIONS categories nodes to PARENT in CONTEXT."
   (dolist (category +categories+)
     (let ((category-definitions
-	    ;; #### FIXME: definitions iterating should be abstracted away. We
-	    ;; shouldn't need to know it's a hash table here.
-	    (loop :for key :being :the :hash-keys :in definitions
-		  :when (eq (second key) (first category))
-		    :collect
-		    (find-definition key definitions t))))
+	    (category-definitions (first category) definitions)))
       (when category-definitions
 	(add-category-node parent context status (second category)
 			   category-definitions)))))

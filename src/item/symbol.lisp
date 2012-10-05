@@ -157,6 +157,13 @@ If ERRORP, throw an error if not found. Otherwise, just return NIL."
 	(error "~A definition not found for ~A" (first key) (second key))
       definition)))
 
+(defun category-definitions (category pool)
+  "Return all CATEGORY definitions from POOL."
+  (loop :for key   :being :the :hash-keys   :in pool
+	:for value :being :the :hash-values :in pool
+	:when (eq (second key) category)
+	  :collect value))
+
 (defun add-definition (symbol category definition pool)
   "Add CATEGORY kind of DEFINITION for SYMBOL to POOL."
   (setf (gethash (list symbol category) pool) definition))
