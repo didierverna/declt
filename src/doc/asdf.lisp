@@ -182,10 +182,14 @@
   (render-packages (file-packages pathname))
   (when external-definitions
     (@tableitem "Exported definitions"
-      (@itemize-list external-definitions :renderer #'reference)))
+      (@itemize-list
+       (sort external-definitions #'string-lessp :key #'definition-symbol)
+       :renderer #'reference)))
   (when internal-definitions
     (@tableitem "Internal definitions"
-      (@itemize-list internal-definitions :renderer #'reference))))
+      (@itemize-list
+       (sort internal-definitions #'string-lessp :key #'definition-symbol)
+       :renderer #'reference))))
 
 
 ;; -----

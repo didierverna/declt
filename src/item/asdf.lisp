@@ -121,10 +121,8 @@
 ;; know it's a hash table here.
 (defun file-definitions (file definitions)
   "Return the subset of DEFINITIONS that belong to FILE."
-  (sort (loop :for definition :being :the :hash-values :in definitions
-	      :nconc (definition-file-definitions definition file))
-	#'string-lessp
-	:key #'definition-symbol))
+  (loop :for definition :being :the :hash-values :in definitions
+	:nconc (definition-file-definitions definition file)))
 
 
 
