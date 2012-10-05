@@ -84,16 +84,16 @@ This structure holds the symbol naming the definition."
 (defstruct (special-definition (:include definition))
   "Structure for special variables definitions.")
 
-(defstruct (functional-definition (:include definition))
+(defstruct (funcoid-definition (:include definition))
   "Base structure for definitions of functional values.
 This structure holds the the function, generic function or macro function
 object."
   function)
 
-(defstruct (macro-definition (:include functional-definition))
+(defstruct (macro-definition (:include funcoid-definition))
   "Structure for macro definitions.")
 
-(defstruct (function-definition (:include functional-definition))
+(defstruct (function-definition (:include funcoid-definition))
   "Structure for ordinary function definitions.")
 (defstruct (writer-definition (:include function-definition))
   "Structure for ordinary writer function definitions.")
@@ -113,7 +113,7 @@ This structure holds the method object."
 This structure holds the writer method definition."
   writer)
 
-(defstruct (generic-definition (:include functional-definition))
+(defstruct (generic-definition (:include funcoid-definition))
   "Structure for generic function definitions.
 This structure holds the list of method definitions."
   methods)
@@ -124,16 +124,23 @@ This structure holds the list of method definitions."
 This structure holds the generic writer function definition."
   writer)
 
-(defstruct (condition-definition (:include definition))
+(defstruct (classoid-definition (:include definition))
+  "Base structure for class-like (supporting inheritance) values.
+This structure holds links to the direct ancestors and descendants
+definitions, and also a slot for marking foreign definitions, i.e. those which
+do pertain to the system being documented. Foreign definitions may appear as
+part of an inheritance documentation."
+  foreignp
+  parents
+  children)
+(defstruct (condition-definition (:include classoid-definition))
   "Structure for condition definitions.")
-(defstruct (structure-definition (:include definition))
+(defstruct (structure-definition (:include classoid-definition))
   "Structure for structure definition.")
-(defstruct (class-definition (:include definition))
+(defstruct (class-definition (:include classoid-definition))
   "Structure for class definitions.
 This structure holds the direct superclasses and direct subclasses
-definitions."
-  direct-superclasses
-  direct-subclasses)
+definitions.")
 
 
 ;; ----------------
@@ -356,32 +363,48 @@ If ERRORP, throw an error if not found. Otherwise, just return NIL."
 	     (add-definition
 	      symbol
 	      category
-	      (make-class-definition
-	       :symbol symbol
-	       ;; #### FIXME: create real definitions below once the definition
-	       ;; pool is  implemented.
-	       :direct-superclasses
-	       (mapcar #'class-name
-		       #+()(lambda (class)
-			     (add-symbol-definition
-			      (class-name class)
-			      :class
-			      pool))
-		       (reverse (sb-mop:class-direct-superclasses class)))
-	       :direct-subclasses
-	       (mapcar #'class-name
-		       #+()(lambda (class)
-			     (add-symbol-definition
-			      (class-name class)
-			      :class
-			      pool))
-		       (reverse (sb-mop:class-direct-subclasses class))))
+	      (make-class-definition :symbol symbol)
 	      pool)))))))
 
 (defun add-symbol-definitions (symbol pool)
   "Add all categorized definitions for SYMBOL to POOL."
   (dolist (category +categories+)
     (add-symbol-definition symbol (first category) pool)))
+
+;; #### NOTE: this finalization step is required for two reasons:
+;;   1. it makes it easier to handle cross references (e.g. class inheritance)
+;;      because at that time, we know that all definitions have been created,
+;;   2. it also makes it easier to handle foreign definitions (that we don't
+;;      want to add in the definitions pools) bacause at that time, we know
+;;      that if a definition doesn't exist in the pools, then it is foreign.
+(defun finalize-definitions (pool1 pool2)
+  "Finalize the definitions in POOL1 and POOL2.
+Currently, this means resolving sub and superclasses."
+  (labels ((classes-definitions (classes)
+	     (mapcar
+	      (lambda (name)
+		;; #### NOTE: there may be intermixing of conditions,
+		;; structures and classes in inheritance graphs, so we need to
+		;; handle that.
+		(or  (find-definition (list name :class) pool1)
+		     (find-definition (list name :class) pool2)
+		     (find-definition (list name :structure) pool1)
+		     (find-definition (list name :structure) pool2)
+		     (find-definition (list name :condition) pool1)
+		     (find-definition (list name :condition) pool2)
+		     (make-classoid-definition :symbol name :foreignp t)))
+	      (reverse (mapcar #'class-name classes))))
+	   (finalize (pool)
+	     (dolist (definition (category-definitions :class pool))
+	       (let ((class (find-class (definition-symbol definition))))
+		 (setf (class-definition-parents definition)
+		       (classes-definitions
+			(sb-mop:class-direct-superclasses class)))
+		 (setf (class-definition-children definition)
+		       (classes-definitions
+			(sb-mop:class-direct-subclasses class)))))))
+    (finalize pool1)
+    (finalize pool2)))
 
 
 
@@ -449,9 +472,9 @@ If ERRORP, throw an error if not found. Otherwise, just return NIL."
   "Return SPECIAL's definition source."
   (definition-source-by-name special :variable))
 
-(defmethod source ((funcoid functional-definition))
+(defmethod source ((funcoid funcoid-definition))
   "Return FUNCOID's definition source."
-  (definition-source (functional-definition-function funcoid)))
+  (definition-source (funcoid-definition-function funcoid)))
 
 (defmethod source ((method method-definition))
   "Return METHOD's definition source."

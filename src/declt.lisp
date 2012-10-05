@@ -342,7 +342,10 @@ This manual was generated automatically by Declt ~A on ~A.
 (defun add-definitions (context)
   "Add all definitions to CONTEXT."
   (add-external-definitions context)
-  (add-internal-definitions context))
+  (add-internal-definitions context)
+  (finalize-definitions
+   (context-external-definitions context)
+   (context-internal-definitions context)))
 
 (defun declt (system-name
 	      &key (library-name (string-downcase (symbol-name system-name)))

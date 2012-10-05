@@ -143,6 +143,14 @@
     (escape definition)
     (type-name definition)))
 
+(defmethod reference ((classoid classoid-definition) &optional relative-to)
+  "Render CLASSOID's reference."
+  (declare (ignore relative-to))
+  (if (classoid-definition-foreignp classoid)
+      (format t "@t{~(~A}~)~%" (escape classoid))
+    (call-next-method)))
+
+
 ;; #### FIXME: we should abstract this more than just DOCUMENT-DEFINITION.
 ;; Some methods below do not use it (e.g. for classes) but their code is still
 ;; quite similar.
@@ -383,15 +391,10 @@
 	 (call-next-method)
 	 (document (generic-accessor-definition-writer accessor) context))))
 
-(defmethod document ((condition condition-definition) context &key)
-  "Render CONDITION's documentation in CONTEXT."
-  (@defcond (string-downcase (definition-symbol condition))
-    (document-definition condition context 'type)))
-
-(defmethod document ((structure structure-definition) context &key)
-  "Render STRUCTURE's documentation in CONTEXT."
-  (@defstruct (string-downcase (definition-symbol structure))
-    (document-definition structure context 'type)))
+(defmethod document ((classoid classoid-definition) context &key)
+  "Render CLASSOID's documentation in CONTEXT."
+  (@defcond (string-downcase (definition-symbol classoid))
+    (document-definition classoid context 'type)))
 
 (defmethod document ((class class-definition) context &key)
   "Render CLASS's documentation in CONTEXT."
@@ -406,32 +409,20 @@
       (@tableitem "Package"
 	(reference (symbol-package (definition-symbol class))))
       (render-source class context)
-      ;; #### FIXME: use REFERENCE again below when the definitions pool is
-      ;; implemented.
-      (let ((superclasses (class-definition-direct-superclasses class)))
+      (let ((superclasses (class-definition-parents class)))
 	(when superclasses
 	  (let ((length (length superclasses)))
 	    (@tableitem "Direct superclasses"
 	      (if (= length 1)
-		  (format t "@t{~(~A}~) (class)~%"
-		    (escape (first superclasses)))
-		#+()(reference (first superclasses))
-		(@itemize-list superclasses :renderer #+()#'reference
-			       (lambda (item)
-				 (format t "@t{~(~A}~) (class)~%"
-				   (escape item)))))))))
-      (let ((subclasses (class-definition-direct-subclasses class)))
+		  (reference (first superclasses))
+		(@itemize-list superclasses :renderer #'reference))))))
+      (let ((subclasses (class-definition-children class)))
 	(when subclasses
 	  (let ((length (length subclasses)))
 	    (@tableitem "Direct subclasses"
 	      (if (= length 1)
-		  (format t "@t{~(~A}~) (class)~%"
-		    (escape (first subclasses)))
-		#+()(reference (first subclasses))
-		(@itemize-list subclasses :renderer #+()#'reference
-			       (lambda (item)
-				 (format t "@t{~(~A}~) (class)~%"
-				   (escape item))))))))))))
+		  (reference (first subclasses))
+		(@itemize-list subclasses :renderer #'reference)))))))))
 
 
 
