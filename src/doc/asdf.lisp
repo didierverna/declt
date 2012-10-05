@@ -123,10 +123,7 @@
 		 (format t "@url{file://~A, ignore, @t{~A}}~%"
 		   installation-directory installation-directory))))))
 	(t
-	 (render-location
-	  (component-pathname component)
-	  relative-to
-	  (context-hyperlinksp context)))))
+	 (render-location (component-pathname component) context))))
 
 
 
@@ -243,10 +240,8 @@ components tree."))))
 		    (format nil "go to the ~A file" system-base-name))
 		   (format t "@lispfileindex{~A}@c~%" system-base-name)
 		   (@table ()
-		     (render-location
-		      (system-definition-pathname system)
-		      relative-to
-		      (context-hyperlinksp context))
+		     (render-location (system-definition-pathname system)
+				      context)
 		     (render-packages
 		      (file-packages (system-definition-pathname system)))
 		     (let ((external-definitions

@@ -91,12 +91,13 @@
 ;;    order to link the actual file (what we want).
 ;; #### FIXME: not a Declt bug, but currently, SBCL sets the source file of
 ;; COPY-<struct> functions to its own target-defstruct.lisp file.
-(defun render-location (pathname relative-to hyperlinksp
-			&optional (title "Location")
-			&aux (probed-pathname (probe-file pathname))
-			     (hyperlinkp (and hyperlinksp probed-pathname)))
-  "Render an itemized location line for PATHNAME, RELATIVE-TO.
-When HYPERLINKSP, create a hyperlink to the location.
+(defun render-location
+    (pathname context
+     &optional (title "Location")
+     &aux (probed-pathname (probe-file pathname))
+	  (relative-to (context-directory context))
+	  (hyperlinkp (and (context-hyperlinksp context) probed-pathname)))
+  "Render an itemized location line for PATHNAME in CONTEXT.
 Rendering is done on *standard-output*."
   (@tableitem title
     (format t "~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
@@ -141,8 +142,7 @@ Rendering is done on *standard-output*."
 	   ;; Otherwise, the source file does not belong to the system. This
 	   ;; may happen for automatically generated sources (sb-grovel does
 	   ;; this for instance). So let's just reference the file itself.
-	   (render-location
-	    source relative-to (context-hyperlinksp context) "Source")))))))
+	   (render-location source context "Source")))))))
 
 
 ;;; doc.lisp ends here
