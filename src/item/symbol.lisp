@@ -148,12 +148,13 @@ Keys must be of the form (NAME :CATEGORY).
   - :CATEGORY is one listed in +CATEGORIES+."
   (make-hash-table :test 'equal))
 
-(defun find-definition (symbol category pool &optional errorp)
-  "Find a CATEGORY kind of definition for SYMBOL in POOL.
+(defun find-definition (key pool &optional errorp)
+  "Find a definition matching KEY for SYMBOL in POOL.
+KEY must be of the form (NAME :CATEGORY).
 If ERRORP, throw an error if not found. Otherwise, just return NIL."
-  (let ((definition (gethash (list symbol category) pool)))
+  (let ((definition (gethash key pool)))
     (if (and (null definition) errorp)
-	(error "~A definition not found for ~A" symbol category)
+	(error "~A definition not found for ~A" (first key) (second key))
       definition)))
 
 (defun add-definition (symbol category definition pool)
@@ -163,7 +164,7 @@ If ERRORP, throw an error if not found. Otherwise, just return NIL."
 ;; #### PORTME.
 (defun add-symbol-definition (symbol category pool)
   "Add and return the CATEGORY kind of definition for SYMBOL to pool, if any."
-  (or (find-definition symbol category pool)
+  (or (find-definition (list symbol category) pool)
       (ecase category
 	(:constant
 	 (when (eql (sb-int:info :variable :kind symbol) :constant)

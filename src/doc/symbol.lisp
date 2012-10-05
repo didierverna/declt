@@ -459,7 +459,7 @@
 	    (loop :for key :being :the :hash-keys :in definitions
 		  :when (eq (second key) (first category))
 		    :collect
-		    (find-definition (first key) (second key) definitions t))))
+		    (find-definition key definitions t))))
       (when category-definitions
 	(add-category-node parent context status (second category)
 			   category-definitions)))))
