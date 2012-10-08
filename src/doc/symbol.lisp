@@ -154,19 +154,28 @@
 ;; #### FIXME: we should abstract this more than just DOCUMENT-DEFINITION.
 ;; Some methods below do not use it (e.g. for classes) but their code is still
 ;; quite similar.
+(defun document-definition-core
+    (definition context kind &key (name (definition-symbol definition)))
+  "Render DEFINITION's documentation core as KIND in CONTEXT.
+A documentation core includes common definition attributes, that is its
+documentation (in the Lisp's sense), package and source location.
+
+Each element is rendered as a table item."
+  (let ((documentation (documentation name kind)))
+    (when documentation
+      (@tableitem "Documentation"
+	(render-text documentation))))
+  (@tableitem "Package"
+    (reference (symbol-package (definition-symbol definition))))
+  (render-source definition context))
+
 (defun document-definition
     (definition context kind &key (name (definition-symbol definition)))
   "Render DEFINITION's documentation contents as KIND in CONTEXT."
   (anchor definition)
   (index definition)
   (@table ()
-    (let ((documentation (documentation name kind)))
-      (when documentation
-	(@tableitem "Documentation"
-	  (render-text documentation))))
-    (@tableitem "Package"
-      (reference (symbol-package (definition-symbol definition))))
-    (render-source definition context)))
+    (document-definition-core definition context kind :name name)))
 
 (defmethod document ((constant constant-definition) context &key)
   "Render CONSTANT's documentation in CONTEXT."
@@ -396,13 +405,7 @@
   (anchor classoid)
   (index classoid)
   (@table ()
-    (let ((documentation (documentation (definition-symbol classoid) 'type)))
-      (when documentation
-	(@tableitem "Documentation"
-	  (render-text documentation))))
-    (@tableitem "Package"
-      (reference (symbol-package (definition-symbol classoid))))
-    (render-source classoid context)
+    (document-definition-core classoid context 'type)
     (let ((superclasses (classoid-definition-parents classoid)))
       (when superclasses
 	(let ((length (length superclasses)))
