@@ -497,6 +497,39 @@ Currently, this means resolving sub and superclasses."
   (definition-source-by-name class :class))
 
 
+;; ---------------
+;; Source protocol
+;; ---------------
+
+(defmethod docstring ((constant constant-definition))
+  "Return CONSTANT's docstring."
+  (documentation (definition-symbol constant) 'variable))
+
+(defmethod docstring ((special special-definition))
+  "Return SPECIAL variable's docstring."
+  (documentation (definition-symbol special) 'variable))
+
+(defmethod docstring ((funcoid funcoid-definition))
+  "Return FUNCOID's docstring."
+  (documentation (definition-symbol funcoid) 'function))
+
+(defmethod docstring ((writer writer-definition))
+  "Return WRITER's docstring."
+  (documentation `(setf ,(definition-symbol writer)) 'function))
+
+(defmethod docstring ((method method-definition))
+  "Return METHOD's docstring."
+  (documentation (method-definition-method method) t))
+
+(defmethod docstring ((writer generic-writer-definition))
+  "Return generic WRITER's docstring."
+  (documentation `(setf ,(definition-symbol writer)) 'function))
+
+(defmethod docstring ((classoid classoid-definition))
+  "Return CLASSOID's docstring."
+  (documentation (definition-symbol classoid) 'type))
+
+
 ;; ------------------
 ;; Type name protocol
 ;; ------------------

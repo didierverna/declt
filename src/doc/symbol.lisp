@@ -151,66 +151,57 @@
     (call-next-method)))
 
 
-;; #### FIXME: we should abstract this more than just DOCUMENT-DEFINITION.
-;; Some methods below do not use it (e.g. for classes) but their code is still
-;; quite similar.
-(defun document-definition-core
-    (definition context kind &key (name (definition-symbol definition)))
-  "Render DEFINITION's documentation core as KIND in CONTEXT.
-A documentation core includes common definition attributes, that is its
-documentation (in the Lisp's sense), package and source location.
+(defun document-definition-core (definition context)
+  "Render DEFINITION's documentation core in CONTEXT.
+The documentation core includes all common definition attributes:
+  - documentation (in the Lisp's sense),
+  - package,
+  - source location.
 
 Each element is rendered as a table item."
-  (let ((documentation (documentation name kind)))
-    (when documentation
+  (let ((docstring (docstring definition)))
+    (when docstring
       (@tableitem "Documentation"
-	(render-text documentation))))
+	(render-text docstring))))
   (@tableitem "Package"
     (reference (symbol-package (definition-symbol definition))))
   (render-source definition context))
 
-(defun document-definition
-    (definition context kind &key (name (definition-symbol definition)))
-  "Render DEFINITION's documentation contents as KIND in CONTEXT."
+(defun document-definition (definition context)
+  "Render DEFINITION's documentation in CONTEXT."
   (anchor definition)
   (index definition)
   (@table ()
-    (document-definition-core definition context kind :name name)))
+    (document-definition-core definition context)))
 
-(defmethod document ((constant constant-definition) context &key)
+(defmethod document ((constant constant-definition) context)
   "Render CONSTANT's documentation in CONTEXT."
-  (@defconstant (string-downcase (definition-symbol constant))
-    (document-definition constant context 'variable)))
+  (@defconstant (string-downcase (name constant))
+    (document-definition constant context)))
 
-(defmethod document ((special special-definition) context &key)
+(defmethod document ((special special-definition) context)
   "Render SPECIAL variable's documentation in CONTEXT."
-  (@defspecial (string-downcase (definition-symbol special))
-    (document-definition special context 'variable)))
+  (@defspecial (string-downcase (name special))
+    (document-definition special context)))
 
 ;; #### PORTME.
-(defmethod document ((macro macro-definition) context &key)
+(defmethod document ((funcoid funcoid-definition) context)
+  "Render FUNCOID's documentation in CONTEXT."
+  (@defun (string-downcase (name funcoid))
+      (sb-introspect:function-lambda-list
+       (funcoid-definition-function funcoid))
+    (document-definition funcoid context)))
+
+;; #### PORTME.
+(defmethod document ((macro macro-definition) context)
   "Render MACRO's documentation in CONTEXT."
-  (@defmac (string-downcase (definition-symbol macro))
+  (@defmac (string-downcase (name macro))
       (sb-introspect:function-lambda-list
        (macro-definition-function macro))
-    (document-definition macro context 'function)))
+    (document-definition macro context)))
 
 ;; #### PORTME.
-(defmethod document ((function function-definition) context
-		     &key (name (function-definition-symbol function)))
-  "Render FUNCTION's documentation in CONTEXT."
-  (@defun (format nil "~(~A~)" name)
-      (sb-introspect:function-lambda-list
-       (function-definition-function function))
-    (document-definition function context 'function :name name)))
-
-(defmethod document ((writer writer-definition) context &key)
-  "Render WRITER's documentation in CONTEXT."
-  (call-next-method writer context
-		    :name `(setf ,(writer-definition-symbol writer))))
-
-;; #### PORTME.
-(defmethod document ((accessor accessor-definition) context &key)
+(defmethod document ((accessor accessor-definition) context)
   "Render ACCESSOR's documentation in CONTEXT."
   (cond ((and (equal (source accessor)
 		     (source (accessor-definition-writer accessor)))
@@ -222,59 +213,50 @@ Each element is rendered as a table item."
 		     (cdr (sb-introspect:function-lambda-list
 			   (writer-definition-function
 			    (accessor-definition-writer accessor)))))
-	      (let ((function-doc (documentation
-				   (accessor-definition-symbol accessor)
-				   'function))
-		    (writer-doc (documentation
-				 (writer-definition-symbol
-				  (accessor-definition-writer accessor))
-				 'function)))
-		(or (and function-doc writer-doc
-			 (string= function-doc writer-doc))
-		    (null writer-doc)
-		    (and (not (null writer-doc)) (null function-doc)))))
-	 (@defun (format nil  "~(~A~)" (accessor-definition-symbol accessor))
+	      (let ((docstring (docstring accessor))
+		    (writer-docstring
+		      (docstring (accessor-definition-writer accessor))))
+		(or (and docstring writer-docstring
+			 (string= docstring writer-docstring))
+		    (null writer-docstring)
+		    (and (not (null writer-docstring)) (null docstring)))))
+	 (@defun (string-downcase (name accessor))
 	     (sb-introspect:function-lambda-list
 	      (accessor-definition-function accessor))
-	   (@defunx (format nil  "~(~A~)"
-		      `(setf ,(writer-definition-symbol
-			       (accessor-definition-writer accessor))))
-		    (sb-introspect:function-lambda-list
-		     (writer-definition-function
-		      (accessor-definition-writer accessor))))
+	   (@defunx
+	    (string-downcase (name (accessor-definition-writer accessor)))
+	    (sb-introspect:function-lambda-list
+	     (writer-definition-function
+	      (accessor-definition-writer accessor))))
 	   (anchor (accessor-definition-writer accessor))
 	   (index (accessor-definition-writer accessor))
-	   (document-definition accessor context 'function)))
+	   (document-definition accessor context)))
 	(t
 	 (call-next-method)
 	 (document (accessor-definition-writer accessor) context))))
 
+(defun document-method-definition (method context)
+  "Render METHOD definition's documentation in CONTEXT."
+  (anchor method)
+  (index method)
+  (@table ()
+    (let ((docstring (docstring method)))
+      (when docstring
+	(@tableitem "Documentation"
+	  (render-text docstring))))
+    (render-source method context)))
+
 ;; #### PORTME:
-(defmethod document ((method method-definition) context
-		     &key (name (definition-symbol method)))
+(defmethod document ((method method-definition) context)
   "Render METHOD's documentation in CONTEXT."
-  (@defmethod
-      (format nil "~(~A~)" name)
+  (@defmethod (string-downcase (name method))
       (sb-mop:method-lambda-list (method-definition-method method))
       (sb-mop:method-specializers (method-definition-method method))
       (sb-mop:method-qualifiers (method-definition-method method))
-    (anchor method)
-    (index method)
-    (@table ()
-      (let ((documentation
-	      (documentation (method-definition-method method) t)))
-	(when documentation
-	  (@tableitem "Documentation"
-	    (render-text documentation))))
-      (render-source method context))))
-
-(defmethod document ((method writer-method-definition) context &key)
-  "Render writer METHOD's documentation in CONTEXT."
-  (call-next-method method context
-		    :name `(setf ,(writer-method-definition-symbol method))))
+    (document-method-definition method context)))
 
 ;; #### PORTME.
-(defmethod document ((method accessor-method-definition) context &key)
+(defmethod document ((method accessor-method-definition) context)
   "Render accessor METHOD's documentation in CONTEXT."
   (cond ((and (equal (source method)
 		     (source (accessor-method-definition-writer method)))
@@ -286,73 +268,50 @@ Each element is rendered as a table item."
 		     (cdr (sb-mop:method-lambda-list
 			   (writer-method-definition-method
 			    (accessor-method-definition-writer method)))))
-	      (let ((method-doc (documentation
-				 (accessor-method-definition-method method)
-				 t))
-		    (writer-doc (documentation
-				 (writer-method-definition-method
-				  (accessor-method-definition-writer method))
-				 t)))
-		(or (and method-doc writer-doc
-			 (string= method-doc writer-doc))
-		    (null writer-doc)
-		    (and (not (null writer-doc)) (null method-doc)))))
-	 (@defmethod
-	     (format nil  "~(~A~)"
-	       (accessor-method-definition-symbol method))
+	      (let ((docstring (docstring method))
+		    (writer-docstring
+		      (docstring (accessor-method-definition-writer method))))
+		(or (and docstring writer-docstring
+			 (string= docstring writer-docstring))
+		    (null writer-docstring)
+		    (and (not (null writer-docstring)) (null docstring)))))
+	 (@defmethod (string-downcase (name method))
 	     (sb-mop:method-lambda-list
 	      (accessor-method-definition-method method))
 	     (sb-mop:method-specializers
 	      (accessor-method-definition-method method))
 	     (sb-mop:method-qualifiers
 	      (accessor-method-definition-method method))
-	   (@defmethodx (format nil  "~(~A~)"
-			  `(setf ,(writer-method-definition-symbol
-				   (accessor-method-definition-writer
-				    method))))
-			(sb-mop:method-lambda-list
-			 (writer-method-definition-method
-			  (accessor-method-definition-writer method)))
-			(sb-mop:method-specializers
-			 (writer-method-definition-method
-			  (accessor-method-definition-writer method)))
-			(sb-mop:method-qualifiers
-			 (writer-method-definition-method
-			  (accessor-method-definition-writer method))))
+	   (@defmethodx
+	    (string-downcase (name (accessor-method-definition-writer method)))
+	    (sb-mop:method-lambda-list
+	     (writer-method-definition-method
+	      (accessor-method-definition-writer method)))
+	    (sb-mop:method-specializers
+	     (writer-method-definition-method
+	      (accessor-method-definition-writer method)))
+	    (sb-mop:method-qualifiers
+	     (writer-method-definition-method
+	      (accessor-method-definition-writer method))))
 	   (anchor (accessor-method-definition-writer method))
 	   (index (accessor-method-definition-writer method))
-	   (anchor method)
-	   (index method)
-	   (@table ()
-	     (let ((documentation
-		     (documentation (accessor-method-definition-method method)
-				    t)))
-	       (when documentation
-		 (@tableitem "Documentation"
-		   (render-text documentation))))
-	     (render-source method context))))
+	   (document-method-definition method context)))
 	(t
 	 (call-next-method)
 	 (document (accessor-method-definition-writer method) context))))
 
 ;; #### PORTME.
-(defmethod document ((generic generic-definition) context
-		     &key (name (generic-definition-symbol generic)))
+(defmethod document ((generic generic-definition) context)
   "Render GENERIC's documentation in CONTEXT."
-  (@defgeneric (format nil "~(~A~)" name)
+  (@defgeneric (string-downcase (name generic))
       (sb-introspect:function-lambda-list
        (generic-definition-function generic))
-    (document-definition generic context 'function :name name))
+    (document-definition generic context))
   (dolist (method (generic-definition-methods generic))
     (document method context)))
 
-(defmethod document ((writer generic-writer-definition) context &key)
-  "Render generic WRITER's documentation in CONTEXT."
-  (call-next-method writer context
-		    :name `(setf ,(generic-writer-definition-symbol writer))))
-
 ;; #### PORTME.
-(defmethod document ((accessor generic-accessor-definition) context &key)
+(defmethod document ((accessor generic-accessor-definition) context)
   "Render generic ACCESSOR's documentation in CONTEXT."
   (cond ((and (equal (source accessor)
 		     (source (generic-accessor-definition-writer accessor)))
@@ -364,33 +323,26 @@ Each element is rendered as a table item."
 		     (cdr (sb-introspect:function-lambda-list
 			   (generic-writer-definition-function
 			    (generic-accessor-definition-writer accessor)))))
-	      (let ((function-doc
-		      (documentation
-		       (generic-accessor-definition-symbol accessor)
-		       'function))
-		    (writer-doc
-		      (documentation
-		       (generic-writer-definition-symbol
-			(generic-accessor-definition-writer accessor))
-		       'function)))
-		(or (and function-doc writer-doc
-			 (string= function-doc writer-doc))
-		    (null writer-doc)
-		    (and (not (null writer-doc)) (null function-doc)))))
-	 (@defgeneric (format nil  "~(~A~)"
-			(generic-accessor-definition-symbol accessor))
+	      (let ((docstring (docstring accessor))
+		    (writer-docstring
+		      (docstring
+		       (generic-accessor-definition-writer accessor))))
+		(or (and docstring writer-docstring
+			 (string= docstring writer-docstring))
+		    (null writer-docstring)
+		    (and (not (null writer-docstring)) (null docstring)))))
+	 (@defgeneric (string-downcase (name accessor))
 	     (sb-introspect:function-lambda-list
 	      (generic-accessor-definition-function accessor))
-	   (@defgenericx (format nil  "~(~A~)"
-			   `(setf ,(generic-writer-definition-symbol
-				    (generic-accessor-definition-writer
-				     accessor))))
-			 (sb-introspect:function-lambda-list
-			  (generic-writer-definition-function
-			   (generic-accessor-definition-writer accessor))))
+	   (@defgenericx
+	    (string-downcase
+	     (name (generic-accessor-definition-writer accessor)))
+	    (sb-introspect:function-lambda-list
+	     (generic-writer-definition-function
+	      (generic-accessor-definition-writer accessor))))
 	   (anchor (generic-accessor-definition-writer accessor))
 	   (index (generic-accessor-definition-writer accessor))
-	   (document-definition accessor context 'function))
+	   (document-definition accessor context))
 	 (dolist (method (generic-accessor-definition-methods accessor))
 	   (document method context))
 	 (dolist (method (generic-writer-definition-methods
@@ -400,12 +352,12 @@ Each element is rendered as a table item."
 	 (call-next-method)
 	 (document (generic-accessor-definition-writer accessor) context))))
 
-(defmethod document ((classoid classoid-definition) context &key)
+(defmethod document ((classoid classoid-definition) context)
   "Render CLASSOID's documentation in CONTEXT."
   (anchor classoid)
   (index classoid)
   (@table ()
-    (document-definition-core classoid context 'type)
+    (document-definition-core classoid context)
     (let ((superclasses (classoid-definition-parents classoid)))
       (when superclasses
 	(let ((length (length superclasses)))
@@ -421,17 +373,17 @@ Each element is rendered as a table item."
 		(reference (first subclasses))
 	      (@itemize-list subclasses :renderer #'reference))))))))
 
-(defmethod document ((condition condition-definition) context &key)
+(defmethod document ((condition condition-definition) context)
   "Render CONDITION's documentation in CONTEXT."
   (@defcond (string-downcase (definition-symbol condition))
     (call-next-method)))
 
-(defmethod document ((structure structure-definition) context &key)
+(defmethod document ((structure structure-definition) context)
   "Render STRUCTURE's documentation in CONTEXT."
   (@defstruct (string-downcase (definition-symbol structure))
     (call-next-method)))
 
-(defmethod document ((class class-definition) context &key)
+(defmethod document ((class class-definition) context)
   "Render CLASS's documentation in CONTEXT."
   (@defclass (string-downcase (definition-symbol class))
     (call-next-method)))

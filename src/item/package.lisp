@@ -79,6 +79,15 @@
   (when defsrc (sb-introspect:definition-source-pathname defsrc)))
 
 
+;; ------------------
+;; Docstring protocol
+;; ------------------
+
+(defmethod docstring ((package package))
+  "Return PACKAGE's docstring."
+  (documentation package t))
+
+
 ;; ---------------------------------------
 ;; Definition package definitions protocol
 ;; ---------------------------------------

@@ -45,6 +45,14 @@
 
 
 ;; ------------------
+;; Docstring protocol
+;; ------------------
+
+(defgeneric docstring (item)
+  (:documentation "Return ITEM's docstring (Lisp documentation)."))
+
+
+;; ------------------
 ;; Type name protocol
 ;; ------------------
 

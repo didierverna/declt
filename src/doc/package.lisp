@@ -51,11 +51,15 @@
   (declare (ignore relative-to))
   (format t "@ref{~A, , @t{~(~A}~)}~%" (anchor-name package) (escape package)))
 
-(defmethod document ((package package) context &key)
+(defmethod document ((package package) context)
   "Render PACKAGE's documentation in CONTEXT."
   (anchor package)
   (index package)
   (@table ()
+    (let ((docstring (docstring package)))
+      (when docstring
+	(@tableitem "Documentation"
+	  (render-text docstring))))
     (let* ((nicknames (package-nicknames package))
 	   (length (length nicknames)))
       (when nicknames
