@@ -15,7 +15,13 @@ to find the corresponding component.
 
 ** See sb-introspect for a list of other things that we could possibly document
 That would be symbol-macros, compiler-macros, types, setf expanders and method
-combinations. Also, we're missing stuff for package definitions.
+combinations.
+
+** Packages
+The use list could get references instead of names for packages that are part
+of the same system.
+
+We should see what to do about shadowings and imports.
 
 ** Cleanup up the string-downcase issue
 so that it would be easier afterwards to provide an option for case behavior.
