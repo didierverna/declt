@@ -159,10 +159,7 @@ The documentation core includes all common definition attributes:
   - source location.
 
 Each element is rendered as a table item."
-  (let ((docstring (docstring definition)))
-    (when docstring
-      (@tableitem "Documentation"
-	(render-text docstring))))
+  (render-docstring definition)
   (@tableitem "Package"
     (reference (symbol-package (definition-symbol definition))))
   (render-source definition context))
@@ -241,10 +238,7 @@ This function is used when only core elements need to be documented."
   (anchor method)
   (index method)
   (@table ()
-    (let ((docstring (docstring method)))
-      (when docstring
-	(@tableitem "Documentation"
-	  (render-text docstring))))
+    (render-docstring method)
     (render-source method context)))
 
 ;; #### PORTME:

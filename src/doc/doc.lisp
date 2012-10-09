@@ -144,5 +144,12 @@ Rendering is done on *standard-output*."
 	   ;; this for instance). So let's just reference the file itself.
 	   (render-location source context "Source")))))))
 
+(defun render-docstring (object)
+  "Render an itemized documentation line for OBJECT.
+Rendering is done on *standard-output*."
+  (let ((docstring (docstring object)))
+    (when docstring
+      (@tableitem "Documentation"
+	(render-text docstring)))))
 
 ;;; doc.lisp ends here

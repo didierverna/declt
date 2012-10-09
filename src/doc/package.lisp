@@ -56,10 +56,7 @@
   (anchor package)
   (index package)
   (@table ()
-    (let ((docstring (docstring package)))
-      (when docstring
-	(@tableitem "Documentation"
-	  (render-text docstring))))
+    (render-docstring package)
     (render-source package context)
     (let* ((nicknames (package-nicknames package))
 	   (length (length nicknames)))
