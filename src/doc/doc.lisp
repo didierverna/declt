@@ -164,4 +164,13 @@ Rendering is done on *standard-output*."
 	  (reference (first list))
 	(@itemize-list list :renderer #'reference)))))
 
+(defun render-internal-definitions-references (definitions)
+  "Render references to a list of internal DEFINITIONS."
+  (render-references definitions "Internal Definitions"))
+
+(defun render-external-definitions-references (definitions)
+  "Render references to a list of external DEFINITIONS."
+  (render-references definitions "Exported Definitions"))
+
+
 ;;; doc.lisp ends here

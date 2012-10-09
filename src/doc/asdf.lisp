@@ -177,16 +177,14 @@
   "Render lisp FILE's documentation in CONTEXT."
   (call-next-method)
   (render-packages (file-packages pathname))
-  (render-references
+  (render-external-definitions-references
    (sort (file-definitions pathname (context-external-definitions context))
 	 #'string-lessp
-	 :key #'definition-symbol)
-   "Exported definitions")
-  (render-references
+	 :key #'definition-symbol))
+  (render-internal-definitions-references
    (sort (file-definitions pathname (context-internal-definitions context))
 	 #'string-lessp
-	 :key #'definition-symbol)
-   "Internal definitions"))
+	 :key #'definition-symbol)))
 
 
 ;; -----
@@ -241,14 +239,14 @@ components tree."))))
 				      context)
 		     (render-packages
 		      (file-packages (system-definition-pathname system)))
-		     (render-references
+		     (render-external-definitions-references
 		      (file-definitions (system-definition-pathname system)
-					(context-external-definitions context))
-		      "Exported definitions")
-		     (render-references
+					(context-external-definitions
+					 context)))
+		     (render-internal-definitions-references
 		      (file-definitions (system-definition-pathname system)
-					(context-internal-definitions context))
-		      "Internal definitions"))))))
+					(context-internal-definitions
+					 context))))))))
   (dolist (file lisp-files)
     (add-child lisp-files-node (file-node file context)))
   (loop :with other-files-node

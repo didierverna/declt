@@ -76,16 +76,14 @@
 	    (@itemize-list (package-use-list package)
 			   :format "@t{~(~A~)}"
 			   :key #'escape)))))
-    (render-references
+    (render-external-definitions-references
      (sort
       (package-definitions package (context-external-definitions context))
-      #'string-lessp :key #'definition-symbol)
-     "Exported definitions")
-    (render-references
+      #'string-lessp :key #'definition-symbol))
+    (render-internal-definitions-references
      (sort
       (package-definitions package (context-internal-definitions context))
-      #'string-lessp :key #'definition-symbol)
-     "Internal definitions")))
+      #'string-lessp :key #'definition-symbol))))
 
 
 
