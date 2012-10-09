@@ -167,8 +167,9 @@ Each element is rendered as a table item."
     (reference (symbol-package (definition-symbol definition))))
   (render-source definition context))
 
-(defun document-definition (definition context)
-  "Render DEFINITION's documentation in CONTEXT."
+(defun document-core-definition (definition context)
+  "Render core DEFINITION's documentation in CONTEXT.
+This function is used when only core elements need to be documented."
   (anchor definition)
   (index definition)
   (@table ()
@@ -177,12 +178,12 @@ Each element is rendered as a table item."
 (defmethod document ((constant constant-definition) context)
   "Render CONSTANT's documentation in CONTEXT."
   (@defconstant (string-downcase (name constant))
-    (document-definition constant context)))
+    (document-core-definition constant context)))
 
 (defmethod document ((special special-definition) context)
   "Render SPECIAL variable's documentation in CONTEXT."
   (@defspecial (string-downcase (name special))
-    (document-definition special context)))
+    (document-core-definition special context)))
 
 ;; #### PORTME.
 (defmethod document ((funcoid funcoid-definition) context)
@@ -190,7 +191,7 @@ Each element is rendered as a table item."
   (@defun (string-downcase (name funcoid))
       (sb-introspect:function-lambda-list
        (funcoid-definition-function funcoid))
-    (document-definition funcoid context)))
+    (document-core-definition funcoid context)))
 
 ;; #### PORTME.
 (defmethod document ((macro macro-definition) context)
@@ -198,7 +199,7 @@ Each element is rendered as a table item."
   (@defmac (string-downcase (name macro))
       (sb-introspect:function-lambda-list
        (macro-definition-function macro))
-    (document-definition macro context)))
+    (document-core-definition macro context)))
 
 ;; #### PORTME.
 (defmethod document ((accessor accessor-definition) context)
@@ -230,7 +231,7 @@ Each element is rendered as a table item."
 	      (accessor-definition-writer accessor))))
 	   (anchor (accessor-definition-writer accessor))
 	   (index (accessor-definition-writer accessor))
-	   (document-definition accessor context)))
+	   (document-core-definition accessor context)))
 	(t
 	 (call-next-method)
 	 (document (accessor-definition-writer accessor) context))))
@@ -306,7 +307,7 @@ Each element is rendered as a table item."
   (@defgeneric (string-downcase (name generic))
       (sb-introspect:function-lambda-list
        (generic-definition-function generic))
-    (document-definition generic context))
+    (document-core-definition generic context))
   (dolist (method (generic-definition-methods generic))
     (document method context)))
 
@@ -342,7 +343,7 @@ Each element is rendered as a table item."
 	      (generic-accessor-definition-writer accessor))))
 	   (anchor (generic-accessor-definition-writer accessor))
 	   (index (generic-accessor-definition-writer accessor))
-	   (document-definition accessor context))
+	   (document-core-definition accessor context))
 	 (dolist (method (generic-accessor-definition-methods accessor))
 	   (document method context))
 	 (dolist (method (generic-writer-definition-methods
