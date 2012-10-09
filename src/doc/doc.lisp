@@ -39,6 +39,7 @@
 (defstruct context
   "The documentation context structure."
   system
+  packages
   external-definitions
   internal-definitions
   hyperlinksp)

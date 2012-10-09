@@ -17,10 +17,7 @@ to find the corresponding component.
 That would be symbol-macros, compiler-macros, types, setf expanders and method
 combinations.
 
-** Packages
-The use list could get references instead of names for packages that are part
-of the same system.
-
+** Packages and symbols
 We should see what to do about shadowings and imports.
 
 ** Cleanup up the string-downcase issue
