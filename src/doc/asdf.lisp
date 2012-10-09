@@ -38,12 +38,7 @@
 
 (defun render-packages (packages)
   "Render a list of PACKAGES references."
-  (when packages
-    (let ((length (length packages)))
-      (@tableitem (format nil "Package~p" length)
-	(if (eq length 1)
-	    (reference (first packages))
-	  (@itemize-list packages :renderer #'reference))))))
+  (render-references packages "Packages"))
 
 
 
@@ -177,26 +172,21 @@
   (format t "@htmlfileindex{~A}@c~%"
     (escape (relative-location html-file relative-to))))
 
-(defmethod document
-    ((file asdf:cl-source-file) context
-     &aux (pathname (component-pathname file))
-	  (external-definitions
-	   (file-definitions pathname (context-external-definitions context)))
-	  (internal-definitions
-	   (file-definitions pathname (context-internal-definitions context))))
+(defmethod document ((file asdf:cl-source-file) context
+		     &aux (pathname (component-pathname file)))
   "Render lisp FILE's documentation in CONTEXT."
   (call-next-method)
   (render-packages (file-packages pathname))
-  (when external-definitions
-    (@tableitem "Exported definitions"
-      (@itemize-list
-       (sort external-definitions #'string-lessp :key #'definition-symbol)
-       :renderer #'reference)))
-  (when internal-definitions
-    (@tableitem "Internal definitions"
-      (@itemize-list
-       (sort internal-definitions #'string-lessp :key #'definition-symbol)
-       :renderer #'reference))))
+  (render-references
+   (sort (file-definitions pathname (context-external-definitions context))
+	 #'string-lessp
+	 :key #'definition-symbol)
+   "Exported definitions")
+  (render-references
+   (sort (file-definitions pathname (context-internal-definitions context))
+	 #'string-lessp
+	 :key #'definition-symbol)
+   "Internal definitions"))
 
 
 ;; -----
@@ -251,22 +241,14 @@ components tree."))))
 				      context)
 		     (render-packages
 		      (file-packages (system-definition-pathname system)))
-		     (let ((external-definitions
-			     (file-definitions
-			      (system-definition-pathname system)
-			      (context-external-definitions context)))
-			   (internal-definitions
-			     (file-definitions
-			      (system-definition-pathname system)
-			      (context-internal-definitions context))))
-		       (when external-definitions
-			 (@tableitem "Exported definitions"
-			   (@itemize-list external-definitions
-					  :renderer #'reference)))
-		       (when internal-definitions
-			 (@tableitem "Internal definitions"
-			   (@itemize-list internal-definitions
-					  :renderer #'reference)))))))))
+		     (render-references
+		      (file-definitions (system-definition-pathname system)
+					(context-external-definitions context))
+		      "Exported definitions")
+		     (render-references
+		      (file-definitions (system-definition-pathname system)
+					(context-internal-definitions context))
+		      "Internal definitions"))))))
   (dolist (file lisp-files)
     (add-child lisp-files-node (file-node file context)))
   (loop :with other-files-node

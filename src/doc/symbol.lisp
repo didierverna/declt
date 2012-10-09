@@ -353,20 +353,10 @@ This function is used when only core elements need to be documented."
   (index classoid)
   (@table ()
     (document-definition-core classoid context)
-    (let ((superclasses (classoid-definition-parents classoid)))
-      (when superclasses
-	(let ((length (length superclasses)))
-	  (@tableitem "Direct superclasses"
-	    (if (= length 1)
-		(reference (first superclasses))
-	      (@itemize-list superclasses :renderer #'reference))))))
-    (let ((subclasses (classoid-definition-children classoid)))
-      (when subclasses
-	(let ((length (length subclasses)))
-	  (@tableitem "Direct subclasses"
-	    (if (= length 1)
-		(reference (first subclasses))
-	      (@itemize-list subclasses :renderer #'reference))))))))
+    (render-references
+     (classoid-definition-parents classoid)"Direct superclasses")
+    (render-references
+     (classoid-definition-children classoid)"Direct subclasses")))
 
 (defmethod document ((condition condition-definition) context)
   "Render CONDITION's documentation in CONTEXT."

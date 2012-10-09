@@ -152,4 +152,16 @@ Rendering is done on *standard-output*."
       (@tableitem "Documentation"
 	(render-text docstring)))))
 
+(defun render-references (list title &aux (length (length list)))
+  "Render references to a LIST of objects.
+References are rendered in a table item named TITLE as a list, unless there is
+only one object in LIST.
+
+Rendering is done on *standard-output*."
+  (unless (zerop length)
+    (@tableitem title
+      (if (= length 1)
+	  (reference (first list))
+	(@itemize-list list :renderer #'reference)))))
+
 ;;; doc.lisp ends here
