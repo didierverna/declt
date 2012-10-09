@@ -392,7 +392,7 @@ This manual was generated automatically by Declt ~A on ~A.
   (setq library-name (escape library-name))
   (setq info-file (escape info-file))
   (unless subtitlep
-    (setq subtitle (system-description system)))
+    (setq subtitle (component-description system)))
   (when subtitle
     (when (char= (aref subtitle (1- (length subtitle))) #\.)
       (setq subtitle (subseq subtitle 0 (1- (length subtitle)))))

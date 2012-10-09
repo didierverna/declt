@@ -36,15 +36,20 @@
 ;; slot-unbound Proof Accessors
 ;; ==========================================================================
 
-(defun system-description (system)
-  "Return ASDF SYSTEM's description or nil."
-  (when (slot-boundp system 'asdf::description)
-    (asdf:system-description system)))
+(defun component-description (component)
+  "Return ASDF COMPONENT's description or nil."
+  (when (slot-boundp component 'asdf::description)
+    (asdf::component-description component)))
 
-(defun system-long-description (system)
-  "Return ASDF SYSTEM's long description or nil."
-  (when (slot-boundp system 'asdf::long-description)
-    (asdf:system-long-description system)))
+(defun component-long-description (component)
+  "Return ASDF COMPONENT's long description or nil."
+  (when (slot-boundp component 'asdf::long-description)
+    (asdf::component-long-description component)))
+
+(defun component-version (component)
+  "Return ASDF COMPONENT's version or nil."
+  (when (slot-boundp component 'asdf:version)
+    (asdf:component-version component)))
 
 (defun system-author (system)
   "Return ASDF SYSTEM's author or nil."
@@ -62,11 +67,6 @@
   ;; available.
   (when (slot-boundp system 'asdf::licence)
     (asdf:system-license system)))
-
-(defun component-version (component)
-  "Return ASDF COMPONENT's version or nil."
-  (when (slot-boundp component 'asdf:version)
-    (asdf:component-version component)))
 
 
 

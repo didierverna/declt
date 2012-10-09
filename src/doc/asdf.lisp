@@ -73,6 +73,16 @@
 (defmethod document ((component asdf:component) context
 		     &aux (relative-to (context-directory context)))
   "Render COMPONENT's documentation in CONTEXT."
+  (let ((description (component-description component)))
+    (when description
+      (@tableitem "Description"
+	(render-text description)
+	(fresh-line))))
+  (let ((long-description (component-long-description component)))
+    (when long-description
+      (@tableitem "Long Description"
+	(render-text long-description)
+	(fresh-line))))
   (format t "~@[@item Version~%~
 		  ~A~%~]"
     (escape (component-version component)))
@@ -226,8 +236,9 @@ components tree."))))
   "Add the files node to PARENT in CONTEXT."
   (let ((system-base-name (escape (system-base-name system))))
     (add-child lisp-files-node
-      ;; That sucks. I need to fake a file-node call because the system file
-      ;; is not an ASDF component per-se.
+      ;; #### NOTE: the .asd is a Lisp file, but not a component in itself. I
+      ;; want it to be listed here so I need to duplicate some of what the
+      ;; DOCUMENT method on lisp files does.
       (make-node :name (format nil "The ~A file" system-base-name)
 		 :section-name (format nil "@t{~A}" system-base-name)
 		 :before-menu-contents
@@ -357,14 +368,6 @@ Modules are listed depth-first from the system components tree.")))))
   "Render SYSTEM's documentation in CONTEXT."
   (@tableitem "Name"
     (format t "@t{~A}~%" (escape system)))
-  (when (system-description system)
-    (@tableitem "Description"
-      (render-text (system-description system))
-      (fresh-line)))
-  (when (system-long-description system)
-    (@tableitem "Long Description"
-      (render-text (system-long-description system))
-      (fresh-line)))
   (multiple-value-bind (author email)
       (parse-author-string (system-author system))
     (when (or author email)
