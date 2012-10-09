@@ -60,6 +60,7 @@
       (when docstring
 	(@tableitem "Documentation"
 	  (render-text docstring))))
+    (render-source package context)
     (let* ((nicknames (package-nicknames package))
 	   (length (length nicknames)))
       (when nicknames
@@ -78,7 +79,6 @@
 	    (@itemize-list (package-use-list package)
 			   :format "@t{~(~A~)}"
 			   :key #'escape)))))
-    (render-source package context)
     (let ((external-definitions
 	    (package-definitions package
 				 (context-external-definitions context))))
