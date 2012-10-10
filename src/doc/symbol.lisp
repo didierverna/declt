@@ -186,17 +186,8 @@
 			 (string= docstring writer-docstring))
 		    (null writer-docstring)
 		    (and (not (null writer-docstring)) (null docstring)))))
-	 (@defun (string-downcase (name accessor))
-	     (sb-introspect:function-lambda-list
-	      (accessor-definition-function accessor))
-	   (anchor-and-index accessor)
-	   (@defunx
-	    (string-downcase (name (accessor-definition-writer accessor)))
-	    (sb-introspect:function-lambda-list
-	     (writer-definition-function
-	      (accessor-definition-writer accessor))))
-	   (anchor-and-index (accessor-definition-writer accessor))
-	   (document-core-definition accessor context)))
+	 (render-@defunx
+	  accessor (accessor-definition-writer accessor) context))
 	(t
 	 (call-next-method)
 	 (document (accessor-definition-writer accessor) context))))
@@ -288,18 +279,8 @@
 			 (string= docstring writer-docstring))
 		    (null writer-docstring)
 		    (and (not (null writer-docstring)) (null docstring)))))
-	 (@defgeneric (string-downcase (name accessor))
-	     (sb-introspect:function-lambda-list
-	      (generic-accessor-definition-function accessor))
-	   (anchor-and-index accessor)
-	   (@defgenericx
-	    (string-downcase
-	     (name (generic-accessor-definition-writer accessor)))
-	    (sb-introspect:function-lambda-list
-	     (generic-writer-definition-function
-	      (generic-accessor-definition-writer accessor))))
-	   (anchor-and-index (generic-accessor-definition-writer accessor))
-	   (document-core-definition accessor context))
+	 (render-@defgenericx
+	  accessor (generic-accessor-definition-writer accessor) context)
 	 (dolist (method (generic-accessor-definition-methods accessor))
 	   (document method context))
 	 (dolist (method (generic-writer-definition-methods
