@@ -153,7 +153,7 @@ When METHODS, render their definitions jointly."
   "Render generic READER and WRITER's definitions jointly in CONTEXT."
   `(render-@defunoid :generic (,reader ,writer) ,context ,@body))
 
-(defmacro render-@defclassoid (kind classoid context)
+(defmacro render-@defclassoid (kind classoid context &body body)
   "Render CLASSOID's definition of KIND in CONTEXT."
   (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
 			    :com.dvlsoft.declt))
@@ -171,11 +171,28 @@ When METHODS, render their definitions jointly."
 	    "Direct subclasses")
 	   (render-references
 	    (classoid-definition-methods ,the-classoid)
-	    "Direct methods"))))))
+	    "Direct methods")
+	   ,@body)))))
+
+;; #### PORTME.
+(defun render-initargs
+    (classoid
+     &aux (initargs (sb-mop:class-direct-default-initargs
+		     (find-class (classoid-definition-symbol classoid)))))
+  "Render CLASSOID's direct default initargs."
+  (when initargs
+    (@tableitem "Direct Default Initargs"
+      (@itemize-list initargs
+	:renderer (lambda (initarg)
+		    (format t "@t{~A}@*~%@t{~A}"
+		      (escape (format nil "~(~S~)" (first initarg)))
+		      (escape (format nil "~(~S~)" (second initarg)))))))))
+
 
 (defun render-@defcond (condition context)
   "Render CONDITION's definition in CONTEXT."
-  (render-@defclassoid :cond condition context))
+  (render-@defclassoid :cond condition context
+     (render-initargs condition)))
 
 (defun render-@defstruct (structure context)
   "Render STRUCTURE's definition in CONTEXT."
@@ -183,7 +200,8 @@ When METHODS, render their definitions jointly."
 
 (defun render-@defclass (class context)
   "Render CLASS's definition in CONTEXT."
-  (render-@defclassoid :class class context))
+  (render-@defclassoid :class class context
+     (render-initargs class)))
 
 
 
