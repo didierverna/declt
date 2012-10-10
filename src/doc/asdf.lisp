@@ -36,7 +36,7 @@
 ;; Utilities
 ;; ==========================================================================
 
-(defun render-packages (packages)
+(defun render-packages-references (packages)
   "Render a list of PACKAGES references."
   (render-references packages "Packages"))
 
@@ -176,7 +176,7 @@
 		     &aux (pathname (component-pathname file)))
   "Render lisp FILE's documentation in CONTEXT."
   (call-next-method)
-  (render-packages (file-packages pathname))
+  (render-packages-references (file-packages pathname))
   (render-external-definitions-references
    (sort (file-definitions pathname (context-external-definitions context))
 	 #'string-lessp
@@ -237,7 +237,7 @@ components tree."))))
 		   (@table ()
 		     (render-location (system-definition-pathname system)
 				      context)
-		     (render-packages
+		     (render-packages-references
 		      (file-packages (system-definition-pathname system)))
 		     (render-external-definitions-references
 		      (file-definitions (system-definition-pathname system)
