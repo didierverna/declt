@@ -173,10 +173,10 @@ Rendering is done on *standard-output*."
   "Render references to a list of external DEFINITIONS."
   (render-references definitions "Exported Definitions"))
 
-(defun document-definition-core (definition context)
+(defun render-definition-core (definition context)
   "Render DEFINITION's documentation core in CONTEXT.
 The documentation core includes all common definition attributes:
-  - documentation (in the Lisp's sense),
+  - docstring,
   - package,
   - source location.
 
@@ -186,11 +186,11 @@ Each element is rendered as a table item."
     (reference (symbol-package (definition-symbol definition))))
   (render-source definition context))
 
-(defun document-core-definition (definition context)
+(defun render-core-definition (definition context)
   "Render core DEFINITION's documentation in CONTEXT.
 This function is used when only core elements need to be documented."
   (@table ()
-    (document-definition-core definition context)))
+    (render-definition-core definition context)))
 
 (defun anchor-and-index (definition)
   "Anchor and index DEFINITION."
@@ -205,7 +205,7 @@ This function is used when only core elements need to be documented."
     `(let ((,the-varoid ,varoid))
        (,|@defform| (string-downcase (name ,the-varoid))
 	 (anchor-and-index ,the-varoid)
-	 (document-core-definition ,the-varoid ,context)))))
+	 (render-core-definition ,the-varoid ,context)))))
 
 (defun render-@defconstant (constant context)
   "Render CONSTANT's documentation in CONTEXT."
@@ -218,8 +218,7 @@ This function is used when only core elements need to be documented."
 ;;; #### PORTME.
 (defmacro render-@defunoid (kind (funcoid &rest funcoids) context)
   "Render FUNCOID's definition of KIND in CONTEXT.
-FUNCOID may also be a list of funcoids, in which case the additional ones will
-be rendered with the @defKINDx macro."
+When FUNCOIDS, render their definitions jointly."
   (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
 			    :com.dvlsoft.declt))
 	(|@defformx| (intern (concatenate 'string
@@ -240,7 +239,7 @@ be rendered with the @defKINDx macro."
 			    (funcoid-definition-function ,the-funcoid)))
 			  (anchor-and-index ,the-funcoid))))
 		   funcoids)
-	 (document-core-definition ,the-funcoid ,context)))))
+	 (render-core-definition ,the-funcoid ,context)))))
 
 (defun render-@defun (function context)
   "Render FUNCTION's definition in CONTEXT."
@@ -307,7 +306,7 @@ When METHODS, render their definitions jointly."
        (,|@defform| (string-downcase (name ,the-classoid))
 	 (anchor-and-index ,the-classoid)
 	 (@table ()
-	   (document-definition-core ,the-classoid ,context)
+	   (render-definition-core ,the-classoid ,context)
 	   (render-references
 	    (classoid-definition-parents ,the-classoid)
 	    "Direct superclasses")
