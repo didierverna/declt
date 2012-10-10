@@ -167,19 +167,24 @@ Each element is rendered as a table item."
 (defun document-core-definition (definition context)
   "Render core DEFINITION's documentation in CONTEXT.
 This function is used when only core elements need to be documented."
-  (anchor definition)
-  (index definition)
   (@table ()
     (document-definition-core definition context)))
+
+(defun anchor-and-index (definition)
+  "Anchor and index DEFINITION."
+  (anchor definition)
+  (index definition))
 
 (defmethod document ((constant constant-definition) context)
   "Render CONSTANT's documentation in CONTEXT."
   (@defconstant (string-downcase (name constant))
+    (anchor-and-index constant)
     (document-core-definition constant context)))
 
 (defmethod document ((special special-definition) context)
   "Render SPECIAL variable's documentation in CONTEXT."
   (@defspecial (string-downcase (name special))
+    (anchor-and-index special)
     (document-core-definition special context)))
 
 ;; #### PORTME.
@@ -188,6 +193,7 @@ This function is used when only core elements need to be documented."
   (@defun (string-downcase (name funcoid))
       (sb-introspect:function-lambda-list
        (funcoid-definition-function funcoid))
+    (anchor-and-index funcoid)
     (document-core-definition funcoid context)))
 
 ;; #### PORTME.
@@ -196,6 +202,7 @@ This function is used when only core elements need to be documented."
   (@defmac (string-downcase (name macro))
       (sb-introspect:function-lambda-list
        (macro-definition-function macro))
+    (anchor-and-index macro)
     (document-core-definition macro context)))
 
 ;; #### PORTME.
@@ -221,13 +228,13 @@ This function is used when only core elements need to be documented."
 	 (@defun (string-downcase (name accessor))
 	     (sb-introspect:function-lambda-list
 	      (accessor-definition-function accessor))
+	   (anchor-and-index accessor)
 	   (@defunx
 	    (string-downcase (name (accessor-definition-writer accessor)))
 	    (sb-introspect:function-lambda-list
 	     (writer-definition-function
 	      (accessor-definition-writer accessor))))
-	   (anchor (accessor-definition-writer accessor))
-	   (index (accessor-definition-writer accessor))
+	   (anchor-and-index (accessor-definition-writer accessor))
 	   (document-core-definition accessor context)))
 	(t
 	 (call-next-method)
@@ -235,8 +242,7 @@ This function is used when only core elements need to be documented."
 
 (defun document-method-definition (method context)
   "Render METHOD definition's documentation in CONTEXT."
-  (anchor method)
-  (index method)
+  (anchor-and-index method)
   (@table ()
     (render-docstring method)
     (render-source method context)))
@@ -288,8 +294,7 @@ This function is used when only core elements need to be documented."
 	    (sb-mop:method-qualifiers
 	     (writer-method-definition-method
 	      (accessor-method-definition-writer method))))
-	   (anchor (accessor-method-definition-writer method))
-	   (index (accessor-method-definition-writer method))
+	   (anchor-and-index (accessor-method-definition-writer method))
 	   (document-method-definition method context)))
 	(t
 	 (call-next-method)
@@ -301,6 +306,7 @@ This function is used when only core elements need to be documented."
   (@defgeneric (string-downcase (name generic))
       (sb-introspect:function-lambda-list
        (generic-definition-function generic))
+    (anchor-and-index generic)
     (document-core-definition generic context))
   (dolist (method (generic-definition-methods generic))
     (document method context)))
@@ -329,14 +335,14 @@ This function is used when only core elements need to be documented."
 	 (@defgeneric (string-downcase (name accessor))
 	     (sb-introspect:function-lambda-list
 	      (generic-accessor-definition-function accessor))
+	   (anchor-and-index accessor)
 	   (@defgenericx
 	    (string-downcase
 	     (name (generic-accessor-definition-writer accessor)))
 	    (sb-introspect:function-lambda-list
 	     (generic-writer-definition-function
 	      (generic-accessor-definition-writer accessor))))
-	   (anchor (generic-accessor-definition-writer accessor))
-	   (index (generic-accessor-definition-writer accessor))
+	   (anchor-and-index (generic-accessor-definition-writer accessor))
 	   (document-core-definition accessor context))
 	 (dolist (method (generic-accessor-definition-methods accessor))
 	   (document method context))
@@ -349,8 +355,7 @@ This function is used when only core elements need to be documented."
 
 (defmethod document ((classoid classoid-definition) context)
   "Render CLASSOID's documentation in CONTEXT."
-  (anchor classoid)
-  (index classoid)
+  (anchor-and-index classoid)
   (@table ()
     (document-definition-core classoid context)
     (render-references
