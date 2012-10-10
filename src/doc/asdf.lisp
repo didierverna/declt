@@ -61,8 +61,7 @@
     ((component asdf:component) context
      &aux (relative-to (context-directory context)))
   "Anchor and index COMPONENT in CONTEXT. Document it in a @table environment."
-  (anchor component relative-to)
-  (index component relative-to)
+  (anchor-and-index component relative-to)
   (@table () (call-next-method)))
 
 (defmethod document ((component asdf:component) context

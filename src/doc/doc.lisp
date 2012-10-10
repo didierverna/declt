@@ -84,6 +84,11 @@
   "Render ITEM's anchor."
   (@anchor (anchor-name item relative-to)))
 
+(defun anchor-and-index (item &optional relative-to)
+  "Anchor and index ITEM."
+  (anchor item relative-to)
+  (index item relative-to))
+
 
 ;; #### NOTE: the use of PROBE-FILE below has two purposes:
 ;; 1/ making sure that the file does exist, so that it can actually be linked
@@ -185,11 +190,6 @@ Each element is rendered as a table item."
   (@tableitem "Package"
     (reference (symbol-package (definition-symbol definition))))
   (render-source definition context))
-
-(defun anchor-and-index (definition)
-  "Anchor and index DEFINITION."
-  (anchor definition)
-  (index definition))
 
 (defmacro render-@defvaroid (kind varoid context)
   "Render VAROID's definition of KIND in CONTEXT."
