@@ -215,9 +215,10 @@
 
 (defmethod document ((generic generic-definition) context)
   "Render GENERIC's documentation in CONTEXT."
-  (render-@defgeneric generic context)
-  (dolist (method (generic-definition-methods generic))
-    (document method context)))
+  (render-@defgeneric generic context
+    (@tableitem "Methods"
+      (dolist (method (generic-definition-methods generic))
+	(document method context)))))
 
 (defmethod document ((accessor generic-accessor-definition) context)
   "Render generic ACCESSOR's documentation in CONTEXT."
@@ -238,12 +239,13 @@
 		    (null writer-docstring)
 		    (and (not (null writer-docstring)) (null docstring)))))
 	 (render-@defgenericx
-	  accessor (generic-accessor-definition-writer accessor) context)
-	 (dolist (method (generic-accessor-definition-methods accessor))
-	   (document method context))
-	 (dolist (method (generic-writer-definition-methods
-			  (generic-accessor-definition-writer accessor)))
-	   (document method context)))
+	  accessor (generic-accessor-definition-writer accessor) context
+	  (@tableitem "Methods"
+	    (dolist (method (generic-accessor-definition-methods accessor))
+	      (document method context))
+	    (dolist (method (generic-writer-definition-methods
+			     (generic-accessor-definition-writer accessor)))
+	      (document method context)))))
 	(t
 	 (call-next-method)
 	 (document (generic-accessor-definition-writer accessor) context))))

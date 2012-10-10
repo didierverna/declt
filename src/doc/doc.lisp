@@ -186,12 +186,6 @@ Each element is rendered as a table item."
     (reference (symbol-package (definition-symbol definition))))
   (render-source definition context))
 
-(defun render-core-definition (definition context)
-  "Render core DEFINITION's documentation in CONTEXT.
-This function is used when only core elements need to be documented."
-  (@table ()
-    (render-definition-core definition context)))
-
 (defun anchor-and-index (definition)
   "Anchor and index DEFINITION."
   (anchor definition)
@@ -205,7 +199,8 @@ This function is used when only core elements need to be documented."
     `(let ((,the-varoid ,varoid))
        (,|@defform| (string-downcase (name ,the-varoid))
 	 (anchor-and-index ,the-varoid)
-	 (render-core-definition ,the-varoid ,context)))))
+	 (@table ()
+	   (render-definition-core ,the-varoid ,context))))))
 
 (defun render-@defconstant (constant context)
   "Render CONSTANT's documentation in CONTEXT."
@@ -215,7 +210,7 @@ This function is used when only core elements need to be documented."
   "Render SPECIAL variable's documentation in CONTEXT."
   (render-@defvaroid :special special context))
 
-(defmacro render-@defunoid (kind (funcoid &rest funcoids) context)
+(defmacro render-@defunoid (kind (funcoid &rest funcoids) context &body body)
   "Render FUNCOID's definition of KIND in CONTEXT.
 When FUNCOIDS, render their definitions jointly."
   (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
@@ -236,7 +231,9 @@ When FUNCOIDS, render their definitions jointly."
 			   (lambda-list ,the-funcoid))
 			  (anchor-and-index ,the-funcoid))))
 		   funcoids)
-	 (render-core-definition ,the-funcoid ,context)))))
+	 (@table ()
+	   (render-definition-core ,the-funcoid ,context)
+	   ,@body)))))
 
 (defun render-@defun (function context)
   "Render FUNCTION's definition in CONTEXT."
@@ -282,13 +279,13 @@ When METHODS, render their definitions jointly."
   "Render READER and WRITER methods'definitions jointly in CONTEXT."
   (%render-@defmethod (reader writer) context))
 
-(defun render-@defgeneric (generic context)
+(defmacro render-@defgeneric (generic context &body body)
   "Render GENERIC's definition in CONTEXT."
-  (render-@defunoid :generic (generic) context))
+  `(render-@defunoid :generic (,generic) ,context ,@body))
 
-(defun render-@defgenericx (reader writer context)
+(defmacro render-@defgenericx (reader writer context &body body)
   "Render generic READER and WRITER's definitions jointly in CONTEXT."
-  (render-@defunoid :generic (reader writer) context))
+  `(render-@defunoid :generic (,reader ,writer) ,context ,@body))
 
 (defmacro render-@defclassoid (kind classoid context)
   "Render CLASSOID's definition of KIND in CONTEXT."
