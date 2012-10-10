@@ -254,6 +254,42 @@ be rendered with the @defKINDx macro."
   "Render MACRO's definition in CONTEXT."
   (render-@defunoid :mac (macro) context))
 
+;;; #### PORTME.
+(defmacro %render-@defmethod ((method &rest methods) context)
+  "Render METHOD's definition in CONTEXT.
+When METHODS, render their definitions jointly."
+  (let ((the-method (gensym "method")))
+    `(let ((,the-method ,method))
+       (@defmethod (string-downcase (name ,the-method))
+	   (sb-mop:method-lambda-list (method-definition-method ,the-method))
+	   (sb-mop:method-specializers (method-definition-method ,the-method))
+	   (sb-mop:method-qualifiers (method-definition-method ,the-method))
+	 (anchor-and-index ,the-method)
+	 ,@(mapcar (lambda (method)
+		     (let ((the-method (gensym "method")))
+		       `(let ((,the-method ,method))
+			  (@defmethodx
+			   (string-downcase (name ,the-method))
+			   (sb-mop:method-lambda-list
+			    (method-definition-method ,the-method))
+			   (sb-mop:method-specializers
+			    (method-definition-method ,the-method))
+			   (sb-mop:method-qualifiers
+			    (method-definition-method ,the-method)))
+			  (anchor-and-index ,the-method))))
+		   methods)
+	 (@table ()
+	   (render-docstring ,the-method)
+	   (render-source ,the-method ,context))))))
+
+(defun render-@defmethod (method context)
+  "Render METHOD's definition in CONTEXT."
+  (%render-@defmethod (method) context))
+
+(defun render-@defmethodx (reader writer context)
+  "Render READER and WRITER methods'definitions jointly in CONTEXT."
+  (%render-@defmethod (reader writer) context))
+
 (defun render-@defgeneric (generic context)
   "Render GENERIC's definition in CONTEXT."
   (render-@defunoid :generic (generic) context))

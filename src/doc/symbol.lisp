@@ -192,21 +192,9 @@
 	 (call-next-method)
 	 (document (accessor-definition-writer accessor) context))))
 
-(defun document-method-definition (method context)
-  "Render METHOD definition's documentation in CONTEXT."
-  (anchor-and-index method)
-  (@table ()
-    (render-docstring method)
-    (render-source method context)))
-
-;; #### PORTME:
 (defmethod document ((method method-definition) context)
   "Render METHOD's documentation in CONTEXT."
-  (@defmethod (string-downcase (name method))
-      (sb-mop:method-lambda-list (method-definition-method method))
-      (sb-mop:method-specializers (method-definition-method method))
-      (sb-mop:method-qualifiers (method-definition-method method))
-    (document-method-definition method context)))
+  (render-@defmethod method context))
 
 ;; #### PORTME.
 (defmethod document ((method accessor-method-definition) context)
@@ -228,26 +216,8 @@
 			 (string= docstring writer-docstring))
 		    (null writer-docstring)
 		    (and (not (null writer-docstring)) (null docstring)))))
-	 (@defmethod (string-downcase (name method))
-	     (sb-mop:method-lambda-list
-	      (accessor-method-definition-method method))
-	     (sb-mop:method-specializers
-	      (accessor-method-definition-method method))
-	     (sb-mop:method-qualifiers
-	      (accessor-method-definition-method method))
-	   (@defmethodx
-	    (string-downcase (name (accessor-method-definition-writer method)))
-	    (sb-mop:method-lambda-list
-	     (writer-method-definition-method
-	      (accessor-method-definition-writer method)))
-	    (sb-mop:method-specializers
-	     (writer-method-definition-method
-	      (accessor-method-definition-writer method)))
-	    (sb-mop:method-qualifiers
-	     (writer-method-definition-method
-	      (accessor-method-definition-writer method))))
-	   (anchor-and-index (accessor-method-definition-writer method))
-	   (document-method-definition method context)))
+	 (render-@defmethodx
+	  method (accessor-method-definition-writer method) context))
 	(t
 	 (call-next-method)
 	 (document (accessor-method-definition-writer method) context))))
