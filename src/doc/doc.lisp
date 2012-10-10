@@ -227,16 +227,14 @@ When FUNCOIDS, render their definitions jointly."
 	(the-funcoid (gensym "funcoid")))
     `(let ((,the-funcoid ,funcoid))
        (,|@defform| (string-downcase (name ,the-funcoid))
-		    (sb-introspect:function-lambda-list
-		     (funcoid-definition-function ,the-funcoid))
+		    (lambda-list ,the-funcoid)
 	 (anchor-and-index ,the-funcoid)
 	 ,@(mapcar (lambda (funcoid)
 		     (let ((the-funcoid (gensym "funcoid")))
 		       `(let ((,the-funcoid ,funcoid))
 			  (,|@defformx|
 			   (string-downcase (name ,the-funcoid))
-			   (sb-introspect:function-lambda-list
-			    (funcoid-definition-function ,the-funcoid)))
+			   (lambda-list ,the-funcoid))
 			  (anchor-and-index ,the-funcoid))))
 		   funcoids)
 	 (render-core-definition ,the-funcoid ,context)))))
@@ -253,28 +251,24 @@ When FUNCOIDS, render their definitions jointly."
   "Render MACRO's definition in CONTEXT."
   (render-@defunoid :mac (macro) context))
 
-;;; #### PORTME.
 (defmacro %render-@defmethod ((method &rest methods) context)
   "Render METHOD's definition in CONTEXT.
 When METHODS, render their definitions jointly."
   (let ((the-method (gensym "method")))
     `(let ((,the-method ,method))
        (@defmethod (string-downcase (name ,the-method))
-	   (sb-mop:method-lambda-list (method-definition-method ,the-method))
-	   (sb-mop:method-specializers (method-definition-method ,the-method))
-	   (sb-mop:method-qualifiers (method-definition-method ,the-method))
+	   (lambda-list ,the-method)
+	   (specializers ,the-method)
+	   (qualifiers ,the-method)
 	 (anchor-and-index ,the-method)
 	 ,@(mapcar (lambda (method)
 		     (let ((the-method (gensym "method")))
 		       `(let ((,the-method ,method))
 			  (@defmethodx
 			   (string-downcase (name ,the-method))
-			   (sb-mop:method-lambda-list
-			    (method-definition-method ,the-method))
-			   (sb-mop:method-specializers
-			    (method-definition-method ,the-method))
-			   (sb-mop:method-qualifiers
-			    (method-definition-method ,the-method)))
+			   (lambda-list ,the-method)
+			   (specializers ,the-method)
+			   (qualifiers ,the-method))
 			  (anchor-and-index ,the-method))))
 		   methods)
 	 (@table ()

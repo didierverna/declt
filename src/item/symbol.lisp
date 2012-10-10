@@ -142,6 +142,27 @@ part of an inheritance documentation."
 This structure holds the direct superclasses and direct subclasses
 definitions.")
 
+;; #### PORTME.
+(defgeneric lambda-list (definition)
+  (:documentation "Return DEFINITION's lambda-list.")
+  (:method ((funcoid funcoid-definition))
+    "Return FUNCOID's lambda-list."
+    (sb-introspect:function-lambda-list
+     (funcoid-definition-function funcoid)))
+  (:method ((method method-definition))
+    "Return METHOD's lambda-list."
+    (sb-mop:method-lambda-list (method-definition-method method))))
+
+;; #### PORTME.
+(defun specializers (method)
+  "Return METHOD's specializers."
+  (sb-mop:method-specializers (method-definition-method method)))
+
+;; #### PORTME.
+(defun qualifiers (method)
+  "Return METHOD's qualifiers."
+  (method-qualifiers (method-definition-method method)))
+
 
 ;; ----------------
 ;; Definition pools
@@ -461,6 +482,7 @@ Currently, this means resolving sub and superclasses."
   (when defsrc
     (sb-introspect:definition-source-pathname defsrc)))
 
+;; #### PORTME.
 (defun definition-source
     (object &aux (defsrc (sb-introspect:find-definition-source object)))
   "Return OBJECT's definition source."

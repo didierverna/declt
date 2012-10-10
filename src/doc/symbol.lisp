@@ -61,10 +61,8 @@
   (declare (ignore relative-to))
   (format nil "the ~(~A~{ ~A~^~}~{ ~A~^~}~) method"
     (name method)
-    ;; #### PORTME.
-    (mapcar #'pretty-specializer
-	    (sb-mop:method-specializers (method-definition-method method)))
-    (sb-mop:method-qualifiers (method-definition-method method))))
+    (mapcar #'pretty-specializer (specializers method))
+    (qualifiers method)))
 
 (defmethod title ((generic generic-definition) &optional relative-to)
   "Return GENERIC's title."
@@ -166,19 +164,15 @@
   "Render MACRO's documentation in CONTEXT."
   (render-@defmac macro context))
 
-;; #### PORTME.
 (defmethod document ((accessor accessor-definition) context)
   "Render ACCESSOR's documentation in CONTEXT."
   (cond ((and (equal (source accessor)
 		     (source (accessor-definition-writer accessor)))
-	      (equal (sb-introspect:function-lambda-list
-		      (accessor-definition-function accessor))
+	      (equal (lambda-list accessor)
 		     ;; #### NOTE: the writer has a first additional
 		     ;; lambda-list argument of NEW-VALUE that we must skip
 		     ;; before comparing.
-		     (cdr (sb-introspect:function-lambda-list
-			   (writer-definition-function
-			    (accessor-definition-writer accessor)))))
+		     (cdr (lambda-list (accessor-definition-writer accessor))))
 	      (let ((docstring (docstring accessor))
 		    (writer-docstring
 		      (docstring (accessor-definition-writer accessor))))
@@ -196,19 +190,16 @@
   "Render METHOD's documentation in CONTEXT."
   (render-@defmethod method context))
 
-;; #### PORTME.
 (defmethod document ((method accessor-method-definition) context)
   "Render accessor METHOD's documentation in CONTEXT."
   (cond ((and (equal (source method)
 		     (source (accessor-method-definition-writer method)))
-	      (equal (sb-mop:method-lambda-list
-		      (accessor-method-definition-method method))
+	      (equal (lambda-list method)
 		     ;; #### NOTE: the writer has a first additional
 		     ;; lambda-list argument of NEW-VALUE that we must skip
 		     ;; before comparing.
-		     (cdr (sb-mop:method-lambda-list
-			   (writer-method-definition-method
-			    (accessor-method-definition-writer method)))))
+		     (cdr (lambda-list
+			   (accessor-method-definition-writer method))))
 	      (let ((docstring (docstring method))
 		    (writer-docstring
 		      (docstring (accessor-method-definition-writer method))))
@@ -228,19 +219,16 @@
   (dolist (method (generic-definition-methods generic))
     (document method context)))
 
-;; #### PORTME.
 (defmethod document ((accessor generic-accessor-definition) context)
   "Render generic ACCESSOR's documentation in CONTEXT."
   (cond ((and (equal (source accessor)
 		     (source (generic-accessor-definition-writer accessor)))
-	      (equal (sb-introspect:function-lambda-list
-		      (generic-accessor-definition-function accessor))
+	      (equal (lambda-list accessor)
 		     ;; #### NOTE: the writer has a first additional
 		     ;; lambda-list argument of NEW-VALUE that we must skip
 		     ;; before comparing.
-		     (cdr (sb-introspect:function-lambda-list
-			   (generic-writer-definition-function
-			    (generic-accessor-definition-writer accessor)))))
+		     (cdr (lambda-list
+			   (generic-accessor-definition-writer accessor))))
 	      (let ((docstring (docstring accessor))
 		    (writer-docstring
 		      (docstring
