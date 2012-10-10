@@ -173,5 +173,101 @@ Rendering is done on *standard-output*."
   "Render references to a list of external DEFINITIONS."
   (render-references definitions "Exported Definitions"))
 
+(defun document-definition-core (definition context)
+  "Render DEFINITION's documentation core in CONTEXT.
+The documentation core includes all common definition attributes:
+  - documentation (in the Lisp's sense),
+  - package,
+  - source location.
+
+Each element is rendered as a table item."
+  (render-docstring definition)
+  (@tableitem "Package"
+    (reference (symbol-package (definition-symbol definition))))
+  (render-source definition context))
+
+(defun document-core-definition (definition context)
+  "Render core DEFINITION's documentation in CONTEXT.
+This function is used when only core elements need to be documented."
+  (@table ()
+    (document-definition-core definition context)))
+
+(defun anchor-and-index (definition)
+  "Anchor and index DEFINITION."
+  (anchor definition)
+  (index definition))
+
+(defmacro render-@defvaroid (kind varoid context)
+  "Render VAROID's definition of KIND in CONTEXT."
+  (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
+			    :com.dvlsoft.declt))
+	(the-varoid (gensym "varoid")))
+    `(let ((,the-varoid ,varoid))
+       (,|@defform| (string-downcase (name ,the-varoid))
+	 (anchor-and-index ,the-varoid)
+	 (document-core-definition ,the-varoid ,context)))))
+
+(defun render-@defconstant (constant context)
+  "Render CONSTANT's documentation in CONTEXT."
+  (render-@defvaroid :constant constant context))
+
+(defun render-@defspecial (special context)
+  "Render SPECIAL variable's documentation in CONTEXT."
+  (render-@defvaroid :special special context))
+
+;;; #### PORTME.
+(defmacro render-@defunoid (kind funcoid context)
+  "Render FUNCOID's definition of KIND in CONTEXT."
+  (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
+			    :com.dvlsoft.declt))
+	(the-funcoid (gensym "funcoid")))
+    `(let ((,the-funcoid ,funcoid))
+       (,|@defform| (string-downcase (name ,the-funcoid))
+		    (sb-introspect:function-lambda-list
+		     (funcoid-definition-function ,the-funcoid))
+	 (anchor-and-index ,the-funcoid)
+	 (document-core-definition ,the-funcoid ,context)))))
+
+(defun render-@defun (function context)
+  "Render FUNCTION's definition in CONTEXT."
+  (render-@defunoid :un function context))
+
+(defun render-@defmac (macro context)
+  "Render MACRO's definition in CONTEXT."
+  (render-@defunoid :mac macro context))
+
+(defun render-@defgeneric (generic context)
+  "Render GENERIC's definition in CONTEXT."
+  (render-@defunoid :generic generic context))
+
+(defmacro render-@defclassoid (kind classoid context)
+  "Render CLASSOID's definition of KIND in CONTEXT."
+  (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
+			    :com.dvlsoft.declt))
+	(the-classoid (gensym "classoid")))
+    `(let ((,the-classoid ,classoid))
+       (,|@defform| (string-downcase (name ,the-classoid))
+	 (anchor-and-index ,the-classoid)
+	 (@table ()
+	   (document-definition-core ,the-classoid ,context)
+	   (render-references
+	    (classoid-definition-parents ,the-classoid)
+	    "Direct superclasses")
+	   (render-references
+	    (classoid-definition-children ,the-classoid)
+	    "Direct subclasses"))))))
+
+(defun render-@defcond (condition context)
+  "Render CONDITION's definition in CONTEXT."
+  (render-@defclassoid :cond condition context))
+
+(defun render-@defstruct (structure context)
+  "Render STRUCTURE's definition in CONTEXT."
+  (render-@defclassoid :struct structure context))
+
+(defun render-@defclass (class context)
+  "Render CLASS's definition in CONTEXT."
+  (render-@defclassoid :class class context))
+
 
 ;;; doc.lisp ends here

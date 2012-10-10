@@ -150,60 +150,21 @@
       (format t "@t{~(~A}~)~%" (escape classoid))
     (call-next-method)))
 
-
-(defun document-definition-core (definition context)
-  "Render DEFINITION's documentation core in CONTEXT.
-The documentation core includes all common definition attributes:
-  - documentation (in the Lisp's sense),
-  - package,
-  - source location.
-
-Each element is rendered as a table item."
-  (render-docstring definition)
-  (@tableitem "Package"
-    (reference (symbol-package (definition-symbol definition))))
-  (render-source definition context))
-
-(defun document-core-definition (definition context)
-  "Render core DEFINITION's documentation in CONTEXT.
-This function is used when only core elements need to be documented."
-  (@table ()
-    (document-definition-core definition context)))
-
-(defun anchor-and-index (definition)
-  "Anchor and index DEFINITION."
-  (anchor definition)
-  (index definition))
-
 (defmethod document ((constant constant-definition) context)
   "Render CONSTANT's documentation in CONTEXT."
-  (@defconstant (string-downcase (name constant))
-    (anchor-and-index constant)
-    (document-core-definition constant context)))
+  (render-@defconstant constant context))
 
 (defmethod document ((special special-definition) context)
   "Render SPECIAL variable's documentation in CONTEXT."
-  (@defspecial (string-downcase (name special))
-    (anchor-and-index special)
-    (document-core-definition special context)))
+  (render-@defspecial special context))
 
-;; #### PORTME.
 (defmethod document ((funcoid funcoid-definition) context)
   "Render FUNCOID's documentation in CONTEXT."
-  (@defun (string-downcase (name funcoid))
-      (sb-introspect:function-lambda-list
-       (funcoid-definition-function funcoid))
-    (anchor-and-index funcoid)
-    (document-core-definition funcoid context)))
+  (render-@defun funcoid context))
 
-;; #### PORTME.
 (defmethod document ((macro macro-definition) context)
   "Render MACRO's documentation in CONTEXT."
-  (@defmac (string-downcase (name macro))
-      (sb-introspect:function-lambda-list
-       (macro-definition-function macro))
-    (anchor-and-index macro)
-    (document-core-definition macro context)))
+  (render-@defmac macro context))
 
 ;; #### PORTME.
 (defmethod document ((accessor accessor-definition) context)
@@ -300,14 +261,9 @@ This function is used when only core elements need to be documented."
 	 (call-next-method)
 	 (document (accessor-method-definition-writer method) context))))
 
-;; #### PORTME.
 (defmethod document ((generic generic-definition) context)
   "Render GENERIC's documentation in CONTEXT."
-  (@defgeneric (string-downcase (name generic))
-      (sb-introspect:function-lambda-list
-       (generic-definition-function generic))
-    (anchor-and-index generic)
-    (document-core-definition generic context))
+  (render-@defgeneric generic context)
   (dolist (method (generic-definition-methods generic))
     (document method context)))
 
@@ -353,30 +309,17 @@ This function is used when only core elements need to be documented."
 	 (call-next-method)
 	 (document (generic-accessor-definition-writer accessor) context))))
 
-(defmethod document ((classoid classoid-definition) context)
-  "Render CLASSOID's documentation in CONTEXT."
-  (anchor-and-index classoid)
-  (@table ()
-    (document-definition-core classoid context)
-    (render-references
-     (classoid-definition-parents classoid)"Direct superclasses")
-    (render-references
-     (classoid-definition-children classoid)"Direct subclasses")))
-
 (defmethod document ((condition condition-definition) context)
   "Render CONDITION's documentation in CONTEXT."
-  (@defcond (string-downcase (definition-symbol condition))
-    (call-next-method)))
+  (render-@defcond condition context))
 
 (defmethod document ((structure structure-definition) context)
   "Render STRUCTURE's documentation in CONTEXT."
-  (@defstruct (string-downcase (definition-symbol structure))
-    (call-next-method)))
+  (render-@defstruct structure context))
 
 (defmethod document ((class class-definition) context)
   "Render CLASS's documentation in CONTEXT."
-  (@defclass (string-downcase (definition-symbol class))
-    (call-next-method)))
+  (render-@defclass class context))
 
 
 
