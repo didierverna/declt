@@ -31,6 +31,17 @@ break. We need to work on canonical pathnames.
 ** Document class slots
 and point back to slot accessors.
 
+** Floating methods
+We should document floating methods, that is, methods defined in a system's
+file whereas the generic function is elsewhere (e.g. validate-superclass).
+This is tricky because the way we construct definitions does not give us
+access to foreign symbols. One way to access some of those is through classes
+direct methods. But we're likely to miss some. Another problem is where to
+store those definitions: they are neither internal, nor exported! Maybe we
+could add a section for foreign definitions.
+
+Question: besides methods, are there other kinds of floating definitions ?
+
 ** Call graphs
 Cf.
 sb-introspect:who-calls
