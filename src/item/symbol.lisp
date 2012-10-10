@@ -104,7 +104,9 @@ This structure holds the writer function definition."
 
 (defstruct (method-definition (:include definition))
   "Base structure for method definitions.
-This structure holds the method object."
+This structure holds the method object and also a slot for marking foreign
+definitions, i.e. those which do pertain to the system being documented."
+  foreignp
   method)
 (defstruct (writer-method-definition (:include method-definition))
   "Structure for writer method definitions.")
@@ -127,12 +129,13 @@ This structure holds the generic writer function definition."
 (defstruct (classoid-definition (:include definition))
   "Base structure for class-like (supporting inheritance) values.
 This structure holds links to the direct ancestors and descendants
-definitions, and also a slot for marking foreign definitions, i.e. those which
-do pertain to the system being documented. Foreign definitions may appear as
-part of an inheritance documentation."
+definitions, direct methods definitions, and also a slot for marking foreign
+definitions, i.e. those which do pertain to the system being documented.
+Foreign definitions may appear as part of an inheritance documentation."
   foreignp
   parents
-  children)
+  children
+  methods)
 (defstruct (condition-definition (:include classoid-definition))
   "Structure for condition definitions.")
 (defstruct (structure-definition (:include classoid-definition))
@@ -193,6 +196,35 @@ If ERRORP, throw an error if not found. Otherwise, just return NIL."
     (if (and (null definition) errorp)
 	(error "~A definition not found for ~A" (first key) (second key))
       definition)))
+
+;; #### PORTME.
+(defun method-name (method
+		    &aux (name (sb-mop:generic-function-name
+				(sb-mop:method-generic-function method))))
+  "Return METHOD's name.
+Return a second value of T if METHOD is a writer method."
+  (if (listp name)
+      (values (second name) t)
+    name))
+
+(defun find-method-definition (method pool)
+  "Find a method definition for METHOD in POOL.
+Return NIL if not found."
+  (multiple-value-bind (name writerp) (method-name method)
+    (let ((generic (find-definition (list name :generic) pool)))
+      (when generic
+	(cond (writerp
+	       (etypecase generic
+		 (generic-writer-definition
+		  (find method (generic-definition-methods generic)
+			:key #'method-definition-method))
+		 (generic-accessor-definition
+		  (find method (generic-definition-methods
+				(generic-accessor-definition-writer generic))
+			:key #'method-definition-method))))
+	      (t
+	       (find method (generic-definition-methods generic)
+		     :key #'method-definition-method)))))))
 
 (defun category-definitions (category pool)
   "Return all CATEGORY definitions from POOL."
@@ -401,7 +433,10 @@ If ERRORP, throw an error if not found. Otherwise, just return NIL."
 ;; #### PORTME.
 (defun finalize-definitions (pool1 pool2)
   "Finalize the definitions in POOL1 and POOL2.
-Currently, this means resolving sub and superclasses."
+Currently, this means:
+- resolving classes subclasses,
+- resolving classes superclasses,
+- resolving classes direct methods."
   (labels ((classes-definitions (classes)
 	     (mapcar
 	      (lambda (name)
@@ -418,6 +453,14 @@ Currently, this means resolving sub and superclasses."
 		     (find-definition (list name :condition) pool2)
 		     (make-classoid-definition :symbol name :foreignp t)))
 	      (reverse (mapcar #'class-name classes))))
+	   (methods-definitions (methods)
+	     (mapcar
+	      (lambda (method)
+		(or  (find-method-definition method pool1)
+		     (find-method-definition method pool2)
+		     (make-method-definition :symbol (method-name method)
+					     :foreignp t)))
+	      methods))
 	   (finalize (pool)
 	     (dolist (category '(:class :structure :condition))
 	       (dolist (definition (category-definitions category pool))
@@ -427,7 +470,10 @@ Currently, this means resolving sub and superclasses."
 			  (sb-mop:class-direct-superclasses class)))
 		   (setf (classoid-definition-children definition)
 			 (classes-definitions
-			  (sb-mop:class-direct-subclasses class))))))))
+			  (sb-mop:class-direct-subclasses class)))
+		   (setf (classoid-definition-methods definition)
+			 (methods-definitions
+			  (sb-mop:specializer-direct-methods class))))))))
     (finalize pool1)
     (finalize pool2)))
 

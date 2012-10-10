@@ -168,7 +168,10 @@ When METHODS, render their definitions jointly."
 	    "Direct superclasses")
 	   (render-references
 	    (classoid-definition-children ,the-classoid)
-	    "Direct subclasses"))))))
+	    "Direct subclasses")
+	   (render-references
+	    (classoid-definition-methods ,the-classoid)
+	    "Direct methods"))))))
 
 (defun render-@defcond (condition context)
   "Render CONDITION's definition in CONTEXT."
@@ -292,6 +295,13 @@ When METHODS, render their definitions jointly."
     (escape (anchor-name definition))
     (escape definition)
     (type-name definition)))
+
+(defmethod reference ((method method-definition) &optional relative-to)
+  "Render METHOD's reference."
+  (declare (ignore relative-to))
+  (if (method-definition-foreignp method)
+      (format t "@t{~(~A}~)~%" (escape method))
+    (call-next-method)))
 
 (defmethod reference ((classoid classoid-definition) &optional relative-to)
   "Render CLASSOID's reference."
