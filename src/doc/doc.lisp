@@ -215,7 +215,6 @@ This function is used when only core elements need to be documented."
   "Render SPECIAL variable's documentation in CONTEXT."
   (render-@defvaroid :special special context))
 
-;;; #### PORTME.
 (defmacro render-@defunoid (kind (funcoid &rest funcoids) context)
   "Render FUNCOID's definition of KIND in CONTEXT.
 When FUNCOIDS, render their definitions jointly."
