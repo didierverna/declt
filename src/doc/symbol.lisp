@@ -182,12 +182,14 @@ When METHODS, render their definitions jointly."
   "Render CLASSOID's direct default initargs."
   (when initargs
     (@tableitem "Direct Default Initargs"
-      (@itemize-list initargs
-	:renderer (lambda (initarg)
-		    (format t "@t{~A}@*~%@t{~A}"
-		      (escape (format nil "~(~S~)" (first initarg)))
-		      (escape (format nil "~(~S~)" (second initarg)))))))))
-
+      ;; #### FIXME: we should rather compute the longest initarg name and use
+      ;; that as a template size for the @headitem specification.
+      (@multitable (.3 .5)
+	(format t "@headitem Initarg @tab Value~%")
+	(dolist (initarg initargs)
+	  (format t "@item @t{~A}~%@tab @t{~A}~%"
+	    (escape (format nil "~(~S~)" (first initarg)))
+	    (escape (format nil "~(~S~)" (second initarg)))))))))
 
 (defun render-@defcond (condition context)
   "Render CONDITION's definition in CONTEXT."

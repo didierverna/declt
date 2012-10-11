@@ -124,6 +124,15 @@ BODY should render on *standard-output*."
      ,@body
      (format t "~&@end table~%")))
 
+(defmacro @multitable ((&rest fractions) &body body)
+  "Execute BODY within a @multitable environment.
+FRACTIONS is the list of column fractions to use.
+BODY should render on *standard-output*."
+  `(progn
+     (format t "@multitable @columnfractions~{ ~S~}~%" ',fractions)
+     ,@body
+     (format t "~&@end multitable~%")))
+
 (defmacro @item (&body body)
   "Execute BODY within an itemize @item.
 BODY should render on *standard-output*."
