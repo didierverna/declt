@@ -275,6 +275,13 @@ BODY should render on *standard-output*."
      ,@body
      (format t "~&@end deffn~%")))
 
+(defmacro @defcompilermacro (name lambda-list &body body)
+  "Execute BODY within a @deffn {Compiler Macro} NAME LAMBDA-LIST environment.
+NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
+BODY should render on *standard-output*."
+  `(@deffn ("Compiler Macro" ,name ,lambda-list)
+     ,@body))
+
 (defun @defgenericx (name lambda-list)
   "Render @deffnx {Generic Function} NAME LAMBDA-LIST on *standard-output*"
   (format t "@deffnx {Generic Function} ~A " (escape name '(#\ )))

@@ -226,6 +226,11 @@ The ~A Reference Manual~@[, version ~A~].
 @findex @r{Macro, }\\name\\
 @end macro
 
+@c Compiler Macros
+@macro compilermacrosubindex{name}
+@findex @r{Compiler Macro, }\\name\\
+@end macro
+
 @c Functions
 @macro functionsubindex{name}
 @findex @r{Function, }\\name\\

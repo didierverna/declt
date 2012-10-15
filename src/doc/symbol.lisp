@@ -119,6 +119,10 @@ When FUNCOIDS, render their definitions jointly."
   "Render MACRO's definition in CONTEXT."
   (render-@defunoid :mac (macro) context))
 
+(defun render-@defcompilermacro (compiler-macro context)
+  "Render COMPILER-MACRO's definition in CONTEXT."
+  (render-@defunoid :compilermacro (compiler-macro) context))
+
 (defmacro %render-@defmethod ((method &rest methods) context)
   "Render METHOD's definition in CONTEXT.
 When METHODS, render their definitions jointly."
@@ -237,6 +241,12 @@ When METHODS, render their definitions jointly."
   (declare (ignore relative-to))
   (format nil "the ~(~A~) macro" (name macro)))
 
+(defmethod title
+    ((compiler-macro compiler-macro-definition) &optional relative-to)
+  "Return COMPILER-MACRO's title."
+  (declare (ignore relative-to))
+  (format nil "the ~(~A~) compiler macro" (name compiler-macro)))
+
 (defmethod title ((function function-definition) &optional relative-to)
   "Return FUNCTION's title."
   (declare (ignore relative-to))
@@ -293,6 +303,12 @@ When METHODS, render their definitions jointly."
   "Render MACRO's indexing command."
   (declare (ignore relative-to))
   (format t "@macrosubindex{~(~A~)}@c~%" (escape macro)))
+
+(defmethod index
+    ((compiler-macro compiler-macro-definition) &optional relative-to)
+  "Render COMPILER-MACRO's indexing command."
+  (declare (ignore relative-to))
+  (format t "@compilermacrosubindex{~(~A~)}@c~%" (escape compiler-macro)))
 
 (defmethod index ((function function-definition) &optional relative-to)
   "Render FUNCTION's indexing command."
@@ -369,6 +385,10 @@ When METHODS, render their definitions jointly."
 (defmethod document ((macro macro-definition) context)
   "Render MACRO's documentation in CONTEXT."
   (render-@defmac macro context))
+
+(defmethod document ((compiler-macro compiler-macro-definition) context)
+  "Render COMPILER-MACRO's documentation in CONTEXT."
+  (render-@defcompilermacro compiler-macro context))
 
 (defmethod document ((accessor accessor-definition) context)
   "Render ACCESSOR's documentation in CONTEXT."

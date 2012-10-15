@@ -55,6 +55,7 @@
       (:special        "special variables")
       (:symbol-macro   "symbol macros")
       (:macro          "macros")
+      (:compiler-macro "compiler macros")
       (:function       "functions")
       (:generic        "generic functions")
       (:condition      "conditions")
@@ -95,6 +96,8 @@ object."
 
 (defstruct (macro-definition (:include funcoid-definition))
   "Structure for macro definitions.")
+(defstruct (compiler-macro-definition (:include funcoid-definition))
+  "Structure for compiler macro definitions.")
 
 (defstruct (function-definition (:include funcoid-definition))
   "Structure for ordinary function definitions.")
@@ -265,6 +268,15 @@ Return NIL if not found."
 	      symbol
 	      category
 	      (make-macro-definition :symbol symbol :function function)
+	      pool))))
+	(:compiler-macro
+	 (let ((function (compiler-macro-function symbol)))
+	   (when function
+	     (add-definition
+	      symbol
+	      category
+	      (make-compiler-macro-definition :symbol symbol
+					      :function function)
 	      pool))))
 	(:function
 	 (let ((function
@@ -603,6 +615,10 @@ Currently, this means:
   "Return FUNCOID's docstring."
   (documentation (definition-symbol funcoid) 'function))
 
+(defmethod docstring ((compiler-macro compiler-macro-definition))
+  "Return COMPILER-MACRO's docstring."
+  (documentation (definition-symbol compiler-macro) 'compiler-macro))
+
 (defmethod docstring ((writer writer-definition))
   "Return WRITER's docstring."
   (documentation `(setf ,(definition-symbol writer)) 'function))
@@ -639,6 +655,10 @@ Currently, this means:
 (defmethod type-name ((macro macro-definition))
   "Return \"macro\""
   "macro")
+
+(defmethod type-name ((compiler-macro compiler-macro-definition))
+  "Return \"compiler macro\""
+  "compiler macro")
 
 (defmethod type-name ((function function-definition))
   "Return \"function\""
