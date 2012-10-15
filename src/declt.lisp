@@ -216,6 +216,11 @@ The ~A Reference Manual~@[, version ~A~].
 @vindex @r{Special Variable, }\\name\\
 @end macro
 
+@c Symbol macros
+@macro symbolmacrosubindex{name}
+@vindex @r{Symbol Macro, }\\name\\
+@end macro
+
 @c Macros
 @macro macrosubindex{name}
 @findex @r{Macro, }\\name\\

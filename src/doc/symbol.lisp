@@ -57,7 +57,7 @@ Each element is rendered as a table item."
     (reference (symbol-package (definition-symbol definition))))
   (render-source definition context))
 
-(defmacro render-@defvaroid (kind varoid context)
+(defmacro render-@defvaroid (kind varoid context &body body)
   "Render VAROID's definition of KIND in CONTEXT."
   (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
 			    :com.dvlsoft.declt))
@@ -66,7 +66,8 @@ Each element is rendered as a table item."
        (,|@defform| (string-downcase (name ,the-varoid))
 	 (anchor-and-index ,the-varoid)
 	 (@table ()
-	   (render-definition-core ,the-varoid ,context))))))
+	   (render-definition-core ,the-varoid ,context)
+	   ,@body)))))
 
 (defun render-@defconstant (constant context)
   "Render CONSTANT's documentation in CONTEXT."
@@ -75,6 +76,11 @@ Each element is rendered as a table item."
 (defun render-@defspecial (special context)
   "Render SPECIAL variable's documentation in CONTEXT."
   (render-@defvaroid :special special context))
+
+;; #### NOTE: see comment on the DOCSTRING method in ../item/symbol.lisp.
+(defmacro render-@defsymbolmacro (symbol-macro context &body body)
+  "Render SYMBOL-MACRO's documentation in CONTEXT."
+  `(render-@defvaroid :symbolmacro ,symbol-macro ,context ,@body))
 
 (defmacro render-@defunoid (kind (funcoid &rest funcoids) context &body body)
   "Render FUNCOID's definition of KIND in CONTEXT.
@@ -221,6 +227,11 @@ When METHODS, render their definitions jointly."
   (declare (ignore relative-to))
   (format nil "the ~(~A~) special variable" (name special)))
 
+(defmethod title ((symbol-macro symbol-macro-definition) &optional relative-to)
+  "Return SYMBOL-MACRO's title."
+  (declare (ignore relative-to))
+  (format nil "the ~(~A~) symbol macro" (name symbol-macro)))
+
 (defmethod title ((macro macro-definition) &optional relative-to)
   "Return MACRO's title."
   (declare (ignore relative-to))
@@ -272,6 +283,11 @@ When METHODS, render their definitions jointly."
   "Render SPECIAL's indexing command."
   (declare (ignore relative-to))
   (format t "@specialsubindex{~(~A~)}@c~%" (escape special)))
+
+(defmethod index ((symbol-macro symbol-macro-definition) &optional relative-to)
+  "Render SYMBOL-MACRO's indexing command."
+  (declare (ignore relative-to))
+  (format t "@symbolmacrosubindex{~(~A~)}@c~%" (escape symbol-macro)))
 
 (defmethod index ((macro macro-definition) &optional relative-to)
   "Render MACRO's indexing command."
@@ -337,6 +353,14 @@ When METHODS, render their definitions jointly."
 (defmethod document ((special special-definition) context)
   "Render SPECIAL variable's documentation in CONTEXT."
   (render-@defspecial special context))
+
+(defmethod document ((symbol-macro symbol-macro-definition) context)
+  "Render SYMBOL-MACRO's documentation in CONTEXT."
+  (render-@defsymbolmacro symbol-macro context
+    (@tableitem "Expansion"
+      (format t "@t{~(~A~)}~%"
+	(escape
+	 (format nil "~S" (macroexpand (definition-symbol symbol-macro))))))))
 
 (defmethod document ((funcoid funcoid-definition) context)
   "Render FUNCOID's documentation in CONTEXT."

@@ -53,6 +53,7 @@
 (define-constant +categories+
     '((:constant       "constants")
       (:special        "special variables")
+      (:symbol-macro   "symbol macros")
       (:macro          "macros")
       (:function       "functions")
       (:generic        "generic functions")
@@ -83,6 +84,8 @@ This structure holds the symbol naming the definition."
   "Structure for constant definitions.")
 (defstruct (special-definition (:include definition))
   "Structure for special variables definitions.")
+(defstruct (symbol-macro-definition (:include definition))
+  "Structure for symbol macro definitions.")
 
 (defstruct (funcoid-definition (:include definition))
   "Base structure for definitions of functional values.
@@ -250,6 +253,11 @@ Return NIL if not found."
 	 (when (eql (sb-int:info :variable :kind symbol) :special)
 	   (add-definition
 	    symbol category (make-special-definition :symbol symbol) pool)))
+	(:symbol-macro
+	 (when (eql (sb-int:info :variable :kind symbol) :macro)
+	   (add-definition
+	    symbol category
+	    (make-symbol-macro-definition :symbol symbol) pool)))
 	(:macro
 	 (let ((function (macro-function symbol)))
 	   (when function
@@ -544,6 +552,10 @@ Currently, this means:
   "Return SPECIAL's definition source."
   (definition-source-by-name special :variable))
 
+(defmethod source ((symbol-macro symbol-macro-definition))
+  "Return SYMBOL-MACRO's definition source."
+  (definition-source-by-name symbol-macro :symbol-macro))
+
 (defmethod source ((funcoid funcoid-definition))
   "Return FUNCOID's definition source."
   (definition-source (funcoid-definition-function funcoid)))
@@ -577,6 +589,16 @@ Currently, this means:
   "Return SPECIAL variable's docstring."
   (documentation (definition-symbol special) 'variable))
 
+;; #### NOTE: normally, we shouldn't have to define this because the DOCUMENT
+;; method on symbol macros should just not try to get the documentation.
+;; However, we do because it allows us to reuse existing code, notably
+;; RENDER-@DEFVAROID and hence RENDER-DEFINITION-CORE, and perform the same
+;; stuff as for constants and variables.
+(defmethod docstring ((symbol-macro symbol-macro-definition))
+  "Return NIL because symbol macros don't have a docstring."
+  (declare (ignore symbol-macro))
+  nil)
+
 (defmethod docstring ((funcoid funcoid-definition))
   "Return FUNCOID's docstring."
   (documentation (definition-symbol funcoid) 'function))
@@ -609,6 +631,10 @@ Currently, this means:
 (defmethod type-name ((special special-definition))
   "Return \"special variable\""
   "special variable")
+
+(defmethod type-name ((symbol-macro symbol-macro-definition))
+  "Return \"symbol macro\""
+  "symbol macro")
 
 (defmethod type-name ((macro macro-definition))
   "Return \"macro\""
