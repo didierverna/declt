@@ -14,7 +14,7 @@ ASDF maintains dependencies as a list of names only, so this makes it harder
 to find the corresponding component.
 
 ** See sb-introspect for a list of other things that we could possibly document
-That would be types, setf expanders and method combinations.
+That would be types and setf expanders.
 
 ** Packages and symbols
 We should see what to do about shadowings and imports.
