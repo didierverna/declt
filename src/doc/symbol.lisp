@@ -163,6 +163,13 @@ When METHODS, render their definitions jointly."
   "Render generic READER and WRITER's definitions jointly in CONTEXT."
   `(render-@defunoid :generic (,reader ,writer) ,context ,@body))
 
+(defun render-@defcombination (combination context)
+  "Render method COMBINATION definition in CONTEXT."
+  (@defcombination (string-downcase (name combination))
+    (anchor-and-index combination)
+    (@table ()
+      (render-definition-core combination context))))
+
 (defmacro render-@defclassoid (kind classoid context &body body)
   "Render CLASSOID's definition of KIND in CONTEXT."
   (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
@@ -265,6 +272,11 @@ When METHODS, render their definitions jointly."
   (declare (ignore relative-to))
   (format nil "the ~(~A~) generic function" (name generic)))
 
+(defmethod title ((combination combination-definition) &optional relative-to)
+  "Return method COMBINATION's title."
+  (declare (ignore relative-to))
+  (format nil "the ~(~A~) method combination" (name combination)))
+
 (defmethod title ((condition condition-definition) &optional relative-to)
   "Return CONDITION's title."
   (declare (ignore relative-to))
@@ -324,6 +336,11 @@ When METHODS, render their definitions jointly."
   "Render GENERIC's indexing command."
   (declare (ignore relative-to))
   (format t "@genericsubindex{~(~A~)}@c~%" (escape generic)))
+
+(defmethod index ((combination combination-definition) &optional relative-to)
+  "Render method COMBINATION's indexing command."
+  (declare (ignore relative-to))
+  (format t "@combinationsubindex{~(~A~)}@c~%" (escape combination)))
 
 (defmethod index ((condition condition-definition) &optional relative-to)
   "Render CONDITION's indexing command."
@@ -445,6 +462,10 @@ When METHODS, render their definitions jointly."
     (@tableitem "Methods"
       (dolist (method (generic-definition-methods generic))
 	(document method context)))))
+
+(defmethod document ((combination combination-definition) context)
+  "Render method COMBINATION's documentation in CONTEXT."
+  (render-@defcombination combination context))
 
 (defmethod document ((accessor generic-accessor-definition) context)
   "Render generic ACCESSOR's documentation in CONTEXT."

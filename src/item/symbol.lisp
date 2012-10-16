@@ -58,6 +58,7 @@
       (:compiler-macro "compiler macros")
       (:function       "functions")
       (:generic        "generic functions")
+      (:combination    "method combinations")
       (:condition      "conditions")
       (:structure      "structures")
       (:class          "classes"))
@@ -131,6 +132,11 @@ This structure holds the list of method definitions."
   "Structure for generic accessor function definitions.
 This structure holds the generic writer function definition."
   writer)
+
+(defstruct (combination-definition (:include definition))
+  "Structure for method combination definitions.
+This structure holds the FIND-METHOD-COMBINATION method object."
+  method)
 
 (defstruct (classoid-definition (:include definition))
   "Base structure for class-like (supporting inheritance) values.
@@ -412,6 +418,19 @@ Return NIL if not found."
 				     (sb-mop:generic-function-methods
 				      writer)))
 		   pool)))))
+	(:combination
+	 (let ((method (find-method #'sb-mop:find-method-combination
+				    nil
+				    `(,(find-class 'generic-function)
+				      (eql ,symbol)
+				      t)
+				    nil)))
+	   (when method
+	     (add-definition
+	      symbol
+	      category
+	      (make-combination-definition :symbol symbol :method method)
+	      pool))))
 	(:condition
 	 (let ((class (find-class symbol nil)))
 	   (when (and class (typep class 'sb-pcl::condition-class))
@@ -576,6 +595,10 @@ Currently, this means:
   "Return METHOD's definition source."
   (definition-source (method-definition-method method)))
 
+(defmethod source ((combination combination-definition))
+  "Return method COMBINATION's definition source."
+  (definition-source (combination-definition-method combination)))
+
 (defmethod source ((condition condition-definition))
   "Return CONDITION's definition source."
   (definition-source-by-name condition :condition))
@@ -631,6 +654,10 @@ Currently, this means:
   "Return generic WRITER's docstring."
   (documentation `(setf ,(definition-symbol writer)) 'function))
 
+(defmethod docstring ((combination combination-definition))
+  "Return method COMBINATION's docstring."
+  (documentation (definition-symbol combination) 'method-combination))
+
 (defmethod docstring ((classoid classoid-definition))
   "Return CLASSOID's docstring."
   (documentation (definition-symbol classoid) 'type))
@@ -671,6 +698,10 @@ Currently, this means:
 (defmethod type-name ((method method-definition))
   "Return \"method\""
   "method")
+
+(defmethod type-name ((combination combination-definition))
+  "Return \"method combination\""
+  "method combination")
 
 (defmethod type-name ((condition condition-definition))
   "Return \"condition\""
