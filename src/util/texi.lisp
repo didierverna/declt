@@ -321,12 +321,6 @@ BODY should render on *standard-output*."
      ,@body
      (format t "~&@end deftp~%")))
 
-(defmacro @defcombination (name &body body)
-  "Execute BODY within a @deftp {Method Combination} NAME environment.
-NAME is escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  `(@deftp "Method Combination" ,name ,@body))
-
 (defmacro @defstruct (name &body body)
   "Execute BODY within a @deftp {Structure} NAME environment.
 NAME is escaped for Texinfo prior to rendering.

@@ -246,11 +246,6 @@ The ~A Reference Manual~@[, version ~A~].
 @findex @r{Generic Function, }\\name\\
 @end macro
 
-@c Method Combinations
-@macro combinationsubindex{name}
-@tpindex @r{Method Combination, }\\name\\
-@end macro
-
 @c Conditions
 @macro conditionsubindex{name}
 @tpindex @r{Condition, }\\name\\
