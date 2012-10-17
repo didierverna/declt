@@ -132,16 +132,23 @@ This structure holds the list of method definitions."
 This structure holds the generic writer function definition."
   writer)
 
+(defstruct (slot-definition (:include definition))
+  "Structure for slot definitions.
+This structure holds the slot object."
+  slot)
+
 (defstruct (classoid-definition (:include definition))
   "Base structure for class-like (supporting inheritance) values.
 This structure holds links to the direct ancestors and descendants
-definitions, direct methods definitions, and also a slot for marking foreign
-definitions, i.e. those which do pertain to the system being documented.
-Foreign definitions may appear as part of an inheritance documentation."
+definitions, direct methods definitions, direct slots, and also a slot for
+marking foreign definitions, i.e. those which do pertain to the system being
+documented. Foreign definitions may appear as part of an inheritance
+documentation."
   foreignp
   parents
   children
-  methods)
+  methods
+  slots)
 (defstruct (condition-definition (:include classoid-definition))
   "Structure for condition definitions.")
 (defstruct (structure-definition (:include classoid-definition))
@@ -242,6 +249,14 @@ Return NIL if not found."
 (defun add-definition (symbol category definition pool)
   "Add CATEGORY kind of DEFINITION for SYMBOL to POOL."
   (setf (gethash (list symbol category) pool) definition))
+
+(defun make-slot-definitions (class)
+  "Return a list of direct slot definitions for CLASS."
+  (mapcar (lambda (slot)
+	    (make-slot-definition
+	     :symbol (sb-mop:slot-definition-name slot)
+	     :slot slot))
+	  (sb-mop:class-direct-slots class)))
 
 ;; #### PORTME.
 (defun add-symbol-definition (symbol category pool)
@@ -418,7 +433,9 @@ Return NIL if not found."
 	     (add-definition
 	      symbol
 	      category
-	      (make-condition-definition :symbol symbol)
+	      (make-condition-definition
+	       :symbol symbol
+	       :slots (make-slot-definitions class))
 	      pool))))
 	(:structure
 	 (let ((class (find-class symbol nil)))
@@ -426,7 +443,9 @@ Return NIL if not found."
 	     (add-definition
 	      symbol
 	      category
-	      (make-structure-definition :symbol symbol)
+	      (make-structure-definition
+	       :symbol symbol
+	       :slots (make-slot-definitions class))
 	      pool))))
 	(:class
 	 (let ((class (find-class symbol nil)))
@@ -436,7 +455,9 @@ Return NIL if not found."
 	     (add-definition
 	      symbol
 	      category
-	      (make-class-definition :symbol symbol)
+	      (make-class-definition
+	       :symbol symbol
+	       :slots (make-slot-definitions class))
 	      pool)))))))
 
 (defun add-symbol-definitions (symbol pool)
@@ -576,6 +597,8 @@ Currently, this means:
   "Return METHOD's definition source."
   (definition-source (method-definition-method method)))
 
+;; #### NOTE: no SOURCE method for SLOT-DEFINITION.
+
 (defmethod source ((condition condition-definition))
   "Return CONDITION's definition source."
   (definition-source-by-name condition :condition))
@@ -631,6 +654,11 @@ Currently, this means:
   "Return generic WRITER's docstring."
   (documentation `(setf ,(definition-symbol writer)) 'function))
 
+;; #### PORTME.
+(defmethod docstring ((slot slot-definition))
+  "Return SLOT's docstring."
+  (sb-pcl::%slot-definition-documentation (slot-definition-slot slot)))
+
 (defmethod docstring ((classoid classoid-definition))
   "Return CLASSOID's docstring."
   (documentation (definition-symbol classoid) 'type))
@@ -671,6 +699,8 @@ Currently, this means:
 (defmethod type-name ((method method-definition))
   "Return \"method\""
   "method")
+
+;; #### NOTE: no TYPE-NAME method for SLOT-DEFINITION
 
 (defmethod type-name ((condition condition-definition))
   "Return \"condition\""

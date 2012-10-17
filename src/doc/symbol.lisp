@@ -163,6 +163,21 @@ When METHODS, render their definitions jointly."
   "Render generic READER and WRITER's definitions jointly in CONTEXT."
   `(render-@defunoid :generic (,reader ,writer) ,context ,@body))
 
+(defun render-@defslot (slot)
+  "Render SLOT's documentation."
+  (@defslot (string-downcase (name slot))
+    (index slot)
+    (@table ()
+      (render-docstring slot))))
+
+(defun render-slots
+    (classoid &aux (slots (classoid-definition-slots classoid)))
+  "Render CLASSOID's direct slots documentation."
+  (when slots
+    (@tableitem "Direct slots"
+      (dolist (slot slots)
+	(render-@defslot slot)))))
+
 (defmacro render-@defclassoid (kind classoid context &body body)
   "Render CLASSOID's definition of KIND in CONTEXT."
   (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
@@ -182,6 +197,7 @@ When METHODS, render their definitions jointly."
 	   (render-references
 	    (classoid-definition-methods ,the-classoid)
 	    "Direct methods")
+	   (render-slots ,the-classoid)
 	   ,@body)))))
 
 ;; #### PORTME.
@@ -270,6 +286,8 @@ When METHODS, render their definitions jointly."
   (declare (ignore relative-to))
   (format nil "the ~(~A~) condition" (name condition)))
 
+;; #### NOTE: no TITLE method for SLOT-DEFINITION
+
 (defmethod title ((structure structure-definition) &optional relative-to)
   "Return STRUCTURE's title."
   (declare (ignore relative-to))
@@ -324,6 +342,11 @@ When METHODS, render their definitions jointly."
   "Render GENERIC's indexing command."
   (declare (ignore relative-to))
   (format t "@genericsubindex{~(~A~)}@c~%" (escape generic)))
+
+(defmethod index ((slot slot-definition) &optional relative-to)
+  "Render SLOT's indexing command."
+  (declare (ignore relative-to))
+  (format t "@slotsubindex{~(~A~)}@c~%" (escape slot)))
 
 (defmethod index ((condition condition-definition) &optional relative-to)
   "Render CONDITION's indexing command."
@@ -475,6 +498,8 @@ When METHODS, render their definitions jointly."
 	(t
 	 (call-next-method)
 	 (document (generic-accessor-definition-writer accessor) context))))
+
+;; #### NOTE: no DOCUMENT method for SLOT-DEFINITION
 
 (defmethod document ((condition condition-definition) context)
   "Render CONDITION's documentation in CONTEXT."

@@ -194,6 +194,12 @@ NAME is escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(@defvr "Symbol Macro" ,name ,@body))
 
+(defmacro @defslot (name &body body)
+  "Execute BODY within a @defvr {Slot} Name environment.
+NAME is escaped for Texinfo prior to rendering.
+BODY should render on *standard-output*."
+  `(@defvr "Slot" ,name ,@body))
+
 (defgeneric pretty-specializer (specializer)
   (:documentation "Return a printable form of SPECIALIZER.")
   (:method (specializer)

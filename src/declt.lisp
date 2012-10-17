@@ -221,6 +221,11 @@ The ~A Reference Manual~@[, version ~A~].
 @vindex @r{Symbol Macro, }\\name\\
 @end macro
 
+@c Slots
+@macro slotsubindex{name}
+@vindex @r{Slot, }\\name\\
+@end macro
+
 @c Macros
 @macro macrosubindex{name}
 @findex @r{Macro, }\\name\\
