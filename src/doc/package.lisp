@@ -72,8 +72,8 @@
   "Render PACKAGE's documentation in CONTEXT."
   (anchor package)
   (index package)
+  (render-docstring package)
   (@table ()
-    (render-docstring package)
     (render-source package context)
     (let* ((nicknames (package-nicknames package))
 	   (length (length nicknames)))

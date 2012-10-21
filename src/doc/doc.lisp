@@ -155,8 +155,7 @@ Rendering is done on *standard-output*."
 Rendering is done on *standard-output*."
   (let ((docstring (docstring item)))
     (when docstring
-      (@tableitem "Documentation"
-	(render-text docstring)))))
+      (render-text docstring))))
 
 (defun render-references (list title &aux (length (length list)))
   "Render references to a LIST of items.

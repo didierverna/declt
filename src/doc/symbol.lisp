@@ -52,7 +52,6 @@ The documentation core includes all common definition attributes:
   - source location.
 
 Each element is rendered as a table item."
-  (render-docstring definition)
   (@tableitem "Package"
     (reference (symbol-package (definition-symbol definition))))
   (render-source definition context))
@@ -65,6 +64,7 @@ Each element is rendered as a table item."
     `(let ((,the-varoid ,varoid))
        (,|@defform| (string-downcase (name ,the-varoid))
 	 (anchor-and-index ,the-varoid)
+	 (render-docstring ,the-varoid)
 	 (@table ()
 	   (render-definition-core ,the-varoid ,context)
 	   ,@body)))))
@@ -95,6 +95,7 @@ When FUNCOIDS, render their definitions jointly."
        (,|@defform| (string-downcase (name ,the-funcoid))
 		    (lambda-list ,the-funcoid)
 	 (anchor-and-index ,the-funcoid)
+	 (render-docstring ,the-funcoid)
 	 ,@(mapcar (lambda (funcoid)
 		     (let ((the-funcoid (gensym "funcoid")))
 		       `(let ((,the-funcoid ,funcoid))
@@ -133,6 +134,7 @@ When METHODS, render their definitions jointly."
 	   (specializers ,the-method)
 	   (qualifiers ,the-method)
 	 (anchor-and-index ,the-method)
+	 (render-docstring ,the-method)
 	 ,@(mapcar (lambda (method)
 		     (let ((the-method (gensym "method")))
 		       `(let ((,the-method ,method))
@@ -144,7 +146,6 @@ When METHODS, render their definitions jointly."
 			  (anchor-and-index ,the-method))))
 		   methods)
 	 (@table ()
-	   (render-docstring ,the-method)
 	   (render-source ,the-method ,context))))))
 
 (defun render-@defmethod (method context)
@@ -167,8 +168,9 @@ When METHODS, render their definitions jointly."
   "Render SLOT's documentation."
   (@defslot (string-downcase (name slot))
     (index slot)
+    (render-docstring slot)
     (@table ()
-      (render-docstring slot))))
+      )))
 
 (defun render-slots
     (classoid &aux (slots (classoid-definition-slots classoid)))
@@ -186,6 +188,7 @@ When METHODS, render their definitions jointly."
     `(let ((,the-classoid ,classoid))
        (,|@defform| (string-downcase (name ,the-classoid))
 	 (anchor-and-index ,the-classoid)
+	 (render-docstring ,the-classoid)
 	 (@table ()
 	   (render-definition-core ,the-classoid ,context)
 	   (render-references
