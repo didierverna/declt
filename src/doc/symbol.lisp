@@ -164,13 +164,30 @@ When METHODS, render their definitions jointly."
   "Render generic READER and WRITER's definitions jointly in CONTEXT."
   `(render-@defunoid :generic (,reader ,writer) ,context ,@body))
 
+;; #### PORTME.
+(defun slot-property (slot property)
+  "Return SLOT definition's PROPERTY value."
+  (funcall
+   (intern (concatenate 'string "SLOT-DEFINITION-" (symbol-name property))
+	   :sb-mop)
+   slot))
+
+(defun render-slot-property
+    (slot property
+     &aux (value (slot-property (slot-definition-slot slot) property)))
+  "Render SLOT definition's PROPERTY value as a table item."
+  (when value
+    (@tableitem (format nil "~@(~A~)" (symbol-name property))
+      (format t "@t{~A}~%" (escape (format nil "~(~S~)" value))))))
+
 (defun render-@defslot (slot)
   "Render SLOT's documentation."
   (@defslot (string-downcase (name slot))
     (index slot)
     (render-docstring slot)
     (@table ()
-      )))
+      (dolist (property '(:type :allocation :initargs :initform))
+	(render-slot-property slot property)))))
 
 (defun render-slots
     (classoid &aux (slots (classoid-definition-slots classoid)))
