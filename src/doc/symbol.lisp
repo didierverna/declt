@@ -174,11 +174,14 @@ When METHODS, render their definitions jointly."
 
 (defun render-slot-property
     (slot property
-     &aux (value (slot-property (slot-definition-slot slot) property)))
+	  &key (renderer (lambda (value)
+			   (format t "@t{~A}~%"
+			     (escape (format nil "~(~S~)" value)))))
+	  &aux (value (slot-property (slot-definition-slot slot) property)))
   "Render SLOT definition's PROPERTY value as a table item."
   (when value
     (@tableitem (format nil "~@(~A~)" (symbol-name property))
-      (format t "@t{~A}~%" (escape (format nil "~(~S~)" value))))))
+      (funcall renderer value))))
 
 (defun render-@defslot (slot)
   "Render SLOT's documentation."
@@ -186,8 +189,18 @@ When METHODS, render their definitions jointly."
     (index slot)
     (render-docstring slot)
     (@table ()
-      (dolist (property '(:type :allocation :initargs :initform))
-	(render-slot-property slot property)))))
+      (render-slot-property slot :type)
+      (render-slot-property slot :allocation)
+      (render-slot-property slot :initargs
+	:renderer (lambda (value)
+		    (let ((values (mapcar (lambda (val)
+					    (escape
+					     (format nil "~(~S~)" val)))
+					  value)))
+		      (format t "@t{~A}~{, @t{~A}~}"
+			(first values)
+			(rest values)))))
+      (render-slot-property slot :initform))))
 
 (defun render-slots
     (classoid &aux (slots (classoid-definition-slots classoid)))
