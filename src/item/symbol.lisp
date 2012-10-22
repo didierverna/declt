@@ -134,8 +134,10 @@ This structure holds the generic writer function definition."
 
 (defstruct (slot-definition (:include definition))
   "Structure for slot definitions.
-This structure holds the slot object."
-  slot)
+This structure holds the slot object and the readers and writers definitions."
+  slot
+  readers
+  writers)
 
 (defstruct (classoid-definition (:include definition))
   "Base structure for class-like (supporting inheritance) values.
@@ -465,6 +467,14 @@ Return NIL if not found."
   (dolist (category +categories+)
     (add-symbol-definition symbol (first category) pool)))
 
+;; #### PORTME.
+(defun slot-property (slot property)
+  "Return SLOT definition's PROPERTY value."
+  (funcall
+   (intern (concatenate 'string "SLOT-DEFINITION-" (symbol-name property))
+	   :sb-mop)
+   slot))
+
 ;; #### NOTE: this finalization step is required for two reasons:
 ;;   1. it makes it easier to handle cross references (e.g. class inheritance)
 ;;      because at that time, we know that all definitions have been created,
@@ -477,7 +487,8 @@ Return NIL if not found."
 Currently, this means:
 - resolving classes subclasses,
 - resolving classes superclasses,
-- resolving classes direct methods."
+- resolving classes direct methods,
+- resolving slots readers."
   (labels ((classes-definitions (classes)
 	     (mapcar
 	      (lambda (name)
@@ -502,6 +513,12 @@ Currently, this means:
 		     (make-method-definition :symbol (method-name method)
 					     :foreignp t)))
 	      methods))
+	   (reader-definitions (slot)
+	     (let ((reader-names (slot-property slot :readers)))
+	       reader-names))
+	   (writer-definitions (slot)
+	     (let ((writer-names (slot-property slot :writers)))
+	       writer-names))
 	   (finalize (pool)
 	     (dolist (category '(:class :structure :condition))
 	       (dolist (definition (category-definitions category pool))
@@ -514,7 +531,14 @@ Currently, this means:
 			  (sb-mop:class-direct-subclasses class)))
 		   (setf (classoid-definition-methods definition)
 			 (methods-definitions
-			  (sb-mop:specializer-direct-methods class))))))))
+			  (sb-mop:specializer-direct-methods class)))
+		   (dolist (slot (classoid-definition-slots definition))
+		     (setf (slot-definition-readers slot)
+			   (reader-definitions
+			    (slot-definition-slot slot)))
+		     (setf (slot-definition-writers slot)
+			   (writer-definitions
+			    (slot-definition-slot slot)))))))))
     (finalize pool1)
     (finalize pool2)))
 
