@@ -100,7 +100,10 @@ object."
   "Structure for compiler macro definitions.")
 
 (defstruct (function-definition (:include funcoid-definition))
-  "Structure for ordinary function definitions.")
+  "Structure for ordinary function definitions.
+This structure holds a slot for marking foreign definitions, i.e. those which
+do pertain to the system being documented."
+  foreignp)
 (defstruct (writer-definition (:include function-definition))
   "Structure for ordinary writer function definitions.")
 (defstruct (accessor-definition (:include function-definition))
@@ -224,6 +227,16 @@ Name must be that of the reader (not the SETF form)."
 	     definition)
 	    ((generic-accessor-definition-p definition)
 	     (generic-accessor-definition-writer definition))))))
+
+(defun find-writer-definition (name pool)
+  "Find a writer definition by NAME in POOL, or return nil.
+Name must be that of the reader (not the SETF form)."
+  (let ((definition (find-definition (list name :function) pool)))
+    (when definition
+      (cond ((writer-definition-p definition)
+	     definition)
+	    ((accessor-definition-p definition)
+	     (accessor-definition-writer definition))))))
 
 ;; #### PORTME.
 (defun method-name (method
@@ -488,6 +501,46 @@ Return NIL if not found."
 	   :sb-mop)
    slot))
 
+(defgeneric reader-definitions (slot pool1 pool2)
+  (:documentation "Return a list of reader definitions for SLOT.")
+  (:method (slot pool1 pool2)
+    "Defaut method for class and condition slots."
+    (mapcar
+     (lambda (reader-name)
+       (or (find-definition (list reader-name :generic) pool1)
+	   (find-definition (list reader-name :generic) pool2)
+	   (make-generic-definition :symbol reader-name :foreignp t)))
+     (slot-property slot :readers)))
+  ;; #### PORTME.
+  (:method ((slot sb-pcl::structure-direct-slot-definition) pool1 pool2)
+    "Method for structure slots."
+    (list
+     (let ((reader-name
+	     (sb-pcl::slot-definition-defstruct-accessor-symbol slot)))
+       (or (find-definition (list reader-name :function) pool1)
+	   (find-definition (list reader-name :function) pool2)
+	   (make-generic-definition :symbol reader-name :foreignp t))))))
+
+(defgeneric writer-definitions (slot pool1 pool2)
+  (:documentation "Return a list of writer definitions for SLOT.")
+  (:method (slot pool1 pool2)
+    "Default method for class and condition slots."
+    (mapcar
+     (lambda (writer-name &aux (writer-name (second writer-name)))
+       (or (find-generic-writer-definition writer-name pool1)
+	   (find-generic-writer-definition writer-name pool2)
+	   (make-generic-writer-definition :symbol writer-name :foreignp t)))
+     (slot-property slot :writers)))
+  ;; #### PORTME.
+  (:method ((slot sb-pcl::structure-direct-slot-definition) pool1 pool2)
+    "Method for structure slots."
+    (list
+     (let ((writer-name
+	     (sb-pcl::slot-definition-defstruct-accessor-symbol slot)))
+       (or (find-writer-definition writer-name pool1)
+	   (find-writer-definition writer-name pool2)
+	   (make-writer-definition :symbol writer-name :foreignp t))))))
+
 ;; #### NOTE: this finalization step is required for two reasons:
 ;;   1. it makes it easier to handle cross references (e.g. class inheritance)
 ;;      because at that time, we know that all definitions have been created,
@@ -501,7 +554,8 @@ Currently, this means:
 - resolving classes subclasses,
 - resolving classes superclasses,
 - resolving classes direct methods,
-- resolving slots readers."
+- resolving slots readers,
+- resolving slots writers."
   (labels ((classes-definitions (classes)
 	     (mapcar
 	      (lambda (name)
@@ -526,21 +580,6 @@ Currently, this means:
 		     (make-method-definition :symbol (method-name method)
 					     :foreignp t)))
 	      methods))
-	   (reader-definitions (slot)
-	     (mapcar (lambda (reader-name)
-		       (or (find-definition (list reader-name :generic) pool1)
-			   (find-definition (list reader-name :generic) pool2)
-			   (make-generic-definition :symbol reader-name
-						    :foreignp t)))
-		     (slot-property slot :readers)))
-	   (writer-definitions (slot)
-	     (mapcar
-	      (lambda (writer-name &aux (writer-name (second writer-name)))
-		(or (find-generic-writer-definition writer-name pool1)
-		    (find-generic-writer-definition writer-name pool2)
-		    (make-generic-writer-definition :symbol writer-name
-						    :foreignp t)))
-	      (slot-property slot :writers)))
 	   (finalize (pool)
 	     (dolist (category '(:class :structure :condition))
 	       (dolist (definition (category-definitions category pool))
@@ -557,10 +596,10 @@ Currently, this means:
 		   (dolist (slot (classoid-definition-slots definition))
 		     (setf (slot-definition-readers slot)
 			   (reader-definitions
-			    (slot-definition-slot slot)))
+			    (slot-definition-slot slot) pool1 pool2))
 		     (setf (slot-definition-writers slot)
 			   (writer-definitions
-			    (slot-definition-slot slot)))))))))
+			    (slot-definition-slot slot) pool1 pool2))))))))
     (finalize pool1)
     (finalize pool2)))
 
