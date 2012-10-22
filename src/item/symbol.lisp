@@ -123,7 +123,10 @@ This structure holds the writer method definition."
 
 (defstruct (generic-definition (:include funcoid-definition))
   "Structure for generic function definitions.
-This structure holds the list of method definitions."
+This structure holds the list of method definitions and also a slot for
+marking foreign definitions, i.e. those which do pertain to the system being
+documented."
+  foreignp
   methods)
 (defstruct (generic-writer-definition (:include generic-definition))
   "Structure for generic writer function definitions.")
@@ -514,8 +517,12 @@ Currently, this means:
 					     :foreignp t)))
 	      methods))
 	   (reader-definitions (slot)
-	     (let ((reader-names (slot-property slot :readers)))
-	       reader-names))
+	     (mapcar (lambda (reader-name)
+		       (or (find-definition (list reader-name :generic) pool1)
+			   (find-definition (list reader-name :generic) pool2)
+			   (make-generic-definition :symbol reader-name
+						    :foreignp t)))
+		     (slot-property slot :readers)))
 	   (writer-definitions (slot)
 	     (let ((writer-names (slot-property slot :writers)))
 	       writer-names))

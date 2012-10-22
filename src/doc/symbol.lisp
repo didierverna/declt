@@ -196,7 +196,7 @@ When METHODS, render their definitions jointly."
       (let ((readers (slot-definition-readers slot)))
 	(when readers
 	  (@tableitem "Readers"
-	    (@itemize-list readers #|:renderer #'reference|#))))
+	    (@itemize-list readers :renderer #'reference))))
       (let ((writers (slot-definition-writers slot)))
 	(when writers
 	  (@tableitem "Writers"
@@ -409,6 +409,13 @@ When METHODS, render their definitions jointly."
   (declare (ignore relative-to))
   (if (method-definition-foreignp method)
       (format t "@t{~(~A}~)~%" (escape method))
+    (call-next-method)))
+
+(defmethod reference ((generic generic-definition) &optional relative-to)
+  "Render GENERIC function's reference."
+  (declare (ignore relative-to))
+  (if (generic-definition-foreignp generic)
+      (format t "@t{~(~A}~)~%" (escape generic))
     (call-next-method)))
 
 (defmethod reference ((classoid classoid-definition) &optional relative-to)
