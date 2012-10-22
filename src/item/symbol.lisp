@@ -215,6 +215,16 @@ If ERRORP, throw an error if not found. Otherwise, just return NIL."
 	(error "~A definition not found for ~A" (first key) (second key))
       definition)))
 
+(defun find-generic-writer-definition (name pool)
+  "Find a generic writer definition by NAME in POOL, or return nil.
+Name must be that of the reader (not the SETF form)."
+  (let ((definition (find-definition (list name :generic) pool)))
+    (when definition
+      (cond ((generic-writer-definition-p definition)
+	     definition)
+	    ((generic-accessor-definition-p definition)
+	     (generic-accessor-definition-writer definition))))))
+
 ;; #### PORTME.
 (defun method-name (method
 		    &aux (name (sb-mop:generic-function-name
@@ -524,8 +534,13 @@ Currently, this means:
 						    :foreignp t)))
 		     (slot-property slot :readers)))
 	   (writer-definitions (slot)
-	     (let ((writer-names (slot-property slot :writers)))
-	       writer-names))
+	     (mapcar
+	      (lambda (writer-name &aux (writer-name (second writer-name)))
+		(or (find-generic-writer-definition writer-name pool1)
+		    (find-generic-writer-definition writer-name pool2)
+		    (make-generic-writer-definition :symbol writer-name
+						    :foreignp t)))
+	      (slot-property slot :writers)))
 	   (finalize (pool)
 	     (dolist (category '(:class :structure :condition))
 	       (dolist (definition (category-definitions category pool))

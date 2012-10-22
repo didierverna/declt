@@ -200,7 +200,7 @@ When METHODS, render their definitions jointly."
       (let ((writers (slot-definition-writers slot)))
 	(when writers
 	  (@tableitem "Writers"
-	    (@itemize-list writers #|:renderer #'reference|#)))))))
+	    (@itemize-list writers :renderer #'reference)))))))
 
 (defun render-slots
     (classoid &aux (slots (classoid-definition-slots classoid)))
