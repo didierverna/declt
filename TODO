@@ -27,9 +27,6 @@ If the system definition pathname or definition sources contain funky stuff
 like ./, ../ or even are symlinks, the cross-references will most probably
 break. We need to work on canonical pathnames.
 
-** Document class slots
-and point back to slot accessors.
-
 ** Floating methods
 We should document floating methods, that is, methods defined in a system's
 file whereas the generic function is elsewhere (e.g. validate-superclass).
