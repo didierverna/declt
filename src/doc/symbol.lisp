@@ -171,7 +171,9 @@ When METHODS, render their definitions jointly."
 			     (escape (format nil "~(~S~)" value)))))
 	  &aux (value (slot-property (slot-definition-slot slot) property)))
   "Render SLOT definition's PROPERTY value as a table item."
-  (when value
+  (when (and value
+	     (not (and (eq value t) (eq property :type)))
+	     (not (and (eq value :instance) (eq property :allocation))))
     (@tableitem (format nil "~@(~A~)" (symbol-name property))
       (funcall renderer value))))
 
