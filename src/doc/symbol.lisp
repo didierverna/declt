@@ -193,14 +193,8 @@ When METHODS, render their definitions jointly."
 			(first values)
 			(rest values)))))
       (render-slot-property slot :initform)
-      (let ((readers (slot-definition-readers slot)))
-	(when readers
-	  (@tableitem "Readers"
-	    (@itemize-list readers :renderer #'reference))))
-      (let ((writers (slot-definition-writers slot)))
-	(when writers
-	  (@tableitem "Writers"
-	    (@itemize-list writers :renderer #'reference)))))))
+      (render-references (slot-definition-readers slot) "Readers")
+      (render-references (slot-definition-writers slot) "Writers"))))
 
 (defun render-slots
     (classoid &aux (slots (classoid-definition-slots classoid)))
