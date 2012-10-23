@@ -209,35 +209,34 @@ Keys must be of the form (NAME :CATEGORY).
   (loop :for definition :being :the :hash-values :in pool
 	:nconc (funcall function definition)))
 
-(defun find-definition (symbol category pool &optional errorp)
-  "Find a CATEGORY definition for SYMBOL in POOL.
-If ERRORP, throw an error if not found. Otherwise, just return NIL."
-  (let ((definition (gethash (list symbol category) pool)))
+(defgeneric find-definition (name category pool &optional errorp)
+  (:documentation "Find a CATEGORY definition for NAME in POOL.
+If ERRORP, throw an error if not found. Otherwise, just return NIL.")
+  (:method (name category pool
+	    &optional errorp
+	    &aux (definition (gethash (list name category) pool)))
+    "Default method used for root CATEGORYs"
     (if (and (null definition) errorp)
-	(error "~A definition not found for ~A" category symbol)
-      definition)))
-
-;; #### FIXME: this is unclean. FIND-DEFINITION should handle non-root
-;; definitions. For instance: :generic-writer, :writer etc.
-(defun find-generic-writer-definition (name pool)
-  "Find a generic writer definition by NAME in POOL, or return nil.
+	(error "~A definition not found for ~A" category name)
+      definition))
+  (:method (name (category (eql :generic-writer)) pool
+	    &optional errorp
+	    &aux (definition (call-next-method name :generic pool errorp)))
+    "Method used to find generic writer definitions.
 Name must be that of the reader (not the SETF form)."
-  (let ((definition (find-definition name :generic pool)))
-    (when definition
-      (cond ((generic-writer-definition-p definition)
-	     definition)
-	    ((generic-accessor-definition-p definition)
-	     (generic-accessor-definition-writer definition))))))
-
-(defun find-writer-definition (name pool)
-  "Find a writer definition by NAME in POOL, or return nil.
+    (cond ((generic-writer-definition-p definition)
+	   definition)
+	  ((generic-accessor-definition-p definition)
+	   (generic-accessor-definition-writer definition))))
+  (:method (name (category (eql :writer)) pool
+	    &optional errorp
+	    &aux (definition (call-next-method name :function pool errorp)))
+    "Method used to find writer definitions.
 Name must be that of the reader (not the SETF form)."
-  (let ((definition (find-definition name :function pool)))
-    (when definition
-      (cond ((writer-definition-p definition)
-	     definition)
-	    ((accessor-definition-p definition)
-	     (accessor-definition-writer definition))))))
+    (cond ((writer-definition-p definition)
+	   definition)
+	  ((accessor-definition-p definition)
+	   (accessor-definition-writer definition)))))
 
 ;; #### PORTME.
 (defun method-name (method
@@ -528,8 +527,8 @@ Return NIL if not found."
     "Default method for class and condition slots."
     (mapcar
      (lambda (writer-name &aux (writer-name (second writer-name)))
-       (or (find-generic-writer-definition writer-name pool1)
-	   (find-generic-writer-definition writer-name pool2)
+       (or (find-definition writer-name :generic-writer pool1)
+	   (find-definition writer-name :generic-writer pool2)
 	   (make-generic-writer-definition :symbol writer-name :foreignp t)))
      (slot-property slot :writers)))
   ;; #### PORTME.
@@ -538,8 +537,8 @@ Return NIL if not found."
     (list
      (let ((writer-name
 	     (sb-pcl::slot-definition-defstruct-accessor-symbol slot)))
-       (or (find-writer-definition writer-name pool1)
-	   (find-writer-definition writer-name pool2)
+       (or (find-definition writer-name :writer pool1)
+	   (find-definition writer-name :writer pool2)
 	   (make-writer-definition :symbol writer-name :foreignp t))))))
 
 ;; #### NOTE: this finalization step is required for two reasons:
