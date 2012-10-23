@@ -209,16 +209,6 @@ Keys must be of the form (NAME :CATEGORY).
   (loop :for definition :being :the :hash-values :in pool
 	:nconc (funcall function definition)))
 
-;; #### PORTME.
-(defun method-name (method
-		    &aux (name (sb-mop:generic-function-name
-				(sb-mop:method-generic-function method))))
-  "Return METHOD's name.
-Return a second value of T if METHOD is a writer method."
-  (if (listp name)
-      (values (second name) t)
-    name))
-
 (defgeneric find-definition (name category pool &optional errorp)
   (:documentation "Find a CATEGORY definition for NAME in POOL.
 If ERRORP, throw an error if not found. Otherwise, just return NIL.")
@@ -253,6 +243,16 @@ Name must be that of the reader (not the SETF form)."
 	   (accessor-definition-writer definition)))
 	(when errorp
 	  (error "No writer definition found for symbol ~A." name)))))
+
+;; #### PORTME.
+(defun method-name (method
+		    &aux (name (sb-mop:generic-function-name
+				(sb-mop:method-generic-function method))))
+  "Return METHOD's name.
+Return a second value of T if METHOD is a writer method."
+  (if (listp name)
+      (values (second name) t)
+    name))
 
 (defun find-method-definition (method pool)
   "Find a method definition for METHOD in POOL.
