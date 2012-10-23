@@ -209,35 +209,6 @@ Keys must be of the form (NAME :CATEGORY).
   (loop :for definition :being :the :hash-values :in pool
 	:nconc (funcall function definition)))
 
-(defgeneric find-definition (name category pool &optional errorp)
-  (:documentation "Find a CATEGORY definition for NAME in POOL.
-If ERRORP, throw an error if not found. Otherwise, just return NIL.")
-  (:method (name category pool
-	    &optional errorp
-	    &aux (definition (gethash (list name category) pool)))
-    "Default method used for root CATEGORYs"
-    (if (and (null definition) errorp)
-	(error "~A definition not found for ~A" category name)
-      definition))
-  (:method (name (category (eql :generic-writer)) pool
-	    &optional errorp
-	    &aux (definition (call-next-method name :generic pool errorp)))
-    "Method used to find generic writer definitions.
-Name must be that of the reader (not the SETF form)."
-    (cond ((generic-writer-definition-p definition)
-	   definition)
-	  ((generic-accessor-definition-p definition)
-	   (generic-accessor-definition-writer definition))))
-  (:method (name (category (eql :writer)) pool
-	    &optional errorp
-	    &aux (definition (call-next-method name :function pool errorp)))
-    "Method used to find writer definitions.
-Name must be that of the reader (not the SETF form)."
-    (cond ((writer-definition-p definition)
-	   definition)
-	  ((accessor-definition-p definition)
-	   (accessor-definition-writer definition)))))
-
 ;; #### PORTME.
 (defun method-name (method
 		    &aux (name (sb-mop:generic-function-name
@@ -247,6 +218,41 @@ Return a second value of T if METHOD is a writer method."
   (if (listp name)
       (values (second name) t)
     name))
+
+(defgeneric find-definition (name category pool &optional errorp)
+  (:documentation "Find a CATEGORY definition for NAME in POOL.
+If ERRORP, throw an error if not found. Otherwise, just return NIL.")
+  (:method (name category pool
+	    &optional errorp
+	    &aux (definition (gethash (list name category) pool)))
+    "Default method used for root CATEGORYs"
+    (or definition
+	(when errorp
+	  (error "No ~A definition found for symbol ~A" category name))))
+  (:method (name (category (eql :generic-writer)) pool
+	    &optional errorp
+	    &aux (definition (find-definition name :generic pool errorp)))
+    "Method used to find generic writer definitions.
+Name must be that of the reader (not the SETF form)."
+    (or (typecase definition
+	  (generic-writer-definition
+	   definition)
+	  (generic-accessor-definition
+	   (generic-accessor-definition-writer definition)))
+	(when errorp
+	  (error "No generic writer definition found for symbol ~A" name))))
+  (:method (name (category (eql :writer)) pool
+	    &optional errorp
+	    &aux (definition (find-definition name :function pool errorp)))
+    "Method used to find writer definitions.
+Name must be that of the reader (not the SETF form)."
+    (or (typecase definition
+	  (writer-definition
+	   definition)
+	  (accessor-definition
+	   (accessor-definition-writer definition)))
+	(when errorp
+	  (error "No writer definition found for symbol ~A." name)))))
 
 (defun find-method-definition (method pool)
   "Find a method definition for METHOD in POOL.
