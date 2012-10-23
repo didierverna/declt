@@ -209,19 +209,20 @@ Keys must be of the form (NAME :CATEGORY).
   (loop :for definition :being :the :hash-values :in pool
 	:nconc (funcall function definition)))
 
-(defun find-definition (key pool &optional errorp)
-  "Find a definition matching KEY for SYMBOL in POOL.
-KEY must be of the form (NAME :CATEGORY).
+(defun find-definition (symbol category pool &optional errorp)
+  "Find a CATEGORY definition for SYMBOL in POOL.
 If ERRORP, throw an error if not found. Otherwise, just return NIL."
-  (let ((definition (gethash key pool)))
+  (let ((definition (gethash (list symbol category) pool)))
     (if (and (null definition) errorp)
-	(error "~A definition not found for ~A" (first key) (second key))
+	(error "~A definition not found for ~A" category symbol)
       definition)))
 
+;; #### FIXME: this is unclean. FIND-DEFINITION should handle non-root
+;; definitions. For instance: :generic-writer, :writer etc.
 (defun find-generic-writer-definition (name pool)
   "Find a generic writer definition by NAME in POOL, or return nil.
 Name must be that of the reader (not the SETF form)."
-  (let ((definition (find-definition (list name :generic) pool)))
+  (let ((definition (find-definition name :generic pool)))
     (when definition
       (cond ((generic-writer-definition-p definition)
 	     definition)
@@ -231,7 +232,7 @@ Name must be that of the reader (not the SETF form)."
 (defun find-writer-definition (name pool)
   "Find a writer definition by NAME in POOL, or return nil.
 Name must be that of the reader (not the SETF form)."
-  (let ((definition (find-definition (list name :function) pool)))
+  (let ((definition (find-definition name :function pool)))
     (when definition
       (cond ((writer-definition-p definition)
 	     definition)
@@ -252,7 +253,7 @@ Return a second value of T if METHOD is a writer method."
   "Find a method definition for METHOD in POOL.
 Return NIL if not found."
   (multiple-value-bind (name writerp) (method-name method)
-    (let ((generic (find-definition (list name :generic) pool)))
+    (let ((generic (find-definition name :generic pool)))
       (when generic
 	(cond (writerp
 	       (etypecase generic
@@ -289,7 +290,7 @@ Return NIL if not found."
 ;; #### PORTME.
 (defun add-symbol-definition (symbol category pool)
   "Add and return the CATEGORY kind of definition for SYMBOL to pool, if any."
-  (or (find-definition (list symbol category) pool)
+  (or (find-definition symbol category pool)
       (ecase category
 	(:constant
 	 (when (eql (sb-int:info :variable :kind symbol) :constant)
@@ -507,8 +508,8 @@ Return NIL if not found."
     "Defaut method for class and condition slots."
     (mapcar
      (lambda (reader-name)
-       (or (find-definition (list reader-name :generic) pool1)
-	   (find-definition (list reader-name :generic) pool2)
+       (or (find-definition reader-name :generic pool1)
+	   (find-definition reader-name :generic pool2)
 	   (make-generic-definition :symbol reader-name :foreignp t)))
      (slot-property slot :readers)))
   ;; #### PORTME.
@@ -517,8 +518,8 @@ Return NIL if not found."
     (list
      (let ((reader-name
 	     (sb-pcl::slot-definition-defstruct-accessor-symbol slot)))
-       (or (find-definition (list reader-name :function) pool1)
-	   (find-definition (list reader-name :function) pool2)
+       (or (find-definition reader-name :function pool1)
+	   (find-definition reader-name :function pool2)
 	   (make-generic-definition :symbol reader-name :foreignp t))))))
 
 (defgeneric writer-definitions (slot pool1 pool2)
@@ -564,12 +565,12 @@ Currently, this means:
 		;; which is not required by the standard. It also means that
 		;; there may be intermixing of conditions, structures and
 		;; classes in inheritance graphs, so we need to handle that.
-		(or  (find-definition (list name :class) pool1)
-		     (find-definition (list name :class) pool2)
-		     (find-definition (list name :structure) pool1)
-		     (find-definition (list name :structure) pool2)
-		     (find-definition (list name :condition) pool1)
-		     (find-definition (list name :condition) pool2)
+		(or  (find-definition name :class pool1)
+		     (find-definition name :class pool2)
+		     (find-definition name :structure pool1)
+		     (find-definition name :structure pool2)
+		     (find-definition name :condition pool1)
+		     (find-definition name :condition pool2)
 		     (make-classoid-definition :symbol name :foreignp t)))
 	      (reverse (mapcar #'class-name classes))))
 	   (methods-definitions (methods)
