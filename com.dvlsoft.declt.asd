@@ -81,7 +81,7 @@ Current options are:
 (defconstant +release-status+ :beta
   "The status of this release.")
 
-(defconstant +release-status-level+ 14
+(defconstant +release-status-level+ 15
   "The status level of this release.")
 
 (define-constant +release-name+ "James T. Kirk"
