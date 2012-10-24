@@ -318,12 +318,15 @@ BODY should render on *standard-output*."
   `(@deffn ("Method" ,name ,lambda-list ,specializers ,qualifiers)
      ,@body))
 
-(defmacro @deftp (category name &body body)
-  "Execute BODY within a @deftp {CATEGORY} NAME environment.
-CATEGORY and NAME are escaped for Texinfo prior to rendering.
+(defmacro @deftp ((category name &optional lambda-list) &body body)
+  "Execute BODY within a @deftp {CATEGORY} NAME [LAMBDA-LIST] environment.
+CATEGORY, NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-     (format t "@deftp {~A} ~A~%"  (escape ,category) (escape ,name '(#\ )))
+     (format t "@deftp {~A} ~A "  (escape ,category) (escape ,name '(#\ )))
+     (when ,lambda-list
+       (render-lambda-list ,lambda-list)
+       (terpri))
      ,@body
      (format t "~&@end deftp~%")))
 
@@ -331,19 +334,25 @@ BODY should render on *standard-output*."
   "Execute BODY within a @deftp {Structure} NAME environment.
 NAME is escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
-  `(@deftp "Structure" ,name ,@body))
+  `(@deftp ("Structure" ,name) ,@body))
 
 (defmacro @defcond (name &body body)
   "Execute BODY within a @deftp {Condition} NAME environment.
 NAME is escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
-  `(@deftp "Condition" ,name ,@body))
+  `(@deftp ("Condition" ,name) ,@body))
 
 (defmacro @defclass (name &body body)
   "Execute BODY within a @deftp {Class} NAME environment.
 NAME is escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
-  `(@deftp "Class" ,name ,@body))
+  `(@deftp ("Class" ,name) ,@body))
+
+(defmacro @deftype ((name &optional lambda-list) &body body)
+  "Execute BODY within a @deftp {Type} NAME [LAMBDA-LIST] environment.
+NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
+BODY should render on *standard-output*."
+  `(@deftp ("Type" ,name ,lambda-list) ,@body))
 
 (defmacro render-to-string (&body body)
   "Execute BODY with *standard-output* redirected to a string.

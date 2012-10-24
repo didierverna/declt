@@ -260,6 +260,14 @@ When METHODS, render their definitions jointly."
   (render-@defclassoid :class class context
      (render-initargs class)))
 
+(defun render-@deftype (type context)
+  "Render TYPE's definition in CONTEXT."
+  (@deftype ((string-downcase (name type)) (lambda-list type))
+    (anchor-and-index type)
+    (render-docstring type)
+    (@table ()
+      (render-definition-core type context))))
+
 
 
 ;; ==========================================================================
@@ -327,6 +335,11 @@ When METHODS, render their definitions jointly."
   (declare (ignore relative-to))
   (format nil "the ~(~A~) class" (name class)))
 
+(defmethod title ((type type-definition) &optional relative-to)
+  "Return TYPE's title."
+  (declare (ignore relative-to))
+  (format nil "the ~(~A~) type" (name type)))
+
 ;; #### NOTE: the INDEX methods below only perform sub-indexing because the
 ;; main index entries are created automatically in Texinfo by the @defXXX
 ;; routines.
@@ -391,6 +404,11 @@ When METHODS, render their definitions jointly."
   "Render CLASS's indexing command."
   (declare (ignore relative-to))
   (format t "@classsubindex{~(~A~)}@c~%" (escape class)))
+
+(defmethod index ((type type-definition) &optional relative-to)
+  "Render TYPE's indexing command."
+  (declare (ignore relative-to))
+  (format t "@typesubindex{~(~A~)}@c~%" (escape type)))
 
 (defmethod reference ((definition definition) &optional relative-to)
   "Render DEFINITION's reference."
@@ -548,6 +566,10 @@ When METHODS, render their definitions jointly."
 (defmethod document ((class class-definition) context)
   "Render CLASS's documentation in CONTEXT."
   (render-@defclass class context))
+
+(defmethod document ((type type-definition) context)
+  "Render TYPE's documentation in CONTEXT."
+  (render-@deftype type context))
 
 
 

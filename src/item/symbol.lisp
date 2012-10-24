@@ -60,7 +60,8 @@
       (:generic        "generic functions")
       (:condition      "conditions")
       (:structure      "structures")
-      (:class          "classes"))
+      (:class          "classes")
+      (:type           "types"))
   "The list of definition categories.
 Each category is of type (:KEYWORD DESCRIPTION-STRING).")
 
@@ -165,6 +166,8 @@ documentation."
   "Structure for class definitions.
 This structure holds the direct superclasses and direct subclasses
 definitions.")
+(defstruct (type-definition (:include definition))
+  "Structure for type definitions.")
 
 ;; #### PORTME.
 (defgeneric lambda-list (definition)
@@ -175,7 +178,11 @@ definitions.")
      (funcoid-definition-function funcoid)))
   (:method ((method method-definition))
     "Return METHOD's lambda-list."
-    (sb-mop:method-lambda-list (method-definition-method method))))
+    (sb-mop:method-lambda-list (method-definition-method method)))
+  (:method ((type type-definition))
+    "Return TYPE's lambda-list."
+    (sb-introspect:deftype-lambda-list (definition-symbol type))))
+
 
 ;; #### PORTME.
 (defun specializers (method)
@@ -492,7 +499,14 @@ Return NIL if not found."
 	      (make-class-definition
 	       :symbol symbol
 	       :slots (make-slot-definitions class))
-	      pool)))))))
+	      pool))))
+	(:type
+	 (when (eql (sb-int:info :type :kind symbol) :defined)
+	   (add-definition
+	    symbol
+	    category
+	    (make-type-definition :symbol symbol)
+	    pool))))))
 
 (defun add-symbol-definitions (symbol pool)
   "Add all categorized definitions for SYMBOL to POOL."
@@ -702,6 +716,10 @@ Currently, this means:
   "Return CLASS's definition source."
   (definition-source-by-name class :class))
 
+(defmethod source ((type type-definition))
+  "Return TYPE's definition source."
+  (definition-source-by-name type :type))
+
 
 ;; ---------------
 ;; Source protocol
@@ -754,6 +772,10 @@ Currently, this means:
   "Return CLASSOID's docstring."
   (documentation (definition-symbol classoid) 'type))
 
+(defmethod docstring ((type type-definition))
+  "Return TYPE's docstring."
+  (documentation (definition-symbol type) 'type))
+
 
 ;; ------------------
 ;; Type name protocol
@@ -804,6 +826,10 @@ Currently, this means:
 (defmethod type-name ((class class-definition))
   "Return \"class\""
   "class")
+
+(defmethod type-name ((type type-definition))
+  "Return \"type\""
+  "type")
 
 
 ;;; symbol.lisp ends here

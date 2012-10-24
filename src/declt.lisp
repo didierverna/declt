@@ -261,6 +261,11 @@ The ~A Reference Manual~@[, version ~A~].
 @tpindex @r{Structure, }\\name\\
 @end macro
 
+@c Types
+@macro typesubindex{name}
+@tpindex @r{Type, }\\name\\
+@end macro
+
 @c Classes
 @macro classsubindex{name}
 @tpindex @r{Class, }\\name\\
