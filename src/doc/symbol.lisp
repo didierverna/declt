@@ -206,6 +206,17 @@ When METHODS, render their definitions jointly."
       (dolist (slot slots)
 	(render-@defslot slot)))))
 
+(defmacro render-@defcombination (kind combination context &body body)
+  "Render method COMBINATION's definition of KIND in CONTEXT."
+  (let ((the-combination (gensym "combination")))
+    `(let ((,the-combination ,combination))
+       (@defcombination (string-downcase (name ,the-combination)) ,kind
+	 (anchor-and-index ,the-combination)
+	 (render-docstring ,the-combination)
+	 (@table ()
+	   (render-definition-core ,the-combination ,context)
+	   ,@body)))))
+
 (defmacro render-@defclassoid (kind classoid context &body body)
   "Render CLASSOID's definition of KIND in CONTEXT."
   (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
@@ -318,12 +329,24 @@ When METHODS, render their definitions jointly."
   (declare (ignore relative-to))
   (format nil "the ~(~A~) generic function" (name generic)))
 
+;; #### NOTE: no TITLE method for SLOT-DEFINITION
+
+(defmethod title
+    ((combination short-combination-definition)&optional relative-to)
+  "Return short method COMBINATION's title."
+  (declare (ignore relative-to))
+  (format nil "the ~(~A~) short method combination" (name combination)))
+
+(defmethod title
+    ((combination long-combination-definition)&optional relative-to)
+  "Return long method COMBINATION's title."
+  (declare (ignore relative-to))
+  (format nil "the ~(~A~) long method combination" (name combination)))
+
 (defmethod title ((condition condition-definition) &optional relative-to)
   "Return CONDITION's title."
   (declare (ignore relative-to))
   (format nil "the ~(~A~) condition" (name condition)))
-
-;; #### NOTE: no TITLE method for SLOT-DEFINITION
 
 (defmethod title ((structure structure-definition) &optional relative-to)
   "Return STRUCTURE's title."
@@ -389,6 +412,18 @@ When METHODS, render their definitions jointly."
   "Render SLOT's indexing command."
   (declare (ignore relative-to))
   (format t "@slotsubindex{~(~A~)}@c~%" (escape slot)))
+
+(defmethod index
+    ((combination short-combination-definition) &optional relative-to)
+  "Render short method COMBINATION's indexing command."
+  (declare (ignore relative-to))
+  (format t "@shortcombinationsubindex{~(~A~)}@c~%" (escape combination)))
+
+(defmethod index
+    ((combination long-combination-definition) &optional relative-to)
+  "Render long method COMBINATION's indexing command."
+  (declare (ignore relative-to))
+  (format t "@longcombinationsubindex{~(~A~)}@c~%" (escape combination)))
 
 (defmethod index ((condition condition-definition) &optional relative-to)
   "Render CONDITION's indexing command."
@@ -554,6 +589,14 @@ When METHODS, render their definitions jointly."
 	 (document (generic-accessor-definition-writer accessor) context))))
 
 ;; #### NOTE: no DOCUMENT method for SLOT-DEFINITION
+
+(defmethod document ((combination short-combination-definition) context)
+  "Render short method COMBINATION's documentation in CONTEXT."
+  (render-@defcombination :short combination context))
+
+(defmethod document ((combination long-combination-definition) context)
+  "Render long method COMBINATION's documentation in CONTEXT."
+  (render-@defcombination :long combination context))
 
 (defmethod document ((condition condition-definition) context)
   "Render CONDITION's documentation in CONTEXT."

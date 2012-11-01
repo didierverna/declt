@@ -58,6 +58,7 @@
       (:compiler-macro "compiler macros")
       (:function       "functions")
       (:generic        "generic functions")
+      (:combination    "method combinations")
       (:condition      "conditions")
       (:structure      "structures")
       (:class          "classes")
@@ -145,6 +146,18 @@ This structure holds the slot object and the readers and writers definitions."
   slot
   readers
   writers)
+
+(defstruct (combination-definition (:include definition))
+  "Structure for method combination definitions.
+This structure holds the method combination object."
+  combination)
+
+(defstruct (short-combination-definition (:include combination-definition))
+  "Structure for short method combination definitions.")
+
+(defstruct (long-combination-definition (:include combination-definition))
+  "Structure for long method combination definitions.")
+
 
 (defstruct (classoid-definition (:include definition))
   "Base structure for class-like (supporting inheritance) values.
@@ -468,6 +481,64 @@ Return NIL if not found."
 				     (sb-mop:generic-function-methods
 				      writer)))
 		   pool)))))
+	;; #### WARNING: the method combination interface is probably the
+	;; ugliest thing I know about Common Lisp. The problem is that the
+	;; relation NAME <-> COMBINATION is not bijective. Generic functions
+	;; created with a named method combination get the current definition
+	;; for this name, and it becomes local. Subsequent redefinitions of a
+	;; method combination of that name will not affect them; only newly
+	;; defined generic functions.
+	;;
+	;; As a result, there is in fact no such thing as "the method
+	;; combination named BLABLA". Here's how SBCL works with this mess.
+	;; When you call DEFINE-METHOD-COMBINATION, SBCL creates a new method
+	;; for FIND-METHOD-COMBINATION. This method is encapsulated in a
+	;; closure containing the method combination's definition, ignores its
+	; first argument and recreates a method combination object on the fly.
+	;; In order to get this object, you may hence call
+	;; FIND-METHOD-COMBINATION with whatever generic function you wish.
+	;;
+	;; Consequence for Declt: normally, it's impossible to provide a list
+	;; of global method combinations. Every generic function can
+	;; potentially have one with the same name as another. The proper way
+	;; to retrieve a method combination per generic function is to call
+	;; GENERIC-FUNCTION-METHOD-COMBINATION. In Declt however, I will make
+	;; the assumption that the programmer has some sanity and only defines
+	;; one method combination for every name. The corresponding object
+	;; will be documented like the other ones. In generic function
+	;; documentations, there will be a reference to the method combination
+	;; and only the method combination options will be documented there,
+	;; as they may be generic function specific.
+	(:combination
+	 (let* ((method (find-method #'sb-mop:find-method-combination
+				     nil
+				     `(,(find-class 'generic-function)
+				       (eql ,symbol)
+				       t)
+				     nil))
+		(combination (when method
+			       (sb-mop:find-method-combination
+				;; #### NOTE: we could use any generic
+				;; function instead of DOCUMENTATION here.
+				;; Also, NIL options don't matter because they
+				;; are not advertised as part of the method
+				;; combination, but as part of the generic
+				;; functions that use them.
+				#'documentation symbol nil))))
+	   (when combination
+	     (add-definition
+	      symbol
+	      category
+	      (etypecase combination
+		(sb-pcl::short-method-combination
+		 (make-short-combination-definition
+		  :symbol symbol
+		  :combination combination))
+		(sb-pcl::long-method-combination
+		 (make-long-combination-definition
+		  :symbol symbol
+		  :combination combination)))
+	      pool))))
 	(:condition
 	 (let ((class (find-class symbol nil)))
 	   (when (and class (typep class 'sb-pcl::condition-class))
@@ -704,6 +775,10 @@ Currently, this means:
 
 ;; #### NOTE: no SOURCE method for SLOT-DEFINITION.
 
+(defmethod source ((combination combination-definition))
+  "Return method COMBINATION's definition source."
+  (definition-source-by-name combination :method-combination))
+
 (defmethod source ((condition condition-definition))
   "Return CONDITION's definition source."
   (definition-source-by-name condition :condition))
@@ -768,6 +843,10 @@ Currently, this means:
   "Return SLOT's docstring."
   (sb-pcl::%slot-definition-documentation (slot-definition-slot slot)))
 
+(defmethod docstring ((combination combination-definition))
+  "Return method COMBINATION's docstring."
+  (documentation (definition-symbol combination) 'method-combination))
+
 (defmethod docstring ((classoid classoid-definition))
   "Return CLASSOID's docstring."
   (documentation (definition-symbol classoid) 'type))
@@ -814,6 +893,14 @@ Currently, this means:
   "method")
 
 ;; #### NOTE: no TYPE-NAME method for SLOT-DEFINITION
+
+(defmethod type-name ((combination short-combination-definition))
+  "Return \"short method combination\"."
+  "short method combination")
+
+(defmethod type-name ((combination long-combination-definition))
+  "Return \"long method combination\"."
+  "long method combination")
 
 (defmethod type-name ((condition condition-definition))
   "Return \"condition\""

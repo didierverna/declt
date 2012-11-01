@@ -251,6 +251,17 @@ The ~A Reference Manual~@[, version ~A~].
 @findex @r{Generic Function, }\\name\\
 @end macro
 
+@c Method Combinations
+@macro shortcombinationsubindex{name}
+@tpindex @r{Short Method Combination, }\\name\\
+@tpindex @r{Method Combination, Short, }\\name\\
+@end macro
+
+@macro longcombinationsubindex{name}
+@tpindex @r{Long Method Combination, }\\name\\
+@tpindex @r{Method Combination, Long, }\\name\\
+@end macro
+
 @c Conditions
 @macro conditionsubindex{name}
 @tpindex @r{Condition, }\\name\\
