@@ -592,7 +592,11 @@ When METHODS, render their definitions jointly."
 
 (defmethod document ((combination short-combination-definition) context)
   "Render short method COMBINATION's documentation in CONTEXT."
-  (render-@defcombination :short combination context))
+  (render-@defcombination :short combination context
+    (@tableitem "Indentity with one argument"
+      (format t "@t{~(~A~)}"
+	(sb-pcl::short-combination-identity-with-one-argument
+	 (combination-definition-combination combination))))))
 
 (defmethod document ((combination long-combination-definition) context)
   "Render long method COMBINATION's documentation in CONTEXT."
