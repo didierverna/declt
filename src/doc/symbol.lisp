@@ -453,6 +453,13 @@ When METHODS, render their definitions jointly."
     (escape definition)
     (type-name definition)))
 
+(defmethod reference ((function function-definition) &optional relative-to)
+  "Render FUNCTION's reference."
+  (declare (ignore relative-to))
+  (if (function-definition-foreignp function)
+      (format t "@t{~(~A}~)~%" (escape function))
+    (call-next-method)))
+
 (defmethod reference ((method method-definition) &optional relative-to)
   "Render METHOD's reference."
   (declare (ignore relative-to))
@@ -590,9 +597,12 @@ When METHODS, render their definitions jointly."
 
 ;; #### NOTE: no DOCUMENT method for SLOT-DEFINITION
 
+;; #### PORTME.
 (defmethod document ((combination short-combination-definition) context)
   "Render short method COMBINATION's documentation in CONTEXT."
   (render-@defcombination :short combination context
+    (@tableitem "Operator"
+      (reference (short-combination-definition-operator combination)))
     (@tableitem "Indentity with one argument"
       (format t "@t{~(~A~)}"
 	(sb-pcl::short-combination-identity-with-one-argument

@@ -153,7 +153,9 @@ This structure holds the method combination object."
   combination)
 
 (defstruct (short-combination-definition (:include combination-definition))
-  "Structure for short method combination definitions.")
+  "Structure for short method combination definitions.
+This structure holds the operator definition."
+  operator)
 
 (defstruct (long-combination-definition (:include combination-definition))
   "Structure for long method combination definitions.")
@@ -293,12 +295,21 @@ Return NIL if not found."
 	       (find method (generic-definition-methods generic)
 		     :key #'method-definition-method)))))))
 
-(defun category-definitions (category pool)
-  "Return all CATEGORY definitions from POOL."
-  (loop :for key   :being :the :hash-keys   :in pool
-	:for value :being :the :hash-values :in pool
-	:when (eq (second key) category)
-	  :collect value))
+(defgeneric category-definitions (category pool)
+  (:documentation "Return all CATEGORY definitions from POOL.")
+  (:method (category pool)
+    "Default method used for root CATEGORYs."
+    (loop :for key   :being :the :hash-keys   :in pool
+	  :for value :being :the :hash-values :in pool
+	  :when (eq (second key) category)
+	    :collect value))
+  (:method ((category (eql :short-combination)) pool)
+    "Method used for short method combinations."
+    (loop :for key   :being :the :hash-keys   :in pool
+	  :for value :being :the :hash-values :in pool
+	  :when (and (eq (second key) :combination)
+		     (short-combination-definition-p value))
+	    :collect value)))
 
 (defun add-definition (symbol category definition pool)
   "Add CATEGORY kind of DEFINITION for SYMBOL to POOL."
@@ -690,7 +701,26 @@ Currently, this means:
 			    (slot-definition-slot slot) pool1 pool2))
 		     (setf (slot-definition-writers slot)
 			   (writer-definitions
-			    (slot-definition-slot slot) pool1 pool2))))))))
+			    (slot-definition-slot slot) pool1 pool2))))))
+	     (dolist
+		 (combination (category-definitions :short-combination pool))
+	       (let ((operator (sb-pcl::short-combination-operator
+				(combination-definition-combination
+				 combination))))
+		 (setf (short-combination-definition-operator combination)
+		       (or (find-definition operator :function pool1)
+			   (find-definition operator :function pool2)
+			   (find-definition operator :macro pool1)
+			   (find-definition operator :macro pool2)
+			   ;; #### NOTE: a foreign operator is not necessarily
+			   ;; a function. It could be a macro or a special
+			   ;; form. However, since we don't actually document
+			   ;; those (only print their name), we can just use
+			   ;; a function definition here (it's out of
+			   ;; laziness: it's the only funcoid that has a
+			   ;; foreignp slot currently ;-).
+			   (make-function-definition :symbol operator
+						     :foreignp t)))))))
     (finalize pool1)
     (finalize pool2)))
 
