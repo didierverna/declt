@@ -566,11 +566,27 @@ When METHODS, render their definitions jointly."
 	 (call-next-method)
 	 (document (accessor-method-definition-writer method) context))))
 
+;; #### PORTME.
+(defun render-method-combination (generic)
+  "Render GENERIC definition's method combination documentation."
+  (@tableitem "Method Combination"
+    (reference (generic-definition-combination generic))
+    (terpri)
+    (let ((options (mapcar (lambda (option)
+			     (escape (format nil "~(~S~)" option)))
+			   (sb-pcl::method-combination-options
+			    (sb-mop:generic-function-method-combination
+			     (generic-definition-function generic))))))
+      (when options
+	(format t "@b{Options:} @t{~A}~{, @t{~A}~}"
+	  (first options)
+	  (rest options))))))
+
+
 (defmethod document ((generic generic-definition) context)
   "Render GENERIC's documentation in CONTEXT."
   (render-@defgeneric generic context
-    (@tableitem "Method Combination"
-      (reference (generic-definition-combination generic)))
+    (render-method-combination generic)
     (let ((methods (generic-definition-methods generic)))
       (when methods
 	(@tableitem "Methods"
@@ -601,8 +617,7 @@ When METHODS, render their definitions jointly."
 		    (and (not (null writer-docstring)) (null docstring)))))
 	 (render-@defgenericx
 	     accessor (generic-accessor-definition-writer accessor) context
-	   (@tableitem "Method Combination"
-	     (reference (generic-definition-combination accessor)))
+	   (render-method-combination accessor)
 	   (let ((reader-methods
 		   (generic-accessor-definition-methods accessor))
 		 (writer-methods
