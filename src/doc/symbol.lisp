@@ -606,7 +606,11 @@ When METHODS, render their definitions jointly."
     (@tableitem "Indentity with one argument"
       (format t "@t{~(~A~)}"
 	(sb-pcl::short-combination-identity-with-one-argument
-	 (combination-definition-combination combination))))))
+	 (combination-definition-combination combination))))
+    (when (combination-definition-users combination)
+      (@tableitem "Users"
+	(@itemize-list (combination-definition-users combination)
+		       :renderer #'reference)))))
 
 (defmethod document ((combination long-combination-definition) context)
   "Render long method COMBINATION's documentation in CONTEXT."

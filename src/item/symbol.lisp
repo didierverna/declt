@@ -149,8 +149,10 @@ This structure holds the slot object and the readers and writers definitions."
 
 (defstruct (combination-definition (:include definition))
   "Structure for method combination definitions.
-This structure holds the method combination object."
-  combination)
+This structure holds the method combination object and a list of users, that
+is, generic functions using this method combination."
+  combination
+  users)
 
 (defstruct (short-combination-definition (:include combination-definition))
   "Structure for short method combination definitions.
@@ -643,6 +645,34 @@ Return NIL if not found."
 	   (find-definition writer-name :writer pool2)
 	   (make-writer-definition :symbol writer-name :foreignp t))))))
 
+;; #### PORTME.
+(defgeneric definition-combination-users (definition combination)
+  (:documentation "Return a list of definitions using method COMBINATION.
+The list may boil down to a generic function definition, but may also contain
+both a reader and a writer.")
+  (:method (definition combination)
+    "Default method, for non generic function definitions.
+Return nil."
+    nil)
+  (:method ((definition generic-definition) combination)
+    "Method for simple generic and writer definitions."
+    (when (eq (sb-pcl::method-combination-type-name
+	       (sb-mop:generic-function-method-combination
+		(generic-definition-function definition)))
+	      combination)
+      (list definition)))
+  (:method ((definition generic-accessor-definition) combination)
+    "Method for generic accessor definitions."
+    (nconc (call-next-method)
+	   (definition-combination-users
+	    (generic-accessor-definition-writer definition) combination))))
+
+(defun pool-combination-users (pool combination)
+  "Return a list of all generic definitions in POOL using method COMBINATION."
+  (mapcan-definitions-pool
+   (lambda (definition) (definition-combination-users definition combination))
+   pool))
+
 ;; #### NOTE: this finalization step is required for two reasons:
 ;;   1. it makes it easier to handle cross references (e.g. class inheritance)
 ;;      because at that time, we know that all definitions have been created,
@@ -720,7 +750,12 @@ Currently, this means:
 			   ;; laziness: it's the only funcoid that has a
 			   ;; foreignp slot currently ;-).
 			   (make-function-definition :symbol operator
-						     :foreignp t)))))))
+						     :foreignp t))))
+	       (setf (combination-definition-users combination)
+		     (nconc (pool-combination-users
+			     pool1 (definition-symbol combination))
+			    (pool-combination-users
+			     pool2 (definition-symbol combination)))))))
     (finalize pool1)
     (finalize pool2)))
 
