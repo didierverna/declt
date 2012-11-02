@@ -561,9 +561,11 @@ When METHODS, render their definitions jointly."
 (defmethod document ((generic generic-definition) context)
   "Render GENERIC's documentation in CONTEXT."
   (render-@defgeneric generic context
-    (@tableitem "Methods"
-      (dolist (method (generic-definition-methods generic))
-	(document method context)))))
+    (let ((methods (generic-definition-methods generic)))
+      (when methods
+	(@tableitem "Methods"
+	  (dolist (method methods)
+	    (document method context)))))))
 
 (defmethod document ((accessor generic-accessor-definition) context)
   "Render generic ACCESSOR's documentation in CONTEXT."
@@ -584,13 +586,22 @@ When METHODS, render their definitions jointly."
 		    (null writer-docstring)
 		    (and (not (null writer-docstring)) (null docstring)))))
 	 (render-@defgenericx
-	  accessor (generic-accessor-definition-writer accessor) context
-	  (@tableitem "Methods"
-	    (dolist (method (generic-accessor-definition-methods accessor))
-	      (document method context))
-	    (dolist (method (generic-writer-definition-methods
-			     (generic-accessor-definition-writer accessor)))
-	      (document method context)))))
+	     accessor (generic-accessor-definition-writer accessor) context
+	   (let ((reader-methods
+		   (generic-accessor-definition-methods accessor))
+		 (writer-methods
+		   (generic-writer-definition-methods
+		    (generic-accessor-definition-writer accessor))))
+	     (when (or reader-methods writer-methods)
+	       (@tableitem "Methods"
+		 ;; #### FIXME: this is not the best order to advertise
+		 ;; methods. We should group them by specializers instead, so
+		 ;; that readers and writers are documented together, just as
+		 ;; generic readers and writers.
+		 (dolist (method reader-methods)
+		   (document method context))
+		 (dolist (method writer-methods)
+		   (document method context)))))))
 	(t
 	 (call-next-method)
 	 (document (generic-accessor-definition-writer accessor) context))))
