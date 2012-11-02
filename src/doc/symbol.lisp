@@ -474,6 +474,14 @@ When METHODS, render their definitions jointly."
       (format t "@t{~(~A}~)~%" (escape generic))
     (call-next-method)))
 
+(defmethod reference
+    ((combination combination-definition) &optional relative-to)
+  "Render COMBINATION's reference."
+  (declare (ignore relative-to))
+  (if (combination-definition-foreignp combination)
+      (format t "@t{~(~A}~)~%" (escape combination))
+    (call-next-method)))
+
 (defmethod reference ((classoid classoid-definition) &optional relative-to)
   "Render CLASSOID's reference."
   (declare (ignore relative-to))
@@ -561,6 +569,8 @@ When METHODS, render their definitions jointly."
 (defmethod document ((generic generic-definition) context)
   "Render GENERIC's documentation in CONTEXT."
   (render-@defgeneric generic context
+    (@tableitem "Method Combination"
+      (reference (generic-definition-combination generic)))
     (let ((methods (generic-definition-methods generic)))
       (when methods
 	(@tableitem "Methods"
@@ -577,6 +587,10 @@ When METHODS, render their definitions jointly."
 		     ;; before comparing.
 		     (cdr (lambda-list
 			   (generic-accessor-definition-writer accessor))))
+	      (eq (definition-symbol (generic-definition-combination accessor))
+		  (definition-symbol
+		   (generic-definition-combination
+		    (generic-accessor-definition-writer accessor))))
 	      (let ((docstring (docstring accessor))
 		    (writer-docstring
 		      (docstring
@@ -587,6 +601,8 @@ When METHODS, render their definitions jointly."
 		    (and (not (null writer-docstring)) (null docstring)))))
 	 (render-@defgenericx
 	     accessor (generic-accessor-definition-writer accessor) context
+	   (@tableitem "Method Combination"
+	     (reference (generic-definition-combination accessor)))
 	   (let ((reader-methods
 		   (generic-accessor-definition-methods accessor))
 		 (writer-methods

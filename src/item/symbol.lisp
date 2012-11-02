@@ -128,10 +128,11 @@ This structure holds the writer method definition."
 
 (defstruct (generic-definition (:include funcoid-definition))
   "Structure for generic function definitions.
-This structure holds the list of method definitions and also a slot for
-marking foreign definitions, i.e. those which do pertain to the system being
-documented."
+This structure holds the combination definition, the list of method
+definitions and also a slot for marking foreign definitions, i.e. those which
+do pertain to the system being documented."
   foreignp
+  combination
   methods)
 (defstruct (generic-writer-definition (:include generic-definition))
   "Structure for generic writer function definitions.")
@@ -151,6 +152,7 @@ This structure holds the slot object and the readers and writers definitions."
   "Structure for method combination definitions.
 This structure holds the method combination object and a list of users, that
 is, generic functions using this method combination."
+  foreignp
   combination
   users)
 
@@ -712,6 +714,15 @@ Currently, this means:
 		     (make-method-definition :symbol (method-name method)
 					     :foreignp t)))
 	      methods))
+	   (compute-combination (generic)
+	     (let ((name (sb-pcl::method-combination-type-name
+			  (sb-mop:generic-function-method-combination
+			   (generic-definition-function generic)))))
+	       (setf (generic-definition-combination generic)
+		     (or (find-definition name :combination pool1)
+			 (find-definition name :combination pool2)
+			 (make-combination-definition :symbol name
+						      :foreignp t)))))
 	   (finalize (pool)
 	     (dolist (category '(:class :structure :condition))
 	       (dolist (definition (category-definitions category pool))
@@ -732,6 +743,11 @@ Currently, this means:
 		     (setf (slot-definition-writers slot)
 			   (writer-definitions
 			    (slot-definition-slot slot) pool1 pool2))))))
+	     (dolist (generic (category-definitions :generic pool))
+	       (compute-combination generic)
+	       (when (generic-accessor-definition-p generic)
+		 (compute-combination
+		  (generic-accessor-definition-writer generic))))
 	     (dolist
 		 (combination (category-definitions :short-combination pool))
 	       (let ((operator (sb-pcl::short-combination-operator
