@@ -607,6 +607,13 @@ When METHODS, render their definitions jointly."
 		  (definition-symbol
 		   (generic-definition-combination
 		    (generic-accessor-definition-writer accessor))))
+	      (equal (sb-pcl::method-combination-options
+		      (sb-mop:generic-function-method-combination
+		       (generic-definition-function accessor)))
+		     (sb-pcl::method-combination-options
+		      (sb-mop:generic-function-method-combination
+		       (generic-definition-function
+			(generic-accessor-definition-writer accessor)))))
 	      (let ((docstring (docstring accessor))
 		    (writer-docstring
 		      (docstring
@@ -653,7 +660,8 @@ When METHODS, render their definitions jointly."
 
 (defmethod document ((combination long-combination-definition) context)
   "Render long method COMBINATION's documentation in CONTEXT."
-  (render-@defcombination :long combination context))
+  (render-@defcombination :long combination context
+    (render-references (combination-definition-users combination) "Users")))
 
 (defmethod document ((condition condition-definition) context)
   "Render CONDITION's documentation in CONTEXT."

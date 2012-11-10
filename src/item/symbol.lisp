@@ -313,6 +313,13 @@ Return NIL if not found."
 	  :for value :being :the :hash-values :in pool
 	  :when (and (eq (second key) :combination)
 		     (short-combination-definition-p value))
+	    :collect value))
+  (:method ((category (eql :long-combination)) pool)
+    "Method used for long method combinations."
+    (loop :for key   :being :the :hash-keys   :in pool
+	  :for value :being :the :hash-values :in pool
+	  :when (and (eq (second key) :combination)
+		     (long-combination-definition-p value))
 	    :collect value)))
 
 (defun add-definition (symbol category definition pool)
@@ -767,6 +774,13 @@ Currently, this means:
 			   ;; foreignp slot currently ;-).
 			   (make-function-definition :symbol operator
 						     :foreignp t))))
+	       (setf (combination-definition-users combination)
+		     (nconc (pool-combination-users
+			     pool1 (definition-symbol combination))
+			    (pool-combination-users
+			     pool2 (definition-symbol combination)))))
+	     (dolist
+		 (combination (category-definitions :long-combination pool))
 	       (setf (combination-definition-users combination)
 		     (nconc (pool-combination-users
 			     pool1 (definition-symbol combination))
