@@ -526,13 +526,8 @@ When METHODS, render their definitions jointly."
 		     ;; lambda-list argument of NEW-VALUE that we must skip
 		     ;; before comparing.
 		     (cdr (lambda-list (accessor-definition-writer accessor))))
-	      (let ((docstring (docstring accessor))
-		    (writer-docstring
-		      (docstring (accessor-definition-writer accessor))))
-		(or (and docstring writer-docstring
-			 (string= docstring writer-docstring))
-		    (null writer-docstring)
-		    (and (not (null writer-docstring)) (null docstring)))))
+	      (equal (docstring accessor)
+		     (docstring (accessor-definition-writer accessor))))
 	 (render-@defunx
 	  accessor (accessor-definition-writer accessor) context))
 	(t
