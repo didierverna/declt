@@ -558,19 +558,22 @@ When METHODS, render their definitions jointly."
 
 ;; #### PORTME.
 (defun render-method-combination (generic)
-  "Render GENERIC definition's method combination documentation."
-  (@tableitem "Method Combination"
-    (reference (generic-definition-combination generic))
-    (terpri)
-    (let ((options (mapcar (lambda (option)
-			     (escape (format nil "~(~S~)" option)))
-			   (sb-pcl::method-combination-options
-			    (sb-mop:generic-function-method-combination
-			     (generic-definition-function generic))))))
-      (when options
-	(format t "@b{Options:} @t{~A}~{, @t{~A}~}"
-	  (first options)
-	  (rest options))))))
+  "Render GENERIC definition's method combination documentation.
+The standard method combination is not rendered."
+  (unless (eq (definition-symbol (generic-definition-combination generic))
+	      'standard)
+    (@tableitem "Method Combination"
+      (reference (generic-definition-combination generic))
+      (terpri)
+      (let ((options (mapcar (lambda (option)
+			       (escape (format nil "~(~S~)" option)))
+			     (sb-pcl::method-combination-options
+			      (sb-mop:generic-function-method-combination
+			       (generic-definition-function generic))))))
+	(when options
+	  (format t "@b{Options:} @t{~A}~{, @t{~A}~}"
+	    (first options)
+	    (rest options)))))))
 
 
 (defmethod document ((generic generic-definition) context)
