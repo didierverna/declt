@@ -609,14 +609,9 @@ When METHODS, render their definitions jointly."
 		      (sb-mop:generic-function-method-combination
 		       (generic-definition-function
 			(generic-accessor-definition-writer accessor)))))
-	      (let ((docstring (docstring accessor))
-		    (writer-docstring
-		      (docstring
-		       (generic-accessor-definition-writer accessor))))
-		(or (and docstring writer-docstring
-			 (string= docstring writer-docstring))
-		    (null writer-docstring)
-		    (and (not (null writer-docstring)) (null docstring)))))
+	      (equal (docstring accessor)
+		     (docstring
+		      (generic-accessor-definition-writer accessor))))
 	 (render-@defgenericx
 	     accessor (generic-accessor-definition-writer accessor) context
 	   (render-method-combination accessor)
