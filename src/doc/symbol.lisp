@@ -548,13 +548,8 @@ When METHODS, render their definitions jointly."
 		     ;; before comparing.
 		     (cdr (lambda-list
 			   (accessor-method-definition-writer method))))
-	      (let ((docstring (docstring method))
-		    (writer-docstring
-		      (docstring (accessor-method-definition-writer method))))
-		(or (and docstring writer-docstring
-			 (string= docstring writer-docstring))
-		    (null writer-docstring)
-		    (and (not (null writer-docstring)) (null docstring)))))
+	      (equal (docstring method)
+		     (docstring (accessor-method-definition-writer method))))
 	 (render-@defmethodx
 	  method (accessor-method-definition-writer method) context))
 	(t
