@@ -93,8 +93,15 @@ This structure holds the symbol naming the definition."
 (defstruct (funcoid-definition (:include definition))
   "Base structure for definitions of functional values.
 This structure holds the the function, generic function or macro function
-object."
-  function)
+object, and a potential setf expander definition."
+  function
+  ;; #### NOTE: technically, it's not quite correct to have this slot here
+  ;; because not all funcoids can have a setf expander (compiler macros
+  ;; don't). However, it simplifies the writing of FINALIZE-DEFINITIONS
+  ;; towards the end of this file. With a SETF-EXPANDER slot here, I can
+  ;; batch-process macros, functions and generics all at once using the same
+  ;; slot accessor.
+  setf-expander)
 
 (defstruct (macro-definition (:include funcoid-definition))
   "Structure for macro definitions.")
@@ -698,7 +705,8 @@ Currently, this means resolving:
 - slots readers,
 - slots writers,
 - generic functions method combinations,
-- method combinations operators (for short ones) and users (for both)."
+- method combinations operators (for short ones) and users (for both),
+- (generic) functions and macros setf expanders."
   (labels ((classes-definitions (classes)
 	     (mapcar
 	      (lambda (name)
@@ -785,7 +793,29 @@ Currently, this means resolving:
 		     (nconc (pool-combination-users
 			     pool1 (definition-symbol combination))
 			    (pool-combination-users
-			     pool2 (definition-symbol combination)))))))
+			     pool2 (definition-symbol combination)))))
+	     (dolist (category '(:macro :function :generic))
+	       (dolist (definition (category-definitions category pool))
+		 (let ((expander (sb-int:info :setf :inverse
+				   (definition-symbol definition))))
+		   (cond ((and expander (symbolp expander))
+			  (setf
+			   (funcoid-definition-setf-expander definition)
+			   (or (find-definition expander :function pool1)
+			       (find-definition expander :function pool2)
+			       (find-definition expander :generic pool1)
+			       (find-definition expander :generic pool2)
+			       (find-definition expander :macro pool1)
+			       (find-definition expander :macro pool2)
+			       ;; #### NOTE: a foreign expander is not
+			       ;; necessarily a function. It could be a
+			       ;; macro or a special form. However, since
+			       ;; we don't actually document those (only
+			       ;; print their name), we can just use a
+			       ;; function definition here (it's out of
+			       ;; laziness)
+			       (make-function-definition :symbol expander
+							 :foreignp t))))))))))
     (finalize pool1)
     (finalize pool2)))
 

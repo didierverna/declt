@@ -106,6 +106,19 @@ When FUNCOIDS, render their definitions jointly."
 	 (render-docstring ,the-funcoid)
 	 (@table ()
 	   (render-definition-core ,the-funcoid ,context)
+	   ;; #### NOTE: see comment in the funcoid-definition structure from
+	   ;; ../item/symbol.lisp file.
+	   (let ((expander (funcoid-definition-setf-expander ,the-funcoid)))
+	     (when expander
+	       (@tableitem "Setf Expander"
+	         (let ((docstring
+			 (documentation
+			  (funcoid-definition-symbol ,the-funcoid)
+			  'setf)))
+		   (when docstring
+		     (render-text docstring)
+		     (princ "@*")))
+		 (reference expander))))
 	   ,@body)))))
 
 (defun render-@defun (function context)
