@@ -691,12 +691,14 @@ Return nil."
 ;; #### PORTME.
 (defun finalize-definitions (pool1 pool2)
   "Finalize the definitions in POOL1 and POOL2.
-Currently, this means:
-- resolving classes subclasses,
-- resolving classes superclasses,
-- resolving classes direct methods,
-- resolving slots readers,
-- resolving slots writers."
+Currently, this means resolving:
+- classes subclasses,
+- classes superclasses,
+- classes direct methods,
+- slots readers,
+- slots writers,
+- generic functions method combinations,
+- method combinations operators (for short ones) and users (for both)."
   (labels ((classes-definitions (classes)
 	     (mapcar
 	      (lambda (name)
@@ -768,10 +770,8 @@ Currently, this means:
 			   ;; #### NOTE: a foreign operator is not necessarily
 			   ;; a function. It could be a macro or a special
 			   ;; form. However, since we don't actually document
-			   ;; those (only print their name), we can just use
-			   ;; a function definition here (it's out of
-			   ;; laziness: it's the only funcoid that has a
-			   ;; foreignp slot currently ;-).
+			   ;; those (only print their name), we can just use a
+			   ;; function definition here (it's out of laziness)
 			   (make-function-definition :symbol operator
 						     :foreignp t))))
 	       (setf (combination-definition-users combination)
