@@ -505,9 +505,9 @@ When METHODS, render their definitions jointly."
 	(escape
 	 (format nil "~S" (macroexpand (definition-symbol symbol-macro))))))))
 
-(defmethod document ((funcoid funcoid-definition) context)
-  "Render FUNCOID's documentation in CONTEXT."
-  (render-@defun funcoid context))
+(defmethod document ((function function-definition) context)
+  "Render FUNCTION's documentation in CONTEXT."
+  (render-@defun function context))
 
 (defmethod document ((macro macro-definition) context)
   "Render MACRO's documentation in CONTEXT."
