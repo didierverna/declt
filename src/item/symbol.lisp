@@ -119,6 +119,11 @@ do pertain to the system being documented."
 (defstruct (accessor-definition (:include function-definition))
   "Structure for accessor function definitions.
 This structure holds the writer function definition."
+  ;; #### NOTE: the reason for a WRITER slot here is that Declt will attempt
+  ;; to concatenate the definitions for FOO and (SETF FOO) into a single
+  ;; documentation item when possible. It makes the reference manual more
+  ;; readable IMO, but that's assuming that FOO and (SETF FOO) are indeed a
+  ;; no-nonsense reader/writer pair of functions...
   writer)
 
 (defstruct (method-definition (:include definition))
@@ -147,6 +152,11 @@ do pertain to the system being documented."
 (defstruct (generic-accessor-definition (:include generic-definition))
   "Structure for generic accessor function definitions.
 This structure holds the generic writer function definition."
+  ;; #### NOTE: the reason for a WRITER slot here is that Declt will attempt
+  ;; to concatenate the definitions for FOO and (SETF FOO) into a single
+  ;; documentation item when possible. It makes the reference manual more
+  ;; readable IMO, but that's assuming that FOO and (SETF FOO) are indeed a
+  ;; no-nonsense reader/writer pair of functions...
   writer)
 
 (defstruct (slot-definition (:include definition))
@@ -377,6 +387,13 @@ Return NIL if not found."
 	      (make-compiler-macro-definition :symbol symbol
 					      :function function)
 	      pool))))
+	;; #### NOTE: As mentionned earlier, the WRITER slot in (generic)
+	;; functions help to attempt concatenation of the reader and writer
+	;; documentation. However, we won't even attempt concatenation when
+	;; the reader and writer are of different nature, that is, one a
+	;; simple function and the other a generic one. If any, those cases
+	;; should be extremely rare and would probably not represent real
+	;; accessor functionality.
 	(:function
 	 (let ((function
 		 (when (and (fboundp symbol)
