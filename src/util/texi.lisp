@@ -281,6 +281,13 @@ BODY should render on *standard-output*."
      ,@body
      (format t "~&@end deffn~%")))
 
+(defmacro @defsetf (name lambda-list &body body)
+  "Execute BODY within a @deffn {Setf Expander} NAME LAMBDA-LIST environment.
+NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
+BODY should render on *standard-output*."
+  `(@deffn ("Setf Expander" ,name ,lambda-list)
+     ,@body))
+
 (defmacro @defcompilermacro (name lambda-list &body body)
   "Execute BODY within a @deffn {Compiler Macro} NAME LAMBDA-LIST environment.
 NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
