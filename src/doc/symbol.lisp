@@ -545,11 +545,6 @@ When METHODS, render their definitions jointly."
   "Render ACCESSOR's documentation in CONTEXT."
   (cond ((and (equal (source accessor)
 		     (source (accessor-definition-writer accessor)))
-	      (equal (lambda-list accessor)
-		     ;; #### NOTE: the writer has a first additional
-		     ;; lambda-list argument of NEW-VALUE that we must skip
-		     ;; before comparing.
-		     (cdr (lambda-list (accessor-definition-writer accessor))))
 	      (equal (docstring accessor)
 		     (docstring (accessor-definition-writer accessor))))
 	 (render-@defunx
@@ -566,12 +561,6 @@ When METHODS, render their definitions jointly."
   "Render accessor METHOD's documentation in CONTEXT."
   (cond ((and (equal (source method)
 		     (source (accessor-method-definition-writer method)))
-	      (equal (lambda-list method)
-		     ;; #### NOTE: the writer has a first additional
-		     ;; lambda-list argument of NEW-VALUE that we must skip
-		     ;; before comparing.
-		     (cdr (lambda-list
-			   (accessor-method-definition-writer method))))
 	      (equal (docstring method)
 		     (docstring (accessor-method-definition-writer method))))
 	 (render-@defmethodx
@@ -614,12 +603,6 @@ The standard method combination is not rendered."
   "Render generic ACCESSOR's documentation in CONTEXT."
   (cond ((and (equal (source accessor)
 		     (source (generic-accessor-definition-writer accessor)))
-	      (equal (lambda-list accessor)
-		     ;; #### NOTE: the writer has a first additional
-		     ;; lambda-list argument of NEW-VALUE that we must skip
-		     ;; before comparing.
-		     (cdr (lambda-list
-			   (generic-accessor-definition-writer accessor))))
 	      (eq (definition-symbol (generic-definition-combination accessor))
 		  (definition-symbol
 		   (generic-definition-combination
