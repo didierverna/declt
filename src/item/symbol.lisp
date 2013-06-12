@@ -92,7 +92,7 @@ This structure holds the symbol naming the definition."
 
 (defstruct (funcoid-definition (:include definition))
   "Base structure for definitions of functional values.
-This structure holds the the function, generic function or macro function
+This structure holds the function, generic function or macro function
 object, and a potential setf expander definition (short form) or function
 object (long form)."
   function
