@@ -111,14 +111,22 @@ When FUNCOIDS, render their definitions jointly."
 	   (let ((expander (funcoid-definition-setf-expander ,the-funcoid)))
 	     (when expander
 	       (@tableitem "Setf Expander"
+	         (etypecase expander
+		   (funcoid-definition
+		    (princ "Short form with update function: ")
+		    (reference expander))
+		   (function
+		    ;; #### PORTME.
+		    (format t "Long form with lambda list: ")
+		    (render-lambda-list
+		     (sb-introspect:function-lambda-list expander))))
 	         (let ((docstring
 			 (documentation
 			  (funcoid-definition-symbol ,the-funcoid)
 			  'setf)))
 		   (when docstring
-		     (render-text docstring)
-		     (princ "@*")))
-		 (reference expander))))
+		     (princ "@*")
+		     (render-text docstring))))))
 	   ,@body)))))
 
 (defun render-@defun (function context)

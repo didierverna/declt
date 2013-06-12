@@ -93,7 +93,8 @@ This structure holds the symbol naming the definition."
 (defstruct (funcoid-definition (:include definition))
   "Base structure for definitions of functional values.
 This structure holds the the function, generic function or macro function
-object, and a potential setf expander definition."
+object, and a potential setf expander definition (short form) or function
+object (long form)."
   function
   ;; #### NOTE: technically, it's not quite correct to have this slot here
   ;; because not all funcoids can have a setf expander (compiler macros
@@ -796,8 +797,10 @@ Currently, this means resolving:
 			     pool2 (definition-symbol combination)))))
 	     (dolist (category '(:macro :function :generic))
 	       (dolist (definition (category-definitions category pool))
-		 (let ((expander (sb-int:info :setf :inverse
-				   (definition-symbol definition))))
+		 (let ((expander (or (sb-int:info :setf :inverse
+				       (definition-symbol definition))
+				     (sb-int:info :setf :expander
+				       (definition-symbol definition)))))
 		   (cond ((and expander (symbolp expander))
 			  (setf
 			   (funcoid-definition-setf-expander definition)
@@ -815,7 +818,11 @@ Currently, this means resolving:
 			       ;; function definition here (it's out of
 			       ;; laziness)
 			       (make-function-definition :symbol expander
-							 :foreignp t))))))))))
+							 :foreignp t))))
+			 ((functionp expander)
+			  (setf
+			   (funcoid-definition-setf-expander definition)
+			   expander))))))))
     (finalize pool1)
     (finalize pool2)))
 
