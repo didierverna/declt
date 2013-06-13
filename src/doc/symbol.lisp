@@ -168,7 +168,7 @@ When METHODS, render their definitions jointly."
     (@table ()
       (render-definition-core expander context)
       (when (definition-p (setf-expander-definition-expander expander))
-	(@tableitem "Expands to"
+	(@tableitem "Expansion"
 	  (reference (setf-expander-definition-expander expander)))))))
 
 (defun render-slot-property
