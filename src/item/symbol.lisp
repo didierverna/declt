@@ -798,10 +798,10 @@ Currently, this means resolving:
 			   (find-definition operator :macro pool1)
 			   (find-definition operator :macro pool2)
 			   ;; #### NOTE: a foreign operator is not necessarily
-			   ;; a function. It could be a macro or a special
-			   ;; form. However, since we don't actually document
-			   ;; those (only print their name), we can just use a
-			   ;; function definition here (it's out of laziness)
+			   ;; a regular function. However, since we don't
+			   ;; actually document those (only print their name),
+			   ;; we can just use a function definition here (it's
+			   ;; out of laziness).
 			   (make-function-definition :symbol operator
 						     :foreignp t))))
 	       (setf (combination-definition-users combination)
