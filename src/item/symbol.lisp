@@ -973,13 +973,13 @@ Currently, this means resolving:
 (defmethod source
     ((expander setf-expander-definition)
      &aux (expander (setf-expander-definition-expander expander)))
-  ;; #### NOTE: for short setf expander forms, what we get is the source
-  ;; location of the update function instead of where the DEFSETF form
-  ;; appears. This is not what I want but it seems to be all that's available
-  ;; from sb-introspect.
-  (definition-source  (if (symbolp expander)
-			  (symbol-function expander)
-			  expander)))
+  ;; #### NOTE: looking at how sb-introspect does it, it seems that the
+  ;; "source" of a setf expander is the source of the function object. For
+  ;; long forms, this should be OK. For short forms however, what we get is
+  ;; the source of the update function, which is not quite correct.
+  (etypecase expander
+    (definition (source expander))
+    (function   (definition-source expander))))
 
 (defmethod source ((method method-definition))
   "Return METHOD's definition source."
