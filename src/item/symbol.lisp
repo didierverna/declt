@@ -396,7 +396,8 @@ Return NIL if not found."
 	;; function and the other a generic one. If any, those cases should be
 	;; extremely rare and it doesn't really make sense to merge
 	;; heterogeneous documentations (for instance, there would be methods
-	;; for only one of the definitions).
+	;; for only one of the definitions). Besides, we regular and generic
+	;; functions appear in different sections in the manual.
 	(:function
 	 (let ((function
 		 (when (and (fboundp symbol)
