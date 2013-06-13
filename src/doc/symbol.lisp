@@ -44,7 +44,6 @@
 (defun render-definition-core (definition context)
   "Render DEFINITION's documentation core in CONTEXT.
 The documentation core includes all common definition attributes:
-  - docstring,
   - package,
   - source location.
 
