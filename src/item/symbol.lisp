@@ -102,7 +102,13 @@ object (long form)."
   setf-expander)
 
 (defstruct (macro-definition (:include funcoid-definition))
-  "Structure for macro definitions.")
+  "Structure for macro definitions."
+  ;; #### NOTE: you may notice that contrary to (generic) functions, macro
+  ;; definitions don't have a WRITER slot. That is because a setf function
+  ;; cannot be directly associated with a macro so there's no point in trying
+  ;; to concatenate their documentation. See sections 5.1.2.7 and 5.1.2.9 of
+  ;; the Hyperref for more information.
+  )
 (defstruct (compiler-macro-definition (:include funcoid-definition))
   "Structure for compiler macro definitions.")
 
