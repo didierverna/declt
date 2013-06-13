@@ -1,9 +1,8 @@
 ;;; symbol.lisp --- Symbol based items
 
-;; Copyright (C) 2010, 2011, 2012 Didier Verna
+;; Copyright (C) 2010-2013 Didier Verna
 
-;; Author:        Didier Verna <didier@lrde.epita.fr>
-;; Maintainer:    Didier Verna <didier@lrde.epita.fr>
+;; Author: Didier Verna <didier@didierverna.net>
 
 ;; This file is part of Declt.
 
@@ -22,8 +21,6 @@
 
 
 ;;; Commentary:
-
-;; Contents management by FCM version 0.1.
 
 
 ;;; Code:
@@ -219,7 +216,6 @@ definitions.")
   (:method ((type type-definition))
     "Return TYPE's lambda-list."
     (sb-introspect:deftype-lambda-list (definition-symbol type))))
-
 
 ;; #### PORTME.
 (defun specializers (method)
