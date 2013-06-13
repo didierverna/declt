@@ -390,12 +390,13 @@ Return NIL if not found."
 					      :function function)
 	      pool))))
 	;; #### NOTE: As mentionned earlier, the WRITER slot in (generic)
-	;; functions help to attempt concatenation of the reader and writer
-	;; documentation. However, we won't even attempt concatenation when
-	;; the reader and writer are of different nature, that is, one a
-	;; simple function and the other a generic one. If any, those cases
-	;; should be extremely rare and would probably not represent real
-	;; accessor functionality.
+	;; functions helps to attempt concatenation of the reader and writer
+	;; documentation. However, we won't attempt concatenation when the
+	;; reader and writer are of different nature, that is, one a simple
+	;; function and the other a generic one. If any, those cases should be
+	;; extremely rare and it doesn't really make sense to merge
+	;; heterogeneous documentations (for instance, there would be methods
+	;; for only one of the definitions).
 	(:function
 	 (let ((function
 		 (when (and (fboundp symbol)
