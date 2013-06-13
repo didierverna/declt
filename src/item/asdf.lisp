@@ -97,7 +97,8 @@
     (nconc (call-next-method)
 	   (when (macro-definition-expander macro)
 	     (definition-file-definitions
-	      (macro-definition-expander macro)))))
+	      (macro-definition-expander macro)
+	      file))))
   (:method ((accessor accessor-definition) file)
     "Handle ACCESSOR, its writer and its setf expander."
     (nconc (call-next-method)
