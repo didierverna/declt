@@ -104,12 +104,23 @@
     "Default method for definitions not containing sub-definitions."
     (when (eq (symbol-package (definition-symbol definition)) package)
       (list definition)))
-  (:method ((accessor accessor-definition) package)
-    "Handle ACCESSOR and its writer function."
+  (:method ((macro macro-definition) package)
+    "Handle MACRO and its setf expander."
     (nconc (call-next-method)
-	   (definition-package-definitions
-	    (accessor-definition-writer accessor)
-	    package)))
+	   (when (macro-definition-expander macro)
+	     (definition-package-definitions
+	      (macro-definition-expander macro)))))
+  (:method ((accessor accessor-definition) package)
+    "Handle ACCESSOR, its writer and its setf expander."
+    (nconc (call-next-method)
+	   (when (accessor-definition-writer accessor)
+	     (definition-package-definitions
+	      (accessor-definition-writer accessor)
+	      package))
+	   (when (accessor-definition-expander accessor)
+	     (definition-package-definitions
+	      (accessor-definition-expander accessor)
+	      package))))
   (:method ((accessor-method accessor-method-definition) package)
     "Handle ACCESSOR-METHOD and its writer method."
     (nconc (call-next-method)
@@ -123,11 +134,16 @@
 		     (definition-package-definitions method package))
 		   (generic-definition-methods generic))))
   (:method ((generic-accessor generic-accessor-definition) package)
-    "Handle GENERIC-ACCESSOR and its generic writer function."
+    "Handle GENERIC-ACCESSOR, its generic writer and its setf expander."
     (nconc (call-next-method)
-	   (definition-package-definitions
-	    (generic-accessor-definition-writer generic-accessor)
-	    package))))
+	   (when (generic-accessor-definition-writer generic-accessor)
+	     (definition-package-definitions
+	      (generic-accessor-definition-writer generic-accessor)
+	      package))
+	   (when (generic-accessor-definition-expander generic-accessor)
+	     (definition-package-definitions
+	      (generic-accessor-definition-expander generic-accessor)
+	      package)))))
 
 (defun package-definitions (package definitions)
   "Return the subset of DEFINITIONS that belong to PACKAGE."

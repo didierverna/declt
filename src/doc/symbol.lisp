@@ -102,30 +102,6 @@ When FUNCOIDS, render their definitions jointly."
 	 (render-docstring ,the-funcoid)
 	 (@table ()
 	   (render-definition-core ,the-funcoid ,context)
-	   ;; #### NOTE: see comment in the funcoid-definition structure from
-	   ;; ../item/symbol.lisp file.
-	   (let ((expander (funcoid-definition-setf-expander ,the-funcoid)))
-	     (when expander
-	       (@tableitem "Setf Expander"
-	         (let ((docstring
-			 (documentation
-			  (funcoid-definition-symbol ,the-funcoid)
-			  'setf)))
-		   (etypecase expander
-		     (funcoid-definition
-		      (princ "Update function: ")
-		      (reference expander)
-		      (when docstring
-			(princ "@*")
-			(render-text docstring)))
-		     (function
-		      ;; #### PORTME.
-		      (@defsetf (string-downcase
-				    (format nil "(SETF ~A)"
-					(name ,the-funcoid)))
-		          (sb-introspect:function-lambda-list expander)
-			(when docstring
-			  (render-text docstring)))))))))
 	   ,@body)))))
 
 (defun render-@defun (function context)
@@ -183,6 +159,17 @@ When METHODS, render their definitions jointly."
 (defmacro render-@defgenericx (reader writer context &body body)
   "Render generic READER and WRITER's definitions jointly in CONTEXT."
   `(render-@defunoid :generic (,reader ,writer) ,context ,@body))
+
+(defun render-@defsetf (expander context)
+  "Render setf EXPANDER's definition in CONTEXT."
+  (@defsetf (string-downcase (name expander)) (lambda-list expander)
+    (anchor-and-index expander)
+    (render-docstring expander)
+    (@table ()
+      (render-definition-core expander context)
+      (when (definition-p (setf-expander-definition-expander expander))
+	(@tableitem "Expands to"
+	  (reference (setf-expander-definition-expander expander)))))))
 
 (defun render-slot-property
     (slot property
@@ -349,6 +336,11 @@ When METHODS, render their definitions jointly."
   (declare (ignore relative-to))
   (format nil "the ~(~A~) generic function" (name generic)))
 
+(defmethod title ((expander setf-expander-definition) &optional relative-to)
+  "Return setf EXPANDER's title."
+  (declare (ignore relative-to))
+  (format nil "the ~(~A~) setf expander" (name expander)))
+
 ;; #### NOTE: no TITLE method for SLOT-DEFINITION
 
 (defmethod title
@@ -427,6 +419,11 @@ When METHODS, render their definitions jointly."
   "Render GENERIC's indexing command."
   (declare (ignore relative-to))
   (format t "@genericsubindex{~(~A~)}@c~%" (escape generic)))
+
+(defmethod index ((expander setf-expander-definition) &optional relative-to)
+  "Render setf EXPANDER's indexing command."
+  (declare (ignore relative-to))
+  (format t "@setfexpandersubindex{~(~A~)}@c~%" (escape expander)))
 
 (defmethod index ((slot slot-definition) &optional relative-to)
   "Render SLOT's indexing command."
@@ -531,7 +528,9 @@ When METHODS, render their definitions jointly."
 
 (defmethod document ((macro macro-definition) context)
   "Render MACRO's documentation in CONTEXT."
-  (render-@defmac macro context))
+  (render-@defmac macro context)
+  (when (macro-definition-expander macro)
+    (document (macro-definition-expander macro) context)))
 
 (defmethod document ((compiler-macro compiler-macro-definition) context)
   "Render COMPILER-MACRO's documentation in CONTEXT."
@@ -539,7 +538,8 @@ When METHODS, render their definitions jointly."
 
 (defmethod document ((accessor accessor-definition) context)
   "Render ACCESSOR's documentation in CONTEXT."
-  (cond ((and (equal (source accessor)
+  (cond ((and (accessor-definition-writer accessor)
+	      (equal (source accessor)
 		     (source (accessor-definition-writer accessor)))
 	      (equal (docstring accessor)
 		     (docstring (accessor-definition-writer accessor))))
@@ -547,7 +547,11 @@ When METHODS, render their definitions jointly."
 	  accessor (accessor-definition-writer accessor) context))
 	(t
 	 (call-next-method)
-	 (document (accessor-definition-writer accessor) context))))
+	 (when (accessor-definition-writer accessor)
+	   (document (accessor-definition-writer accessor) context))))
+  (when (accessor-definition-expander accessor)
+    (document (accessor-definition-expander accessor) context)))
+
 
 (defmethod document ((method method-definition) context)
   "Render METHOD's documentation in CONTEXT."
@@ -597,7 +601,8 @@ The standard method combination is not rendered."
 
 (defmethod document ((accessor generic-accessor-definition) context)
   "Render generic ACCESSOR's documentation in CONTEXT."
-  (cond ((and (equal (source accessor)
+  (cond ((and (generic-accessor-definition-writer accessor)
+	      (equal (source accessor)
 		     (source (generic-accessor-definition-writer accessor)))
 	      (eq (definition-symbol (generic-definition-combination accessor))
 		  (definition-symbol
@@ -633,7 +638,14 @@ The standard method combination is not rendered."
 		   (document method context)))))))
 	(t
 	 (call-next-method)
-	 (document (generic-accessor-definition-writer accessor) context))))
+	 (when (generic-accessor-definition-writer accessor)
+	   (document (generic-accessor-definition-writer accessor) context))))
+  (when (generic-accessor-definition-expander accessor)
+    (document (generic-accessor-definition-expander accessor) context)))
+
+(defmethod document ((expander setf-expander-definition) context)
+  "Render setf EXPANDER's documentation in CONTEXT."
+  (render-@defsetf expander context))
 
 ;; #### NOTE: no DOCUMENT method for SLOT-DEFINITION
 

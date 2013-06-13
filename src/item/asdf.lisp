@@ -92,12 +92,23 @@
     "Default method for definitions not containing sub-definitions."
     (when (equal (source definition) file)
       (list definition)))
-  (:method ((accessor accessor-definition) file)
-    "Handle ACCESSOR and its writer function."
+  (:method ((macro macro-definition) file)
+    "Handle MACRO and its setf expander."
     (nconc (call-next-method)
-	   (definition-file-definitions
-	    (accessor-definition-writer accessor)
-	    file)))
+	   (when (macro-definition-expander macro)
+	     (definition-file-definitions
+	      (macro-definition-expander macro)))))
+  (:method ((accessor accessor-definition) file)
+    "Handle ACCESSOR, its writer and its setf expander."
+    (nconc (call-next-method)
+	   (when (accessor-definition-writer accessor)
+	     (definition-file-definitions
+	      (accessor-definition-writer accessor)
+	      file))
+	   (when (accessor-definition-expander accessor)
+	     (definition-file-definitions
+	      (accessor-definition-expander accessor)
+	      file))))
   (:method ((accessor-method accessor-method-definition) file)
     "Handle ACCESSOR-METHOD and its writer method."
     (nconc (call-next-method)
@@ -111,11 +122,16 @@
 		     (definition-file-definitions method file))
 		   (generic-definition-methods generic))))
   (:method ((generic-accessor generic-accessor-definition) file)
-    "Handle GENERIC-ACCESSOR and its generic writer function."
+    "Handle GENERIC-ACCESSOR, its generic writer and its setf expander."
     (nconc (call-next-method)
-	   (definition-file-definitions
-	    (generic-accessor-definition-writer generic-accessor)
-	    file))))
+	   (when (generic-accessor-definition-writer generic-accessor)
+	     (definition-file-definitions
+	      (generic-accessor-definition-writer generic-accessor)
+	      file))
+	   (when (generic-accessor-definition-expander generic-accessor)
+	     (definition-file-definitions
+	      (generic-accessor-definition-expander generic-accessor)
+	      file)))))
 
 (defun file-definitions (file definitions)
   "Return the subset of DEFINITIONS that belong to FILE."

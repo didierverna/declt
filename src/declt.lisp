@@ -251,6 +251,11 @@ The ~A Reference Manual~@[, version ~A~].
 @findex @r{Generic Function, }\\name\\
 @end macro
 
+@c Setf Expanders
+@macro setfexpandersubindex{name}
+@findex @r{Setf Expander, }\\name\\
+@end macro
+
 @c Method Combinations
 @macro shortcombinationsubindex{name}
 @tpindex @r{Short Method Combination, }\\name\\

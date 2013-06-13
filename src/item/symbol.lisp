@@ -90,25 +90,24 @@ This structure holds the symbol naming the definition."
 (defstruct (funcoid-definition (:include definition))
   "Base structure for definitions of functional values.
 This structure holds the function, generic function or macro function
-object, and a potential setf expander definition (short form) or function
-object (long form)."
-  function
-  ;; #### NOTE: technically, it's not quite correct to have this slot here
-  ;; because not all funcoids can have a setf expander (compiler macros
-  ;; don't). However, it simplifies the writing of FINALIZE-DEFINITIONS
-  ;; towards the end of this file. With a SETF-EXPANDER slot here, I can
-  ;; batch-process macros, functions and generics all at once using the same
-  ;; slot accessor.
-  setf-expander)
+object."
+  function)
 
 (defstruct (macro-definition (:include funcoid-definition))
-  "Structure for macro definitions."
+  "Structure for macro definitions.
+This structure holds the setf expander definition."
   ;; #### NOTE: you may notice that contrary to (generic) functions, macro
   ;; definitions don't have a WRITER slot. That is because a setf function
   ;; cannot be directly associated with a macro so there's no point in trying
   ;; to concatenate their documentation. See sections 5.1.2.7 and 5.1.2.9 of
   ;; the Hyperref for more information.
-  )
+  ;; #### NOTE: the reason for an EXPANDER slot here is that Declt will
+  ;; attempt to concatenate the definitions for FOO and (SETF FOO) into a
+  ;; single documentation item when possible. It makes the reference manual
+  ;; more readable IMO, but that's assuming that FOO and (SETF FOO) are indeed
+  ;; a no-nonsense reader/writer pair of macros...
+  expander)
+
 (defstruct (compiler-macro-definition (:include funcoid-definition))
   "Structure for compiler macro definitions.")
 
@@ -119,15 +118,17 @@ do pertain to the system being documented."
   foreignp)
 (defstruct (writer-definition (:include function-definition))
   "Structure for ordinary writer function definitions.")
+
 (defstruct (accessor-definition (:include function-definition))
   "Structure for accessor function definitions.
-This structure holds the writer function definition."
-  ;; #### NOTE: the reason for a WRITER slot here is that Declt will attempt
-  ;; to concatenate the definitions for FOO and (SETF FOO) into a single
-  ;; documentation item when possible. It makes the reference manual more
-  ;; readable IMO, but that's assuming that FOO and (SETF FOO) are indeed a
-  ;; no-nonsense reader/writer pair of functions...
-  writer)
+This structure holds the writer and setf expander definitions."
+  ;; #### NOTE: the reason for a WRITER and an EXPANDER slots here is that
+  ;; Declt will attempt to concatenate the definitions for FOO and (SETF FOO)
+  ;; into a single documentation item when possible. It makes the reference
+  ;; manual more readable IMO, but that's assuming that FOO and (SETF FOO) are
+  ;; indeed a no-nonsense reader/writer pair of functions...
+  writer
+  expander)
 
 (defstruct (method-definition (:include definition))
   "Base structure for method definitions.
@@ -154,13 +155,20 @@ do pertain to the system being documented."
   "Structure for generic writer function definitions.")
 (defstruct (generic-accessor-definition (:include generic-definition))
   "Structure for generic accessor function definitions.
-This structure holds the generic writer function definition."
-  ;; #### NOTE: the reason for a WRITER slot here is that Declt will attempt
-  ;; to concatenate the definitions for FOO and (SETF FOO) into a single
-  ;; documentation item when possible. It makes the reference manual more
-  ;; readable IMO, but that's assuming that FOO and (SETF FOO) are indeed a
-  ;; no-nonsense reader/writer pair of functions...
-  writer)
+This structure holds the generic writer and setf expander definitions."
+  ;; #### NOTE: the reason for a WRITER and an EXPANDER slots here is that
+  ;; Declt will attempt to concatenate the definitions for FOO and (SETF FOO)
+  ;; into a single documentation item when possible. It makes the reference
+  ;; manual more readable IMO, but that's assuming that FOO and (SETF FOO) are
+  ;; indeed a no-nonsense reader/writer pair of functions...
+  writer
+  expander)
+
+(defstruct (setf-expander-definition (:include definition))
+  "Structure for setf expander definitions.
+This structure holds the expander object. For short forms, the object is a
+macro or (generic) function definition. For long forms, it's a function."
+  expander)
 
 (defstruct (slot-definition (:include definition))
   "Structure for slot definitions.
@@ -216,6 +224,15 @@ definitions.")
     "Return FUNCOID's lambda-list."
     (sb-introspect:function-lambda-list
      (funcoid-definition-function funcoid)))
+  (:method ((expander setf-expander-definition))
+    "Return setf EXPANDER's lambda-list."
+    (sb-introspect:function-lambda-list
+     (etypecase (setf-expander-definition-expander expander)
+       (function
+	(setf-expander-definition-expander expander))
+       (funcoid-definition
+	(funcoid-definition-function
+	 (setf-expander-definition-expander expander))))))
   (:method ((method method-definition))
     "Return METHOD's lambda-list."
     (sb-mop:method-lambda-list (method-definition-method method)))
@@ -340,7 +357,24 @@ Return NIL if not found."
 	  :for value :being :the :hash-values :in pool
 	  :when (and (eq (second key) :combination)
 		     (long-combination-definition-p value))
-	    :collect value)))
+	    :collect value))
+  (:method ((category (eql :setf-expander)) pool)
+    "Method used for setf expanders."
+    (loop :for key   :being :the :hash-keys   :in pool
+	  :for value :being :the :hash-values :in pool
+	  ;; #### NOTE: do you see why dropping structures and using mixin
+	  ;; classes would help here ? ;-)
+	  :when (and (eq (second key) :macro)
+		     (macro-definition-expander value))
+	    :collect (macro-definition-expander value)
+	  :when (and (eq (second key) :function)
+		     (accessor-definition-p value)
+		     (accessor-definition-expander value))
+	    :collect (accessor-definition-expander value)
+	  :when (and (eq (second key) :generic)
+		     (generic-accessor-definition-p value)
+		     (generic-accessor-definition-expander value))
+	    :collect (generic-accessor-definition-expander value))))
 
 (defun add-definition (symbol category definition pool)
   "Add CATEGORY kind of DEFINITION for SYMBOL to POOL."
@@ -373,12 +407,20 @@ Return NIL if not found."
 	    symbol category
 	    (make-symbol-macro-definition :symbol symbol) pool)))
 	(:macro
-	 (let ((function (macro-function symbol)))
+	 (let ((function (macro-function symbol))
+	       (expander (or (sb-int:info :setf :inverse symbol)
+			     (sb-int:info :setf :expander symbol))))
 	   (when function
 	     (add-definition
 	      symbol
 	      category
-	      (make-macro-definition :symbol symbol :function function)
+	      (make-macro-definition
+	       :symbol symbol
+	       :function function
+	       :expander (when expander
+			   (make-setf-expander-definition
+			    :symbol symbol
+			    :expander expander)))
 	      pool))))
 	(:compiler-macro
 	 (let ((function (compiler-macro-function symbol)))
@@ -410,17 +452,22 @@ Return NIL if not found."
 		   (when (and (fboundp writer-name)
 			      (not (typep (fdefinition writer-name)
 					  'generic-function)))
-		     (fdefinition writer-name)))))
-	   (cond ((and function writer)
+		     (fdefinition writer-name))))
+	       (expander (or (sb-int:info :setf :inverse symbol)
+			     (sb-int:info :setf :expander symbol))))
+	   (cond ((and function (or writer expander))
 		  (add-definition
 		   symbol
 		   category
 		   (make-accessor-definition
 		    :symbol symbol
 		    :function function
-		    :writer (make-writer-definition
-			     :symbol symbol
-			     :function writer))
+		    :writer (when writer (make-writer-definition
+					  :symbol symbol
+					  :function writer))
+		    :expander (when expander (make-setf-expander-definition
+					      :symbol symbol
+					      :expander expander)))
 		   pool))
 		 (function
 		  (add-definition
@@ -446,8 +493,10 @@ Return NIL if not found."
 		   (when (and (fboundp writer-name)
 			      (typep (fdefinition writer-name)
 				     'generic-function))
-		     (fdefinition writer-name)))))
-	   (cond ((and function writer)
+		     (fdefinition writer-name))))
+	       (expander (or (sb-int:info :setf :inverse symbol)
+			     (sb-int:info :setf :expander symbol))))
+	   (cond ((and function (or writer expander))
 		  ;; #### NOTE: for a generic accessor function, we store
 		  ;; accessor methods in the generic accessor function
 		  ;; definition, along with standard methods. Only writer-only
@@ -463,16 +512,17 @@ Return NIL if not found."
 		    (mapcar
 		     (lambda (method)
 		       (let ((writer-method
-			       (find-method writer
-					    (method-qualifiers method)
-					    ;; #### FIXME: I'm not sure if the
-					    ;; first argument (NEW-VALUE) of a
-					    ;; writer method always has a
-					    ;; specializer of T...
-					    (cons t
-						  (sb-mop:method-specializers
-						   method))
-					    nil)))
+			       (and writer
+				    (find-method
+				     writer
+				     (method-qualifiers method)
+				     ;; #### FIXME: I'm not sure if the first
+				     ;; argument (NEW-VALUE) of a writer
+				     ;; method always has a specializer of
+				     ;; T...
+				     (cons t (sb-mop:method-specializers
+					      method))
+				     nil))))
 			 (if writer-method
 			     (make-accessor-method-definition
 			      :symbol symbol
@@ -483,27 +533,31 @@ Return NIL if not found."
 			   (make-method-definition
 			    :symbol symbol :method method))))
 		     (sb-mop:generic-function-methods function))
-		    :writer (make-generic-writer-definition
-			     :symbol symbol
-			     :function writer
-			     :methods
-			     (mapcan
-			      (lambda (method)
-				(unless (find-method function
-						     (method-qualifiers method)
-						     ;; #### NOTE: don't
-						     ;; forget to remove the
-						     ;; first (NEW-VALUE)
-						     ;; specializer from the
-						     ;; writer method.
-						     (cdr
-						      (sb-mop:method-specializers
-						       method))
-						     nil)
-				  (list (make-writer-method-definition
-					 :symbol symbol
-					 :method method))))
-			      (sb-mop:generic-function-methods writer))))
+		    :writer (when writer
+			      (make-generic-writer-definition
+			       :symbol symbol
+			       :function writer
+			       :methods
+			       (mapcan
+				(lambda (method)
+				  (unless
+				      (find-method
+				       function
+				       (method-qualifiers method)
+				       ;; #### NOTE: don't forget to remove
+				       ;; the first (NEW-VALUE) specializer
+				       ;; from the writer method.
+				       (cdr
+					(sb-mop:method-specializers  method))
+				       nil)
+				    (list (make-writer-method-definition
+					   :symbol symbol
+					   :method method))))
+				(sb-mop:generic-function-methods writer))))
+		    :expander (when expander
+				(make-setf-expander-definition
+				 :symbol symbol
+				 :expander expander)))
 		   pool))
 		 (function
 		  (add-definition
@@ -728,7 +782,7 @@ Currently, this means resolving:
 - slots writers,
 - generic functions method combinations,
 - method combinations operators (for short ones) and users (for both),
-- (generic) functions and macros setf expanders."
+- (generic) functions and macros (short form) setf expanders definitions."
   (labels ((classes-definitions (classes)
 	     (mapcar
 	      (lambda (name)
@@ -816,34 +870,26 @@ Currently, this means resolving:
 			     pool1 (definition-symbol combination))
 			    (pool-combination-users
 			     pool2 (definition-symbol combination)))))
-	     (dolist (category '(:macro :function :generic))
-	       (dolist (definition (category-definitions category pool))
-		 (let ((expander (or (sb-int:info :setf :inverse
-				       (definition-symbol definition))
-				     (sb-int:info :setf :expander
-				       (definition-symbol definition)))))
-		   (cond ((and expander (symbolp expander))
-			  (setf
-			   (funcoid-definition-setf-expander definition)
-			   (or (find-definition expander :function pool1)
-			       (find-definition expander :function pool2)
-			       (find-definition expander :generic pool1)
-			       (find-definition expander :generic pool2)
-			       (find-definition expander :macro pool1)
-			       (find-definition expander :macro pool2)
-			       ;; #### NOTE: a foreign expander is not
-			       ;; necessarily a function. It could be a
-			       ;; macro or a special form. However, since
-			       ;; we don't actually document those (only
-			       ;; print their name), we can just use a
-			       ;; function definition here (it's out of
-			       ;; laziness)
-			       (make-function-definition :symbol expander
-							 :foreignp t))))
-			 ((functionp expander)
-			  (setf
-			   (funcoid-definition-setf-expander definition)
-			   expander))))))))
+	     ;; At that point, a short setf expander definition contains a
+	     ;; symbol naming the update function. We now need to transform
+	     ;; that into an actual (and possibly foreign) definition.
+	     (dolist (expander (category-definitions :setf-expander pool))
+	       (let ((name (setf-expander-definition-expander expander)))
+		 (when (symbolp name)
+		   (setf (setf-expander-definition-expander expander)
+			 (or (find-definition name :function pool1)
+			     (find-definition name :function pool2)
+			     (find-definition name :generic pool1)
+			     (find-definition name :generic pool2)
+			     (find-definition name :macro pool1)
+			     (find-definition name :macro pool2)
+			     ;; #### NOTE: a foreign expander is not
+			     ;; necessarily a regular function. However, since
+			     ;; we don't actually document those (only print
+			     ;; their name), we can just use a function
+			     ;; definition here (it's out of laziness).
+			     (make-function-definition :symbol name
+						       :foreignp t))))))))
     (finalize pool1)
     (finalize pool2)))
 
@@ -874,6 +920,9 @@ Currently, this means resolving:
   (format nil "(SETF ~A)"
     (name (generic-writer-definition-symbol generic-writer))))
 
+(defmethod name ((expander setf-expander-definition))
+  "Return setf EXPANDER's name, that is (setf <name>)."
+  (format nil "(SETF ~A)" (name (setf-expander-definition-symbol expander))))
 
 
 ;; ==========================================================================
@@ -905,7 +954,6 @@ Currently, this means resolving:
   (when defsrc
     (sb-introspect:definition-source-pathname defsrc)))
 
-
 (defmethod source ((constant constant-definition))
   "Return CONSTANT's definition source."
   (definition-source-by-name constant :constant))
@@ -921,6 +969,17 @@ Currently, this means resolving:
 (defmethod source ((funcoid funcoid-definition))
   "Return FUNCOID's definition source."
   (definition-source (funcoid-definition-function funcoid)))
+
+(defmethod source
+    ((expander setf-expander-definition)
+     &aux (expander (setf-expander-definition-expander expander)))
+  ;; #### NOTE: for short setf expander forms, what we get is the source
+  ;; location of the update function instead of where the DEFSETF form
+  ;; appears. This is not what I want but it seems to be all that's available
+  ;; from sb-introspect.
+  (definition-source  (if (symbolp expander)
+			  (symbol-function expander)
+			  expander)))
 
 (defmethod source ((method method-definition))
   "Return METHOD's definition source."
@@ -991,6 +1050,10 @@ Currently, this means resolving:
   "Return generic WRITER's docstring."
   (documentation `(setf ,(definition-symbol writer)) 'function))
 
+(defmethod docstring ((expander setf-expander-definition))
+  "Return setf EXPANDER's docstring."
+  (documentation (definition-symbol expander) 'setf))
+
 ;; #### PORTME.
 (defmethod docstring ((slot slot-definition))
   "Return SLOT's docstring."
@@ -1044,6 +1107,10 @@ Currently, this means resolving:
 (defmethod type-name ((method method-definition))
   "Return \"method\""
   "method")
+
+(defmethod type-name ((expander setf-expander-definition))
+  "Return \"setf expander\""
+  "setf expander")
 
 ;; #### NOTE: no TYPE-NAME method for SLOT-DEFINITION
 
