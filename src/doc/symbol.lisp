@@ -456,7 +456,10 @@ When METHODS, render their definitions jointly."
   "Render MACRO's documentation in CONTEXT."
   (render-funcoid :mac (macro) context
     (when (macro-definition-access-expander macro)
-      (document (macro-definition-access-expander macro) context))))
+      (@tableitem "Setf Expander"
+	(reference (macro-definition-access-expander macro)))))
+  (when (macro-definition-access-expander macro)
+    (document (macro-definition-access-expander macro) context)))
 
 (defmethod document ((compiler-macro compiler-macro-definition) context)
   "Render COMPILER-MACRO's documentation in CONTEXT."
@@ -470,9 +473,15 @@ When METHODS, render their definitions jointly."
 	      (equal (docstring accessor)
 		     (docstring (accessor-definition-writer accessor))))
 	 (render-funcoid :un (accessor (accessor-definition-writer accessor))
-	     context))
+	     context
+	   (when (accessor-definition-access-expander accessor)
+	     (@tableitem "Setf Expander"
+	       (reference (accessor-definition-access-expander accessor))))))
 	(t
-	 (call-next-method)
+	 (render-funcoid :un (accessor) context
+	   (when (accessor-definition-access-expander accessor)
+	     (@tableitem "Setf Expander"
+	       (reference (accessor-definition-access-expander accessor)))))
 	 (when (accessor-definition-writer accessor)
 	   (document (accessor-definition-writer accessor) context))))
   (when (accessor-definition-access-expander accessor)
@@ -548,6 +557,10 @@ The standard method combination is not rendered."
 	 (render-funcoid :generic
 	     (accessor (generic-accessor-definition-writer accessor))
 	     context
+	   (when (generic-accessor-definition-access-expander accessor)
+	     (@tableitem "Setf Expander"
+	       (reference
+		(generic-accessor-definition-access-expander accessor))))
 	   (render-method-combination accessor)
 	   (let ((reader-methods
 		   (generic-accessor-definition-methods accessor))
@@ -565,7 +578,17 @@ The standard method combination is not rendered."
 		 (dolist (method writer-methods)
 		   (document method context)))))))
 	(t
-	 (call-next-method)
+	 (render-funcoid :generic (accessor) context
+	   (when (generic-accessor-definition-access-expander accessor)
+	     (@tableitem "Setf Expander"
+	       (reference
+		(generic-accessor-definition-access-expander accessor))))
+	   (render-method-combination accessor)
+	   (let ((methods (generic-accessor-definition-methods accessor)))
+	     (when methods
+	       (@tableitem "Methods"
+		 (dolist (method methods)
+		   (document method context))))))
 	 (when (generic-accessor-definition-writer accessor)
 	   (document (generic-accessor-definition-writer accessor) context))))
   (when (generic-accessor-definition-access-expander accessor)
