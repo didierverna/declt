@@ -102,6 +102,10 @@ When FUNCOIDS, render their definitions jointly."
 	 (render-docstring ,the-funcoid)
 	 (@table ()
 	   (render-definition-core ,the-funcoid ,context)
+	   (let ((expander (funcoid-definition-update-expander ,the-funcoid)))
+	     (when expander
+	       (@tableitem "Setf Expander"
+		 (reference expander))))
 	   ,@body)))))
 
 (defun render-@defun (function context)
@@ -167,9 +171,11 @@ When METHODS, render their definitions jointly."
     (render-docstring expander)
     (@table ()
       (render-definition-core expander context)
-      (when (definition-p (setf-expander-definition-expander expander))
-	(@tableitem "Expansion"
-	  (reference (setf-expander-definition-expander expander)))))))
+      (@tableitem "Access"
+	(reference (setf-expander-definition-access expander)))
+      (when (definition-p (setf-expander-definition-update expander))
+	(@tableitem "Update"
+	  (reference (setf-expander-definition-update expander)))))))
 
 (defun render-slot-property
     (slot property
@@ -529,8 +535,8 @@ When METHODS, render their definitions jointly."
 (defmethod document ((macro macro-definition) context)
   "Render MACRO's documentation in CONTEXT."
   (render-@defmac macro context)
-  (when (macro-definition-expander macro)
-    (document (macro-definition-expander macro) context)))
+  (when (macro-definition-access-expander macro)
+    (document (macro-definition-access-expander macro) context)))
 
 (defmethod document ((compiler-macro compiler-macro-definition) context)
   "Render COMPILER-MACRO's documentation in CONTEXT."
@@ -549,8 +555,8 @@ When METHODS, render their definitions jointly."
 	 (call-next-method)
 	 (when (accessor-definition-writer accessor)
 	   (document (accessor-definition-writer accessor) context))))
-  (when (accessor-definition-expander accessor)
-    (document (accessor-definition-expander accessor) context)))
+  (when (accessor-definition-access-expander accessor)
+    (document (accessor-definition-access-expander accessor) context)))
 
 
 (defmethod document ((method method-definition) context)
@@ -640,8 +646,8 @@ The standard method combination is not rendered."
 	 (call-next-method)
 	 (when (generic-accessor-definition-writer accessor)
 	   (document (generic-accessor-definition-writer accessor) context))))
-  (when (generic-accessor-definition-expander accessor)
-    (document (generic-accessor-definition-expander accessor) context)))
+  (when (generic-accessor-definition-access-expander accessor)
+    (document (generic-accessor-definition-access-expander accessor) context)))
 
 (defmethod document ((expander setf-expander-definition) context)
   "Render setf EXPANDER's documentation in CONTEXT."

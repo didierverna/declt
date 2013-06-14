@@ -95,9 +95,9 @@
   (:method ((macro macro-definition) file)
     "Handle MACRO and its setf expander."
     (nconc (call-next-method)
-	   (when (macro-definition-expander macro)
+	   (when (macro-definition-access-expander macro)
 	     (definition-file-definitions
-	      (macro-definition-expander macro)
+	      (macro-definition-access-expander macro)
 	      file))))
   (:method ((accessor accessor-definition) file)
     "Handle ACCESSOR, its writer and its setf expander."
@@ -106,9 +106,9 @@
 	     (definition-file-definitions
 	      (accessor-definition-writer accessor)
 	      file))
-	   (when (accessor-definition-expander accessor)
+	   (when (accessor-definition-access-expander accessor)
 	     (definition-file-definitions
-	      (accessor-definition-expander accessor)
+	      (accessor-definition-access-expander accessor)
 	      file))))
   (:method ((accessor-method accessor-method-definition) file)
     "Handle ACCESSOR-METHOD and its writer method."
@@ -129,9 +129,9 @@
 	     (definition-file-definitions
 	      (generic-accessor-definition-writer generic-accessor)
 	      file))
-	   (when (generic-accessor-definition-expander generic-accessor)
+	   (when (generic-accessor-definition-access-expander generic-accessor)
 	     (definition-file-definitions
-	      (generic-accessor-definition-expander generic-accessor)
+	      (generic-accessor-definition-access-expander generic-accessor)
 	      file)))))
 
 (defun file-definitions (file definitions)

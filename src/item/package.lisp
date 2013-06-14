@@ -107,9 +107,9 @@
   (:method ((macro macro-definition) package)
     "Handle MACRO and its setf expander."
     (nconc (call-next-method)
-	   (when (macro-definition-expander macro)
+	   (when (macro-definition-access-expander macro)
 	     (definition-package-definitions
-	      (macro-definition-expander macro)
+	      (macro-definition-access-expander macro)
 	      package))))
   (:method ((accessor accessor-definition) package)
     "Handle ACCESSOR, its writer and its setf expander."
@@ -118,9 +118,9 @@
 	     (definition-package-definitions
 	      (accessor-definition-writer accessor)
 	      package))
-	   (when (accessor-definition-expander accessor)
+	   (when (accessor-definition-access-expander accessor)
 	     (definition-package-definitions
-	      (accessor-definition-expander accessor)
+	      (accessor-definition-access-expander accessor)
 	      package))))
   (:method ((accessor-method accessor-method-definition) package)
     "Handle ACCESSOR-METHOD and its writer method."
@@ -141,9 +141,9 @@
 	     (definition-package-definitions
 	      (generic-accessor-definition-writer generic-accessor)
 	      package))
-	   (when (generic-accessor-definition-expander generic-accessor)
+	   (when (generic-accessor-definition-access-expander generic-accessor)
 	     (definition-package-definitions
-	      (generic-accessor-definition-expander generic-accessor)
+	      (generic-accessor-definition-access-expander generic-accessor)
 	      package)))))
 
 (defun package-definitions (package definitions)
