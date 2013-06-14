@@ -52,7 +52,7 @@ Each element is rendered as a table item."
     (reference (symbol-package (definition-symbol definition))))
   (render-source definition context))
 
-(defmacro render-@defvaroid (kind varoid context &body body)
+(defmacro render-varoid (kind varoid context &body body)
   "Render VAROID's definition of KIND in CONTEXT."
   (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
 			    :com.dvlsoft.declt))
@@ -65,20 +65,7 @@ Each element is rendered as a table item."
 	   (render-definition-core ,the-varoid ,context)
 	   ,@body)))))
 
-(defun render-@defconstant (constant context)
-  "Render CONSTANT's documentation in CONTEXT."
-  (render-@defvaroid :constant constant context))
-
-(defun render-@defspecial (special context)
-  "Render SPECIAL variable's documentation in CONTEXT."
-  (render-@defvaroid :special special context))
-
-;; #### NOTE: see comment on the DOCSTRING method in ../item/symbol.lisp.
-(defmacro render-@defsymbolmacro (symbol-macro context &body body)
-  "Render SYMBOL-MACRO's documentation in CONTEXT."
-  `(render-@defvaroid :symbolmacro ,symbol-macro ,context ,@body))
-
-(defmacro render-@defunoid (kind (funcoid &rest funcoids) context &body body)
+(defmacro render-funcoid (kind (funcoid &rest funcoids) context &body body)
   "Render FUNCOID's definition of KIND in CONTEXT.
 When FUNCOIDS, render their definitions jointly."
   (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
@@ -108,23 +95,7 @@ When FUNCOIDS, render their definitions jointly."
 		 (reference expander))))
 	   ,@body)))))
 
-(defun render-@defun (function context)
-  "Render FUNCTION's definition in CONTEXT."
-  (render-@defunoid :un (function) context))
-
-(defun render-@defunx (reader writer context)
-  "Render READER and WRITER's definitions jointly in CONTEXT."
-  (render-@defunoid :un (reader writer) context))
-
-(defun render-@defmac (macro context)
-  "Render MACRO's definition in CONTEXT."
-  (render-@defunoid :mac (macro) context))
-
-(defun render-@defcompilermacro (compiler-macro context)
-  "Render COMPILER-MACRO's definition in CONTEXT."
-  (render-@defunoid :compilermacro (compiler-macro) context))
-
-(defmacro %render-@defmethod ((method &rest methods) context)
+(defmacro render-methods ((method &rest methods) context)
   "Render METHOD's definition in CONTEXT.
 When METHODS, render their definitions jointly."
   (let ((the-method (gensym "method")))
@@ -148,35 +119,6 @@ When METHODS, render their definitions jointly."
 	 (@table ()
 	   (render-source ,the-method ,context))))))
 
-(defun render-@defmethod (method context)
-  "Render METHOD's definition in CONTEXT."
-  (%render-@defmethod (method) context))
-
-(defun render-@defmethodx (reader writer context)
-  "Render READER and WRITER methods'definitions jointly in CONTEXT."
-  (%render-@defmethod (reader writer) context))
-
-(defmacro render-@defgeneric (generic context &body body)
-  "Render GENERIC's definition in CONTEXT."
-  `(render-@defunoid :generic (,generic) ,context ,@body))
-
-(defmacro render-@defgenericx (reader writer context &body body)
-  "Render generic READER and WRITER's definitions jointly in CONTEXT."
-  `(render-@defunoid :generic (,reader ,writer) ,context ,@body))
-
-(defun render-@defsetf (expander context)
-  "Render setf EXPANDER's definition in CONTEXT."
-  (@defsetf (string-downcase (name expander)) (lambda-list expander)
-    (anchor-and-index expander)
-    (render-docstring expander)
-    (@table ()
-      (render-definition-core expander context)
-      (@tableitem "Access"
-	(reference (setf-expander-definition-access expander)))
-      (when (definition-p (setf-expander-definition-update expander))
-	(@tableitem "Update"
-	  (reference (setf-expander-definition-update expander)))))))
-
 (defun render-slot-property
     (slot property
 	  &key (renderer (lambda (value)
@@ -190,7 +132,7 @@ When METHODS, render their definitions jointly."
     (@tableitem (format nil "~@(~A~)" (symbol-name property))
       (funcall renderer value))))
 
-(defun render-@defslot (slot)
+(defun render-slot (slot)
   "Render SLOT's documentation."
   (@defslot (string-downcase (name slot))
     (index slot)
@@ -217,9 +159,9 @@ When METHODS, render their definitions jointly."
   (when slots
     (@tableitem "Direct slots"
       (dolist (slot slots)
-	(render-@defslot slot)))))
+	(render-slot slot)))))
 
-(defmacro render-@defcombination (kind combination context &body body)
+(defmacro render-combination (kind combination context &body body)
   "Render method COMBINATION's definition of KIND in CONTEXT."
   (let ((the-combination (gensym "combination")))
     `(let ((,the-combination ,combination))
@@ -230,7 +172,7 @@ When METHODS, render their definitions jointly."
 	   (render-definition-core ,the-combination ,context)
 	   ,@body)))))
 
-(defmacro render-@defclassoid (kind classoid context &body body)
+(defmacro render-classoid (kind classoid context &body body)
   "Render CLASSOID's definition of KIND in CONTEXT."
   (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
 			    :com.dvlsoft.declt))
@@ -269,28 +211,6 @@ When METHODS, render their definitions jointly."
 	  (format t "@item @t{~A}~%@tab @t{~A}~%"
 	    (escape (format nil "~(~S~)" (first initarg)))
 	    (escape (format nil "~(~S~)" (second initarg)))))))))
-
-(defun render-@defcond (condition context)
-  "Render CONDITION's definition in CONTEXT."
-  (render-@defclassoid :cond condition context
-     (render-initargs condition)))
-
-(defun render-@defstruct (structure context)
-  "Render STRUCTURE's definition in CONTEXT."
-  (render-@defclassoid :struct structure context))
-
-(defun render-@defclass (class context)
-  "Render CLASS's definition in CONTEXT."
-  (render-@defclassoid :class class context
-     (render-initargs class)))
-
-(defun render-@deftype (type context)
-  "Render TYPE's definition in CONTEXT."
-  (@deftype ((string-downcase (name type)) (lambda-list type))
-    (anchor-and-index type)
-    (render-docstring type)
-    (@table ()
-      (render-definition-core type context))))
 
 
 
@@ -514,15 +434,15 @@ When METHODS, render their definitions jointly."
 
 (defmethod document ((constant constant-definition) context)
   "Render CONSTANT's documentation in CONTEXT."
-  (render-@defconstant constant context))
+  (render-varoid :constant constant context))
 
 (defmethod document ((special special-definition) context)
   "Render SPECIAL variable's documentation in CONTEXT."
-  (render-@defspecial special context))
+  (render-varoid :special special context))
 
 (defmethod document ((symbol-macro symbol-macro-definition) context)
   "Render SYMBOL-MACRO's documentation in CONTEXT."
-  (render-@defsymbolmacro symbol-macro context
+  (render-varoid :symbolmacro symbol-macro context
     (@tableitem "Expansion"
       (format t "@t{~(~A~)}~%"
 	(escape
@@ -530,17 +450,17 @@ When METHODS, render their definitions jointly."
 
 (defmethod document ((function function-definition) context)
   "Render FUNCTION's documentation in CONTEXT."
-  (render-@defun function context))
+  (render-funcoid :un (function) context))
 
 (defmethod document ((macro macro-definition) context)
   "Render MACRO's documentation in CONTEXT."
-  (render-@defmac macro context)
-  (when (macro-definition-access-expander macro)
-    (document (macro-definition-access-expander macro) context)))
+  (render-funcoid :mac (macro) context
+    (when (macro-definition-access-expander macro)
+      (document (macro-definition-access-expander macro) context))))
 
 (defmethod document ((compiler-macro compiler-macro-definition) context)
   "Render COMPILER-MACRO's documentation in CONTEXT."
-  (render-@defcompilermacro compiler-macro context))
+  (render-funcoid :compilermacro (compiler-macro) context))
 
 (defmethod document ((accessor accessor-definition) context)
   "Render ACCESSOR's documentation in CONTEXT."
@@ -549,8 +469,8 @@ When METHODS, render their definitions jointly."
 		     (source (accessor-definition-writer accessor)))
 	      (equal (docstring accessor)
 		     (docstring (accessor-definition-writer accessor))))
-	 (render-@defunx
-	  accessor (accessor-definition-writer accessor) context))
+	 (render-funcoid :un (accessor (accessor-definition-writer accessor))
+	     context))
 	(t
 	 (call-next-method)
 	 (when (accessor-definition-writer accessor)
@@ -561,7 +481,7 @@ When METHODS, render their definitions jointly."
 
 (defmethod document ((method method-definition) context)
   "Render METHOD's documentation in CONTEXT."
-  (render-@defmethod method context))
+  (render-methods (method) context))
 
 (defmethod document ((method accessor-method-definition) context)
   "Render accessor METHOD's documentation in CONTEXT."
@@ -569,8 +489,9 @@ When METHODS, render their definitions jointly."
 		     (source (accessor-method-definition-writer method)))
 	      (equal (docstring method)
 		     (docstring (accessor-method-definition-writer method))))
-	 (render-@defmethodx
-	  method (accessor-method-definition-writer method) context))
+	 (render-methods
+	  (method (accessor-method-definition-writer method))
+	  context))
 	(t
 	 (call-next-method)
 	 (document (accessor-method-definition-writer method) context))))
@@ -597,7 +518,7 @@ The standard method combination is not rendered."
 
 (defmethod document ((generic generic-definition) context)
   "Render GENERIC's documentation in CONTEXT."
-  (render-@defgeneric generic context
+  (render-funcoid :generic (generic) context
     (render-method-combination generic)
     (let ((methods (generic-definition-methods generic)))
       (when methods
@@ -624,8 +545,9 @@ The standard method combination is not rendered."
 	      (equal (docstring accessor)
 		     (docstring
 		      (generic-accessor-definition-writer accessor))))
-	 (render-@defgenericx
-	     accessor (generic-accessor-definition-writer accessor) context
+	 (render-funcoid :generic
+	     (accessor (generic-accessor-definition-writer accessor))
+	     context
 	   (render-method-combination accessor)
 	   (let ((reader-methods
 		   (generic-accessor-definition-methods accessor))
@@ -651,14 +573,23 @@ The standard method combination is not rendered."
 
 (defmethod document ((expander setf-expander-definition) context)
   "Render setf EXPANDER's documentation in CONTEXT."
-  (render-@defsetf expander context))
+  (@defsetf (string-downcase (name expander)) (lambda-list expander)
+    (anchor-and-index expander)
+    (render-docstring expander)
+    (@table ()
+      (render-definition-core expander context)
+      (@tableitem "Access"
+	(reference (setf-expander-definition-access expander)))
+      (when (definition-p (setf-expander-definition-update expander))
+	(@tableitem "Update"
+	  (reference (setf-expander-definition-update expander)))))))
 
 ;; #### NOTE: no DOCUMENT method for SLOT-DEFINITION
 
 ;; #### PORTME.
 (defmethod document ((combination short-combination-definition) context)
   "Render short method COMBINATION's documentation in CONTEXT."
-  (render-@defcombination :short combination context
+  (render-combination :short combination context
     (@tableitem "Operator"
       (reference (short-combination-definition-operator combination)))
     (@tableitem "Indentity with one argument"
@@ -669,24 +600,30 @@ The standard method combination is not rendered."
 
 (defmethod document ((combination long-combination-definition) context)
   "Render long method COMBINATION's documentation in CONTEXT."
-  (render-@defcombination :long combination context
+  (render-combination :long combination context
     (render-references (combination-definition-users combination) "Users")))
 
 (defmethod document ((condition condition-definition) context)
   "Render CONDITION's documentation in CONTEXT."
-  (render-@defcond condition context))
+  (render-classoid :cond condition context
+    (render-initargs condition)))
 
 (defmethod document ((structure structure-definition) context)
   "Render STRUCTURE's documentation in CONTEXT."
-  (render-@defstruct structure context))
+  (render-classoid :struct structure context))
 
 (defmethod document ((class class-definition) context)
   "Render CLASS's documentation in CONTEXT."
-  (render-@defclass class context))
+  (render-classoid :class class context
+    (render-initargs class)))
 
 (defmethod document ((type type-definition) context)
   "Render TYPE's documentation in CONTEXT."
-  (render-@deftype type context))
+  (@deftype ((string-downcase (name type)) (lambda-list type))
+    (anchor-and-index type)
+    (render-docstring type)
+    (@table ()
+      (render-definition-core type context))))
 
 
 
