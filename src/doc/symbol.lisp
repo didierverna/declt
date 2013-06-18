@@ -52,18 +52,15 @@ Each element is rendered as a table item."
     (reference (symbol-package (definition-symbol definition))))
   (render-source definition context))
 
-(defmacro render-varoid (kind varoid context &body body)
-  "Render VAROID's definition of KIND in CONTEXT."
-  (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
-			    :com.dvlsoft.declt))
-	(the-varoid (gensym "varoid")))
-    `(let ((,the-varoid ,varoid))
-       (,|@defform| (string-downcase (name ,the-varoid))
-	 (anchor-and-index ,the-varoid)
-	 (render-docstring ,the-varoid)
-	 (@table ()
-	   (render-definition-core ,the-varoid ,context)
-	   ,@body)))))
+(defmacro render-varoid
+    (varoid context &body body &aux (the-varoid (gensym "varoid")))
+  "Render VAROID's definition in CONTEXT."
+  `(let ((,the-varoid ,varoid))
+     (anchor-and-index ,the-varoid)
+     (render-docstring ,the-varoid)
+     (@table ()
+       (render-definition-core ,the-varoid ,context)
+       ,@body)))
 
 (defmacro render-funcoid (kind (funcoid &rest funcoids) context &body body)
   "Render FUNCOID's definition of KIND in CONTEXT.
@@ -434,19 +431,23 @@ When METHODS, render their definitions jointly."
 
 (defmethod document ((constant constant-definition) context)
   "Render CONSTANT's documentation in CONTEXT."
-  (render-varoid :constant constant context))
+  (@defconstant (string-downcase (name constant))
+    (render-varoid constant context)))
 
 (defmethod document ((special special-definition) context)
   "Render SPECIAL variable's documentation in CONTEXT."
-  (render-varoid :special special context))
+  (@defspecial (string-downcase (name special))
+    (render-varoid special context)))
 
 (defmethod document ((symbol-macro symbol-macro-definition) context)
   "Render SYMBOL-MACRO's documentation in CONTEXT."
-  (render-varoid :symbolmacro symbol-macro context
-    (@tableitem "Expansion"
-      (format t "@t{~(~A~)}~%"
-	(escape
-	 (format nil "~S" (macroexpand (definition-symbol symbol-macro))))))))
+  (@defsymbolmacro (string-downcase (name symbol-macro))
+    (render-varoid symbol-macro context
+      (@tableitem "Expansion"
+	(format t "@t{~(~A~)}~%"
+	  (escape
+	   (format nil "~S"
+		   (macroexpand (definition-symbol symbol-macro)))))))))
 
 (defmethod document ((function function-definition) context)
   "Render FUNCTION's documentation in CONTEXT."
