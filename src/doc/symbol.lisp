@@ -62,35 +62,18 @@ Each element is rendered as a table item."
        (render-definition-core ,the-varoid ,context)
        ,@body)))
 
-(defmacro render-funcoid (kind (funcoid &rest funcoids) context &body body)
-  "Render FUNCOID's definition of KIND in CONTEXT.
-When FUNCOIDS, render their definitions jointly."
-  (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
-			    :com.dvlsoft.declt))
-	(|@defformx| (intern (concatenate 'string
-			       "@DEF" (symbol-name kind) "X")
-			     :com.dvlsoft.declt))
-	(the-funcoid (gensym "funcoid")))
-    `(let ((,the-funcoid ,funcoid))
-       (,|@defform| (string-downcase (name ,the-funcoid))
-		    (lambda-list ,the-funcoid)
-	 (anchor-and-index ,the-funcoid)
-	 ,@(mapcar (lambda (funcoid)
-		     (let ((the-funcoid (gensym "funcoid")))
-		       `(let ((,the-funcoid ,funcoid))
-			  (,|@defformx|
-			   (string-downcase (name ,the-funcoid))
-			   (lambda-list ,the-funcoid))
-			  (anchor-and-index ,the-funcoid))))
-		   funcoids)
-	 (render-docstring ,the-funcoid)
-	 (@table ()
-	   (render-definition-core ,the-funcoid ,context)
-	   (let ((expander (funcoid-definition-update-expander ,the-funcoid)))
-	     (when expander
-	       (@tableitem "Setf Expander"
-		 (reference expander))))
-	   ,@body)))))
+(defmacro render-funcoid
+    (funcoid context &body body &aux (the-funcoid (gensym "funcoid")))
+  "Render FUNCOID's definition in CONTEXT."
+  `(let ((,the-funcoid ,funcoid))
+     (render-docstring ,the-funcoid)
+     (@table ()
+       (render-definition-core ,the-funcoid ,context)
+       (let ((expander (funcoid-definition-update-expander ,the-funcoid)))
+	 (when expander
+	   (@tableitem "Setf Expander"
+	     (reference expander))))
+       ,@body)))
 
 (defmacro render-methods ((method &rest methods) context)
   "Render METHOD's definition in CONTEXT.
@@ -451,20 +434,28 @@ When METHODS, render their definitions jointly."
 
 (defmethod document ((function function-definition) context)
   "Render FUNCTION's documentation in CONTEXT."
-  (render-funcoid :un (function) context))
+  (@defun (string-downcase (name function)) (lambda-list function)
+    (anchor-and-index function)
+    (render-funcoid function context)))
 
 (defmethod document ((macro macro-definition) context)
   "Render MACRO's documentation in CONTEXT."
-  (render-funcoid :mac (macro) context
-    (when (macro-definition-access-expander macro)
-      (@tableitem "Setf Expander"
-	(reference (macro-definition-access-expander macro)))))
+  (@defmac (string-downcase (name macro)) (lambda-list macro)
+    (anchor-and-index macro)
+    (render-funcoid macro context
+      (when (macro-definition-access-expander macro)
+	(@tableitem "Setf Expander"
+	  (reference (macro-definition-access-expander macro))))))
   (when (macro-definition-access-expander macro)
     (document (macro-definition-access-expander macro) context)))
 
 (defmethod document ((compiler-macro compiler-macro-definition) context)
   "Render COMPILER-MACRO's documentation in CONTEXT."
-  (render-funcoid :compilermacro (compiler-macro) context))
+  (@defcompilermacro
+      (string-downcase (name compiler-macro))
+      (lambda-list compiler-macro)
+    (anchor-and-index compiler-macro)
+    (render-funcoid compiler-macro context)))
 
 (defmethod document ((accessor accessor-definition) context)
   "Render ACCESSOR's documentation in CONTEXT."
@@ -473,16 +464,24 @@ When METHODS, render their definitions jointly."
 		     (source (accessor-definition-writer accessor)))
 	      (equal (docstring accessor)
 		     (docstring (accessor-definition-writer accessor))))
-	 (render-funcoid :un (accessor (accessor-definition-writer accessor))
-	     context
-	   (when (accessor-definition-access-expander accessor)
-	     (@tableitem "Setf Expander"
-	       (reference (accessor-definition-access-expander accessor))))))
+	 (@defun (string-downcase (name accessor)) (lambda-list accessor)
+	   (anchor-and-index accessor)
+	   (@defunx
+	       (string-downcase (name (accessor-definition-writer accessor)))
+	       (lambda-list (accessor-definition-writer accessor)))
+	   (anchor-and-index (accessor-definition-writer accessor))
+	   (render-funcoid accessor context
+	     (when (accessor-definition-access-expander accessor)
+	       (@tableitem "Setf Expander"
+		 (reference
+		  (accessor-definition-access-expander accessor)))))))
 	(t
-	 (render-funcoid :un (accessor) context
-	   (when (accessor-definition-access-expander accessor)
-	     (@tableitem "Setf Expander"
-	       (reference (accessor-definition-access-expander accessor)))))
+	 (@defun (string-downcase (name accessor)) (lambda-list accessor)
+	   (anchor-and-index accessor)
+	   (render-funcoid accessor context
+	     (when (accessor-definition-access-expander accessor)
+	       (@tableitem "Setf Expander"
+		 (reference (accessor-definition-access-expander accessor))))))
 	 (when (accessor-definition-writer accessor)
 	   (document (accessor-definition-writer accessor) context))))
   (when (accessor-definition-access-expander accessor)
@@ -528,13 +527,15 @@ The standard method combination is not rendered."
 
 (defmethod document ((generic generic-definition) context)
   "Render GENERIC's documentation in CONTEXT."
-  (render-funcoid :generic (generic) context
-    (render-method-combination generic)
-    (let ((methods (generic-definition-methods generic)))
-      (when methods
-	(@tableitem "Methods"
-	  (dolist (method methods)
-	    (document method context)))))))
+  (@defgeneric (string-downcase (name generic)) (lambda-list generic)
+    (anchor-and-index generic)
+    (render-funcoid generic context
+      (render-method-combination generic)
+      (let ((methods (generic-definition-methods generic)))
+	(when methods
+	  (@tableitem "Methods"
+	    (dolist (method methods)
+	      (document method context))))))))
 
 (defmethod document ((accessor generic-accessor-definition) context)
   "Render generic ACCESSOR's documentation in CONTEXT."
@@ -555,41 +556,48 @@ The standard method combination is not rendered."
 	      (equal (docstring accessor)
 		     (docstring
 		      (generic-accessor-definition-writer accessor))))
-	 (render-funcoid :generic
-	     (accessor (generic-accessor-definition-writer accessor))
-	     context
-	   (when (generic-accessor-definition-access-expander accessor)
-	     (@tableitem "Setf Expander"
-	       (reference
-		(generic-accessor-definition-access-expander accessor))))
-	   (render-method-combination accessor)
-	   (let ((reader-methods
-		   (generic-accessor-definition-methods accessor))
-		 (writer-methods
-		   (generic-writer-definition-methods
-		    (generic-accessor-definition-writer accessor))))
-	     (when (or reader-methods writer-methods)
-	       (@tableitem "Methods"
-		 ;; #### FIXME: this is not the best order to advertise
-		 ;; methods. We should group them by specializers instead, so
-		 ;; that readers and writers are documented together, just as
-		 ;; generic readers and writers.
-		 (dolist (method reader-methods)
-		   (document method context))
-		 (dolist (method writer-methods)
-		   (document method context)))))))
+	 (@defgeneric (string-downcase (name accessor)) (lambda-list accessor)
+	   (anchor-and-index accessor)
+	   (@defgenericx
+	       (string-downcase
+		(name (generic-accessor-definition-writer accessor)))
+	       (lambda-list (generic-accessor-definition-writer accessor)))
+	   (anchor-and-index (generic-accessor-definition-writer accessor))
+	   (render-funcoid accessor context
+	     (when (generic-accessor-definition-access-expander accessor)
+	       (@tableitem "Setf Expander"
+		 (reference
+		   (generic-accessor-definition-access-expander accessor))))
+	     (render-method-combination accessor)
+	     (let ((reader-methods
+		     (generic-accessor-definition-methods accessor))
+		   (writer-methods
+		     (generic-writer-definition-methods
+		      (generic-accessor-definition-writer accessor))))
+	       (when (or reader-methods writer-methods)
+		 (@tableitem "Methods"
+		   ;; #### FIXME: this is not the best order to advertise
+		   ;; methods. We should group them by specializers instead,
+		   ;; so that readers and writers are documented together,
+		   ;; just as generic readers and writers.
+		   (dolist (method reader-methods)
+		     (document method context))
+		   (dolist (method writer-methods)
+		     (document method context))))))))
 	(t
-	 (render-funcoid :generic (accessor) context
-	   (when (generic-accessor-definition-access-expander accessor)
-	     (@tableitem "Setf Expander"
-	       (reference
-		(generic-accessor-definition-access-expander accessor))))
-	   (render-method-combination accessor)
-	   (let ((methods (generic-accessor-definition-methods accessor)))
-	     (when methods
-	       (@tableitem "Methods"
-		 (dolist (method methods)
-		   (document method context))))))
+	 (@defgeneric (string-downcase (name accessor)) (lambda-list accessor)
+	   (anchor-and-index accessor)
+	   (render-funcoid accessor context
+	     (when (generic-accessor-definition-access-expander accessor)
+	       (@tableitem "Setf Expander"
+		 (reference
+		   (generic-accessor-definition-access-expander accessor))))
+	     (render-method-combination accessor)
+	     (let ((methods (generic-accessor-definition-methods accessor)))
+	       (when methods
+		 (@tableitem "Methods"
+		   (dolist (method methods)
+		     (document method context)))))))
 	 (when (generic-accessor-definition-writer accessor)
 	   (document (generic-accessor-definition-writer accessor) context))))
   (when (generic-accessor-definition-access-expander accessor)
