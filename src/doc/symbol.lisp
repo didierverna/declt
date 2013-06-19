@@ -438,16 +438,29 @@ When METHODS, render their definitions jointly."
     (anchor-and-index function)
     (render-funcoid function context)))
 
-(defmethod document ((macro macro-definition) context)
+(defmethod document
+    ((macro macro-definition) context
+     &aux (expander (macro-definition-access-expander macro))
+	  (merge (and expander
+		      (functionp (setf-expander-definition-update expander))
+		      (equal (source macro) (source expander))
+		      (equal (docstring macro) (docstring expander)))))
   "Render MACRO's documentation in CONTEXT."
-  (@defmac (string-downcase (name macro)) (lambda-list macro)
-    (anchor-and-index macro)
-    (render-funcoid macro context
-      (when (macro-definition-access-expander macro)
-	(@tableitem "Setf Expander"
-	  (reference (macro-definition-access-expander macro))))))
-  (when (macro-definition-access-expander macro)
-    (document (macro-definition-access-expander macro) context)))
+  (cond (merge
+	 (@defmacro (string-downcase (name macro)) (lambda-list macro)
+	   (anchor-and-index macro)
+	   (@defsetfx (string-downcase (name expander)) (lambda-list expander))
+	   (anchor-and-index expander)
+	   (render-funcoid macro context)))
+	(t
+	 (@defmacro (string-downcase (name macro)) (lambda-list macro)
+	   (anchor-and-index macro)
+	   (render-funcoid macro context
+	     (when expander
+	       (@tableitem "Setf Expander"
+		 (reference expander)))))
+	 (when expander
+	   (document expander context)))))
 
 (defmethod document ((compiler-macro compiler-macro-definition) context)
   "Render COMPILER-MACRO's documentation in CONTEXT."

@@ -237,17 +237,6 @@ Rendering is done on *standard-output*."
 		   (escape specializer))
 	       (write-string (escape part))))))))
 
-(defmacro @defmac (name lambda-list &body body)
-  "Execute BODY within a @defmac NAME LAMBDA-LIST environment.
-NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  `(progn
-     (format t "@defmac ~A " (escape ,name '(#\ )))
-     (render-lambda-list ,lambda-list)
-     (terpri)
-     ,@body
-     (format t "~&@end defmac~%")))
-
 (defun @defunx (name lambda-list)
   "Render @defunx NAME LAMBDA-LIST on *standard-output*."
   (format t "@defunx ~A " (escape name '(#\ )))
@@ -277,6 +266,23 @@ BODY should render on *standard-output*."
      (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape ,qualifiers))
      ,@body
      (format t "~&@end deffn~%")))
+
+(defmacro @defmacro (name lambda-list &body body)
+  "Execute BODY within a @deffn Macro NAME LAMBDA-LIST environment.
+NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
+BODY should render on *standard-output*."
+  ;; #### NOTE: @DEFMACRO is implemented in terms of @deffn instead of @defmac
+  ;; because Texinfo doesn't allow mixing of heterogeneous @def and @defx
+  ;; environments. This limitation gets in the way of definition merging
+  ;; (e.g. I couldn't nest @defmac and @defsetfx).
+  `(@deffn ("Macro" ,name ,lambda-list)
+     ,@body))
+
+(defun @defsetfx (name lambda-list)
+  "Render @deffnx {Setf Expander} NAME LAMBDA-LIST on *standard-output*"
+  (format t "@deffnx {Setf Expander} ~A " (escape name '(#\ )))
+  (render-lambda-list lambda-list)
+  (terpri))
 
 (defmacro @defsetf (name lambda-list &body body)
   "Execute BODY within a @deffn {Setf Expander} NAME LAMBDA-LIST environment.
