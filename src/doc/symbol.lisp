@@ -53,14 +53,18 @@ Each element is rendered as a table item."
   (render-source definition context))
 
 (defmacro render-varoid
-    (varoid context &body body &aux (the-varoid (gensym "varoid")))
-  "Render VAROID's definition in CONTEXT."
+    (kind varoid context &body body
+     &aux (the-varoid (gensym "varoid"))
+	  (defcmd (intern (concatenate 'string "@DEF" (symbol-name kind))
+			  :com.dvlsoft.declt)))
+  "Render VAROID definition of KIND in CONTEXT."
   `(let ((,the-varoid ,varoid))
-     (anchor-and-index ,the-varoid)
-     (render-docstring ,the-varoid)
-     (@table ()
-       (render-definition-core ,the-varoid ,context)
-       ,@body)))
+     (,defcmd (string-downcase (name ,the-varoid))
+       (anchor-and-index ,the-varoid)
+       (render-docstring ,the-varoid)
+       (@table ()
+	 (render-definition-core ,the-varoid ,context)
+	 ,@body))))
 
 (defmacro render-funcoid
     (funcoid context &body body &aux (the-funcoid (gensym "funcoid")))
@@ -432,23 +436,20 @@ When METHODS, render their definitions jointly."
 
 (defmethod document ((constant constant-definition) context)
   "Render CONSTANT's documentation in CONTEXT."
-  (@defconstant (string-downcase (name constant))
-    (render-varoid constant context)))
+  (render-varoid :constant constant context))
 
 (defmethod document ((special special-definition) context)
   "Render SPECIAL variable's documentation in CONTEXT."
-  (@defspecial (string-downcase (name special))
-    (render-varoid special context)))
+  (render-varoid :special special context))
 
 (defmethod document ((symbol-macro symbol-macro-definition) context)
   "Render SYMBOL-MACRO's documentation in CONTEXT."
-  (@defsymbolmacro (string-downcase (name symbol-macro))
-    (render-varoid symbol-macro context
+    (render-varoid :symbolmacro symbol-macro context
       (@tableitem "Expansion"
 	(format t "@t{~(~A~)}~%"
 	  (escape
 	   (format nil "~S"
-		   (macroexpand (definition-symbol symbol-macro)))))))))
+		   (macroexpand (definition-symbol symbol-macro))))))))
 
 (defmethod document
     ((macro macro-definition) context
