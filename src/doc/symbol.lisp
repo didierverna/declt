@@ -482,13 +482,61 @@ When METHODS, render their definitions jointly."
 
 (defmethod document
     ((accessor accessor-definition) context
-     &aux (writer (accessor-definition-writer accessor))
-	  (expander (accessor-definition-access-expander accessor)))
+     &aux (expander (accessor-definition-access-expander accessor))
+	  (writer (accessor-definition-writer accessor))
+	  (merge-expander
+	   (and expander
+		(functionp (setf-expander-definition-update expander))
+		(equal (source accessor) (source expander))
+		(equal (docstring accessor) (docstring expander))))
+	  (merge-writer
+	   (and (writer-definition-p writer)
+		(equal (source accessor) (source writer))
+		(equal (docstring accessor) (docstring writer))))
+	  (merge-setters
+	   (and expander
+		(functionp (setf-expander-definition-update expander))
+		(writer-definition-p writer)
+		(equal (source expander) (source writer))
+		(equal (docstring expander) (docstring writer)))))
   "Render ACCESSOR's documentation in CONTEXT."
-#|
-  (cond ((and writer
-	      (equal (source accessor) (source writer))
-	      (equal (docstring accessor) (docstring writer)))
+  (cond ((and merge-writer merge-expander)
+	 (@defun (string-downcase (name accessor)) (lambda-list accessor)
+	   (anchor-and-index accessor)
+	   (@defsetfx
+	     (string-downcase (name expander)) (lambda-list expander))
+	   (anchor-and-index expander)
+	   (@defunx (string-downcase (name writer)) (lambda-list writer))
+	   (anchor-and-index writer)
+	   (render-funcoid accessor context)))
+	(merge-setters
+	 (@defun (string-downcase (name accessor)) (lambda-list accessor)
+	   (anchor-and-index accessor)
+	   (render-funcoid accessor context
+	     (@tableitem "Setf Expander" (reference expander))
+	     (@tableitem "Writer" (reference writer))))
+	 (@defsetf (string-downcase (name expander)) (lambda-list expander)
+	   (anchor-and-index expander)
+	   (@defunx (string-downcase (name writer)) (lambda-list writer))
+	   (anchor-and-index writer)
+	   (render-docstring expander)
+	   (@table ()
+	     (render-definition-core expander context)
+	     (@tableitem "Reader"
+	       (reference (setf-expander-definition-access expander))))))
+	(merge-expander
+	 (@defun (string-downcase (name accessor)) (lambda-list accessor)
+	   (anchor-and-index accessor)
+	   (@defsetfx
+	     (string-downcase (name expander)) (lambda-list expander))
+	   (anchor-and-index expander)
+	   (render-funcoid accessor context
+	     (when writer
+	       (@tableitem "Writer"
+		 (reference writer)))))
+	 (when (writer-definition-p writer)
+	   (document writer context)))
+	(merge-writer
 	 (@defun (string-downcase (name accessor)) (lambda-list accessor)
 	   (anchor-and-index accessor)
 	   (@defunx (string-downcase (name writer)) (lambda-list writer))
@@ -496,29 +544,23 @@ When METHODS, render their definitions jointly."
 	   (render-funcoid accessor context
 	     (when expander
 	       (@tableitem "Setf Expander"
-		 (reference expander))))))
+		 (reference expander)))))
+	 (when expander
+	   (document expander context)))
 	(t
 	 (@defun (string-downcase (name accessor)) (lambda-list accessor)
 	   (anchor-and-index accessor)
 	   (render-funcoid accessor context
 	     (when expander
 	       (@tableitem "Setf Expander"
-		 (reference expander)))))
-	 (when writer
-	   (document writer context))))|#
-  (@defun (string-downcase (name accessor)) (lambda-list accessor)
-    (anchor-and-index accessor)
-    (render-funcoid accessor context
-      (when expander
-	(@tableitem "Setf Expander"
-	  (reference expander)))
-      (when writer
-	(@tableitem "Writer"
-	  (reference writer)))))
-  (when (writer-definition-p writer)
-    (document writer context))
-  (when expander
-    (document expander context)))
+		 (reference expander)))
+	     (when writer
+	       (@tableitem "Writer"
+		 (reference writer)))))
+	 (when expander
+	   (document expander context))
+	 (when (writer-definition-p writer)
+	   (document writer context)))))
 
 
 (defmethod document ((method method-definition) context)
@@ -634,10 +676,10 @@ The standard method combination is not rendered."
     (render-docstring expander)
     (@table ()
       (render-definition-core expander context)
-      (@tableitem "Access"
+      (@tableitem "Reader"
 	(reference (setf-expander-definition-access expander)))
       (when (definition-p (setf-expander-definition-update expander))
-	(@tableitem "Update"
+	(@tableitem "Writer"
 	  (reference (setf-expander-definition-update expander)))))))
 
 ;; #### NOTE: no DOCUMENT method for SLOT-DEFINITION

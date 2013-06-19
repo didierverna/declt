@@ -237,23 +237,6 @@ Rendering is done on *standard-output*."
 		   (escape specializer))
 	       (write-string (escape part))))))))
 
-(defun @defunx (name lambda-list)
-  "Render @defunx NAME LAMBDA-LIST on *standard-output*."
-  (format t "@defunx ~A " (escape name '(#\ )))
-  (render-lambda-list lambda-list)
-  (terpri))
-
-(defmacro @defun (name lambda-list &body body)
-  "Execute BODY within a @defun NAME LAMBDA-LIST environment.
-NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  `(progn
-     (format t "@defun ~A " (escape ,name '(#\ )))
-     (render-lambda-list ,lambda-list)
-     (terpri)
-     ,@body
-     (format t "~&@end defun~%")))
-
 (defmacro @deffn ((category name lambda-list &optional specializers qualifiers)
 		  &body body)
   "Execute BODY within a @deffn CATEGORY NAME LAMBDA-LIST environment.
@@ -275,6 +258,21 @@ Texinfo prior to rendering."
   (render-lambda-list lambda-list specializers)
   (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape qualifiers))
   (terpri))
+
+(defmacro @defun (name lambda-list &body body)
+  "Execute BODY within a @deffn Function NAME LAMBDA-LIST environment.
+NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
+BODY should render on *standard-output*."
+  ;; #### NOTE: @DEFUN is implemented in terms of @deffn instead of @defun
+  ;; because Texinfo doesn't allow mixing of heterogeneous @def and @defx
+  ;; environments. This limitation gets in the way of definition merging
+  ;; (e.g. I couldn't nest @defun and @defsetfx).
+  `(@deffn ("Function" ,name ,lambda-list)
+     ,@body))
+
+(defun @defunx (name lambda-list)
+  "Render @deffnx Function NAME LAMBDA-LIST on *standard-output*."
+  (@deffnx "Function" name lambda-list))
 
 (defmacro @defmacro (name lambda-list &body body)
   "Execute BODY within a @deffn Macro NAME LAMBDA-LIST environment.
