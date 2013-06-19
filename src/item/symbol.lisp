@@ -89,7 +89,7 @@ This structure holds the symbol naming the definition."
 
 (defstruct (funcoid-definition (:include definition))
   "Base structure for definitions of functional values.
-This structure holds the (generic) function or macro object
+This structure holds the generic, ordinary or macro function,
 and a setf expander definition that expands to this object."
   function
   ;; #### NOTE: technically, it's not quite correct to have this slot here
@@ -418,13 +418,12 @@ Return NIL if not found."
 	    symbol category
 	    (make-symbol-macro-definition :symbol symbol) pool)))
 	(:macro
-	 (let ((function (macro-function symbol))
+	 (let ((macro (macro-function symbol))
 	       (expander (or (sb-int:info :setf :inverse symbol)
 			     (sb-int:info :setf :expander symbol))))
-	   (when function
+	   (when macro
 	     (let ((macro-definition
-		     (make-macro-definition :symbol symbol
-					    :function function)))
+		     (make-macro-definition :symbol symbol :function macro)))
 	       (when expander
 		 (let ((expander-definition
 			 (make-setf-expander-definition
@@ -435,13 +434,13 @@ Return NIL if not found."
 			 expander-definition)))
 	     (add-definition symbol category macro-definition pool)))))
 	(:compiler-macro
-	 (let ((function (compiler-macro-function symbol)))
-	   (when function
+	 (let ((compiler-macro (compiler-macro-function symbol)))
+	   (when compiler-macro
 	     (add-definition
 	      symbol
 	      category
 	      (make-compiler-macro-definition :symbol symbol
-					      :function function)
+					      :function compiler-macro)
 	      pool))))
 	;; #### NOTE: As mentionned earlier, the WRITER slot in (generic)
 	;; functions helps to attempt concatenation of the reader and writer
