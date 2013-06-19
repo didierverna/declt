@@ -475,6 +475,7 @@ When METHODS, render their definitions jointly."
      &aux (writer (accessor-definition-writer accessor))
 	  (expander (accessor-definition-access-expander accessor)))
   "Render ACCESSOR's documentation in CONTEXT."
+#|
   (cond ((and writer
 	      (equal (source accessor) (source writer))
 	      (equal (docstring accessor) (docstring writer)))
@@ -494,7 +495,18 @@ When METHODS, render their definitions jointly."
 	       (@tableitem "Setf Expander"
 		 (reference expander)))))
 	 (when writer
-	   (document writer context))))
+	   (document writer context))))|#
+  (@defun (string-downcase (name accessor)) (lambda-list accessor)
+    (anchor-and-index accessor)
+    (render-funcoid accessor context
+      (when expander
+	(@tableitem "Setf Expander"
+	  (reference expander)))
+      (when writer
+	(@tableitem "Writer"
+	  (reference writer)))))
+  (when writer
+    (document writer context))
   (when expander
     (document expander context)))
 
