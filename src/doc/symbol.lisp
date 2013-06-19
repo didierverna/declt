@@ -432,12 +432,6 @@ When METHODS, render their definitions jointly."
 	   (format nil "~S"
 		   (macroexpand (definition-symbol symbol-macro)))))))))
 
-(defmethod document ((function function-definition) context)
-  "Render FUNCTION's documentation in CONTEXT."
-  (@defun (string-downcase (name function)) (lambda-list function)
-    (anchor-and-index function)
-    (render-funcoid function context)))
-
 (defmethod document
     ((macro macro-definition) context
      &aux (expander (macro-definition-access-expander macro))
@@ -470,35 +464,39 @@ When METHODS, render their definitions jointly."
     (anchor-and-index compiler-macro)
     (render-funcoid compiler-macro context)))
 
-(defmethod document ((accessor accessor-definition) context)
+(defmethod document ((function function-definition) context)
+  "Render FUNCTION's documentation in CONTEXT."
+  (@defun (string-downcase (name function)) (lambda-list function)
+    (anchor-and-index function)
+    (render-funcoid function context)))
+
+(defmethod document
+    ((accessor accessor-definition) context
+     &aux (writer (accessor-definition-writer accessor))
+	  (expander (accessor-definition-access-expander accessor)))
   "Render ACCESSOR's documentation in CONTEXT."
-  (cond ((and (accessor-definition-writer accessor)
-	      (equal (source accessor)
-		     (source (accessor-definition-writer accessor)))
-	      (equal (docstring accessor)
-		     (docstring (accessor-definition-writer accessor))))
+  (cond ((and writer
+	      (equal (source accessor) (source writer))
+	      (equal (docstring accessor) (docstring writer)))
 	 (@defun (string-downcase (name accessor)) (lambda-list accessor)
 	   (anchor-and-index accessor)
-	   (@defunx
-	       (string-downcase (name (accessor-definition-writer accessor)))
-	       (lambda-list (accessor-definition-writer accessor)))
-	   (anchor-and-index (accessor-definition-writer accessor))
+	   (@defunx (string-downcase (name writer)) (lambda-list writer))
+	   (anchor-and-index writer)
 	   (render-funcoid accessor context
-	     (when (accessor-definition-access-expander accessor)
+	     (when expander
 	       (@tableitem "Setf Expander"
-		 (reference
-		  (accessor-definition-access-expander accessor)))))))
+		 (reference expander))))))
 	(t
 	 (@defun (string-downcase (name accessor)) (lambda-list accessor)
 	   (anchor-and-index accessor)
 	   (render-funcoid accessor context
-	     (when (accessor-definition-access-expander accessor)
+	     (when expander
 	       (@tableitem "Setf Expander"
-		 (reference (accessor-definition-access-expander accessor))))))
-	 (when (accessor-definition-writer accessor)
-	   (document (accessor-definition-writer accessor) context))))
-  (when (accessor-definition-access-expander accessor)
-    (document (accessor-definition-access-expander accessor) context)))
+		 (reference expander)))))
+	 (when writer
+	   (document writer context))))
+  (when expander
+    (document expander context)))
 
 
 (defmethod document ((method method-definition) context)
@@ -519,13 +517,13 @@ When METHODS, render their definitions jointly."
 	 (document (accessor-method-definition-writer method) context))))
 
 ;; #### PORTME.
-(defun render-method-combination (generic)
+(defun render-method-combination
+    (generic &aux (combination (generic-definition-combination generic)))
   "Render GENERIC definition's method combination documentation.
 The standard method combination is not rendered."
-  (unless (eq (definition-symbol (generic-definition-combination generic))
-	      'standard)
+  (unless (eq (definition-symbol combination) 'standard)
     (@tableitem "Method Combination"
-      (reference (generic-definition-combination generic))
+      (reference combination)
       (terpri)
       (let ((options (mapcar (lambda (option)
 			       (escape (format nil "~(~S~)" option)))
@@ -550,43 +548,35 @@ The standard method combination is not rendered."
 	    (dolist (method methods)
 	      (document method context))))))))
 
-(defmethod document ((accessor generic-accessor-definition) context)
+(defmethod document
+    ((accessor generic-accessor-definition) context
+     &aux (writer (generic-accessor-definition-writer accessor))
+	  (expander (generic-accessor-definition-access-expander accessor)))
   "Render generic ACCESSOR's documentation in CONTEXT."
-  (cond ((and (generic-accessor-definition-writer accessor)
-	      (equal (source accessor)
-		     (source (generic-accessor-definition-writer accessor)))
+  (cond ((and writer
+	      (equal (source accessor) (source writer))
 	      (eq (definition-symbol (generic-definition-combination accessor))
-		  (definition-symbol
-		   (generic-definition-combination
-		    (generic-accessor-definition-writer accessor))))
+		  (definition-symbol (generic-definition-combination writer)))
 	      (equal (sb-pcl::method-combination-options
 		      (sb-mop:generic-function-method-combination
 		       (generic-definition-function accessor)))
 		     (sb-pcl::method-combination-options
 		      (sb-mop:generic-function-method-combination
-		       (generic-definition-function
-			(generic-accessor-definition-writer accessor)))))
-	      (equal (docstring accessor)
-		     (docstring
-		      (generic-accessor-definition-writer accessor))))
+		       (generic-definition-function writer))))
+	      (equal (docstring accessor) (docstring writer)))
 	 (@defgeneric (string-downcase (name accessor)) (lambda-list accessor)
 	   (anchor-and-index accessor)
-	   (@defgenericx
-	       (string-downcase
-		(name (generic-accessor-definition-writer accessor)))
-	       (lambda-list (generic-accessor-definition-writer accessor)))
-	   (anchor-and-index (generic-accessor-definition-writer accessor))
+	   (@defgenericx (string-downcase (name writer)) (lambda-list writer))
+	   (anchor-and-index writer)
 	   (render-funcoid accessor context
-	     (when (generic-accessor-definition-access-expander accessor)
+	     (when expander
 	       (@tableitem "Setf Expander"
-		 (reference
-		   (generic-accessor-definition-access-expander accessor))))
+		 (reference expander)))
 	     (render-method-combination accessor)
 	     (let ((reader-methods
 		     (generic-accessor-definition-methods accessor))
 		   (writer-methods
-		     (generic-writer-definition-methods
-		      (generic-accessor-definition-writer accessor))))
+		     (generic-writer-definition-methods writer)))
 	       (when (or reader-methods writer-methods)
 		 (@tableitem "Methods"
 		   ;; #### FIXME: this is not the best order to advertise
@@ -601,20 +591,19 @@ The standard method combination is not rendered."
 	 (@defgeneric (string-downcase (name accessor)) (lambda-list accessor)
 	   (anchor-and-index accessor)
 	   (render-funcoid accessor context
-	     (when (generic-accessor-definition-access-expander accessor)
+	     (when expander
 	       (@tableitem "Setf Expander"
-		 (reference
-		   (generic-accessor-definition-access-expander accessor))))
+		 (reference expander)))
 	     (render-method-combination accessor)
 	     (let ((methods (generic-accessor-definition-methods accessor)))
 	       (when methods
 		 (@tableitem "Methods"
 		   (dolist (method methods)
 		     (document method context)))))))
-	 (when (generic-accessor-definition-writer accessor)
-	   (document (generic-accessor-definition-writer accessor) context))))
-  (when (generic-accessor-definition-access-expander accessor)
-    (document (generic-accessor-definition-access-expander accessor) context)))
+	 (when writer
+	   (document writer context))))
+  (when expander
+    (document expander context)))
 
 (defmethod document ((expander setf-expander-definition) context)
   "Render setf EXPANDER's documentation in CONTEXT."
