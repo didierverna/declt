@@ -267,6 +267,15 @@ BODY should render on *standard-output*."
      ,@body
      (format t "~&@end deffn~%")))
 
+(defun @deffnx (category name lambda-list &optional specializers qualifiers)
+  "Render @deffnx CATEGORY NAME LAMBDA-LIST on *standard-output*.
+CATEGORY, NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for
+Texinfo prior to rendering."
+  (format t "@deffnx {~A} ~A " (escape category) (escape name '(#\ )))
+  (render-lambda-list lambda-list specializers)
+  (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape qualifiers))
+  (terpri))
+
 (defmacro @defmacro (name lambda-list &body body)
   "Execute BODY within a @deffn Macro NAME LAMBDA-LIST environment.
 NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
@@ -278,18 +287,16 @@ BODY should render on *standard-output*."
   `(@deffn ("Macro" ,name ,lambda-list)
      ,@body))
 
-(defun @defsetfx (name lambda-list)
-  "Render @deffnx {Setf Expander} NAME LAMBDA-LIST on *standard-output*"
-  (format t "@deffnx {Setf Expander} ~A " (escape name '(#\ )))
-  (render-lambda-list lambda-list)
-  (terpri))
-
 (defmacro @defsetf (name lambda-list &body body)
   "Execute BODY within a @deffn {Setf Expander} NAME LAMBDA-LIST environment.
 NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(@deffn ("Setf Expander" ,name ,lambda-list)
      ,@body))
+
+(defun @defsetfx (name lambda-list)
+  "Render @deffnx {Setf Expander} NAME LAMBDA-LIST on *standard-output*"
+  (@deffnx "Setf Expander" name lambda-list))
 
 (defmacro @defcompilermacro (name lambda-list &body body)
   "Execute BODY within a @deffn {Compiler Macro} NAME LAMBDA-LIST environment.
@@ -298,12 +305,6 @@ BODY should render on *standard-output*."
   `(@deffn ("Compiler Macro" ,name ,lambda-list)
      ,@body))
 
-(defun @defgenericx (name lambda-list)
-  "Render @deffnx {Generic Function} NAME LAMBDA-LIST on *standard-output*"
-  (format t "@deffnx {Generic Function} ~A " (escape name '(#\ )))
-  (render-lambda-list lambda-list)
-  (terpri))
-
 (defmacro @defgeneric (name lambda-list &body body)
   "Execute BODY within a @deffn {Generic Function} NAME LAMBDA-LIST environment.
 NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
@@ -311,14 +312,9 @@ BODY should render on *standard-output*."
   `(@deffn ("Generic Function" ,name ,lambda-list)
      ,@body))
 
-(defun @defmethodx (name lambda-list specializers qualifiers)
-  "Render @deffnx {Method} NAME LAMBDA-LIST on *standard-output*.
-NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for Texinfo prior
-to rendering."
-  (format t "@deffnx {Method} ~A " (escape name '(#\ )))
-  (render-lambda-list lambda-list specializers)
-  (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape qualifiers))
-  (terpri))
+(defun @defgenericx (name lambda-list)
+  "Render @deffnx {Generic Function} NAME LAMBDA-LIST on *standard-output*"
+  (@deffnx "Generic Function" name lambda-list))
 
 (defmacro @defmethod (name lambda-list specializers qualifiers &body body)
   "Execute BODY within a @deffn {Method} NAME LAMBDA-LIST environment.
@@ -327,6 +323,12 @@ to rendering.
 BODY should render on *standard-output*."
   `(@deffn ("Method" ,name ,lambda-list ,specializers ,qualifiers)
      ,@body))
+
+(defun @defmethodx (name lambda-list specializers qualifiers)
+  "Render @deffnx {Method} NAME LAMBDA-LIST on *standard-output*.
+NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for Texinfo prior
+to rendering."
+  (@deffnx "Method" name lambda-list specializers qualifiers))
 
 (defmacro @deftp ((category name &optional lambda-list) &body body)
   "Execute BODY within a @deftp {CATEGORY} NAME [LAMBDA-LIST] environment.
