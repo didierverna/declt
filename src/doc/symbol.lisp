@@ -192,6 +192,24 @@ When METHODS, render their definitions jointly."
 	    (escape (format nil "~(~S~)" (first initarg)))
 	    (escape (format nil "~(~S~)" (second initarg)))))))))
 
+(defgeneric headline-function (definition)
+  (:documentation "Return a suitable headline function for DEFINITION.")
+  (:method ((function function-definition))
+    "Return #'@DEFUNX."
+    #'@defunx)
+  (:method ((generic generic-definition))
+    "Return #'@DEFGENERICX."
+    #'@defgenericx)
+  (:method ((expander setf-expander-definition))
+    "Return #'@DEFSETFX."
+    #'@defsetfx))
+
+(defun render-headline (definition)
+  "Render a headline for DEFINITION. Also anchor and index it."
+  (funcall (headline-function definition)
+	   (string-downcase (name definition)) (lambda-list definition))
+  (anchor-and-index definition))
+
 
 
 ;; ==========================================================================
@@ -443,8 +461,7 @@ When METHODS, render their definitions jointly."
   (cond (merge
 	 (@defmacro (string-downcase (name macro)) (lambda-list macro)
 	   (anchor-and-index macro)
-	   (@defsetfx (string-downcase (name expander)) (lambda-list expander))
-	   (anchor-and-index expander)
+	   (render-headline expander)
 	   (render-funcoid macro context)))
 	(t
 	 (@defmacro (string-downcase (name macro)) (lambda-list macro)
@@ -503,11 +520,8 @@ When METHODS, render their definitions jointly."
   (cond ((and merge-writer merge-expander)
 	 (@defun (string-downcase (name accessor)) (lambda-list accessor)
 	   (anchor-and-index accessor)
-	   (@defsetfx
-	     (string-downcase (name expander)) (lambda-list expander))
-	   (anchor-and-index expander)
-	   (@defunx (string-downcase (name writer)) (lambda-list writer))
-	   (anchor-and-index writer)
+	   (render-headline expander)
+	   (render-headline writer)
 	   (render-funcoid accessor context)))
 	(merge-setters
 	 (@defun (string-downcase (name accessor)) (lambda-list accessor)
@@ -517,8 +531,7 @@ When METHODS, render their definitions jointly."
 	     (@tableitem "Writer" (reference writer))))
 	 (@defsetf (string-downcase (name expander)) (lambda-list expander)
 	   (anchor-and-index expander)
-	   (@defunx (string-downcase (name writer)) (lambda-list writer))
-	   (anchor-and-index writer)
+	   (render-headline writer)
 	   (render-docstring expander)
 	   (@table ()
 	     (render-definition-core expander context)
@@ -527,9 +540,7 @@ When METHODS, render their definitions jointly."
 	(merge-expander
 	 (@defun (string-downcase (name accessor)) (lambda-list accessor)
 	   (anchor-and-index accessor)
-	   (@defsetfx
-	     (string-downcase (name expander)) (lambda-list expander))
-	   (anchor-and-index expander)
+	   (render-headline expander)
 	   (render-funcoid accessor context
 	     (when writer
 	       (@tableitem "Writer"
@@ -539,8 +550,7 @@ When METHODS, render their definitions jointly."
 	(merge-writer
 	 (@defun (string-downcase (name accessor)) (lambda-list accessor)
 	   (anchor-and-index accessor)
-	   (@defunx (string-downcase (name writer)) (lambda-list writer))
-	   (anchor-and-index writer)
+	   (render-headline writer)
 	   (render-funcoid accessor context
 	     (when expander
 	       (@tableitem "Setf Expander"
@@ -630,8 +640,7 @@ The standard method combination is not rendered."
 	      (equal (docstring accessor) (docstring writer)))
 	 (@defgeneric (string-downcase (name accessor)) (lambda-list accessor)
 	   (anchor-and-index accessor)
-	   (@defgenericx (string-downcase (name writer)) (lambda-list writer))
-	   (anchor-and-index writer)
+	   (render-headline writer)
 	   (render-funcoid accessor context
 	     (when expander
 	       (@tableitem "Setf Expander"
