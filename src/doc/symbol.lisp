@@ -470,6 +470,16 @@ When METHODS, render their definitions jointly."
     (anchor-and-index function)
     (render-funcoid function context)))
 
+(defmethod document ((writer writer-definition) context
+		     &aux (reader (writer-definition-reader writer)))
+  "Render WRITER's documentation in CONTEXT."
+  (@defun (string-downcase (name writer)) (lambda-list writer)
+    (anchor-and-index writer)
+    (render-funcoid writer context
+      (when reader
+	(@tableitem "Reader"
+	  (reference reader))))))
+
 (defmethod document
     ((accessor accessor-definition) context
      &aux (writer (accessor-definition-writer accessor))
@@ -505,7 +515,7 @@ When METHODS, render their definitions jointly."
       (when writer
 	(@tableitem "Writer"
 	  (reference writer)))))
-  (when writer
+  (when (writer-definition-p writer)
     (document writer context))
   (when expander
     (document expander context)))

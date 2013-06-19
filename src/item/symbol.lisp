@@ -124,7 +124,9 @@ This structure holds a slot for marking foreign definitions, i.e. those which
 do pertain to the system being documented."
   foreignp)
 (defstruct (writer-definition (:include function-definition))
-  "Structure for ordinary writer function definitions.")
+  "Structure for ordinary writer function definitions.
+This structure holds the corresponding reader definition."
+  reader)
 
 (defstruct (accessor-definition (:include function-definition))
   "Structure for accessor function definitions.
@@ -160,7 +162,9 @@ do pertain to the system being documented."
   combination
   methods)
 (defstruct (generic-writer-definition (:include generic-definition))
-  "Structure for generic writer function definitions.")
+  "Structure for generic writer function definitions.
+This structure holds the corresponding reader definition."
+  reader)
 (defstruct (generic-accessor-definition (:include generic-definition))
   "Structure for generic accessor function definitions.
 This structure holds a generic writer and a setf expander definition that
@@ -283,6 +287,11 @@ Keys must be of the form (NAME :CATEGORY).
   (loop :for definition :being :the :hash-values :in pool
 	:nconc (funcall function definition)))
 
+;; #### FIXME: the finalize process needs to find standalone writers and uses
+;; this function. However, this function returns all writers; not only
+;; standalone ones. This is not normally a problem because at that time, we're
+;; resolving heterogeneous accessors so we shouldn't find leaf writers. To be
+;; really pedantic, we could check that it is actually the case.
 (defgeneric find-definition (name category pool &optional errorp)
   (:documentation "Find a CATEGORY definition for NAME in POOL.
 If ERRORP, throw an error if not found. Otherwise, just return NIL.")
@@ -293,18 +302,14 @@ If ERRORP, throw an error if not found. Otherwise, just return NIL.")
     (or definition
 	(when errorp
 	  (error "No ~A definition found for symbol ~A" category name))))
-  (:method (name (category (eql :generic-writer)) pool
+  (:method (name (category (eql :accessor)) pool
 	    &optional errorp
-	    &aux (definition (find-definition name :generic pool errorp)))
-    "Method used to find generic writer definitions.
-Name must be that of the reader (not the SETF form)."
-    (or (typecase definition
-	  (generic-writer-definition
-	   definition)
-	  (generic-accessor-definition
-	   (generic-accessor-definition-writer definition)))
+	    &aux (definition (find-definition name :function pool errorp)))
+    "Method used to find accessor definitions."
+    (or (when (accessor-definition-p definition)
+	  definition)
 	(when errorp
-	  (error "No generic writer definition found for symbol ~A" name))))
+	  (error "No accessor definition found for symbol ~A." name))))
   (:method (name (category (eql :writer)) pool
 	    &optional errorp
 	    &aux (definition (find-definition name :function pool errorp)))
@@ -316,7 +321,28 @@ Name must be that of the reader (not the SETF form)."
 	  (accessor-definition
 	   (accessor-definition-writer definition)))
 	(when errorp
-	  (error "No writer definition found for symbol ~A." name)))))
+	  (error "No writer definition found for symbol ~A." name))))
+  (:method (name (category (eql :generic-accessor)) pool
+	    &optional errorp
+	    &aux (definition
+		  (find-definition name :generic pool errorp)))
+    "Method used to find generic accessor definitions."
+    (or (when (generic-accessor-definition-p definition)
+	  definition)
+	(when errorp
+	  (error "No generic accessor definition found for symbol ~A." name))))
+  (:method (name (category (eql :generic-writer)) pool
+	    &optional errorp
+	    &aux (definition (find-definition name :generic pool errorp)))
+    "Method used to find generic writer definitions.
+Name must be that of the reader (not the SETF form)."
+    (or (typecase definition
+	  (generic-writer-definition
+	   definition)
+	  (generic-accessor-definition
+	   (generic-accessor-definition-writer definition)))
+	(when errorp
+	  (error "No generic writer definition found for symbol ~A" name)))))
 
 ;; #### PORTME.
 (defun method-name (method
@@ -354,6 +380,36 @@ Return NIL if not found."
     (loop :for key   :being :the :hash-keys   :in pool
 	  :for value :being :the :hash-values :in pool
 	  :when (eq (second key) category)
+	    :collect value))
+  (:method ((category (eql :accessor)) pool)
+    "Method used for ordinary accessors."
+    (loop :for key   :being :the :hash-keys   :in pool
+	  :for value :being :the :hash-values :in pool
+	  :when (and (eq (second key) :function)
+		     (accessor-definition-p value))
+	    :collect value))
+  (:method ((category (eql :writer)) pool)
+    "Method used for ordinary writers.
+Note that this only returns standalone (toplevel) writers."
+    (loop :for key   :being :the :hash-keys   :in pool
+	  :for value :being :the :hash-values :in pool
+	  :when (and (eq (second key) :function)
+		     (writer-definition-p value))
+	    :collect value))
+  (:method ((category (eql :generic-accessor)) pool)
+    "Method used for generic accessors."
+    (loop :for key   :being :the :hash-keys   :in pool
+	  :for value :being :the :hash-values :in pool
+	  :when (and (eq (second key) :generic)
+		     (generic-accessor-definition-p value))
+	    :collect value))
+  (:method ((category (eql :generic-writer)) pool)
+    "Method used for generic writers.
+Note that this only returns standalone (toplevel) generic writers."
+    (loop :for key   :being :the :hash-keys   :in pool
+	  :for value :being :the :hash-values :in pool
+	  :when (and (eq (second key) :generic)
+		     (generic-writer-definition-p value))
 	    :collect value))
   (:method ((category (eql :short-combination)) pool)
     "Method used for short method combinations."
@@ -439,8 +495,8 @@ Return NIL if not found."
 	     (add-definition
 	      symbol
 	      category
-	      (make-compiler-macro-definition :symbol symbol
-					      :function compiler-macro)
+	      (make-compiler-macro-definition
+	       :symbol symbol :function compiler-macro)
 	      pool))))
 	;; #### NOTE: As mentionned earlier, the WRITER slot in (generic)
 	;; functions helps to attempt concatenation of the reader and writer
@@ -452,38 +508,43 @@ Return NIL if not found."
 	;; for only one of the definitions). Besides, we regular and generic
 	;; functions appear in different sections in the manual.
 	(:function
-	 (let ((function
-		 (when (and (fboundp symbol)
-			    (not (macro-function symbol))
-			    (not (typep (fdefinition symbol)
-					'generic-function)))
-		   (fdefinition symbol)))
-	       (writer
-		 (let ((writer-name `(setf ,symbol)))
-		   (when (and (fboundp writer-name)
-			      (not (typep (fdefinition writer-name)
-					  'generic-function)))
-		     (fdefinition writer-name))))
-	       (expander (or (sb-int:info :setf :inverse symbol)
-			     (sb-int:info :setf :expander symbol))))
+	 (let* ((function (when (and (fboundp symbol)
+				     (not (macro-function symbol))
+				     (not (typep (fdefinition symbol)
+						 'generic-function)))
+			    (fdefinition symbol)))
+		;; #### NOTE: an accessor's writer definition is created here
+		;; only if it's also an ordinary function. Cross-references
+		;; between heterogeneous accessors will be resolved when the
+		;; pools are finalized.
+		(writer (let ((writer-name `(setf ,symbol)))
+			  (when (fboundp writer-name)
+			    (fdefinition writer-name))))
+		(ordinary-writer-p
+		  (and writer (not (typep writer 'generic-function))))
+		(expander (or (sb-int:info :setf :inverse symbol)
+			      (sb-int:info :setf :expander symbol))))
 	   (cond ((and function (or writer expander))
-		  (let ((function-definition
-			  (make-accessor-definition
-			   :symbol symbol
-			   :function function
-			   :writer (when writer (make-writer-definition
-						 :symbol symbol
-						 :function writer)))))
+		  (let ((accessor-definition (make-accessor-definition
+					      :symbol symbol
+					      :function function)))
+		    (when ordinary-writer-p
+		      (let ((writer-definition (make-writer-definition
+						:symbol symbol
+						:function writer
+						:reader accessor-definition)))
+			(setf (accessor-definition-writer accessor-definition)
+			      writer-definition)))
 		    (when expander
 		      (let ((expander-definition
 			      (make-setf-expander-definition
 			       :symbol symbol
-			       :access function-definition
+			       :access accessor-definition
 			       :update expander)))
 			(setf (accessor-definition-access-expander
-			       function-definition)
+			       accessor-definition)
 			      expander-definition)))
-		    (add-definition symbol category function-definition pool)))
+		    (add-definition symbol category accessor-definition pool)))
 		 (function
 		  (add-definition
 		   symbol
@@ -491,26 +552,28 @@ Return NIL if not found."
 		   (make-function-definition :symbol symbol
 					     :function function)
 		   pool))
-		 (writer
+		 (ordinary-writer-p
 		  (add-definition
 		   symbol
 		   category
-		   (make-writer-definition :symbol symbol
-					   :function writer)
+		   (make-writer-definition :symbol symbol :function writer)
 		   pool)))))
 	(:generic
-	 (let ((function
-		 (when (and (fboundp symbol)
-			    (typep (fdefinition symbol) 'generic-function))
-		   (fdefinition symbol)))
-	       (writer
-		 (let ((writer-name `(setf ,symbol)))
-		   (when (and (fboundp writer-name)
-			      (typep (fdefinition writer-name)
-				     'generic-function))
-		     (fdefinition writer-name))))
-	       (expander (or (sb-int:info :setf :inverse symbol)
-			     (sb-int:info :setf :expander symbol))))
+	 (let* ((function
+		  (when (and (fboundp symbol)
+			     (typep (fdefinition symbol) 'generic-function))
+		    (fdefinition symbol)))
+		;; #### NOTE: an accessor's writer definition is created here
+		;; only if it's also a generic function. Cross-references
+		;; between heterogeneous accessors will be resolved when the
+		;; pools are finalized.
+		(writer
+		  (let ((writer-name `(setf ,symbol)))
+		    (when (fboundp writer-name)
+		      (fdefinition writer-name))))
+		(generic-writer-p (typep writer 'generic-function))
+		(expander (or (sb-int:info :setf :inverse symbol)
+			      (sb-int:info :setf :expander symbol))))
 	   (cond ((and function (or writer expander))
 		  (let ((generic-definition
 			  (make-generic-accessor-definition
@@ -525,7 +588,7 @@ Return NIL if not found."
 			   (mapcar
 			    (lambda (method)
 			      (let ((writer-method
-				      (and writer
+				      (and generic-writer-p
 					   (find-method
 					    writer
 					    (method-qualifiers method)
@@ -545,30 +608,34 @@ Return NIL if not found."
 					      :method writer-method))
 				    (make-method-definition
 				     :symbol symbol :method method))))
-			    (sb-mop:generic-function-methods function))
-			   :writer (when writer
-				     (make-generic-writer-definition
-				      :symbol symbol
-				      :function writer
-				      :methods
-				      (mapcan
-				       (lambda (method)
-					 (unless
-					     (find-method
-					      function
-					      (method-qualifiers method)
-					      ;; #### NOTE: don't forget to
-					      ;; remove the first (NEW-VALUE)
-					      ;; specializer from the writer
-					      ;; method.
-					      (cdr (sb-mop:method-specializers
-						    method))
-					      nil)
-					   (list (make-writer-method-definition
-						  :symbol symbol
-						  :method method))))
-				       (sb-mop:generic-function-methods
-					writer)))))))
+			    (sb-mop:generic-function-methods function)))))
+		    (when generic-writer-p
+		      (let ((writer-definition
+			      (make-generic-writer-definition
+			       :symbol symbol
+			       :function writer
+			       :methods
+			       (mapcan
+				(lambda (method)
+				  (unless
+				      (find-method
+				       function
+				       (method-qualifiers method)
+				       ;; #### NOTE: don't forget to remove
+				       ;; the first (NEW-VALUE) specializer
+				       ;; from the writer method.
+				       (cdr (sb-mop:method-specializers
+					     method))
+				       nil)
+				    (list (make-writer-method-definition
+					   :symbol symbol
+					   :method method))))
+				(sb-mop:generic-function-methods
+				 writer))
+			       :reader generic-definition)))
+			(setf (generic-accessor-definition-writer
+			       generic-definition)
+			      writer-definition)))
 		    (when expander
 		      (let ((expander-definition
 			      (make-setf-expander-definition
@@ -593,7 +660,7 @@ Return NIL if not found."
 				     (sb-mop:generic-function-methods
 				      function)))
 		   pool))
-		 (writer
+		 (generic-writer-p
 		  (add-definition
 		   symbol
 		   category
@@ -803,6 +870,7 @@ Currently, this means resolving:
 - slots writers,
 - generic functions method combinations,
 - method combinations operators (for short ones) and users (for both),
+- heterogeneous accessors,
 - (generic) functions and macros (short form) setf expanders definitions."
   (labels ((classes-definitions (classes)
 	     (mapcar
@@ -891,6 +959,29 @@ Currently, this means resolving:
 			     pool1 (definition-symbol combination))
 			    (pool-combination-users
 			     pool2 (definition-symbol combination)))))
+	     ;; #### NOTE: readers and writers belong to the same symbol so
+	     ;; they can't be in different pools (i.e. they are both internal
+	     ;; or external). Hence, we only need to look in the current pool.
+	     (dolist (accessor (category-definitions :accessor pool))
+	       (unless (accessor-definition-writer accessor)
+		 (setf (accessor-definition-writer accessor)
+		       (find-definition (definition-symbol accessor)
+					:generic-writer pool))))
+	     (dolist (writer (category-definitions :writer pool))
+	       (assert (null (writer-definition-reader writer)))
+	       (setf (writer-definition-reader writer)
+		     (find-definition (definition-symbol writer)
+				      :generic-accessor pool)))
+	     (dolist (accessor (category-definitions :generic-accessor pool))
+	       (unless (generic-accessor-definition-writer accessor)
+		 (setf (generic-accessor-definition-writer accessor)
+		       (find-definition (definition-symbol accessor)
+					:writer pool))))
+	     (dolist (writer (category-definitions :generic-writer pool))
+	       (assert (null (generic-writer-definition-reader writer)))
+	       (setf (generic-writer-definition-reader writer)
+		     (find-definition (definition-symbol writer)
+				      :accessor pool)))
 	     ;; At that point, a short form setf expander definition contains
 	     ;; a symbol naming the update object. We now need to transform
 	     ;; that into an actual (and possibly foreign) definition.
