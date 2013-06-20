@@ -239,13 +239,19 @@ components tree."))))
 		     (render-packages-references
 		      (file-packages (system-definition-pathname system)))
 		     (render-external-definitions-references
-		      (file-definitions (system-definition-pathname system)
-					(context-external-definitions
-					 context)))
+		      (sort
+		       (file-definitions (system-definition-pathname system)
+					 (context-external-definitions
+					  context))
+		       #'string-lessp
+		       :key #'definition-symbol))
 		     (render-internal-definitions-references
-		      (file-definitions (system-definition-pathname system)
-					(context-internal-definitions
-					 context))))))))
+		      (sort
+		       (file-definitions (system-definition-pathname system)
+					 (context-internal-definitions
+					  context))
+		       #'string-lessp
+		       :key #'definition-symbol)))))))
   (dolist (file lisp-files)
     (add-child lisp-files-node (file-node file context)))
   (loop :with other-files-node
