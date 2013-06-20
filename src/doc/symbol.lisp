@@ -625,6 +625,20 @@ The standard method combination is not rendered."
 	  (dolist (method methods)
 	    (document method context)))))))
 
+(defmethod document ((writer generic-writer-definition) context
+		     &aux (reader (generic-writer-definition-reader writer)))
+  "Render generic WRITER's documentation in CONTEXT."
+  (render-funcoid :generic writer context
+    (when reader
+      (@tableitem "Reader"
+	(reference reader)))
+    (render-method-combination writer)
+    (let ((methods (generic-writer-definition-methods writer)))
+      (when methods
+	(@tableitem "Methods"
+	  (dolist (method methods)
+	    (document method context)))))))
+
 (defmethod document
     ((accessor generic-accessor-definition) context
      &aux (access-expander
