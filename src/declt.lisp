@@ -422,7 +422,7 @@ This manual was generated automatically by Declt ~A on ~A.
 
   ;; First load the target system. If this fails, there's no point in working
   ;; hard on the rest.
-  (asdf:operate 'asdf:load-op system-name)
+  (asdf:load-system system-name)
 
   ;; Next, post-process some parameters.
   (setq library-name (escape library-name))

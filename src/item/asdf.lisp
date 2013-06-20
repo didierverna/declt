@@ -180,7 +180,7 @@
 (defun lisp-pathnames (system)
   "Return the list of all ASDF SYSTEM's Lisp source file pathnames.
 The list includes the system definition file."
-  (cons (system-definition-pathname system)
+  (cons (system-source-file system)
 	(mapcar #'component-pathname (lisp-components system))))
 
 (defun system-packages (system)

@@ -32,7 +32,7 @@
 
 (require :asdf)
 
-(asdf:operate 'asdf:load-op :com.dvlsoft.declt)
+(asdf:load-system :com.dvlsoft.declt)
 (com.dvlsoft.declt:nickname-package)
 
 (format t "LONG_VERSION  := ~A~%~

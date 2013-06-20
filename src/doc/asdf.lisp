@@ -80,22 +80,13 @@
   (format t "~@[@item Version~%~
 		  ~A~%~]"
     (escape (component-version component)))
-  ;; #### NOTE: currently, we simply extract all the dependencies regardless
-  ;; of the operations involved. We also assume that dependencies are of the
-  ;; form (OP (OP DEP...) ...), but I'm not sure this is always the case.
-  (let ((in-order-tos (slot-value component 'asdf::in-order-to))
-	dependencies
-	length)
-    (when in-order-tos
-      (dolist (in-order-to in-order-tos)
-	(dolist (op-dependency (cdr in-order-to))
-	  (dolist (dependency (cdr op-dependency))
-	    (pushnew dependency dependencies))))
-      (setq length (length dependencies))
+  (let* ((dependencies (component-load-dependencies component))
+	 (length (length dependencies)))
+    (when dependencies
       (@tableitem (format nil "Dependenc~@p" length)
 	(if (eq length 1)
 	    (format t "@t{~(~A}~)" (escape (first dependencies)))
-	  (@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape)))))
+	    (@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape)))))
   (let ((parent (component-parent component)))
     (when parent (@tableitem "Parent" (reference parent relative-to))))
   (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
@@ -108,22 +99,11 @@
 	       system-base-name)))
 	 (when (context-hyperlinksp context)
 	   (let ((system-source-directory
-		   (escape (system-source-directory component)))
-		 (installation-directory
-		   (escape
-		    (directory-namestring
-		     (probe-file (system-definition-pathname component))))))
+		   (escape (system-source-directory component))))
 	     (@tableitem "Source Directory"
 	       (format t "@url{file://~A, ignore, @t{~A}}~%"
 		 system-source-directory
-		 system-source-directory))
-	     ;; With ASDF 2, we're not supposed to use the systems directory
-	     ;; convention anymore, so the installation directory might just
-	     ;; be the source one.
-	     (unless (string= system-source-directory installation-directory)
-	       (@tableitem "Installation Directory"
-		 (format t "@url{file://~A, ignore, @t{~A}}~%"
-		   installation-directory installation-directory))))))
+		 system-source-directory)))))
 	(t
 	 (render-location (component-pathname component) context))))
 
@@ -234,20 +214,20 @@ components tree."))))
 		    (format nil "go to the ~A file" system-base-name))
 		   (format t "@lispfileindex{~A}@c~%" system-base-name)
 		   (@table ()
-		     (render-location (system-definition-pathname system)
+		     (render-location (system-source-file system)
 				      context)
 		     (render-packages-references
-		      (file-packages (system-definition-pathname system)))
+		      (file-packages (system-source-file system)))
 		     (render-external-definitions-references
 		      (sort
-		       (file-definitions (system-definition-pathname system)
+		       (file-definitions (system-source-file system)
 					 (context-external-definitions
 					  context))
 		       #'string-lessp
 		       :key #'definition-symbol))
 		     (render-internal-definitions-references
 		      (sort
-		       (file-definitions (system-definition-pathname system)
+		       (file-definitions (system-source-file system)
 					 (context-internal-definitions
 					  context))
 		       #'string-lessp

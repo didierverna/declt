@@ -45,16 +45,16 @@
     :+release-name+
     :version)
   (:import-from :asdf
-    ;; Some slot-unbound proof accessors that we can import directly (see
-    ;; src/util/asdf.lisp for wrappers around other ones).
-    :system-definition-pathname
+    ;; Some functions or slot-unbound-proof accessors that we can import
+    ;; directly (see src/util/asdf.lisp for wrappers around other ones).
     :component-name
+    :component-load-dependencies
+    :component-parent
     :component-pathname
     :component-relative-pathname
-    :component-parent
+    :find-system
     :system-source-directory
-    ;; Some functions that we can import directly.
-    :find-system)
+    :system-source-file)
   (:export
    ;; From com.dvlsoft.declt.asd:
    :+release-major-level+

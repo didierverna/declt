@@ -124,7 +124,7 @@ Rendering is done on *standard-output*."
   (when source
     (cond
       ;; First, try the system definition file.
-      ((equal source (system-definition-pathname system))
+      ((equal source (system-source-file system))
        ;; #### NOTE: Probing the pathname as the virtue of dereferencing
        ;; symlinks. This is good because when the system definition file is
        ;; involved, it is the installed symlink which is seen, whereas we want

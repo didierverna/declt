@@ -30,7 +30,7 @@
 
 (require :asdf)
 
-(asdf:operate 'asdf:load-op :com.dvlsoft.declt)
+(asdf:load-system :com.dvlsoft.declt)
 
 (if (and (second sb-ext:*posix-argv*)
 	 (string= (second sb-ext:*posix-argv*) "--web"))

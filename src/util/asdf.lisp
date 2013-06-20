@@ -104,15 +104,15 @@
 
 (defun system-base-name (system)
   "Return the basename part of ASDF SYSTEM's definition file."
-  (file-namestring (system-definition-pathname system)))
+  (file-namestring (system-source-file system)))
 
 (defun system-file-name (system)
   "Return the name part of ASDF SYSTEM's definition file."
-  (pathname-name (system-definition-pathname system)))
+  (pathname-name (system-source-file system)))
 
 (defun system-file-type (system)
   "Return the type part of ASDF SYSTEM's definition file."
-  (pathname-type (system-definition-pathname system)))
+  (pathname-type (system-source-file system)))
 
 
 ;;; asdf.lisp ends here
