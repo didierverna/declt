@@ -92,7 +92,7 @@ This structure holds the symbol naming the definition."
 This structure holds the generic, ordinary or macro function,
 and a setf expander definition that expands to this object."
   function
-  ;; #### NOTE: technically, it's not quite correct to have this slot here
+  ;; #### FIXME: technically, it's not quite correct to have this slot here
   ;; because not all funcoids can be the expansion of a setf expander: only
   ;; macros and (generic) functions (not even setf ones). However, putting
   ;; this slot here makes it easier to fill it in FINALIZE-DEFINITIONS, given
