@@ -1,6 +1,6 @@
-                                                             -*- outline -*-
+							     -*- outline -*-
 
-* Copyright (C) 2010, 2011, 2012 Didier Verna
+* Copyright (C) 2010-2013 Didier Verna
 
 This file is part of Declt.
 
@@ -9,17 +9,14 @@ are permitted in any medium without royalty provided the copyright
 notice and this notice are preserved.
 
 
-** Index dependencies
+** Dependencies indexation
 ASDF maintains dependencies as a list of names only, so this makes it harder
-to find the corresponding component.
-
-** See sb-introspect for a list of other things that we could possibly document
-That would be setf expanders.
+to find the corresponding component in order to reference it.
 
 ** Packages and symbols
-We should see what to do about shadowings and imports.
+We should see what to do about shadowings, imports etc.
 
-** Cleanup up the string-downcase issue
+** Cleanup the string-downcase issue
 so that it would be easier afterwards to provide an option for case behavior.
 
 ** Canonicalize pathnames
@@ -37,9 +34,16 @@ store those definitions: they are neither internal, nor exported! Maybe we
 could add a section for foreign definitions.
 
 Question: besides methods, are there other kinds of floating definitions ?
+Partial answer: setf expanders for which the access-fn is foreign, but the
+update-fn is ours.
+
+** Foreign setf expanders
+Setf expanders are documented when the access-fn is a (generic) function or
+macro. If a setf expander is defined on a symbol that has no such definition
+(which is possible), it will not currently appear anywhere. What should we do?
+Probably create toplevel setf expander definitions.
 
 ** Call graphs
 Cf.
 sb-introspect:who-calls
 sb-introspect:find-function-callees
-
