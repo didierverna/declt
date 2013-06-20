@@ -89,20 +89,13 @@ This structure holds the symbol naming the definition."
 
 (defstruct (funcoid-definition (:include definition))
   "Base structure for definitions of functional values.
-This structure holds the generic, ordinary or macro function,
-and a setf expander definition that expands to this object."
-  function
-  ;; #### FIXME: technically, it's not quite correct to have this slot here
-  ;; because not all funcoids can be the expansion of a setf expander: only
-  ;; macros and (generic) functions (not even setf ones). However, putting
-  ;; this slot here makes it easier to fill it in FINALIZE-DEFINITIONS, given
-  ;; that structures lack multiple inheritance (slot accessors would be
-  ;; different according to the structure type).
-  update-expander)
+This structure holds the generic, ordinary or macro function."
+  function)
 
 (defstruct (macro-definition (:include funcoid-definition))
   "Structure for macro definitions.
-This structure holds a setf expander definition that expands this macro."
+This structure holds a setf expander definition that expands this macro and a
+setf expander definition that expands to this macro."
   ;; #### NOTE: you may notice that contrary to (generic) functions, macro
   ;; definitions don't have a WRITER slot. That is because a setf function
   ;; cannot be directly associated with a macro so there's no point in trying
@@ -113,7 +106,8 @@ This structure holds a setf expander definition that expands this macro."
   ;; single documentation item when possible. It makes the reference manual
   ;; more readable IMO, but that's assuming that FOO and (SETF FOO) are indeed
   ;; a no-nonsense reader/writer pair of macros...
-  access-expander)
+  access-expander
+  update-expander)
 
 (defstruct (compiler-macro-definition (:include funcoid-definition))
   "Structure for compiler macro definitions.")
@@ -121,13 +115,17 @@ This structure holds a setf expander definition that expands this macro."
 (defstruct (function-definition (:include funcoid-definition))
   "Structure for ordinary function definitions.
 This structure holds a slot for marking foreign definitions, i.e. those which
-do pertain to the system being documented."
-  foreignp)
+do pertain to the system being documented, and a setf expander definition that
+expands to this function."
+  foreignp
+  update-expander)
+;; #### FIXME: writer definitions can't have an associated update expander so
+;; it's not clean that they have that slot. I need to refine the structures
+;; hierarchy.
 (defstruct (writer-definition (:include function-definition))
   "Structure for ordinary writer function definitions.
 This structure holds the corresponding reader definition."
   reader)
-
 (defstruct (accessor-definition (:include function-definition))
   "Structure for accessor function definitions.
 This structure holds a writer and a setf expander definition that expands
@@ -155,12 +153,17 @@ This structure holds the writer method definition."
 
 (defstruct (generic-definition (:include funcoid-definition))
   "Structure for generic function definitions.
-This structure holds the combination definition, the list of method
-definitions and also a slot for marking foreign definitions, i.e. those which
-do pertain to the system being documented."
+This structure holds a setf expander definition that expands to this function,
+the combination definition, the list of method definitions and also a slot for
+marking foreign definitions, i.e. those which do pertain to the system being
+documented."
   foreignp
+  update-expander
   combination
   methods)
+;; #### FIXME: generic writer definitions can't have an associated update
+;; expander so it's not clean that they have that slot. I need to refine the
+;; structures hierarchy.
 (defstruct (generic-writer-definition (:include generic-definition))
   "Structure for generic writer function definitions.
 This structure holds the corresponding reader definition."
@@ -1003,9 +1006,21 @@ Currently, this means resolving:
 			       ;; laziness).
 			       (make-function-definition :symbol name
 							 :foreignp t))))
-		     (setf (funcoid-definition-update-expander
-			    update-definition)
-			   expander)
+		     ;; #### NOTE: do you see why dropping structures and
+		     ;; using mixin classes would help here ? ;-)
+		     (etypecase update-definition
+		       (macro-definition
+			(setf (macro-definition-update-expander
+			       update-definition)
+			      expander))
+		       (function-definition
+			(setf (function-definition-update-expander
+			       update-definition)
+			      expander))
+		       (generic-definition
+			(setf (generic-definition-update-expander
+			       update-definition)
+			      expander)))
 		     (setf (setf-expander-definition-update expander)
 			   update-definition)))))))
     (finalize pool1)

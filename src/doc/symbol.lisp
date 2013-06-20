@@ -83,20 +83,6 @@ Each element is rendered as a table item."
        (render-docstring ,the-funcoid)
        (@table ()
 	 (render-definition-core ,the-funcoid ,context)
-	 ;; #### FIXME: this is a bit hackish. This macro is used primarily on
-	 ;; funcoids but also on setf expanders which obviously don't have an
-	 ;; update expander slot. Since that is the only difference with
-	 ;; funcoids, it's practical to use the same macro and check for the
-	 ;; actual type as done below. But it's not very clean. At least, this
-	 ;; macro should be renamed to something else. Or, we should fix the
-	 ;; funcoid definition (see also the comment about this update
-	 ;; expander slot in ../util/symbol.lisp.
-	 (let ((expander
-		 (when (funcoid-definition-p ,the-funcoid)
-		   (funcoid-definition-update-expander ,the-funcoid))))
-	   (when expander
-	     (@tableitem "Setf Expander"
-	       (reference expander))))
 	 ,@body))))
 
 (defmacro render-methods ((method &rest methods) context)
@@ -473,21 +459,29 @@ When METHODS, render their definitions jointly."
 
 (defmethod document
     ((macro macro-definition) context
-     &aux (expander (macro-definition-access-expander macro))
-	  (merge (and expander
-		      (functionp (setf-expander-definition-update expander))
-		      (equal (source macro) (source expander))
-		      (equal (docstring macro) (docstring expander)))))
+     &aux (access-expander (macro-definition-access-expander macro))
+	  (update-expander (macro-definition-update-expander macro))
+	  (merge (and access-expander
+		      (functionp
+		       (setf-expander-definition-update access-expander))
+		      (equal (source macro) (source access-expander))
+		      (equal (docstring macro) (docstring access-expander)))))
   "Render MACRO's documentation in CONTEXT."
   (cond (merge
-	 (render-funcoid :macro (macro expander) context))
+	 (render-funcoid :macro (macro access-expander) context
+	   (when update-expander
+	     (@tableitem "Setf Expander"
+	       (reference update-expander)))))
 	(t
 	 (render-funcoid :macro macro context
-	   (when expander
+	   (when update-expander
 	     (@tableitem "Setf Expander"
-	       (reference expander))))
-	 (when expander
-	   (document expander context)))))
+	       (reference update-expander)))
+	   (when access-expander
+	     (@tableitem "Setf Expander"
+	       (reference access-expander))))
+	 (when access-expander
+	   (document access-expander context)))))
 
 (defmethod document ((compiler-macro compiler-macro-definition) context)
   "Render COMPILER-MACRO's documentation in CONTEXT."
@@ -495,7 +489,11 @@ When METHODS, render their definitions jointly."
 
 (defmethod document ((function function-definition) context)
   "Render FUNCTION's documentation in CONTEXT."
-  (render-funcoid :un function context))
+  (render-funcoid :un function context
+    (let ((expander (function-definition-update-expander function)))
+      (when expander
+	(@tableitem "Setf Expander"
+	  (reference expander))))))
 
 (defmethod document ((writer writer-definition) context
 		     &aux (reader (writer-definition-reader writer)))
@@ -507,35 +505,45 @@ When METHODS, render their definitions jointly."
 
 (defmethod document
     ((accessor accessor-definition) context
-     &aux (expander (accessor-definition-access-expander accessor))
+     &aux (access-expander (accessor-definition-access-expander accessor))
+	  (update-expander (accessor-definition-update-expander accessor))
 	  (writer (accessor-definition-writer accessor))
 	  (merge-expander
-	   (and expander
-		(functionp (setf-expander-definition-update expander))
-		(equal (source accessor) (source expander))
-		(equal (docstring accessor) (docstring expander))))
+	   (and access-expander
+		(functionp (setf-expander-definition-update access-expander))
+		(equal (source accessor) (source access-expander))
+		(equal (docstring accessor) (docstring access-expander))))
 	  (merge-writer
 	   (and (writer-definition-p writer)
 		(equal (source accessor) (source writer))
 		(equal (docstring accessor) (docstring writer))))
 	  (merge-setters
-	   (and expander
-		(functionp (setf-expander-definition-update expander))
+	   (and access-expander
+		(functionp (setf-expander-definition-update access-expander))
 		(writer-definition-p writer)
-		(equal (source expander) (source writer))
-		(equal (docstring expander) (docstring writer)))))
+		(equal (source access-expander) (source writer))
+		(equal (docstring access-expander) (docstring writer)))))
   "Render ACCESSOR's documentation in CONTEXT."
   (cond ((and merge-writer merge-expander)
-	 (render-funcoid :un (accessor expander writer) context))
+	 (render-funcoid :un (accessor access-expander writer) context
+	   (when update-expander
+	     (@tableitem "Setf Expander"
+	       (reference update-expander)))))
 	(merge-setters
 	 (render-funcoid :un accessor context
-	   (@tableitem "Setf Expander" (reference expander))
+	   (when update-expander
+	     (@tableitem "Setf Expander"
+	       (reference update-expander)))
+	   (@tableitem "Setf Expander" (reference access-expander))
 	   (@tableitem "Writer" (reference writer)))
-	 (render-funcoid :setf (expander writer) context
+	 (render-funcoid :setf (access-expander writer) context
 	   (@tableitem "Reader"
-	     (reference (setf-expander-definition-access expander)))))
+	     (reference (setf-expander-definition-access access-expander)))))
 	(merge-expander
-	 (render-funcoid :un (accessor expander) context
+	 (render-funcoid :un (accessor access-expander) context
+	   (when update-expander
+	     (@tableitem "Setf Expander"
+	       (reference update-expander)))
 	   (when writer
 	     (@tableitem "Writer"
 	       (reference writer))))
@@ -543,21 +551,27 @@ When METHODS, render their definitions jointly."
 	   (document writer context)))
 	(merge-writer
 	 (render-funcoid :un (accessor writer) context
-	   (when expander
+	   (when update-expander
 	     (@tableitem "Setf Expander"
-	       (reference expander))))
-	 (when expander
-	   (document expander context)))
+	       (reference update-expander)))
+	   (when access-expander
+	     (@tableitem "Setf Expander"
+	       (reference access-expander))))
+	 (when access-expander
+	   (document access-expander context)))
 	(t
 	 (render-funcoid :un accessor context
-	   (when expander
+	   (when update-expander
 	     (@tableitem "Setf Expander"
-	       (reference expander)))
+	       (reference update-expander)))
+	   (when access-expander
+	     (@tableitem "Setf Expander"
+	       (reference access-expander)))
 	   (when writer
 	     (@tableitem "Writer"
 	       (reference writer))))
-	 (when expander
-	   (document expander context))
+	 (when access-expander
+	   (document access-expander context))
 	 (when (writer-definition-p writer)
 	   (document writer context)))))
 
@@ -600,6 +614,10 @@ The standard method combination is not rendered."
 (defmethod document ((generic generic-definition) context)
   "Render GENERIC's documentation in CONTEXT."
   (render-funcoid :generic generic context
+    (let ((expander (generic-definition-update-expander generic)))
+      (when expander
+	(@tableitem "Setf Expander"
+	  (reference expander))))
     (render-method-combination generic)
     (let ((methods (generic-definition-methods generic)))
       (when methods
@@ -609,8 +627,11 @@ The standard method combination is not rendered."
 
 (defmethod document
     ((accessor generic-accessor-definition) context
-     &aux (writer (generic-accessor-definition-writer accessor))
-	  (expander (generic-accessor-definition-access-expander accessor)))
+     &aux (access-expander
+	   (generic-accessor-definition-access-expander accessor))
+	  (update-expander
+	   (generic-accessor-definition-update-expander accessor))
+	  (writer (generic-accessor-definition-writer accessor)))
   "Render generic ACCESSOR's documentation in CONTEXT."
   (cond ((and writer
 	      (equal (source accessor) (source writer))
@@ -624,9 +645,12 @@ The standard method combination is not rendered."
 		       (generic-definition-function writer))))
 	      (equal (docstring accessor) (docstring writer)))
 	 (render-funcoid :generic (accessor writer) context
-	   (when expander
+	   (when update-expander
 	     (@tableitem "Setf Expander"
-	       (reference expander)))
+	       (reference update-expander)))
+	   (when access-expander
+	     (@tableitem "Setf Expander"
+	       (reference access-expander)))
 	   (render-method-combination accessor)
 	   (let ((reader-methods
 		   (generic-accessor-definition-methods accessor))
@@ -644,9 +668,12 @@ The standard method combination is not rendered."
 		   (document method context)))))))
 	(t
 	 (render-funcoid :generic accessor context
-	   (when expander
+	   (when update-expander
 	     (@tableitem "Setf Expander"
-	       (reference expander)))
+	       (reference update-expander)))
+	   (when access-expander
+	     (@tableitem "Setf Expander"
+	       (reference access-expander)))
 	   (render-method-combination accessor)
 	   (let ((methods (generic-accessor-definition-methods accessor)))
 	     (when methods
@@ -655,8 +682,8 @@ The standard method combination is not rendered."
 		   (document method context))))))
 	 (when writer
 	   (document writer context))))
-  (when expander
-    (document expander context)))
+  (when access-expander
+    (document access-expander context)))
 
 (defmethod document ((expander setf-expander-definition) context)
   "Render setf EXPANDER's documentation in CONTEXT."
