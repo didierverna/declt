@@ -47,6 +47,16 @@
 ;; Very early utilities
 ;; --------------------
 
+;; Quickutil
+(defun generate-quickutils ()
+  "Generate the offline quickutil file."
+  (funcall (intern "SAVE-UTILS-AS" :quickutil-client)
+	   ;; and of course, this works only by miracle :-)
+	   (merge-pathnames "src/util/quick.lisp"
+			    (asdf:system-source-directory :com.dvlsoft.declt))
+	   :when-let))
+
+
 ;; Configuration
 
 (defvar cl-user::com.dvlsoft.declt.configuration nil
