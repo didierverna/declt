@@ -36,6 +36,7 @@
   (:use :cl)
   (:shadow :*readtable*)
   (:import-from :com.dvlsoft.declt.asdf
+   :generate-quickutils
     :configuration
     :define-constant
     :+release-major-level+
