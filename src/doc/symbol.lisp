@@ -143,10 +143,9 @@ When METHODS, render their definitions jointly."
       (render-references (slot-definition-readers slot) "Readers")
       (render-references (slot-definition-writers slot) "Writers"))))
 
-(defun render-slots
-    (classoid &aux (slots (classoid-definition-slots classoid)))
+(defun render-slots (classoid)
   "Render CLASSOID's direct slots documentation."
-  (when slots
+  (when-let ((slots (classoid-definition-slots classoid)))
     (@tableitem "Direct slots"
       (dolist (slot slots)
 	(render-slot slot)))))
@@ -186,12 +185,10 @@ When METHODS, render their definitions jointly."
 	   ,@body)))))
 
 ;; #### PORTME.
-(defun render-initargs
-    (classoid
-     &aux (initargs (sb-mop:class-direct-default-initargs
-		     (find-class (classoid-definition-symbol classoid)))))
+(defun render-initargs (classoid)
   "Render CLASSOID's direct default initargs."
-  (when initargs
+  (when-let ((initargs (sb-mop:class-direct-default-initargs
+			(find-class (classoid-definition-symbol classoid)))))
     (@tableitem "Direct Default Initargs"
       ;; #### FIXME: we should rather compute the longest initarg name and use
       ;; that as a template size for the @headitem specification.
@@ -490,16 +487,14 @@ When METHODS, render their definitions jointly."
 (defmethod document ((function function-definition) context)
   "Render FUNCTION's documentation in CONTEXT."
   (render-funcoid :un function context
-    (let ((expander (function-definition-update-expander function)))
-      (when expander
-	(@tableitem "Setf Expander"
-	  (reference expander))))))
+    (when-let ((expander (function-definition-update-expander function)))
+      (@tableitem "Setf Expander"
+	(reference expander)))))
 
-(defmethod document ((writer writer-definition) context
-		     &aux (reader (writer-definition-reader writer)))
+(defmethod document ((writer writer-definition) context)
   "Render WRITER's documentation in CONTEXT."
   (render-funcoid :un writer context
-    (when reader
+    (when-let ((reader (writer-definition-reader writer)))
       (@tableitem "Reader"
 	(reference reader)))))
 
@@ -601,29 +596,26 @@ The standard method combination is not rendered."
     (@tableitem "Method Combination"
       (reference combination)
       (terpri)
-      (let ((options (mapcar (lambda (option)
-			       (escape (format nil "~(~S~)" option)))
-			     (sb-pcl::method-combination-options
-			      (sb-mop:generic-function-method-combination
-			       (generic-definition-function generic))))))
-	(when options
-	  (format t "@b{Options:} @t{~A}~{, @t{~A}~}"
-	    (first options)
-	    (rest options)))))))
+      (when-let ((options (mapcar (lambda (option)
+				    (escape (format nil "~(~S~)" option)))
+				  (sb-pcl::method-combination-options
+				   (sb-mop:generic-function-method-combination
+				    (generic-definition-function generic))))))
+	(format t "@b{Options:} @t{~A}~{, @t{~A}~}"
+	  (first options)
+	  (rest options))))))
 
 (defmethod document ((generic generic-definition) context)
   "Render GENERIC's documentation in CONTEXT."
   (render-funcoid :generic generic context
-    (let ((expander (generic-definition-update-expander generic)))
-      (when expander
-	(@tableitem "Setf Expander"
-	  (reference expander))))
+    (when-let ((expander (generic-definition-update-expander generic)))
+      (@tableitem "Setf Expander"
+	(reference expander)))
     (render-method-combination generic)
-    (let ((methods (generic-definition-methods generic)))
-      (when methods
-	(@tableitem "Methods"
-	  (dolist (method methods)
-	    (document method context)))))))
+    (when-let ((methods (generic-definition-methods generic)))
+      (@tableitem "Methods"
+	(dolist (method methods)
+	  (document method context))))))
 
 (defmethod document ((writer generic-writer-definition) context
 		     &aux (reader (generic-writer-definition-reader writer)))
@@ -633,11 +625,10 @@ The standard method combination is not rendered."
       (@tableitem "Reader"
 	(reference reader)))
     (render-method-combination writer)
-    (let ((methods (generic-writer-definition-methods writer)))
-      (when methods
-	(@tableitem "Methods"
-	  (dolist (method methods)
-	    (document method context)))))))
+    (when-let ((methods (generic-writer-definition-methods writer)))
+      (@tableitem "Methods"
+	(dolist (method methods)
+	  (document method context))))))
 
 (defmethod document
     ((accessor generic-accessor-definition) context
@@ -689,11 +680,10 @@ The standard method combination is not rendered."
 	     (@tableitem "Setf Expander"
 	       (reference access-expander)))
 	   (render-method-combination accessor)
-	   (let ((methods (generic-accessor-definition-methods accessor)))
-	     (when methods
-	       (@tableitem "Methods"
-		 (dolist (method methods)
-		   (document method context))))))
+	   (when-let ((methods (generic-accessor-definition-methods accessor)))
+	     (@tableitem "Methods"
+	       (dolist (method methods)
+		 (document method context)))))
 	 (when writer
 	   (document writer context))))
   (when access-expander
@@ -769,11 +759,10 @@ The standard method combination is not rendered."
 (defun add-categories-node (parent context status definitions)
   "Add the STATUS DEFINITIONS categories nodes to PARENT in CONTEXT."
   (dolist (category +categories+)
-    (let ((category-definitions
-	    (category-definitions (first category) definitions)))
-      (when category-definitions
-	(add-category-node parent context status (second category)
-			   category-definitions)))))
+    (when-let ((category-definitions
+		(category-definitions (first category) definitions)))
+      (add-category-node parent context status (second category)
+			 category-definitions))))
 
 (defun add-definitions-node
     (parent context
@@ -785,7 +774,7 @@ The standard method combination is not rendered."
 Definitions are sorted by export status, category, package, and then by
 lexicographic order.")))))
   "Add the definitions node to PARENT in CONTEXT."
-  (loop	:for status :in '("exported" "internal")
+  (loop :for status :in '("exported" "internal")
 	:for definitions :in (list
 			      (context-external-definitions context)
 			      (context-internal-definitions context))

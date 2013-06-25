@@ -361,20 +361,19 @@ Return a second value of T if METHOD is a writer method."
   "Find a method definition for METHOD in POOL.
 Return NIL if not found."
   (multiple-value-bind (name writerp) (method-name method)
-    (let ((generic (find-definition name :generic pool)))
-      (when generic
-	(cond (writerp
-	       (etypecase generic
-		 (generic-writer-definition
-		  (find method (generic-definition-methods generic)
-			:key #'method-definition-method))
-		 (generic-accessor-definition
-		  (find method (generic-definition-methods
-				(generic-accessor-definition-writer generic))
-			:key #'method-definition-method))))
-	      (t
-	       (find method (generic-definition-methods generic)
-		     :key #'method-definition-method)))))))
+    (when-let ((generic (find-definition name :generic pool)))
+      (cond (writerp
+	     (etypecase generic
+	       (generic-writer-definition
+		(find method (generic-definition-methods generic)
+		      :key #'method-definition-method))
+	       (generic-accessor-definition
+		(find method (generic-definition-methods
+			      (generic-accessor-definition-writer generic))
+		      :key #'method-definition-method))))
+	    (t
+	     (find method (generic-definition-methods generic)
+		   :key #'method-definition-method))))))
 
 (defgeneric category-definitions (category pool)
   (:documentation "Return all CATEGORY definitions from POOL.")
@@ -477,30 +476,27 @@ Note that this only returns standalone (toplevel) generic writers."
 	    symbol category
 	    (make-symbol-macro-definition :symbol symbol) pool)))
 	(:macro
-	 (let ((macro (macro-function symbol))
-	       (expander (or (sb-int:info :setf :inverse symbol)
-			     (sb-int:info :setf :expander symbol))))
-	   (when macro
-	     (let ((macro-definition
-		     (make-macro-definition :symbol symbol :function macro)))
-	       (when expander
-		 (let ((expander-definition
-			 (make-setf-expander-definition
-			  :symbol symbol
-			  :access macro-definition
-			  :update expander)))
-		   (setf (macro-definition-access-expander macro-definition)
-			 expander-definition)))
-	     (add-definition symbol category macro-definition pool)))))
+	 (when-let* ((macro (macro-function symbol))
+		     (macro-definition
+		      (make-macro-definition :symbol symbol :function macro)))
+	   (when-let ((expander (or (sb-int:info :setf :inverse symbol)
+				    (sb-int:info :setf :expander symbol))))
+	     (let ((expander-definition
+		     (make-setf-expander-definition
+		      :symbol symbol
+		      :access macro-definition
+		      :update expander)))
+	       (setf (macro-definition-access-expander macro-definition)
+		     expander-definition)))
+	   (add-definition symbol category macro-definition pool)))
 	(:compiler-macro
-	 (let ((compiler-macro (compiler-macro-function symbol)))
-	   (when compiler-macro
-	     (add-definition
-	      symbol
-	      category
-	      (make-compiler-macro-definition
-	       :symbol symbol :function compiler-macro)
-	      pool))))
+	 (when-let ((compiler-macro (compiler-macro-function symbol)))
+	   (add-definition
+	    symbol
+	    category
+	    (make-compiler-macro-definition
+	     :symbol symbol :function compiler-macro)
+	    pool)))
 	;; #### NOTE: As mentionned earlier, the WRITER slot in (generic)
 	;; functions helps to attempt concatenation of the reader and writer
 	;; documentation. However, we won't attempt concatenation when the
@@ -1072,19 +1068,16 @@ Currently, this means resolving:
 ;; only one definition source.
 ;; #### PORTME.
 (defun definition-source-by-name
-    (definition type
-     &key (name (definition-symbol definition))
-     &aux (defsrc (car (sb-introspect:find-definition-sources-by-name
-			name type))))
+    (definition type &key (name (definition-symbol definition)))
   "Return DEFINITION's source for TYPE."
-  (when defsrc
+  (when-let ((defsrc (car (sb-introspect:find-definition-sources-by-name
+			   name type))))
     (sb-introspect:definition-source-pathname defsrc)))
 
 ;; #### PORTME.
-(defun definition-source
-    (object &aux (defsrc (sb-introspect:find-definition-source object)))
+(defun definition-source (object)
   "Return OBJECT's definition source."
-  (when defsrc
+  (when-let ((defsrc (sb-introspect:find-definition-source object)))
     (sb-introspect:definition-source-pathname defsrc)))
 
 (defmethod source ((constant constant-definition))

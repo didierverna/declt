@@ -115,13 +115,12 @@ Rendering is done on *standard-output*."
 			     " (not found)")))
       hyperlinkp)))
 
-(defun render-source (item context
-		      &aux (source (source item))
-			   (system (context-system context))
-			   (relative-to (context-directory context)))
+(defun render-source (item context)
   "Render an itemized source line for ITEM in CONTEXT.
 Rendering is done on *standard-output*."
-  (when source
+  (when-let ((source (source item))
+	     (system (context-system context))
+	     (relative-to (context-directory context)))
     (cond
       ;; First, try the system definition file.
       ((equal source (system-source-file system))
@@ -153,9 +152,8 @@ Rendering is done on *standard-output*."
 (defun render-docstring (item)
   "Render an itemized documentation line for ITEM.
 Rendering is done on *standard-output*."
-  (let ((docstring (docstring item)))
-    (when docstring
-      (render-text docstring))))
+  (when-let ((docstring (docstring item)))
+    (render-text docstring)))
 
 (defun render-references (list title &aux (length (length list)))
   "Render references to a LIST of items.

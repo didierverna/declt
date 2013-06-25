@@ -184,7 +184,8 @@ in which they can be found."
 		:serial t
 		:components ((:module "util"
 			      :serial t
-			      :components ((:file "misc")
+			      :components ((:file "quick")
+					   (:file "misc")
 					   (:file "asdf")
 					   (:file "texi")))
 			     (:module "item"

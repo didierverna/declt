@@ -44,6 +44,8 @@
     :+release-status-level+
     :+release-name+
     :version)
+  (:import-from :quickutil
+    :when-let :when-let*)
   (:import-from :asdf
     ;; Some functions or slot-unbound-proof accessors that we can import
     ;; directly (see src/util/asdf.lisp for wrappers around other ones).

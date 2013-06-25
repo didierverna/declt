@@ -67,28 +67,25 @@
 (defmethod document ((component asdf:component) context
 		     &aux (relative-to (context-directory context)))
   "Render COMPONENT's documentation in CONTEXT."
-  (let ((description (component-description component)))
-    (when description
-      (@tableitem "Description"
-	(render-text description)
-	(fresh-line))))
-  (let ((long-description (component-long-description component)))
-    (when long-description
-      (@tableitem "Long Description"
-	(render-text long-description)
-	(fresh-line))))
+  (when-let ((description (component-description component)))
+    (@tableitem "Description"
+      (render-text description)
+      (fresh-line)))
+  (when-let ((long-description (component-long-description component)))
+    (@tableitem "Long Description"
+      (render-text long-description)
+      (fresh-line)))
   (format t "~@[@item Version~%~
 		  ~A~%~]"
     (escape (component-version component)))
-  (let* ((dependencies (component-load-dependencies component))
-	 (length (length dependencies)))
-    (when dependencies
-      (@tableitem (format nil "Dependenc~@p" length)
-	(if (eq length 1)
-	    (format t "@t{~(~A}~)" (escape (first dependencies)))
-	    (@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape)))))
-  (let ((parent (component-parent component)))
-    (when parent (@tableitem "Parent" (reference parent relative-to))))
+  (when-let* ((dependencies (component-load-dependencies component))
+	      (length (length dependencies)))
+    (@tableitem (format nil "Dependenc~@p" length)
+      (if (eq length 1)
+	  (format t "@t{~(~A}~)" (escape (first dependencies)))
+	  (@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape))))
+  (when-let ((parent (component-parent component)))
+    (@tableitem "Parent" (reference parent relative-to)))
   (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
 	 ;; That sucks. I need to fake a cl-source-file reference because the
 	 ;; system file is not an ASDF component per-se.
@@ -269,25 +266,24 @@ components tree."))))
 (defmethod document ((module asdf:module) context)
   "Render MODULE's documentation in CONTEXT."
   (call-next-method)
-  (let* ((components (asdf:module-components module))
-	 (length (length components)))
-    (when components
-      (let ((relative-to (context-directory context)))
-	(@tableitem (format nil "Component~p" length)
-	  (if (eq length 1)
-	      (reference (first components) relative-to)
+  (when-let* ((components (asdf:module-components module))
+	      (length (length components)))
+    (let ((relative-to (context-directory context)))
+      (@tableitem (format nil "Component~p" length)
+	(if (eq length 1)
+	    (reference (first components) relative-to)
 	    (@itemize-list components
 			   :renderer
 			   (lambda (component)
-			     (reference component relative-to)))))))))
+			     (reference component relative-to))))))))
 
 
 ;; -----
 ;; Nodes
 ;; -----
 
-(defun module-node (module context
-		    &aux (relative-to (context-directory context)))
+(defun module-node
+    (module context &aux (relative-to (context-directory context)))
   "Create and return a MODULE node in CONTEXT."
   (make-node :name (escape (format nil "~@(~A~)" (title module relative-to)))
 	     :section-name (format nil "@t{~A}"
@@ -295,19 +291,18 @@ components tree."))))
 	     :before-menu-contents
 	     (render-to-string (document module context))))
 
-(defun add-modules-node
-    (parent context
-     &aux (modules (module-components (context-system context))))
+(defun add-modules-node (parent context)
   "Add the modules node to PARENT in CONTEXT."
-  (when modules
-    (let ((modules-node
-	    (add-child parent (make-node :name "Modules"
-					 :synopsis "The modules documentation"
-					 :before-menu-contents
-					 (format nil "~
+  (when-let* ((modules (module-components (context-system context)))
+	      (modules-node
+	       (add-child parent
+			  (make-node :name "Modules"
+				     :synopsis "The modules documentation"
+				     :before-menu-contents
+				     (format nil "~
 Modules are listed depth-first from the system components tree.")))))
-      (dolist (module modules)
-	(add-child modules-node (module-node module context))))))
+    (dolist (module modules)
+      (add-child modules-node (module-node module context)))))
 
 
 

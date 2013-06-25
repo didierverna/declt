@@ -53,20 +53,19 @@
 
 (defun render-use-list (list title context)
   "Render a package use/used-by LIST with TITLE in CONTEXT."
-  (let ((length (length list)))
-    (when list
-      ;; #### NOTE: this is not as clean as for definitions. Definitions (in
-      ;; fact, classoids currently) have a foreignp slot that helps the
-      ;; REFERENCE method handle foreign definitions directly. We cannot do
-      ;; that here because we're manipulating packages directly.
-      (flet ((renderer (package)
-	       (if (member package (context-packages context))
-		   (reference package)
+  (when-let ((length (length list)))
+    ;; #### NOTE: this is not as clean as for definitions. Definitions (in
+    ;; fact, classoids currently) have a foreignp slot that helps the
+    ;; REFERENCE method handle foreign definitions directly. We cannot do that
+    ;; here because we're manipulating packages directly.
+    (flet ((renderer (package)
+	     (if (member package (context-packages context))
+		 (reference package)
 		 (format t "@t{~(~A~)}" (escape package)))))
-	(@tableitem title
-	  (if (eq length 1)
-	      (renderer (first list))
-	    (@itemize-list list :renderer #'renderer)))))))
+      (@tableitem title
+	(if (eq length 1)
+	    (renderer (first list))
+	    (@itemize-list list :renderer #'renderer))))))
 
 (defmethod document ((package package) context)
   "Render PACKAGE's documentation in CONTEXT."
@@ -75,15 +74,14 @@
   (render-docstring package)
   (@table ()
     (render-source package context)
-    (let* ((nicknames (package-nicknames package))
-	   (length (length nicknames)))
-      (when nicknames
-	(@tableitem (format nil "Nickname~p" length)
-	  (if (eq length 1)
-	      (format t "@t{~(~A~)}" (escape (first nicknames)))
+    (when-let* ((nicknames (package-nicknames package))
+		(length (length nicknames)))
+      (@tableitem (format nil "Nickname~p" length)
+	(if (eq length 1)
+	    (format t "@t{~(~A~)}" (escape (first nicknames)))
 	    (@itemize-list nicknames
 			   :format "@t{~(~A~)}"
-			   :key #'escape)))))
+			   :key #'escape))))
     (render-use-list (package-use-list package) "Use List" context)
     (render-use-list (package-used-by-list package) "Used By List" context)
     (render-external-definitions-references
