@@ -51,8 +51,7 @@
 (defun generate-quickutils ()
   "Generate the offline quickutil file."
   (funcall (intern "SAVE-UTILS-AS" :quickutil-client)
-	   ;; and of course, this works only by miracle :-)
-	   (merge-pathnames "src/util/quick.lisp"
+	   (merge-pathnames (make-pathname :name "quickutil" :type "lisp")
 			    (asdf:system-source-directory :com.dvlsoft.declt))
 	   :when-let))
 
@@ -189,13 +188,13 @@ in which they can be found."
   :version #.(version :short)
   :depends-on (:sb-introspect)
   :serial t
-  :components ((:file "package")
+  :components ((:file "quickutil")
+	       (:file "package")
 	       (:module "src"
 		:serial t
 		:components ((:module "util"
 			      :serial t
-			      :components ((:file "quick")
-					   (:file "misc")
+			      :components ((:file "misc")
 					   (:file "asdf")
 					   (:file "texi")))
 			     (:module "item"

@@ -2,7 +2,7 @@
 ;;;; See http://quickutil.org for details.
 
 ;;;; To regenerate:
-;;;; (qtlc:save-utils-as "~/utils.lisp" :WHEN-LET)
+;;;; (qtlc:save-utils-as #P"/home/didier/src/common-lisp/declt/quickutil.lisp" :WHEN-LET)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (unless (find-package '#:quickutil)
@@ -76,4 +76,4 @@ PROGN."
   
 (export '(when-let when-let*))
 
-;;;; END OF ~/utils.lisp ;;;;
+;;;; END OF /home/didier/src/common-lisp/declt/quickutil.lisp ;;;;
