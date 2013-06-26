@@ -78,12 +78,27 @@
   (format t "~@[@item Version~%~
 		  ~A~%~]"
     (escape (component-version component)))
-  (when-let* ((dependencies (component-load-dependencies component))
+  (when-let* ((dependencies (asdf:component-sideway-dependencies component))
 	      (length (length dependencies)))
-    (@tableitem (format nil "Dependenc~@p" length)
-      (if (eq length 1)
-	  (format t "@t{~(~A}~)" (escape (first dependencies)))
-	  (@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape))))
+    (if (eq (type-of component) 'asdf:system)
+	;; Don't reference system dependencies because they are foreign. Just
+	;; mention them.
+	(@tableitem (format nil "Dependenc~@p" length)
+	  (if (eq length 1)
+	      (format t "@t{~(~A}~)" (escape (first dependencies)))
+	      (@itemize-list dependencies
+		:format "@t{~(~A}~)" :key #'escape)))
+	(@tableitem (format nil "Dependenc~@p" length)
+	  (if (eq length 1)
+	      (reference
+	       (asdf::resolve-dependency-name component (first dependencies))
+	       relative-to)
+	      (@itemize-list dependencies
+		:renderer (lambda (dependency)
+			    (reference
+			     (asdf::resolve-dependency-name
+			      component dependency)
+			     relative-to)))))))
   (when-let ((parent (component-parent component)))
     (@tableitem "Parent" (reference parent relative-to)))
   (cond ((eq (type-of component) 'asdf:system) ;; Yuck!

@@ -9,10 +9,6 @@ are permitted in any medium without royalty provided the copyright
 notice and this notice are preserved.
 
 
-** Dependencies indexation
-ASDF maintains dependencies as a list of names only, so this makes it harder
-to find the corresponding component in order to reference it.
-
 ** Packages and symbols
 We should see what to do about shadowings, imports etc.
 
