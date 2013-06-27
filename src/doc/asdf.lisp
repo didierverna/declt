@@ -78,7 +78,7 @@
   (format t "~@[@item Version~%~
 		  ~A~%~]"
     (escape (component-version component)))
-  (when-let* ((dependencies (asdf:component-sideway-dependencies component))
+  (when-let* ((dependencies (component-sideway-dependencies component))
 	      (length (length dependencies)))
     (if (eq (type-of component) 'asdf:system)
 	;; Don't reference system dependencies because they are foreign. Just
@@ -91,13 +91,12 @@
 	(@tableitem (format nil "Dependenc~@p" length)
 	  (if (eq length 1)
 	      (reference
-	       (asdf::resolve-dependency-name component (first dependencies))
+	       (resolve-dependency-name component (first dependencies))
 	       relative-to)
 	      (@itemize-list dependencies
 		:renderer (lambda (dependency)
 			    (reference
-			     (asdf::resolve-dependency-name
-			      component dependency)
+			     (resolve-dependency-name component dependency)
 			     relative-to)))))))
   (when-let ((parent (component-parent component)))
     (@tableitem "Parent" (reference parent relative-to)))

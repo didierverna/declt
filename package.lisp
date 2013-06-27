@@ -51,11 +51,12 @@
     ;; Some functions or slot-unbound-proof accessors that we can import
     ;; directly (see src/util/asdf.lisp for wrappers around other ones).
     :component-name
-    :component-load-dependencies
     :component-parent
     :component-pathname
     :component-relative-pathname
+    :component-sideway-dependencies
     :find-system
+    :resolve-dependency-name
     :system-source-directory
     :system-source-file)
   (:export
