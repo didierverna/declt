@@ -85,29 +85,30 @@ Each element is rendered as a table item."
 	 (render-definition-core ,the-funcoid ,context)
 	 ,@body))))
 
-(defmacro render-methods ((method &rest methods) context)
-  "Render METHOD's definition in CONTEXT.
-When METHODS, render their definitions jointly."
-  (let ((the-method (gensym "method")))
-    `(let ((,the-method ,method))
-       (@defmethod (string-downcase (name ,the-method))
-	   (lambda-list ,the-method)
-	   (specializers ,the-method)
-	   (qualifiers ,the-method)
-	 (anchor-and-index ,the-method)
-	 ,@(mapcar (lambda (method)
-		     (let ((the-method (gensym "method")))
-		       `(let ((,the-method ,method))
-			  (@defmethodx
-			   (string-downcase (name ,the-method))
-			   (lambda-list ,the-method)
-			   (specializers ,the-method)
-			   (qualifiers ,the-method))
-			  (anchor-and-index ,the-method))))
-		   methods)
-	 (render-docstring ,the-method)
-	 (@table ()
-	   (render-source ,the-method ,context))))))
+(defmacro render-method
+    (|method(s)| context &aux (the-method (gensym "method")))
+  "Render METHOD(S) definition in CONTEXT."
+  `(let ((,the-method ,(if (consp |method(s)|)
+			   (car |method(s)|)
+			   |method(s)|)))
+     (@defmethod (string-downcase (name ,the-method))
+	 (lambda-list ,the-method)
+	 (specializers ,the-method)
+	 (qualifiers ,the-method)
+       (anchor-and-index ,the-method)
+       ,@(mapcar (lambda (method)
+		   (let ((the-method (gensym "method")))
+		     `(let ((,the-method ,method))
+			(@defmethodx
+			    (string-downcase (name ,the-method))
+			    (lambda-list ,the-method)
+			    (specializers ,the-method)
+			    (qualifiers ,the-method))
+			(anchor-and-index ,the-method))))
+		 (when (consp |method(s)|) (cdr |method(s)|)))
+       (render-docstring ,the-method)
+       (@table ()
+	 (render-source ,the-method ,context)))))
 
 (defun render-slot-property
     (slot property
@@ -572,7 +573,7 @@ When METHODS, render their definitions jointly."
 
 (defmethod document ((method method-definition) context)
   "Render METHOD's documentation in CONTEXT."
-  (render-methods (method) context))
+  (render-method method context))
 
 (defmethod document ((method accessor-method-definition) context)
   "Render accessor METHOD's documentation in CONTEXT."
@@ -580,9 +581,8 @@ When METHODS, render their definitions jointly."
 		     (source (accessor-method-definition-writer method)))
 	      (equal (docstring method)
 		     (docstring (accessor-method-definition-writer method))))
-	 (render-methods
-	  (method (accessor-method-definition-writer method))
-	  context))
+	 (render-method (method (accessor-method-definition-writer method))
+			context))
 	(t
 	 (call-next-method)
 	 (document (accessor-method-definition-writer method) context))))
