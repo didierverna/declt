@@ -667,13 +667,13 @@ The standard method combination is not rendered."
 	     (@tableitem "Setf Expander"
 	       (reference access-expander)))
 	   (render-method-combination accessor)
-	   (let ((reader-methods
+	   (let ((accessor-and-reader-methods
 		   (generic-accessor-definition-methods accessor))
 		 (writer-methods
 		   (generic-writer-definition-methods writer)))
-	     (when (or reader-methods writer-methods)
+	     (when (or accessor-and-reader-methods writer-methods)
 	       (@tableitem "Methods"
-		 (dolist (method reader-methods)
+		 (dolist (method accessor-and-reader-methods)
 		   (document method context))
 		 (dolist (method writer-methods)
 		   (document method context))))))
