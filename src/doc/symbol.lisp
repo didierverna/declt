@@ -637,17 +637,28 @@ The standard method combination is not rendered."
 	   (generic-accessor-definition-update-expander accessor))
 	  (writer (generic-accessor-definition-writer accessor)))
   "Render generic ACCESSOR's documentation in CONTEXT."
-  (cond ((and writer
+  ;; #### NOTE: contrary to the case of ordinary functions, setf expanders can
+  ;; never be merged with generic definitions. The reason is that even if a
+  ;; setf expander is in long form, the corresponding lambda function is not
+  ;; generic, and we don't mix heterogeneous definitions. One consequence of
+  ;; this is that such long form setf expanders will be listed below the
+  ;; corresponding generic accessor definition, that is, ni the "Generic
+  ;; Functions" section whereas they are ordinary ones. But I still think it's
+  ;; better to put them here. Besides, these heterogeneous cases should be
+  ;; extremely rare anyway.
+  (cond ((and (generic-writer-definition-p writer)
 	      (equal (source accessor) (source writer))
-	      (eq (definition-symbol (generic-definition-combination accessor))
-		  (definition-symbol (generic-definition-combination writer)))
-	      (equal (sb-pcl::method-combination-options
-		      (sb-mop:generic-function-method-combination
-		       (generic-definition-function accessor)))
-		     (sb-pcl::method-combination-options
-		      (sb-mop:generic-function-method-combination
-		       (generic-definition-function writer))))
-	      (equal (docstring accessor) (docstring writer)))
+		(equal (docstring accessor) (docstring writer))
+		(eq (definition-symbol
+		     (generic-definition-combination accessor))
+		    (definition-symbol
+		     (generic-definition-combination writer)))
+		(equal (sb-pcl::method-combination-options
+			(sb-mop:generic-function-method-combination
+			 (generic-definition-function accessor)))
+		       (sb-pcl::method-combination-options
+			(sb-mop:generic-function-method-combination
+			 (generic-definition-function writer)))))
 	 (render-funcoid :generic (accessor writer) context
 	   (when update-expander
 	     (@tableitem "Setf Expander"
@@ -669,7 +680,9 @@ The standard method combination is not rendered."
 		 (dolist (method reader-methods)
 		   (document method context))
 		 (dolist (method writer-methods)
-		   (document method context)))))))
+		   (document method context))))))
+	 (when access-expander
+	   (document access-expander context)))
 	(t
 	 (render-funcoid :generic accessor context
 	   (when update-expander
@@ -678,15 +691,18 @@ The standard method combination is not rendered."
 	   (when access-expander
 	     (@tableitem "Setf Expander"
 	       (reference access-expander)))
+	   (when writer
+	     (@tableitem "Writer"
+	       (reference writer)))
 	   (render-method-combination accessor)
-	   (when-let ((methods (generic-accessor-definition-methods accessor)))
+	   (when-let ((methods (generic-definition-methods accessor)))
 	     (@tableitem "Methods"
-	       (dolist (method methods)
-		 (document method context)))))
-	 (when writer
-	   (document writer context))))
-  (when access-expander
-    (document access-expander context)))
+		(dolist (method methods)
+		  (document method context)))))
+	 (when access-expander
+	   (document access-expander context))
+	 (when (generic-writer-definition-p writer)
+	   (document writer context)))))
 
 (defmethod document ((expander setf-expander-definition) context)
   "Render setf EXPANDER's documentation in CONTEXT."
