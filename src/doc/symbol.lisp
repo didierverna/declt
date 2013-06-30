@@ -673,10 +673,6 @@ The standard method combination is not rendered."
 		   (generic-writer-definition-methods writer)))
 	     (when (or reader-methods writer-methods)
 	       (@tableitem "Methods"
-		 ;; #### FIXME: this is not the best order to advertise
-		 ;; methods. We should group them by specializers instead, so
-		 ;; that readers and writers are documented together, just as
-		 ;; generic readers and writers.
 		 (dolist (method reader-methods)
 		   (document method context))
 		 (dolist (method writer-methods)
