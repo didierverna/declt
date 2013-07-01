@@ -86,8 +86,10 @@ Each element is rendered as a table item."
 	 ,@body))))
 
 (defmacro render-method
-    (|method(s)| context &aux (the-method (gensym "method")))
-  "Render METHOD(S) definition in CONTEXT."
+    (|method(s)| context generic-source &aux (the-method (gensym "method")))
+  "Render METHOD(S) definition in CONTEXT.
+GENERIC-SOURCE is the source of the generic function. METHOD(S) sources are
+not advertised if they are the same as GENERIC-SOURCE."
   `(let ((,the-method ,(if (consp |method(s)|)
 			   (car |method(s)|)
 			   |method(s)|)))
@@ -107,8 +109,9 @@ Each element is rendered as a table item."
 			(anchor-and-index ,the-method))))
 		 (when (consp |method(s)|) (cdr |method(s)|)))
        (render-docstring ,the-method)
-       (@table ()
-	 (render-source ,the-method ,context)))))
+       (unless (equal (source ,the-method) ,generic-source)
+	 (@table ()
+	   (render-source ,the-method ,context))))))
 
 (defun render-slot-property
     (slot property
@@ -573,12 +576,13 @@ Each element is rendered as a table item."
 	 (when (writer-definition-p writer)
 	   (document writer context)))))
 
-(defmethod document ((method method-definition) context &key)
-  "Render METHOD's documentation in CONTEXT."
-  (render-method method context))
+(defmethod document ((method method-definition) context &key generic-source)
+  "Render METHOD's documentation in CONTEXT.
+GENERIC-SOURCE is the source of METHOD's generic function."
+  (render-method method context generic-source))
 
-(defmethod document
-    ((method accessor-method-definition) context &key (document-writers t))
+(defmethod document ((method accessor-method-definition) context
+		     &key (document-writers t) generic-source)
   "Render accessor METHOD's documentation in CONTEXT."
   (cond ((and (equal (source method)
 		     (source (accessor-method-definition-writer method)))
@@ -586,11 +590,16 @@ Each element is rendered as a table item."
 		     (docstring (accessor-method-definition-writer method)))
 	      document-writers)
 	 (render-method (method (accessor-method-definition-writer method))
-			context))
+			context
+			generic-source))
 	(t
 	 (call-next-method)
 	 (when document-writers
-	   (document (accessor-method-definition-writer method) context)))))
+	   ;; #### NOTE: if DOCUMENT-WRITERS, it means that we're merging the
+	   ;; defintions for the reader and the writer, and hence the generic
+	   ;; sources are the same. It's thus ok to use GENERIC-SOURCE here.
+	   (document (accessor-method-definition-writer method) context
+		     :generic-source generic-source)))))
 
 ;; #### PORTME.
 (defun render-method-combination
@@ -620,7 +629,7 @@ The standard method combination is not rendered."
     (when-let ((methods (generic-definition-methods generic)))
       (@tableitem "Methods"
 	(dolist (method methods)
-	  (document method context))))))
+	  (document method context :generic-source (source generic)))))))
 
 (defmethod document
     ((writer generic-writer-definition) context &key additional-methods)
@@ -634,7 +643,7 @@ The standard method combination is not rendered."
 				(generic-writer-definition-methods writer))))
       (@tableitem "Methods"
 	(dolist (method methods)
-	  (document method context))))))
+	  (document method context :generic-source (source writer)))))))
 
 (defmethod document
     ((accessor generic-accessor-definition) context
@@ -682,9 +691,11 @@ The standard method combination is not rendered."
 	     (when (or accessor-and-reader-methods writer-methods)
 	       (@tableitem "Methods"
 		 (dolist (method accessor-and-reader-methods)
-		   (document method context))
+		   (document method context
+		     :generic-source (source accessor)))
 		 (dolist (method writer-methods)
-		   (document method context))))))
+		   (document method context
+		     :generic-source (source accessor)))))))
 	 (when access-expander
 	   (document access-expander context)))
 	(t
@@ -702,7 +713,9 @@ The standard method combination is not rendered."
 	   (when-let ((methods (generic-definition-methods accessor)))
 	     (@tableitem "Methods"
 		(dolist (method methods)
-		  (document method context :document-writers nil)))))
+		  (document method context
+		    :document-writers nil
+		    :generic-source (source accessor))))))
 	 (when access-expander
 	   (document access-expander context))
 	 (when (generic-writer-definition-p writer)
