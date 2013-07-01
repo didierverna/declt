@@ -438,15 +438,15 @@ Each element is rendered as a table item."
       (format t "@t{~(~A}~)~%" (escape classoid))
     (call-next-method)))
 
-(defmethod document ((constant constant-definition) context)
+(defmethod document ((constant constant-definition) context &key)
   "Render CONSTANT's documentation in CONTEXT."
   (render-varoid :constant constant context))
 
-(defmethod document ((special special-definition) context)
+(defmethod document ((special special-definition) context &key)
   "Render SPECIAL variable's documentation in CONTEXT."
   (render-varoid :special special context))
 
-(defmethod document ((symbol-macro symbol-macro-definition) context)
+(defmethod document ((symbol-macro symbol-macro-definition) context &key)
   "Render SYMBOL-MACRO's documentation in CONTEXT."
     (render-varoid :symbolmacro symbol-macro context
       (@tableitem "Expansion"
@@ -457,6 +457,7 @@ Each element is rendered as a table item."
 
 (defmethod document
     ((macro macro-definition) context
+     &key
      &aux (access-expander (macro-definition-access-expander macro))
 	  (update-expander (macro-definition-update-expander macro))
 	  (merge (and access-expander
@@ -481,18 +482,18 @@ Each element is rendered as a table item."
 	 (when access-expander
 	   (document access-expander context)))))
 
-(defmethod document ((compiler-macro compiler-macro-definition) context)
+(defmethod document ((compiler-macro compiler-macro-definition) context &key)
   "Render COMPILER-MACRO's documentation in CONTEXT."
   (render-funcoid :compilermacro compiler-macro context))
 
-(defmethod document ((function function-definition) context)
+(defmethod document ((function function-definition) context &key)
   "Render FUNCTION's documentation in CONTEXT."
   (render-funcoid :un function context
     (when-let ((expander (function-definition-update-expander function)))
       (@tableitem "Setf Expander"
 	(reference expander)))))
 
-(defmethod document ((writer writer-definition) context)
+(defmethod document ((writer writer-definition) context &key)
   "Render WRITER's documentation in CONTEXT."
   (render-funcoid :un writer context
     (when-let ((reader (writer-definition-reader writer)))
@@ -501,6 +502,7 @@ Each element is rendered as a table item."
 
 (defmethod document
     ((accessor accessor-definition) context
+     &key
      &aux (access-expander (accessor-definition-access-expander accessor))
 	  (update-expander (accessor-definition-update-expander accessor))
 	  (writer (accessor-definition-writer accessor))
@@ -571,21 +573,24 @@ Each element is rendered as a table item."
 	 (when (writer-definition-p writer)
 	   (document writer context)))))
 
-(defmethod document ((method method-definition) context)
+(defmethod document ((method method-definition) context &key)
   "Render METHOD's documentation in CONTEXT."
   (render-method method context))
 
-(defmethod document ((method accessor-method-definition) context)
+(defmethod document
+    ((method accessor-method-definition) context &key (document-writers t))
   "Render accessor METHOD's documentation in CONTEXT."
   (cond ((and (equal (source method)
 		     (source (accessor-method-definition-writer method)))
 	      (equal (docstring method)
-		     (docstring (accessor-method-definition-writer method))))
+		     (docstring (accessor-method-definition-writer method)))
+	      document-writers)
 	 (render-method (method (accessor-method-definition-writer method))
 			context))
 	(t
 	 (call-next-method)
-	 (document (accessor-method-definition-writer method) context))))
+	 (when document-writers
+	   (document (accessor-method-definition-writer method) context)))))
 
 ;; #### PORTME.
 (defun render-method-combination
@@ -605,7 +610,7 @@ The standard method combination is not rendered."
 	  (first options)
 	  (rest options))))))
 
-(defmethod document ((generic generic-definition) context)
+(defmethod document ((generic generic-definition) context &key)
   "Render GENERIC's documentation in CONTEXT."
   (render-funcoid :generic generic context
     (when-let ((expander (generic-definition-update-expander generic)))
@@ -617,20 +622,23 @@ The standard method combination is not rendered."
 	(dolist (method methods)
 	  (document method context))))))
 
-(defmethod document ((writer generic-writer-definition) context)
+(defmethod document
+    ((writer generic-writer-definition) context &key additional-methods)
   "Render generic WRITER's documentation in CONTEXT."
   (render-funcoid :generic writer context
     (when-let ((reader (generic-writer-definition-reader writer)))
       (@tableitem "Reader"
 	(reference reader)))
     (render-method-combination writer)
-    (when-let ((methods (generic-writer-definition-methods writer)))
+    (when-let ((methods (append additional-methods
+				(generic-writer-definition-methods writer))))
       (@tableitem "Methods"
 	(dolist (method methods)
 	  (document method context))))))
 
 (defmethod document
     ((accessor generic-accessor-definition) context
+     &key
      &aux (access-expander
 	   (generic-accessor-definition-access-expander accessor))
 	  (update-expander
@@ -694,13 +702,18 @@ The standard method combination is not rendered."
 	   (when-let ((methods (generic-definition-methods accessor)))
 	     (@tableitem "Methods"
 		(dolist (method methods)
-		  (document method context)))))
+		  (document method context :document-writers nil)))))
 	 (when access-expander
 	   (document access-expander context))
 	 (when (generic-writer-definition-p writer)
-	   (document writer context)))))
+	   (document writer context
+		     :additional-methods
+		     (mapcar #'accessor-method-definition-writer
+			     (remove-if-not
+			      #'accessor-method-definition-p
+			      (generic-definition-methods accessor))))))))
 
-(defmethod document ((expander setf-expander-definition) context)
+(defmethod document ((expander setf-expander-definition) context &key)
   "Render setf EXPANDER's documentation in CONTEXT."
   (render-funcoid :setf expander context
     (@tableitem "Reader"
@@ -712,7 +725,7 @@ The standard method combination is not rendered."
 ;; #### NOTE: no DOCUMENT method for SLOT-DEFINITION
 
 ;; #### PORTME.
-(defmethod document ((combination short-combination-definition) context)
+(defmethod document ((combination short-combination-definition) context &key)
   "Render short method COMBINATION's documentation in CONTEXT."
   (render-combination :short combination context
     (@tableitem "Operator"
@@ -723,26 +736,26 @@ The standard method combination is not rendered."
 	 (combination-definition-combination combination))))
     (render-references (combination-definition-users combination) "Users")))
 
-(defmethod document ((combination long-combination-definition) context)
+(defmethod document ((combination long-combination-definition) context &key)
   "Render long method COMBINATION's documentation in CONTEXT."
   (render-combination :long combination context
     (render-references (combination-definition-users combination) "Users")))
 
-(defmethod document ((condition condition-definition) context)
+(defmethod document ((condition condition-definition) context &key)
   "Render CONDITION's documentation in CONTEXT."
   (render-classoid :cond condition context
     (render-initargs condition)))
 
-(defmethod document ((structure structure-definition) context)
+(defmethod document ((structure structure-definition) context &key)
   "Render STRUCTURE's documentation in CONTEXT."
   (render-classoid :struct structure context))
 
-(defmethod document ((class class-definition) context)
+(defmethod document ((class class-definition) context &key)
   "Render CLASS's documentation in CONTEXT."
   (render-classoid :class class context
     (render-initargs class)))
 
-(defmethod document ((type type-definition) context)
+(defmethod document ((type type-definition) context &key)
   "Render TYPE's documentation in CONTEXT."
   (@deftype ((string-downcase (name type)) (lambda-list type))
     (anchor-and-index type)

@@ -67,7 +67,7 @@
 	    (renderer (first list))
 	    (@itemize-list list :renderer #'renderer))))))
 
-(defmethod document ((package package) context)
+(defmethod document ((package package) context &key)
   "Render PACKAGE's documentation in CONTEXT."
   (anchor package)
   (index package)

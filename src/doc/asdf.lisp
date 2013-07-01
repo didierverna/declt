@@ -59,12 +59,14 @@
 
 (defmethod document :around
     ((component asdf:component) context
+     &key
      &aux (relative-to (context-directory context)))
   "Anchor and index COMPONENT in CONTEXT. Document it in a @table environment."
   (anchor-and-index component relative-to)
   (@table () (call-next-method)))
 
 (defmethod document ((component asdf:component) context
+		     &key
 		     &aux (relative-to (context-directory context)))
   "Render COMPONENT's documentation in CONTEXT."
   (when-let ((description (component-description component)))
@@ -163,6 +165,7 @@
     (escape (relative-location html-file relative-to))))
 
 (defmethod document ((file asdf:cl-source-file) context
+		     &key
 		     &aux (pathname (component-pathname file)))
   "Render lisp FILE's documentation in CONTEXT."
   (call-next-method)
@@ -277,7 +280,7 @@ components tree."))))
   (format t "@moduleindex{~A}@c~%"
     (escape (relative-location module relative-to))))
 
-(defmethod document ((module asdf:module) context)
+(defmethod document ((module asdf:module) context &key)
   "Render MODULE's documentation in CONTEXT."
   (call-next-method)
   (when-let* ((components (asdf:module-components module))
@@ -338,7 +341,7 @@ Modules are listed depth-first from the system components tree.")))))
   (declare (ignore relative-to))
   (format t "@systemindex{~A}@c~%" (escape system)))
 
-(defmethod document ((system asdf:system) context)
+(defmethod document ((system asdf:system) context &key)
   "Render SYSTEM's documentation in CONTEXT."
   (@tableitem "Name"
     (format t "@t{~A}~%" (escape system)))
