@@ -53,7 +53,7 @@
 
 (defun render-use-list (list title context)
   "Render a package use/used-by LIST with TITLE in CONTEXT."
-  (when-let ((length (length list)))
+  (when list
     ;; #### NOTE: this is not as clean as for definitions. Definitions (in
     ;; fact, classoids currently) have a foreignp slot that helps the
     ;; REFERENCE method handle foreign definitions directly. We cannot do that
@@ -63,7 +63,7 @@
 		 (reference package)
 		 (format t "@t{~(~A~)}" (escape package)))))
       (@tableitem title
-	(if (eq length 1)
+	(if (eq (length list) 1)
 	    (renderer (first list))
 	    (@itemize-list list :renderer #'renderer))))))
 
