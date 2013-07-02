@@ -10,30 +10,37 @@ notice and this notice are preserved.
 
 
 ** Packages and symbols
-We should see what to do about shadowings, imports etc.
+See what to do about shadowings, imports etc.
 
-** Cleanup the string-downcase issue
-so that it would be easier afterwards to provide an option for case behavior.
+** String downcasing policy
+Abstract it so that we may provide an option for case behavior.
 
-** Canonicalize pathnames
+** Pathnames
 If the system definition pathname or definition sources contain funky stuff
 like ./, ../ or even are symlinks, the cross-references will most probably
 break. We need to work on canonical pathnames.
 
-** Floating methods
-We should document floating methods, that is, methods defined in a system's
-file whereas the generic function is elsewhere (e.g. validate-superclass).
-This is tricky because the way we construct definitions does not give us
-access to foreign symbols. One way to access some of those is through classes
-direct methods. But we're likely to miss some. Another problem is where to
-store those definitions: they are neither internal, nor exported! Maybe we
-could add a section for foreign definitions.
+** Foreign definitions
+Because of the way we collect our definitions (system -> packages -> symbols),
+we're currently unable to document foreign definitions, that is, provided in a
+file of ours but belonging to a foreign package.
 
-Question: besides methods, are there other kinds of floating definitions ?
-Partial answer: setf expanders for which the access-fn is foreign, but the
-update-fn is ours.
+In general, it's not clear whether we want to do that. In some specific cases
+however, it does makes sense; when the foreign definition has something to do
+with the current system for instance. In those cases, we are in fact usually
+able to get a handle to the definition in question.  For instance, method
+definitions for foreign generic functions (e.g. MOP extensions such as
+VALIDATE-SUPERCLASS) may be retreived from classes direct methods.
 
-** Foreign setf expanders
+Even then, the next problem is where to advertise those definitions. They are
+neither internal, nor exported. Maybe we could add a section for foreign
+definitions.
+
+Other definitions potentially concerned:
+-  setf expanders for which the access-fn is foreign, but the
+update-fn is ours. I currently don't know how to retrieve those.
+
+** Floating setf expanders
 Setf expanders are documented when the access-fn is a (generic) function or
 macro. If a setf expander is defined on a symbol that has no such definition
 (which is possible), it will not currently appear anywhere. What should we do?
