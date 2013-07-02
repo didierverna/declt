@@ -48,15 +48,19 @@
   (:import-from :quickutil
     :when-let :when-let*)
   (:import-from :asdf
-    ;; Some functions or slot-unbound-proof accessors that we can import
-    ;; directly (see src/util/asdf.lisp for wrappers around other ones).
     :component-name
+    :component-version
+    :component-description
+    :component-long-description
     :component-parent
     :component-pathname
     :component-relative-pathname
     :component-sideway-dependencies
     :find-system
     :resolve-dependency-name
+    :system-author
+    :system-maintainer
+    :system-license
     :system-source-directory
     :system-source-file)
   (:export

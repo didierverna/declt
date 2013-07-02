@@ -33,44 +33,6 @@
 
 
 ;; ==========================================================================
-;; slot-unbound Proof Accessors
-;; ==========================================================================
-
-(defun component-description (component)
-  "Return ASDF COMPONENT's description or nil."
-  (when (slot-boundp component 'asdf::description)
-    (asdf::component-description component)))
-
-(defun component-long-description (component)
-  "Return ASDF COMPONENT's long description or nil."
-  (when (slot-boundp component 'asdf::long-description)
-    (asdf::component-long-description component)))
-
-(defun component-version (component)
-  "Return ASDF COMPONENT's version or nil."
-  (when (slot-boundp component 'asdf:version)
-    (asdf:component-version component)))
-
-(defun system-author (system)
-  "Return ASDF SYSTEM's author or nil."
-  (when (slot-boundp system 'asdf::author)
-    (asdf:system-author system)))
-
-(defun system-maintainer (system)
-  "Return ASDF SYSTEM's maintainer or nil."
-  (when (slot-boundp system 'asdf::maintainer)
-    (asdf:system-maintainer system)))
-
-(defun system-license (system)
-  "Return ASDF SYSTEM's license or nil."
-  ;; #### NOTE: yes, the slot is licenCe, but licenSe accessors are also
-  ;; available.
-  (when (slot-boundp system 'asdf::licence)
-    (asdf:system-license system)))
-
-
-
-;; ==========================================================================
 ;; Miscellaneous
 ;; ==========================================================================
 
