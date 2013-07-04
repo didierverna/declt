@@ -1,9 +1,8 @@
 ;;; com.dvlsoft.declt.asd --- ASDF system definition
 
-;; Copyright (C) 2010, 2011, 2012 Didier Verna.
+;; Copyright (C) 2010-2013 Didier Verna
 
-;; Author:     Didier Verna <didier@lrde.epita.fr>
-;; Maintainer: Didier Verna <didier@lrde.epita.fr>
+;; Author: Didier Verna <didier@didierverna.net>
 
 ;; This file is part of Declt.
 
@@ -23,7 +22,6 @@
 
 ;;; Commentary:
 
-;; Contents management by FCM version 0.1.
 
 
 ;;; Code:
@@ -183,7 +181,7 @@ documentation elements. For instance, files and packages point to the
 definitions they provide, and those definitions point back to package and file
 in which they can be found."
   :author "Didier Verna"
-  :mailto "didier@lrde.epita.fr"
+  :mailto "didier@didierverna.net"
   :homepage
   "http://www.lrde.epita.fr/~didier/software/lisp/misc.php#declt"
   :source-control
