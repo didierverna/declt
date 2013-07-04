@@ -182,8 +182,12 @@ fully indexed and provide a complete set of cross-references between
 documentation elements. For instance, files and packages point to the
 definitions they provide, and those definitions point back to package and file
 in which they can be found."
-  :author "Didier Verna <didier@lrde.epita.fr>"
-  :maintainer "Didier Verna <didier@lrde.epita.fr>"
+  :author "Didier Verna"
+  :mailto "didier@lrde.epita.fr"
+  :homepage
+  "http://www.lrde.epita.fr/~didier/software/lisp/misc.php#declt"
+  :source-control
+  "http://www.lrde.epita.fr/~didier/software/lisp/declt/declt.git"
   :license "GNU GPL"
   :version #.(version :short)
   :depends-on (:sb-introspect)
