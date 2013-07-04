@@ -407,7 +407,9 @@ This manual was generated automatically by Declt ~A on ~A.
 - INTRODUCTION is a potential contents for an introduction chapter.
 - SUBTITLE defaults to the system description.
 - VERSION defaults to the system version.
-- AUTHOR and EMAIL defaults are extracted from the system author.
+- AUTHOR defaults to the system's author.
+- EMAIL defaults to the system's email (from either the author or the mailto
+  information.
 - LICENSE defaults to nil (possible values are: :mit, :bsd, :gpl and :lgpl).
 - DECLT-NOTICE is a small paragraph about automatic manual generatiopn by
   Declt. Possible values are nil, :short and :long (the default).
@@ -442,7 +444,7 @@ This manual was generated automatically by Declt ~A on ~A.
     (if author
 	(setq author (escape author))
       (error "Author must be provided."))
-    (setq email (if emailp email system-email)))
+    (setq email (if emailp email (or system-email (system-mailto system)))))
   (when email
     (setq email (escape email)))
   (when license
