@@ -29,6 +29,7 @@
 (in-package :cl-user)
 
 (require :asdf)
+(asdf:load-system :asdf)
 
 (asdf:load-system :com.dvlsoft.declt)
 (com.dvlsoft.declt:nickname-package)

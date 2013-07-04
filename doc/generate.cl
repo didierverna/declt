@@ -27,25 +27,26 @@
 ;;; Code:
 
 (require :asdf)
+(asdf:load-system :asdf)
 
 (asdf:load-system :com.dvlsoft.declt)
+(com.dvlsoft.declt:nickname-package)
 
 (if (and (second sb-ext:*posix-argv*)
 	 (string= (second sb-ext:*posix-argv*) "--web"))
-    (com.dvlsoft.declt:declt :com.dvlsoft.declt
-			     :library-name "Declt"
-			     :texi-file "webreference.texi"
-			     ;; but we don't care
-			     :info-file "declt-webreference"
-			     :license :gpl
-			     :copyright-date "2010, 2011, 2012")
-  (com.dvlsoft.declt:declt :com.dvlsoft.declt
-			   :library-name "Declt"
-			   :texi-file "reference.texi"
-			   :info-file "declt-reference"
-			   :license :gpl
-			   :copyright-date "2010, 2011, 2012"
-			   :hyperlinks t))
+    (declt:declt :com.dvlsoft.declt
+		 :library-name "Declt"
+		 :texi-file "webreference.texi"
+		 :info-file "declt-webreference" ; but we don't care
+		 :license :gpl
+		 :copyright-date "2010--2013")
+    (declt:declt :com.dvlsoft.declt
+		 :library-name "Declt"
+		 :texi-file "reference.texi"
+		 :info-file "declt-reference"
+		 :license :gpl
+		 :copyright-date "2010--2013"
+		 :hyperlinks t))
 
 (sb-ext:quit)
 
