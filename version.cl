@@ -22,7 +22,6 @@
 
 ;;; Commentary:
 
-;; Contents management by FCM version 0.1.
 
 
 ;;; Code:
@@ -39,5 +38,7 @@
   (declt:version :long)
   (declt:version :short))
 
+;; #### PORTME:
+(exit)
 
 ;;; version.cl ends here

@@ -26,44 +26,30 @@
 
 ### Code:
 
-# Installation prefix. This is used for installing Declt as follows:
-# - $(PREFIX)/share/common-lisp/systems/ for the system file (ASDF 1)
+# Installation prefix. This is used as follows:
 # - $(PREFIX)/share/doc/declt/ for the PDF documentation
 # - $(PREFIX)/share/info/ for the info documentation
 # If any of these are unsatisfactory, you will need to edit the Makefiles, or
 # do the installation by hand.
 PREFIX := /usr/local
 
-# Lisp implementation to use (for some installation processing steps only):
-# Currently, only SBCL is supported
+# Preferred Common Lisp implementation.
+# Choices are: SBCL.
 LISP := SBCL
 
 # Implementation paths:
-SBCL_PATH  := sbcl
-#CMUCL_PATH := lisp
-#CCL_PATH   := ccl
-#ECL_PATH   := ecl
-# -q is needed to remove 'bye' for version.cl to work properly.
-#CLISP_PATH := CC=$(CC) clisp -q
+SBCL_PATH := sbcl
 
-# For ABCL, we need something slightly different.
-#ABCL_JAR   := /usr/local/src/common-lisp/abcl/dist/abcl.jar
-#JAVA       := java
-#JAVAC      := javac
-#JAR        := jar
-#SED        := sed
-#ABCL_PATH  := abcl
+# Programs required for generating the documentation:
+MAKEINFO := makeinfo
+TEXI2DVI := texi2dvi
+TEXI2PDF := texi2pdf
+DVIPS    := dvips
+CONVERT  := convert
 
-
-# Required external programs:
-MAKEINFO = makeinfo
-TEXI2DVI = texi2dvi
-TEXI2PDF = texi2pdf
-DVIPS    = dvips
-CONVERT  = convert
-
-INSTALL = install
-INSTALL-INFO = install-info
+# Other required programs:
+INSTALL := install
+INSTALL-INFO := install-info
 
 
 ### Makefile.cnf ends here

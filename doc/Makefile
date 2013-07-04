@@ -36,78 +36,87 @@ include $(TOP_DIR)/Makefile.inc
 include $(TOP_DIR)/version.inc
 
 
-INFO_DIR       := $(PREFIX)/share/info
-DOC_DIR	       := $(SHARE)/doc
-DECLT_DOC_DIR  := $(DOC_DIR)/declt
-GEN_TEXI_FILES := reference.texi
-TEXI_FILES     := $(GEN_TEXI_FILES)
+REF_TEXI_FILES     := reference.texi
+REF_INFO_FILES     := $(REF_TEXI_FILES:%.texi=$(PROJECT)-%.info)
+REF_PDF_FILES      := $(REF_TEXI_FILES:%.texi=%.pdf)
+ALL_REF_INFO_FILES := $(REF_INFO_FILES:%.info=%.info*)
+REF_HTML_DIRS      := $(REF_TEXI_FILES:%.texi=%)
+REF_DVI_FILES      := $(REF_TEXI_FILES:%.texi=%.dvi)
+REF_PS_FILES       := $(REF_TEXI_FILES:%.texi=%.ps)
 
-INFO_FILES     := $(TEXI_FILES:%.texi=declt-%.info)
+WEBREF_TEXI_FILES := webreference.texi
+WEBREF_PDF_FILES  := $(WEBREF_TEXI_FILES:%.texi=%.pdf)
+WEBREF_HTML_DIRS  := $(WEBREF_TEXI_FILES:%.texi=%)
+
+TEXI_FILES     :=
+INFO_FILES     := $(TEXI_FILES:%.texi=$(PROJECT)-%.info)
 PDF_FILES      := $(TEXI_FILES:%.texi=%.pdf)
 ALL_INFO_FILES := $(INFO_FILES:%.info=%.info*)
+HTML_DIRS      := $(TEXI_FILES:%.texi=%)
 DVI_FILES      := $(TEXI_FILES:%.texi=%.dvi)
 PS_FILES       := $(TEXI_FILES:%.texi=%.ps)
-HTML_DIRS      := $(TEXI_FILES:%.texi=%)
+
+INFO_DIR         := $(PREFIX)/share/info
+DOC_DIR          := $(SHARE)/doc
+PROJECT_DOC_DIR  := $(DOC_DIR)/$(PROJECT)
 
 
 all: info pdf html
 
-webref: pdf-webref html-webref
-
 all-formats: all dvi ps
 
-install-at: $(PDF_FILES) $(HTML_DIRS)
+install-at: $(PDF_FILES) $(REF_PDF_FILES) $(HTML_DIRS) $(REF_HTML_DIRS)
 	$(INSTALL) -d "$(LOCATION)"
-	$(INSTALL) -m 644 $(PDF_FILES) "$(LOCATION)/"
-	for i in $(HTML_DIRS); do			\
-	  $(INSTALL) -d -m 755 "$(LOCATION)/$$i" ;		\
+	$(INSTALL) -m 644 $(PDF_FILES) $(REF_PDF_FILES) "$(LOCATION)/"
+	for i in $(HTML_DIRS) $(REF_HTML_DIRS); do	\
+	  $(INSTALL) -d -m 755 "$(LOCATION)/$$i" ;	\
 	  $(INSTALL) -m 644 $$i/* "$(LOCATION)/$$i/" ;	\
 	done
 
-install: $(INFO_FILES)
+install: $(INFO_FILES) $(REF_INFO_FILES)
 	$(INSTALL) -d "$(INFO_DIR)"
-	$(INSTALL) -m 644 $(ALL_INFO_FILES) "$(INFO_DIR)/"
-	for i in $(INFO_FILES); do			\
+	$(INSTALL) -m 644 $(ALL_INFO_FILES) $(ALL_REF_INFO_FILES) \
+	  "$(INFO_DIR)/"
+	for i in $(INFO_FILES) $(REF_INFO_FILES); do		\
 	  $(INSTALL-INFO) --info-dir="$(INFO_DIR)" $$i;	\
 	done
-	$(MAKE) install-at LOCATION="$(DECLT_DOC_DIR)"
-	-for i in $(DVI_FILES) $(PS_FILES); do			\
-	  test -f $$i && $(INSTALL) -m 644 $$i "$(DECLT_DOC_DIR)";	\
+	$(MAKE) install-at LOCATION="$(PROJECT_DOC_DIR)"
+	for i in $(DVI_FILES) $(PS_FILES)				\
+		 $(REF_DVI_FILES) $(REF_PS_FILES); do			\
+	  test -f $$i && $(INSTALL) -m 644 $$i "$(PROJECT_DOC_DIR)/";	\
 	done
 
 uninstall:
-	-rm -fr "$(DECLT_DOC_DIR)"
-	for i in $(INFO_FILES); do				\
+	rm -fr "$(PROJECT_DOC_DIR)"
+	for i in $(INFO_FILES) $(REF_INFO_FILES); do			\
 	  $(INSTALL-INFO) --remove --info-dir="$(INFO_DIR)" $$i;	\
 	done
-	cd "$(INFO_DIR)" && rm -f $(ALL_INFO_FILES)
+	cd "$(INFO_DIR)" && rm -f $(ALL_INFO_FILES) $(ALL_REF_INFO_FILES)
 
-info: $(INFO_FILES)
+install-www:
+	$(MAKE) install-at LOCATION="$(W3DIR)"	\
+	  REF_PDF_FILES="$(WEBREF_PDF_FILES)"	\
+	  REF_HTML_DIRS="$(WEBREF_HTML_DIRS)"
 
-pdf: $(PDF_FILES)
-pdf-webref: webreference.pdf
-
-html: $(HTML_DIRS)
-html-webref: webreference
-
-dvi: $(DVI_FILES)
-
-ps: $(PS_FILES)
-
+info: $(INFO_FILES) $(REF_INFO_FILES)
+pdf:  $(PDF_FILES)  $(REF_PDF_FILES)
+html: $(HTML_DIRS)  $(REF_HTML_DIRS)
+dvi:  $(DVI_FILES)  $(REF_DVI_FILES)
+ps:   $(PS_FILES)   $(REF_PS_FILES)
 
 reference.texi: generate.cl
-	$(SBCL_PATH) $(SBCL_EXEC) ./generate.cl
+	$(SBCL_PATH) $(SBCL_LOAD) ./generate.cl
 
 webreference.texi: generate.cl
-	$(SBCL_PATH) $(SBCL_EXEC) ./generate.cl --web
+	$(SBCL_PATH) $(SBCL_LOAD) ./generate.cl --web
 
-declt-%.info: %.texi
+$(PROJECT)-%.info: %.texi
 	$(MAKEINFO) $<
 
 %.pdf: %.texi
 	$(TEXI2PDF) $<
 
-$(HTML_DIRS) webreference: %: %.texi
+$(HTML_DIRS) $(REF_HTML_DIRS) $(WEBREF_HTML_DIRS): %: %.texi
 	$(MAKEINFO) --html -o $@ $<
 	touch $@
 
@@ -124,9 +133,12 @@ clean:
 	-rm *.tmp *.fn* *.vr* *.ky* *.tp* *.cp* *.pg *.toc *.aux *.log *~
 
 distclean: clean
-	-rm -fr $(GEN_TEXI_FILES:%.texi=%)* webreference*		\
-		$(HTML_DIRS)						\
-		$(ALL_INFO_FILES) $(PDF_FILES) $(DVI_FILES) $(PS_FILES)
+	rm -fr $(REF_TEXI_FILES) $(WEBREF_TEXI_FILES)			\
+	       $(ALL_INFO_FILES) $(ALL_REF_INFO_FILES)			\
+	       $(PDF_FILES) $(REF_PDF_FILES) $(WEBREF_PDF_FILES)	\
+	       $(HTML_DIRS) $(REF_HTML_DIRS) $(WEBREF_HTML_DIRS)	\
+	       $(DVI_FILES) $(REF_DVI_FILES)				\
+	       $(PS_FILES) $(REF_PS_FILES)
 
 update-version:
 	for f in $(TEXI_FILES); do					   \
@@ -134,22 +146,11 @@ update-version:
 	    $$f;							   \
 	done
 
-install-www: webref
-	$(MAKE) install-at LOCATION="$(W3DIR)"
-	$(INSTALL) -m 644 webreference.pdf "$(W3DIR)/reference.pdf"
-	$(INSTALL) -d -m 755 "$(W3DIR)/reference"
-	$(INSTALL) -m 644 webreference/* "$(W3DIR)/reference/"
-
-.PHONY: all webref all-formats		\
-	install-at install uninstall	\
-	info				\
-	pdf pdf-webref			\
-	html html-webref		\
-	dvi				\
-	ps				\
-	clean distclean			\
-	update-version			\
-	install-www
+.PHONY: hack all all-formats \
+	install-at install uninstall install-www	\
+	info pdf html dvi ps				\
+	clean distclean				\
+	update-version
 
 
 ### Makefile ends here

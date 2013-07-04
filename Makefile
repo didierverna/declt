@@ -29,24 +29,22 @@
 
 TOP_DIR := .
 
-include Makefile.cnf
+include $(TOP_DIR)/Makefile.cnf
 
 hack: all
 
-include Makefile.inc
-include version.inc
+include $(TOP_DIR)/Makefile.inc
+include $(TOP_DIR)/version.inc
 
 
-SUBDIRS     := src doc
-SYSTEMS_DIR := $(SHARE)/common-lisp/systems
-ASDF_FILE   := com.dvlsoft.declt.asd
-
-DIST_NAME := declt-$(SHORT_VERSION)
+SUBDIRS   := src doc
+DIST_NAME := $(PROJECT)-$(SHORT_VERSION)
 TARBALL   := $(DIST_NAME).tar.gz
 SIGNATURE := $(TARBALL).asc
 
-install-system:
-	ln -fs "`pwd`/$(ASDF_FILE)" "$(SYSTEMS_DIR)/"
+all:
+	$(MAKE) gen TARGET=all
+	$(MAKE) INSTALL
 
 all-formats dvi ps ref all-formats-ref dvi-ref ps-ref:
 	cd doc && $(MAKE) $@
@@ -57,7 +55,6 @@ install:
 	$(MAKE) gen TARGET=install
 
 uninstall:
-	-rm -f "$(SYSTEMS_DIR)/$(ASDF_FILE)"
 	$(MAKE) gen TARGET=uninstall
 
 clean:
@@ -84,14 +81,14 @@ install-www: dist
 	-$(INSTALL) -m 644 $(TARBALL)   "$(W3DIR)/attic/"
 	-$(INSTALL) -m 644 $(SIGNATURE) "$(W3DIR)/attic/"
 	echo "\
-<? lref (\"declt/attic/declt-$(SHORT_VERSION).tar.gz\", \
-	 contents (\"Dernière version\", \"Latest version\")); ?> \
+<? lref (\"$(PROJECT)/attic/$(PROJECT)-$(SHORT_VERSION).tar.gz\", \
+	 contents (\"DerniÃ¨re version\", \"Latest version\")); ?> \
 | \
-<? lref (\"declt/attic/declt-$(SHORT_VERSION).tar.gz.asc\", \
+<? lref (\"$(PROJECT)/attic/$(PROJECT)-$(SHORT_VERSION).tar.gz.asc\", \
 	 contents (\"Signature GPG\", \"GPG Signature\")); ?>" \
 	  > "$(W3DIR)/latest.txt"
 	chmod 644 "$(W3DIR)/latest.txt"
-	git push --tags "$(W3DIR)/declt.git" :
+	git push --tags "$(W3DIR)/$(PROJECT).git" :
 	$(MAKE) gen TARGET=install-www
 	cd "$(W3DIR)"					\
 	  && ln -fs attic/$(TARBALL) latest.tar.gz	\
@@ -117,10 +114,10 @@ $(SIGNATURE): $(TARBALL)
 .DEFAULT:
 	$(MAKE) gen TARGET=$@
 
-.PHONY: hack							\
+.PHONY: hack all						\
 	all-formats dvi ps ref all-formats-ref dvi-ref ps-ref	\
-	install-system install install-ref uninstall		\
-	clean distclean						\
+	install install-ref uninstall				\
+	clean distclean					\
 	tag tar gpg dist install-www				\
 	update-version						\
 	gen
