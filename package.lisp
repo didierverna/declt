@@ -60,6 +60,10 @@
     :resolve-dependency-name
     :system-author
     :system-maintainer
+    :system-mailto
+    :system-homepage
+    :system-source-control
+    :system-bug-tracker
     :system-license
     :system-source-directory
     :system-source-file)

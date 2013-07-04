@@ -357,6 +357,18 @@ Modules are listed depth-first from the system components tree.")))))
       (@tableitem "Maintainer"
 	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	  (escape maintainer) (and maintainer email) (escape email)))))
+  (when-let ((mailto (system-mailto system)))
+    (@tableitem "Contact"
+      (format t "@email{~A}~%" (escape mailto))))
+  (when-let ((homepage (system-homepage system)))
+    (@tableitem "Home Page"
+      (format t "@uref{~A}~%" (escape homepage))))
+  (when-let ((source-control (system-source-control system)))
+    (@tableitem "Source Control"
+      (format t "@uref{~A}~%" (escape source-control))))
+  (when-let ((bug-tracker (system-bug-tracker system)))
+    (@tableitem "Bug Tracker"
+      (format t "@uref{~A}~%" (escape bug-tracker))))
   (format t "~@[@item License~%~
 	     ~A~%~]" (escape (system-license system)))
   (call-next-method))
