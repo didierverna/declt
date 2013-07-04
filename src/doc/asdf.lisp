@@ -80,6 +80,15 @@
   (format t "~@[@item Version~%~
 		  ~A~%~]"
     (escape (component-version component)))
+  (when-let* ((dependencies (when (eq (type-of component) 'asdf:system)
+			      (defsystem-dependencies component)))
+	      (length (length dependencies)))
+    ;; Don't reference defsystem dependencies because they are foreign. Just
+    ;; mention them.
+    (@tableitem (format nil "Defsystem Dependenc~@p" length)
+      (if (eq length 1)
+	  (format t "@t{~(~A}~)" (escape (first dependencies)))
+	  (@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape))))
   (when-let* ((dependencies (component-sideway-dependencies component))
 	      (length (length dependencies)))
     (if (eq (type-of component) 'asdf:system)

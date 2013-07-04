@@ -33,6 +33,17 @@
 
 
 ;; ==========================================================================
+;; slot-unbound Proof Accessors
+;; ==========================================================================
+
+(defun defsystem-dependencies (system)
+  "Return ASDF SYSTEM's defsystem dependencies."
+  (when (slot-boundp system 'asdf::defsystem-depends-on)
+    (asdf::system-defsystem-depends-on system)))
+
+
+
+;; ==========================================================================
 ;; General
 ;; ==========================================================================
 
