@@ -170,16 +170,12 @@ the short version, a patchlevel of 0 is ignored in the output."
   :long-description
   "Declt (pronounce dec'let) is a reference manual generator for Common Lisp.
 It extracts and formats documentation from ASDF systems, including the system
-itself and its components, the packages defined in the system and definitions
-like constants, special variables, macros, functions, generic functions and
-methods, conditions, structures and classes.
+itself, its components, the packages defined in the system and an extensive
+list of definitions (variables, functions etc.). The formatted documentation
+comes with full indexing and cross-references.
 
-Reference manuals are generated in Texinfo format which can be subsequently
-converted into info, HTML, DVI, PostScript or PDF. The generated manuals are
-fully indexed and provide a complete set of cross-references between
-documentation elements. For instance, files and packages point to the
-definitions they provide, and those definitions point back to package and file
-in which they can be found."
+Reference manuals are generated in Texinfo format which can subsequently be
+converted into info, HTML, DVI, PostScript or PDF."
   :author "Didier Verna"
   :mailto "didier@didierverna.net"
   :homepage
