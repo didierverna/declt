@@ -2,6 +2,11 @@ sbcl-*/
 
 version.inc
 
+doc/user.pdf
+doc/user.pdf
+doc/user.ps
+doc/user/
+
 doc/reference.texi
 doc/reference.pdf
 doc/reference.ps

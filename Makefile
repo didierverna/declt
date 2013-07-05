@@ -103,6 +103,17 @@ gen:
 	   ( cd $${i} && $(MAKE) $(TARGET) ) ;    \
 	 done
 
+INSTALL: doc/$(PROJECT)-user.info
+	info --file=./doc/$(PROJECT)-user.info	\
+	     -n Installation			\
+	     -n Configuration			\
+	     -n 'Supported Platforms'		\
+	     --output=$@
+	perl -pi -e 's/^File:.*\n//g' $@
+
+doc/$(PROJECT)-user.info:
+	cd doc && $(MAKE) $(PROJECT)-user.info
+
 $(TARBALL):
 	git archive --format=tar --prefix=$(DIST_NAME)/	\
 	    --worktree-attributes HEAD			\

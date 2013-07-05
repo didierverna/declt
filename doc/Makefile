@@ -48,7 +48,7 @@ WEBREF_TEXI_FILES := webreference.texi
 WEBREF_PDF_FILES  := $(WEBREF_TEXI_FILES:%.texi=%.pdf)
 WEBREF_HTML_DIRS  := $(WEBREF_TEXI_FILES:%.texi=%)
 
-TEXI_FILES     :=
+TEXI_FILES     := user.texi
 INFO_FILES     := $(TEXI_FILES:%.texi=$(PROJECT)-%.info)
 PDF_FILES      := $(TEXI_FILES:%.texi=%.pdf)
 ALL_INFO_FILES := $(INFO_FILES:%.info=%.info*)

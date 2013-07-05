@@ -1,0 +1,538 @@
+\input texinfo
+
+@c user.texi --- User manual
+
+@c Copyright (C) 2013 Didier Verna
+
+@c Author: Didier Verna <didier@lrde.epita.fr>
+
+@c This file is part of Declt.
+
+@c This program is free software; you can redistribute it and/or modify
+@c it under the terms of the GNU General Public License as published by
+@c the Free Software Foundation; either version 3 of the License, or
+@c (at your option) any later version.
+@c
+@c This program is distributed in the hope that it will be useful,
+@c but WITHOUT ANY WARRANTY; without even the implied warranty of
+@c MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+@c GNU General Public License for more details.
+@c
+@c You should have received a copy of the GNU General Public License
+@c along with this program; if not, write to the Free Software
+@c Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+@c Commentary:
+
+@c Contents management by FCM version 0.1.
+
+
+@c ====================================================================
+@c Header
+@c ====================================================================
+@c %**start of header
+@setfilename declt-user.info
+@settitle The Declt User Manual
+@afourpaper
+@documentencoding UTF-8
+@c %**end of header
+
+
+
+@c ====================================================================
+@c Settings
+@c ====================================================================
+@set VERSION 1.0 beta 15 "James T. Kirk"
+@set COPYRIGHT_DATE 2013
+@setchapternewpage odd
+@setcontentsaftertitlepage
+@documentdescription
+The Declt User Manual for version @value{VERSION}.
+@end documentdescription
+
+
+
+@c ====================================================================
+@c New Commands
+@c ====================================================================
+
+@macro declt
+@t{Declt}
+@end macro
+
+@macro cl
+Common Lisp
+@end macro
+
+@macro etc
+@i{etc.}
+@end macro
+
+@macro eg
+@i{e.g.}
+@end macro
+
+@macro ie
+@i{i.e.}
+@end macro
+
+@macro perse
+@i{per-se}
+@end macro
+
+
+@c ---------------
+@c Indexing macros
+@c ---------------
+
+@c Concept index
+@c -------------
+
+@c Configuration options
+@macro coindex{name}
+@vindex com.dvlsoft.declt.configuration
+@cindex Configuration Option, @t{:\name\}
+@cindex @t{:\name\}
+@end macro
+
+
+@c Functions index
+@c ---------------
+
+@c Function options
+@macro foindex{func,opt}
+@findex \func\@r{, option, }\opt\
+@end macro
+
+@c Function keys
+@macro fkindex{func,key}
+@findex \func\@r{, key, }\key\
+@end macro
+
+
+@c Variables index
+@c ---------------
+
+@c Constant variables
+@macro cvindex{var}
+@vindex \var\
+@vindex @r{Constant, }\var\
+@end macro
+
+
+@c Data Types index
+@c ----------------
+
+@c Packages
+@macro pkgindex{name}
+@tpindex \name\
+@tpindex @r{Package, }\name\
+@end macro
+
+@c Systems
+@macro sysindex{name}
+@tpindex \name\
+@tpindex @r{System, }\name\
+@end macro
+
+
+
+@c ====================================================================
+@c Info Category and Directory
+@c ====================================================================
+@dircategory Common Lisp
+@direntry
+* Declt User: (declt-user).             The Declt User Manual.
+@end direntry
+
+
+
+@c ====================================================================
+@c Copying
+@c ====================================================================
+@copying
+@quotation
+Copyright @copyright{} @value{COPYRIGHT_DATE} Didier Verna
+
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+@ignore
+Permission is granted to process this file through TeX and print the
+results, provided the printed document carries a copying permission
+notice identical to this one except for the removal of this paragraph
+(this paragraph not being relevant to the printed manual).
+
+@end ignore
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided also that the
+section entitled ``Copying'' is included exactly as in the original.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be translated as well.
+@end quotation
+@end copying
+
+
+
+@c ====================================================================
+@c Title Page
+@c ====================================================================
+@titlepage
+@title The Declt User Manual
+@subtitle Documentation extractor from @cl{} to Texinfo, Version @value{VERSION}
+@author Didier Verna <@email{didier@@didierverna.net}>
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+
+
+@c ====================================================================
+@c Table of Contents
+@c ====================================================================
+@contents
+
+
+
+@c ====================================================================
+@c Master Menu
+@c ====================================================================
+@ifnottex
+@node Top, Copying, (dir), (dir)
+@top The Declt User Manual
+
+This is the @declt{} User Manual for @declt{} version @value{VERSION}.
+
+@menu
+* Copying::                 The GNU GPL license
+* Introduction::            What Declt is all about
+* Installation::            Library and documentation
+* Using Declt::             How to generate reference manuals
+* Advanced Usage::          Things rarely needed
+* Conclusion::              That's all folks
+* Technical Notes::         Configuration, platforms and portability
+* Indexes::                 Concept, Function and Variable
+@end menu
+
+@insertcopying
+@end ifnottex
+
+
+
+@c ====================================================================
+@c Copying
+@c ====================================================================
+@node Copying, Introduction, Top, Top
+@unnumbered Copying
+
+@quotation
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+@end quotation
+
+
+
+@c ====================================================================
+@c Introduction
+@c ====================================================================
+@node Introduction, Installation, Copying, Top
+@chapter Introduction
+
+@declt{} (pronounce ``dec'let'') is a reference manual generator for
+Common Lisp libraries. It extracts and formats documentation from ASDF
+systems, including the system itself, its components, the packages
+defined in the system and an extensive list of definitions (variables,
+functions @etc{}). The formatted documentation comes with full indexing
+and cross-references.
+
+Reference manuals are generated in Texinfo format which can subsequently
+be converted into info, HTML, PDF, DVI and PostScript.
+
+
+
+@c ====================================================================
+@c Installation
+@c ====================================================================
+@node Installation, Using Declt, Introduction, Top
+@chapter Installation
+
+@sysindex{com.dvlsoft.declt}
+@xref{Supported Platforms}, for information on portability and
+requirements. See @declt{}'s
+@uref{http://www.lrde.epita.fr/~didier/software/lisp/misc.php#declt,,homepage}
+for tarballs, Git repository and online documentation. @declt{} is also
+available via @uref{http://www.quicklisp.org,,Quicklisp}. The system's
+name is @t{com.dvlsoft.declt}.
+
+In addition to the bare Lisp library, the @declt{} distribution offers
+documentation in the form of 2 different manuals: user and
+reference. The reference manual is generated with @declt{} itself.  Here
+are some instructions for a manual installation, including
+documentation.
+
+@enumerate
+@item
+Unpack somewhere in the ASDF source registry.
+@item
+Edit @file{Makefile.cnf} to your specific needs.
+@item
+Type @command{make} to compile the documentation (this also implies
+compiling and loading the library). By default, the documentation is
+built in info, PDF and HTML formats. If you want other formats (DVI and
+PostScript are available), type @command{make all-formats}. You can also
+type individually @command{make dvi} and/or @command{make ps} in order
+to get the corresponding format.
+@item
+Type @command{make install} to install the documentation. If you have
+compiled the documentation in DVI and PostScript format, those will be
+installed as well.
+@end enumerate
+
+Type @command{make uninstall} to uninstall the library.
+
+
+
+@c ====================================================================
+@c Using Declt
+@c ====================================================================
+@node Using Declt, Advanced Usage, Installation, Top
+@chapter Using Declt
+
+
+
+@c ====================================================================
+@c Advanced Usage
+@c ====================================================================
+@node Advanced Usage, Conclusion, Using Declt, Top
+@chapter Advanced Usage
+
+This chapter contains information about different features that are
+present in @declt{} because of design decisions, but that I expect to be
+used only rarely, if at all.
+
+@menu
+* Version Numbering::           In case you need to conditionalize
+@end menu
+
+
+@c -----------------
+@c Version Numbering
+@c -----------------
+@node Version Numbering, , , Advanced Usage
+@section Version Numbering
+
+As @declt{} evolves over time, you might one day feel the need for
+conditionalizing your code on the version of the library.
+
+The first thing you can do to access the current version number of
+@declt{} is use the @code{version} function.
+
+@defun version &optional (TYPE :number)
+Return the current version number of @declt{}. @var{TYPE} can be one of
+@code{:number}, @code{:short} or @code{:long}. For @code{:number}, the
+returned value is a fixnum. Otherwise, it is a string.
+@end defun
+
+A @declt{} version is characterized by 4 elements as described below.
+@itemize
+@item
+@cvindex +release-major-level+
+A major version number stored in the constant
+@code{+release-major-level+}.
+@item
+@cvindex +release-minor-level+
+A minor version number, stored in the constant
+@code{+release-minor-level+}.
+@item
+@cvindex +release-status+
+A release status stored in the constant @code{+release-status+}. The
+status of a release can be @code{:alpha}, @code{:beta}, @code{:rc}
+(standing for ``release candidate'') or @code{:patchlevel}. These are in
+effect 4 levels of expected stability.
+@item
+@cvindex +release-status-level+
+A status-specific version number stored in the constant
+@code{+release-status-level+}. Status levels start at 1 (alpha 1, beta 1
+and release candidate 1) except for stable versions, in which case patch
+levels start at 0 (@eg{} 2.4.0).
+@end itemize
+
+@cvindex +release-name+
+In addition to that, each version of @declt{} (in the sense
+@emph{major.minor}, regardless of the status) has a name, stored in the
+constant @code{+release-name+}. The general theme for @declt{} is ``Star
+Trek Characters''.
+
+Here is how the @code{version} function computes its value.
+@itemize
+@item
+A version @code{:number} is computed as @emph{major . 10000 + minor .
+100 + patchlevel}, effectively leaving two digits for each level. Note
+that alpha, beta and release candidate status are ignored in version
+numbers (this is as if the corresponding status level was considered to
+be always 0). Only stable releases have their level taken into account.
+@item
+A @code{:short} version will appear like this for unstable releases:
+1.3a4, 2.5b8 or 4.2rc1. Remember that alpha, beta or release candidate
+levels start at 1. Patchlevels for stable releases start at 0 but 0 is
+ignored in the output. So for instance, version 4.3.2 will appear as-is,
+while version 1.3.0 will appear as just 1.3.
+@item
+A @code{:long} version is expanded from the short one, and includes the
+release name. For instance, 1.3 alpha 4 "Uhura", 2.5 beta 8 "Scotty",
+4.2 release candidate 1 "Spock" or 4.3.2 "Counsellor Troy". As for the
+short version, a patchlevel of 0 is ignored in the output: 1.3 "Uhura".
+@end itemize
+
+
+
+@c ====================================================================
+@c Conclusion
+@c ====================================================================
+@node Conclusion, Technical Notes, Advanced Usage, Top
+@chapter Conclusion
+
+So that's it I guess. You know all about @declt{} now. The next step is
+to polish your own libraries so that @declt{} can extract meaningful
+documentation from them.
+
+Then, you will want to run @declt{} on all the other libraries you use,
+in order to finally know how they work.
+
+Now, go my friend. Go document the whole Lisp world!
+
+
+
+@c ====================================================================
+@c Technical Notes
+@c ====================================================================
+@node Technical Notes, Indexes, Conclusion, Top
+@appendix Technical Notes
+
+This chapter contains important information about the library's
+configuration and portability concerns.
+
+@menu
+* Configuration::               Pre-loading parameters
+* Supported Platforms::         Systems, compilers and dependencies
+@end menu
+
+
+@c -------------
+@c Configuration
+@c -------------
+@node Configuration, Supported Platforms, Technical Notes, Technical Notes
+@section Configuration
+
+@cindex Configuration
+@vindex com.dvlsoft.declt.configuration
+Some aspects of @declt{}'s behavior can be configured @emph{before} the
+ASDF system is actually loaded. @declt{} looks for configuration options
+in a variable called @code{com.dvlsoft.declt.configuration} in the
+@code{cl-user} package. If set, this variable should contain a property
+list of configuration options and their corresponding values. Currently,
+the following options are provided.
+
+@table @t
+@item :swank-eval-in-emacs
+@coindex{swank-eval-in-emacs}
+@vindex slime-enable-evaluate-in-emacs
+This option is only useful if you use Slime, and mostly if you plan on
+hacking @declt{} itself. The library provides indentation information
+for some of its functions directly embedded in the code. This
+information can be automatically transmitted to (X)Emacs when the ASDF
+system is loaded if you set this option to @code{t}. However, note that
+for this to work, the Slime variable
+@code{slime-enable-evaluate-in-emacs} must also be set to @code{t} in
+your (X)Emacs session. If you're interested to know how this process
+works, I have described it in the following blog entry:
+@uref{http://www.didierverna.com/sciblog/index.php?post/2011/07/20/One-more-indentation-hack}.
+@end table
+
+
+@c ----------------------
+@c Supported Platforms
+@c ----------------------
+@node Supported Platforms, , , Technical Notes
+@section Supported Platforms
+
+@declt{} currently works on Unix (including MacOS X) and Windows (Cygwin
+or MinGW) with SBCL. Other Lisp implementations are not currently
+supported, as @declt{} relies on SBCL's @t{sb-introspect} contrib.
+
+@declt{} also requires ASDF 3.
+
+
+
+@c ====================================================================
+@c Indexes
+@c ====================================================================
+@node Indexes, , Technical Notes, Top
+@appendix Indexes
+
+@menu
+* Concept Index::       Well, the concept index
+* Function Index::      Well, the function index
+* Variable Index::      Well, the variable index
+* Data Type Index::     Well, the data type index
+@end menu
+
+
+@c --------------
+@c Concept Index
+@c --------------
+@node Concept Index, Function Index, Indexes, Indexes
+@section Concepts
+@printindex cp
+@page
+
+
+@c --------------
+@c Function Index
+@c --------------
+@node Function Index, Variable Index, Concept Index, Indexes
+@section Functions
+@printindex fn
+@page
+
+
+@c --------------
+@c Variable Index
+@c --------------
+@node Variable Index, Data Type Index, Function Index, Indexes
+@section Variables
+@printindex vr
+@page
+
+
+@c ---------------
+@c Data Type Index
+@c ---------------
+@node Data Type Index, , Variable Index, Indexes
+@section Data Types
+@printindex tp
+
+
+@bye
+
+@c Local Variables:
+@c TeX-master: t
+@c End:
+
+@c user.texi ends here

@@ -1,52 +1,61 @@
-							     -*- outline -*-
 
-* Copyright (C) 2010, 2011, 2013 Didier Verna
+2 Installation
+**************
 
-This file is part of Declt.
+*Note Supported Platforms::, for information on portability and
+requirements.  See Declt’s homepage for tarballs, Git repository and
+online documentation.  Declt is also available via Quicklisp.  The
+system’s name is com.dvlsoft.declt.
 
-Copying and distribution of this file, with or without modification,
-are permitted in any medium without royalty provided the copyright
-notice and this notice are preserved.
+   In addition to the bare Lisp library, the Declt distribution offers
+documentation in the form of 2 different manuals: user and reference.
+The reference manual is generated with Declt itself.  Here are some
+instructions for a manual installation, including documentation.
 
+  1. Unpack somewhere in the ASDF source registry.
+  2. Edit ‘Makefile.cnf’ to your specific needs.
+  3. Type ‘make’ to compile the documentation (this also implies
+     compiling and loading the library).  By default, the documentation
+     is built in info, PDF and HTML formats.  If you want other formats
+     (DVI and PostScript are available), type ‘make all-formats’.  You
+     can also type individually ‘make dvi’ and/or ‘make ps’ in order to
+     get the corresponding format.
+  4. Type ‘make install’ to install the documentation.  If you have
+     compiled the documentation in DVI and PostScript format, those will
+     be installed as well.
 
-* Anatomy of the tarball
-The Declt distribution has the following shape:
-
-./src/		;; source directory
-./doc/		;; documentation
-
-
-* Portability
-Declt is an SBCL-only application (at least for now).
-
-
-* Configuration
-Edit Makefile.cnf to your specific needs.
-
-
-* Pre-installation
-If you're using ASDF 1, you need to "make install-system" before anything else
-in order to create the system file symlink where appropriate. Otherwise (ASDF
-2), we assume that you have unpacked somewhere in the source registry.
+   Type ‘make uninstall’ to uninstall the library.
 
 
-* Build
-Type "make" to compile the reference manual. A side-effect of this is to also
-compile the library. By default, the reference manual is built in info, PDF
-and HTML formats. If you want other formats (DVI and PostScript are
-available), type "make all-formats". You can also individually type "make dvi"
-and/or "make ps" in order to get the corresponding format only.
+A.1 Configuration
+=================
+
+Some aspects of Declt’s behavior can be configured _before_ the ASDF
+system is actually loaded.  Declt looks for configuration options in a
+variable called ‘com.dvlsoft.declt.configuration’ in the ‘cl-user’
+package.  If set, this variable should contain a property list of
+configuration options and their corresponding values.  Currently, the
+following options are provided.
+
+:swank-eval-in-emacs
+     This option is only useful if you use Slime, and mostly if you plan
+     on hacking Declt itself.  The library provides indentation
+     information for some of its functions directly embedded in the
+     code.  This information can be automatically transmitted to
+     (X)Emacs when the ASDF system is loaded if you set this option to
+     ‘t’.  However, note that for this to work, the Slime variable
+     ‘slime-enable-evaluate-in-emacs’ must also be set to ‘t’ in your
+     (X)Emacs session.  If you’re interested to know how this process
+     works, I have described it in the following blog entry:
+     <http://www.didierverna.com/sciblog/index.php?post/2011/07/20/One-more-indentation-hack>.
 
 
-* Installation
-Type "make install" to install the reference manual. All generated versions
-that are found are installed.
+A.2 Supported Platforms
+=======================
 
+Declt currently works on Unix (including MacOS X) and Windows (Cygwin or
+MinGW) with SBCL. Other Lisp implementations are not currently
+supported, as Declt relies on SBCL’s sb-introspect contrib.
 
-* Uninstallation
-Type "make uninstall".
+   Declt also requires ASDF 3.
 
-
-* Usage
-Declt has a single entry point which is the DECLT function. See the docstring
-for an explanation.
