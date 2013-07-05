@@ -166,7 +166,8 @@ the short version, a patchlevel of 0 is ignored in the output."
 
 ;; #### PORTME.
 (asdf:defsystem :com.dvlsoft.declt
-  :description "Documentation Extractor from Common Lisp to Texinfo."
+  :long-name "Documentation Extractor from Common Lisp to Texinfo"
+  :description "A reference manual generator for Common Lisp libraries"
   :long-description
   "Declt (pronounce dec'let) is a reference manual generator for Common Lisp.
 It extracts and formats documentation from ASDF systems, including the system
