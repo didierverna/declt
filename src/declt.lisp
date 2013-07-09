@@ -89,15 +89,15 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 
-(defun render-header (library-name texi-name info-file subtitle version
-		      author email license declt-notice
+(defun render-header (library-name texi-name info-file tagline version
+		      maintainer contact license declt-notice
 		      copyright-date current-time-string)
   "Render the header of the Texinfo file."
   (format t "\\input texinfo~2%@c ~A --- Reference manual~2%" texi-name)
 
   (when license
     (format t "@c Copyright (C) ~A ~A~2%@c This file is part of ~A.~2%"
-      copyright-date author library-name)
+      copyright-date maintainer library-name)
     (with-input-from-string (str (caddr license))
       (loop :for line := (read-line str nil :eof)
 	    :until (eq line :eof)
@@ -324,7 +324,7 @@ into another language, under the above conditions for modified versions,
 except that this permission notice may be translated as well.
 @end quotation
 @end copying~4%"
-    copyright-date author))
+    copyright-date maintainer))
 
   (format t "~
 @c ====================================================================
@@ -334,12 +334,12 @@ except that this permission notice may be translated as well.
 @title The ~A Reference Manual
 ~A~A~%"
     library-name
-    (if (or subtitle version)
+    (if (or tagline version)
 	(format nil "@subtitle ~@[~A~]~:[~;, ~]~@[version ~A~]~%"
-	  subtitle (and subtitle version) version)
+	  tagline (and tagline version) version)
       "")
     (format nil "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-       author email email))
+       maintainer contact contact))
 
   (when (or declt-notice license)
     (format t "@page~%"))
@@ -385,14 +385,14 @@ This manual was generated automatically by Declt ~A on ~A.
 	      &key (library-name (string-downcase (symbol-name system-name)))
 		   (texi-file (format nil "~A.texi" library-name))
 		   (info-file (pathname-name texi-file))
-		   introduction
-		   (subtitle nil subtitlep)
+		   (tagline nil taglinep)
 		   (version nil versionp)
-		   author
-		   (email nil emailp)
+		   maintainer
+		   (contact nil contactp)
 		   license
-		   (declt-notice :long)
 		   copyright-date
+		   (declt-notice :long)
+		   introduction
 		   conclusion
 		   hyperlinks
 	      &aux (system (find-system system-name))
@@ -404,16 +404,16 @@ This manual was generated automatically by Declt ~A on ~A.
   Defaults to LIBRARY-NAME.texi.
 - INFO-FILE is the info file basename sans extension.
   Defaults is built from TEXI-FILE.
-- INTRODUCTION is a potential contents for an introduction chapter.
-- SUBTITLE defaults to the system description.
+- TAGLINE defaults to the system's long name or description.
 - VERSION defaults to the system version.
-- AUTHOR defaults to the system's author.
-- EMAIL defaults to the system's email (from either the author or the mailto
-  information.
+- MAINTAINER defaults to the system's maintainer or author.
+- CONTACT defaults to the system's email (from either the mailto, maintainer
+  or author information).
 - LICENSE defaults to nil (possible values are: :mit, :bsd, :gpl and :lgpl).
+- COPYRIGHT-DATE defaults to the current year.
 - DECLT-NOTICE is a small paragraph about automatic manual generation by
   Declt. Possible values are nil, :short and :long (the default).
-- COPYRIGHT-DATE defaults to the current year.
+- INTRODUCTION is a potential contents for an introduction chapter.
 - CONCLUSION is a potential contents for a conclusion chapter.
 - HYPERLINKS is whether to create hyperlinks to files or directories in the
   reference manual. Note that those links being specific to the machine on
@@ -427,26 +427,32 @@ This manual was generated automatically by Declt ~A on ~A.
   ;; Next, post-process some parameters.
   (setq library-name (escape library-name))
   (setq info-file (escape info-file))
-  (unless subtitlep
-    (setq subtitle (component-description system)))
-  (when subtitle
-    (when (char= (aref subtitle (1- (length subtitle))) #\.)
-      (setq subtitle (subseq subtitle 0 (1- (length subtitle)))))
-    (setq subtitle (escape subtitle)))
+  (unless taglinep
+    (setq tagline (or (system-long-name system)
+		      (component-description system))))
+  (when tagline
+    (when (char= (aref tagline (1- (length tagline))) #\.)
+      (setq tagline (subseq tagline 0 (1- (length tagline)))))
+    (setq tagline (escape tagline)))
   (unless versionp
     (setq version (component-version system)))
   (when version
     (setq version (escape version)))
-  (multiple-value-bind (system-author system-email)
-      (parse-author-string (system-author system))
-    (unless author
-      (setq author system-author))
-    (if author
-	(setq author (escape author))
-      (error "Author must be provided."))
-    (setq email (if emailp email (or system-email (system-mailto system)))))
-  (when email
-    (setq email (escape email)))
+  (multiple-value-bind (system-maintainer system-maintainer-email)
+      (parse-author-string (system-maintainer system))
+    (multiple-value-bind (system-author system-author-email)
+	(parse-author-string (system-author system))
+      (unless maintainer
+	(setq maintainer (or system-maintainer system-author)))
+      (if maintainer
+	  (setq maintainer (escape maintainer))
+	  (error "Maintainer must be provided."))
+      (unless contactp
+	(setq contact (or (system-mailto system)
+			  system-maintainer-email
+			  system-author-email)))))
+  (when contact
+    (setq contact (escape contact)))
   (when license
     (setq license (assoc license +licenses+))
     (unless license
@@ -537,8 +543,8 @@ Concepts, functions, variables and data types")
 				       :direction :output
 				       :if-exists :supersede
 				       :if-does-not-exist :create)
-      (render-header library-name texi-name info-file subtitle version author
-		     email license declt-notice
+      (render-header library-name texi-name info-file tagline version maintainer
+		     contact license declt-notice
 		     copyright-date current-time-string)
       (render-top-node top-node)
       (format t "~%@bye~%~%@c ~A ends here~%" texi-name)))

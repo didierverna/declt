@@ -349,10 +349,10 @@ you to customize the result.
 @table @code
 @item :library-name
 @fkindex{declt,library-name}
-The name of the library, used for instance in the title of the reference
-manual. It defaults to the system name, but you are encouraged to
+The library name, used in the reference manual title and at some other
+places. It defaults to the system name, but you are encouraged to
 provide a more human-readable version, such as @t{"Declt"} instead of
-just @t{:com.dvlsoft.declt}.
+just @t{com.dvlsoft.declt}.
 @item :texi-file
 @fkindex{declt,texi-file}
 The full path of the generated Texinfo file. It defaults to
@@ -361,44 +361,50 @@ The full path of the generated Texinfo file. It defaults to
 @fkindex{declt,info-file}
 The base name of the info file, sans extension. The default is built
 from @t{TEXI-FILE}.
-@item :introduction
-@fkindex{declt,introduction}
-A potential contents for an introductive chapter.
-@item :subtitle
-@fkindex{declt,subtitle}
-The reference manual'subtitle. It defaults to the system description.
+@item :tagline
+@fkindex{declt,tagline}
+A tagline for the library, use in the reference manual subtitle. It
+defaults to the system's long name or description.
 @item :version
 @fkindex{declt,version}
-The current version of the library. It defaults to the system version.
-@item :author
-@fkindex{declt,author}
-The author of the library. It defaults to the system author. Note that
-having an author is mandatory to produce a reference manual.
-@item :email
-@fkindex{declt,email}
-The contact address of the author. The default is extracted from the
-system definition (either the author or the mailto slots).
+The library's version, used in the reference manual subtitle and at some
+other places. It defaults to the system's version.
+@item :maintainer
+@fkindex{declt,maintainer}
+The library's maintainer. It defaults to the system's maintainer or
+author. Note that having a maintainer is mandatory to produce a
+reference manual (the maintainer appear on the title page).
+@item :contact
+@fkindex{declt,contact}
+The contact address for the library. The default is extracted from the
+system definition (either the @code{maintainer}, the @code{author} or
+the @code{mailto} slots).
 @item :license
 @fkindex{declt,license}
 @cvindex{+licenses+}
 The library's license type. This information is used to insert licensing
-text at several places in the manual. The default is @nil{} and the
-possible values are: @code{:mit}, @code{:bsd}, @code{:gpl} and
+information at several places in the manual. The default is @nil{} and
+the possible values are: @code{:mit}, @code{:bsd}, @code{:gpl} and
 @code{:lgpl}. The corresponding license texts are stored in the
 @var{+licenses+} constant. Please ask if you need other kinds of
 licenses added to @declt{}. Note that this information is @strong{not}
-extracted from the system license, as the slot in question is not well
+extracted from the system's @t{license} slot, as this slot is not well
 defined.
+@item :copyright-date
+@fkindex{declt,copyright-date}
+A copyright date to be used in conjunction with the licensing
+information.  It defaults to the current year. You may use any kind of
+string here, such as @code{"2013"}, @code{"2010, 2011"},
+@code{"2010--2013"} @etc{}
 @item :declt-notice
 @fkindex{declt,declt-notice}
 Controls the output of a small paragraph about automatic manual
 generation by Declt. Possible values are @nil{}, @code{:short} and
 @code{:long} (the default). I would be grateful if you kept at least the
-short version in your manuals, as an acknowledgment of using @declt{}.
-@item :copyright-date
-@fkindex{declt,copyright-date}
-The copyright date appears at several places in the manuals. It defaults
-to the current year.
+short version in your manuals, as an acknowledgment for using @declt{}.
+@item :introduction
+@fkindex{declt,introduction}
+A potential contents for an introductive chapter.
 @item :conclusion
 @fkindex{declt,conclusion}
 A potential contents for a conclusive chapter.

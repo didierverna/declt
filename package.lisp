@@ -56,6 +56,7 @@
     :component-sideway-dependencies
     :find-system
     :resolve-dependency-name
+    :system-long-name
     :system-author
     :system-maintainer
     :system-mailto
