@@ -4,7 +4,7 @@
 
 @c Copyright (C) 2013 Didier Verna
 
-@c Author: Didier Verna <didier@lrde.epita.fr>
+@c Author: Didier Verna <didier@didierverna.net>
 
 @c This file is part of Declt.
 
@@ -25,7 +25,6 @@
 
 @c Commentary:
 
-@c Contents management by FCM version 0.1.
 
 
 @c ====================================================================
@@ -79,6 +78,10 @@ Common Lisp
 
 @macro perse
 @i{per-se}
+@end macro
+
+@macro nil
+@code{nil}
 @end macro
 
 
@@ -213,7 +216,6 @@ This is the @declt{} User Manual for @declt{} version @value{VERSION}.
 * Introduction::            What Declt is all about
 * Installation::            Library and documentation
 * Using Declt::             How to generate reference manuals
-* Advanced Usage::          Things rarely needed
 * Conclusion::              That's all folks
 * Technical Notes::         Configuration, platforms and portability
 * Indexes::                 Concept, Function and Variable
@@ -255,7 +257,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 @chapter Introduction
 
 @declt{} (pronounce ``dec'let'') is a reference manual generator for
-Common Lisp libraries. It extracts and formats documentation from ASDF
+@cl{} libraries. It extracts and formats documentation from ASDF
 systems, including the system itself, its components, the packages
 defined in the system and an extensive list of definitions (variables,
 functions @etc{}). The formatted documentation comes with full indexing
@@ -311,18 +313,111 @@ Type @command{make uninstall} to uninstall the library.
 @c ====================================================================
 @c Using Declt
 @c ====================================================================
-@node Using Declt, Advanced Usage, Installation, Top
+@node Using Declt, Conclusion, Installation, Top
 @chapter Using Declt
 
+@menu
+* Entry Points::
+* Advanced Usage:: Things rarely needed
+@end menu
 
 
-@c ====================================================================
+@c ------------
+@c Entry Points
+@c ------------
+@node Entry Points, Advanced Usage, , Using Declt
+@section Entry Points
+
+@pkgindex{com.dvlsoft.declt}
+@declt{} itself resides in a package called @t{com.dvlsoft.declt}. You
+can automatically nickname this package with the following function.
+
+@cindex Package, nicknames
+@defun nickname-package &optional NICKNAME
+Add NICKNAME (:DECLT by default) to the :COM.DVLSOFT.DECLT package.
+@end defun
+
+Apart from that, @declt{} has essentially one entry point, the @t{declt}
+function.
+@defun declt SYSTEM-NAME :KEY VALUE@dots{}
+Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
+@end defun
+
+Calling this function with just a system name is enough to produce a
+reference manual. There is however a set of optional keys that allows
+you to customize the result.
+@table @code
+@item :library-name
+@fkindex{declt,library-name}
+The name of the library, used for instance in the title of the reference
+manual. It defaults to the system name, but you are encouraged to
+provide a more human-readable version, such as @t{"Declt"} instead of
+just @t{:com.dvlsoft.declt}.
+@item :texi-file
+@fkindex{declt,texi-file}
+The full path of the generated Texinfo file. It defaults to
+@file{LIBRARY-NAME.texi} in the current directory.
+@item :info-file
+@fkindex{declt,info-file}
+The base name of the info file, sans extension. The default is built
+from @t{TEXI-FILE}.
+@item :introduction
+@fkindex{declt,introduction}
+A potential contents for an introductive chapter.
+@item :subtitle
+@fkindex{declt,subtitle}
+The reference manual'subtitle. It defaults to the system description.
+@item :version
+@fkindex{declt,version}
+The current version of the library. It defaults to the system version.
+@item :author
+@fkindex{declt,author}
+The author of the library. It defaults to the system author. Note that
+having an author is mandatory to produce a reference manual.
+@item :email
+@fkindex{declt,email}
+The contact address of the author. The default is extracted from the
+system definition (either the author or the mailto slots).
+@item :license
+@fkindex{declt,license}
+@cvindex{+licenses+}
+The library's license type. This information is used to insert licensing
+text at several places in the manual. The default is @nil{} and the
+possible values are: @code{:mit}, @code{:bsd}, @code{:gpl} and
+@code{:lgpl}. The corresponding license texts are stored in the
+@var{+licenses+} constant. Please ask if you need other kinds of
+licenses added to @declt{}. Note that this information is @strong{not}
+extracted from the system license, as the slot in question is not well
+defined.
+@item :declt-notice
+@fkindex{declt,declt-notice}
+Controls the output of a small paragraph about automatic manual
+generation by Declt. Possible values are @nil{}, @code{:short} and
+@code{:long} (the default). I would be grateful if you kept at least the
+short version in your manuals, as an acknowledgment of using @declt{}.
+@item :copyright-date
+@fkindex{declt,copyright-date}
+The copyright date appears at several places in the manuals. It defaults
+to the current year.
+@item :conclusion
+@fkindex{declt,conclusion}
+A potential contents for a conclusive chapter.
+@item :hyperlinks
+@fkindex{declt,hyperlinks}
+Whether to create hyperlinks to files or directories in the reference
+manual. Note that those links being specific to the machine on which the
+manual was generated, it is preferable to keep it to @nil{} for creating
+reference manuals meant to be put online.
+@end table
+
+
+@c --------------
 @c Advanced Usage
-@c ====================================================================
-@node Advanced Usage, Conclusion, Using Declt, Top
-@chapter Advanced Usage
+@c --------------
+@node Advanced Usage, , Entry Points, Using Declt
+@section Advanced Usage
 
-This chapter contains information about different features that are
+This section contains information about different features that are
 present in @declt{} because of design decisions, but that I expect to be
 used only rarely, if at all.
 
@@ -335,7 +430,7 @@ used only rarely, if at all.
 @c Version Numbering
 @c -----------------
 @node Version Numbering, , , Advanced Usage
-@section Version Numbering
+@subsection Version Numbering
 
 As @declt{} evolves over time, you might one day feel the need for
 conditionalizing your code on the version of the library.
@@ -352,28 +447,28 @@ returned value is a fixnum. Otherwise, it is a string.
 A @declt{} version is characterized by 4 elements as described below.
 @itemize
 @item
-@cvindex +release-major-level+
+@cvindex{+release-major-level+}
 A major version number stored in the constant
 @code{+release-major-level+}.
 @item
-@cvindex +release-minor-level+
+@cvindex{+release-minor-level+}
 A minor version number, stored in the constant
 @code{+release-minor-level+}.
 @item
-@cvindex +release-status+
+@cvindex{+release-status+}
 A release status stored in the constant @code{+release-status+}. The
 status of a release can be @code{:alpha}, @code{:beta}, @code{:rc}
 (standing for ``release candidate'') or @code{:patchlevel}. These are in
 effect 4 levels of expected stability.
 @item
-@cvindex +release-status-level+
+@cvindex{+release-status-level+}
 A status-specific version number stored in the constant
 @code{+release-status-level+}. Status levels start at 1 (alpha 1, beta 1
 and release candidate 1) except for stable versions, in which case patch
 levels start at 0 (@eg{} 2.4.0).
 @end itemize
 
-@cvindex +release-name+
+@cvindex{+release-name+}
 In addition to that, each version of @declt{} (in the sense
 @emph{major.minor}, regardless of the status) has a name, stored in the
 constant @code{+release-name+}. The general theme for @declt{} is ``Star
@@ -405,7 +500,7 @@ short version, a patchlevel of 0 is ignored in the output: 1.3 "Uhura".
 @c ====================================================================
 @c Conclusion
 @c ====================================================================
-@node Conclusion, Technical Notes, Advanced Usage, Top
+@node Conclusion, Technical Notes, Using Declt, Top
 @chapter Conclusion
 
 So that's it I guess. You know all about @declt{} now. The next step is
@@ -462,7 +557,7 @@ for this to work, the Slime variable
 @code{slime-enable-evaluate-in-emacs} must also be set to @code{t} in
 your (X)Emacs session. If you're interested to know how this process
 works, I have described it in the following blog entry:
-@uref{http://www.didierverna.com/sciblog/index.php?post/2011/07/20/One-more-indentation-hack}.
+@uref{http://www.didierverna.net/blog/index.php?post/2011/07/20/One-more-indentation-hack}.
 @end table
 
 
