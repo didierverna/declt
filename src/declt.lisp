@@ -411,7 +411,7 @@ This manual was generated automatically by Declt ~A on ~A.
 - EMAIL defaults to the system's email (from either the author or the mailto
   information.
 - LICENSE defaults to nil (possible values are: :mit, :bsd, :gpl and :lgpl).
-- DECLT-NOTICE is a small paragraph about automatic manual generatiopn by
+- DECLT-NOTICE is a small paragraph about automatic manual generation by
   Declt. Possible values are nil, :short and :long (the default).
 - COPYRIGHT-DATE defaults to the current year.
 - CONCLUSION is a potential contents for a conclusion chapter.
