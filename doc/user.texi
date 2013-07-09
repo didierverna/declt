@@ -564,7 +564,7 @@ works, I have described it in the following blog entry:
 @c ----------------------
 @c Supported Platforms
 @c ----------------------
-@node Supported Platforms, , , Technical Notes
+@node Supported Platforms, , Configuration, Technical Notes
 @section Supported Platforms
 
 @declt{} currently works on Unix (including MacOS X) and Windows (Cygwin
