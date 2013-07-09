@@ -352,18 +352,21 @@ Modules are listed depth-first from the system components tree.")))))
   "Render SYSTEM's documentation in CONTEXT."
   (@tableitem "Name"
     (format t "@t{~A}~%" (escape system)))
-  (multiple-value-bind (author email)
-      (parse-author-string (system-author system))
-    (when (or author email)
-      (@tableitem "Author"
-	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-	  (escape author) (and author email) (escape email)))))
+  (when-let ((long-name (system-long-name system)))
+    (@tableitem "Long Name"
+      (format t "~A~%" (escape long-name))))
   (multiple-value-bind (maintainer email)
       (parse-author-string (system-maintainer system))
     (when (or maintainer email)
       (@tableitem "Maintainer"
 	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	  (escape maintainer) (and maintainer email) (escape email)))))
+  (multiple-value-bind (author email)
+      (parse-author-string (system-author system))
+    (when (or author email)
+      (@tableitem "Author"
+	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
+	  (escape author) (and author email) (escape email)))))
   (when-let ((mailto (system-mailto system)))
     (@tableitem "Contact"
       (format t "@email{~A}~%" (escape mailto))))
