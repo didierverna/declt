@@ -47,7 +47,7 @@ following options are provided.
      ‘slime-enable-evaluate-in-emacs’ must also be set to ‘t’ in your
      (X)Emacs session.  If you’re interested to know how this process
      works, I have described it in the following blog entry:
-     <http://www.didierverna.com/sciblog/index.php?post/2011/07/20/One-more-indentation-hack>.
+     <http://www.didierverna.net/blog/index.php?post/2011/07/20/One-more-indentation-hack>.
 
 
 A.2 Supported Platforms
