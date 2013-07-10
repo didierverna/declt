@@ -8,9 +8,10 @@ online documentation. Declt is also available via Quicklisp. The
 system's name is com.dvlsoft.declt.
 
    In addition to the bare Lisp library, the Declt distribution offers
-documentation in the form of 2 different manuals: user and reference.
-The reference manual is generated with Declt itself.  Here are some
-instructions for a manual installation, including documentation.
+documentation in the form of 2 different manuals: the User Manual (you
+are reading it) and the *note Top: (reference)Top. The latter is
+generated with Declt itself.  Here are some instructions for a
+installing Declt manually.
 
   1. Unpack somewhere in the ASDF source registry.
 
