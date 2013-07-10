@@ -72,9 +72,9 @@ Initial whitespace characters are skipped."
 (defun read-next-line (stream)
   "Read one line from STREAM.
 Return a list of two values:
-- the line itself, or :eof,
+- the line itself, or STREAM,
 - whether a newline character is missing at the end of the line."
-  (multiple-value-list (read-line stream nil :eof)))
+  (multiple-value-list (read-line stream nil stream)))
 
 (defun render-text (text)
   "Render TEXT for Texinfo.
@@ -83,16 +83,16 @@ TEXT is assumed to be plain 80 columns.
 The rendering takes care of escaping the text for Texinfo, and attempts to
 embellish the output by detecting potential paragraphs from standalone lines."
   (when text
-    (with-input-from-string (str text)
-      (loop :for (ln1 mnl1p) :=    (read-next-line str)
+    (with-input-from-string (stream text)
+      (loop :for (ln1 mnl1p) :=    (read-next-line stream)
 			     :then (list ln2 mnl2p)
-	    :for (ln2 mnl2p) :=    (read-next-line str)
-			     :then (read-next-line str)
-	    :until (eq ln1 :eof)
+	    :for (ln2 mnl2p) :=    (read-next-line stream)
+			     :then (read-next-line stream)
+	    :until (eq ln1 stream)
 	    :if (zerop (length ln1))
 	      :do (terpri)
 	    :else
-	      :if (eq ln2 :eof)
+	      :if (eq ln2 stream)
 		:do (format t "~A~@[~%~]" (escape ln1) (not mnl1p))
 	    :else
 	      :if (> (- 78 (length ln1)) (first-word-length ln2))
