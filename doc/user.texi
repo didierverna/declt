@@ -349,7 +349,7 @@ Type @command{make uninstall} to uninstall the library.
 @declt{} itself resides in a package called @t{com.dvlsoft.declt}. You
 can automatically nickname this package with the following function.
 @cindex Package, nicknames
-@defun nickname-package &optional NICKNAME
+@defun nickname-package [NICKNAME]
 Add NICKNAME (:DECLT by default) to the :COM.DVLSOFT.DECLT package.
 @end defun
 
