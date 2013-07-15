@@ -12,8 +12,14 @@ notice and this notice are preserved.
 ** Packages and symbols
 See what to do about shadowings, imports etc.
 
-** String downcasing policy
+** String downcasing
 Abstract it so that we may provide an option for case behavior.
+
+** Backend
+Clean up the code so that Texinfo becomes a backend with a clean
+interface. This way, we could envision adding other backends. Part of the
+cleanup would also be to decide on a good coding style for fresh lines
+(FRESH-LINE, TERPRI, ~& and ~%).
 
 ** Pathnames
 If the system definition pathname or definition sources contain funky stuff
