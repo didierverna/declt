@@ -117,7 +117,7 @@ BODY should render on *standard-output*."
   "Execute BODY within a @table KIND environment.
 BODY should render on *standard-output*."
   `(progn
-     (format t "@table ~(~A~)~%" ,kind)
+     (format t "~&@table ~(~A~)~%" ,kind)
      ,@body
      (format t "~&@end table~%")))
 
@@ -126,7 +126,7 @@ BODY should render on *standard-output*."
 FRACTIONS is the list of column fractions to use.
 BODY should render on *standard-output*."
   `(progn
-     (format t "@multitable @columnfractions~{ ~S~}~%" ',fractions)
+     (format t "~&@multitable @columnfractions~{ ~S~}~%" ',fractions)
      ,@body
      (format t "~&@end multitable~%")))
 
@@ -141,7 +141,7 @@ BODY should render on *standard-output*."
   "Execute BODY within an @itemize KIND environment.
 BODY should render on *standard-output*."
   `(progn
-     (format t "@itemize ~(~A~)~%" ,kind)
+     (format t "~&@itemize ~(~A~)~%" ,kind)
      ,@body
      (format t "~&@end itemize~%")))
 
@@ -169,7 +169,7 @@ the rendering is done by calling format, as explained below.
 CATEGORY and NAME are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-     (format t "@defvr {~A} ~A~%" (escape ,category) (escape ,name))
+     (format t "~&@defvr {~A} ~A~%" (escape ,category) (escape ,name))
      ,@body
      (format t "~&@end defvr~%")))
 
@@ -244,7 +244,7 @@ CATEGORY, NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for
 Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-     (format t "@deffn {~A} ~A " (escape ,category) (escape ,name '(#\ )))
+     (format t "~&@deffn {~A} ~A " (escape ,category) (escape ,name '(#\ )))
      (render-lambda-list ,lambda-list ,specializers)
      (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape ,qualifiers))
      ,@body
@@ -254,10 +254,9 @@ BODY should render on *standard-output*."
   "Render @deffnx CATEGORY NAME LAMBDA-LIST on *standard-output*.
 CATEGORY, NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for
 Texinfo prior to rendering."
-  (format t "@deffnx {~A} ~A " (escape category) (escape name '(#\ )))
+  (format t "~&@deffnx {~A} ~A " (escape category) (escape name '(#\ )))
   (render-lambda-list lambda-list specializers)
-  (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape qualifiers))
-  (terpri))
+  (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape qualifiers)))
 
 (defmacro @defun (name lambda-list &body body)
   "Execute BODY within a @deffn Function NAME LAMBDA-LIST environment.
@@ -333,10 +332,9 @@ to rendering."
 CATEGORY, NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-     (format t "@deftp {~A} ~A "  (escape ,category) (escape ,name '(#\ )))
-     (when ,lambda-list
-       (render-lambda-list ,lambda-list)
-       (terpri))
+     (format t "~&@deftp {~A} ~A "  (escape ,category) (escape ,name '(#\ )))
+     (render-lambda-list ,lambda-list)
+     (fresh-line)
      ,@body
      (format t "~&@end deftp~%")))
 
@@ -434,7 +432,7 @@ This structure holds Texinfo nodes."
 	 (let ((separator (make-string (length (node-name node))
 			    :initial-element #\-)))
 	   (format t
-	       "
+		   "
 
 @c ~A
 @c ~A
@@ -457,7 +455,7 @@ This structure holds Texinfo nodes."
     (if (= level 0)
 	"(dir)"
       (node-name (node-up node))))
-  (format t "@~A ~A~%~%"
+  (format t "@~A ~A~%"
     (nth level (cdr (assoc (node-section-type node) +section-names+)))
     (or (node-section-name node) (node-name node)))
   (when (node-before-menu-contents node)
