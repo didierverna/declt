@@ -148,7 +148,7 @@ Rendering is done on *standard-output*."
 	   (render-location source context "Source")))))))
 
 (defun render-docstring (item)
-  "Render an itemized documentation line for ITEM.
+  "Render ITEM's documentation string.
 Rendering is done on *standard-output*."
   (when-let ((docstring (docstring item)))
     (render-text docstring)))
