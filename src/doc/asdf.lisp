@@ -375,7 +375,14 @@ Modules are listed depth-first from the system components tree.")))))
       (format t "@uref{~A}~%" (escape homepage))))
   (when-let ((source-control (system-source-control system)))
     (@tableitem "Source Control"
-      (format t "@uref{~A}~%" (escape source-control))))
+      (etypecase source-control
+	(string
+	 (format t "@~:[t~;uref~]{~A}~%"
+		 (search "://" source-control)
+		 (escape source-control)))
+	(t
+	 (format t "@t{~A}~%"
+		 (escape (format nil "~(~S~)" source-control)))))))
   (when-let ((bug-tracker (system-bug-tracker system)))
     (@tableitem "Bug Tracker"
       (format t "@uref{~A}~%" (escape bug-tracker))))
