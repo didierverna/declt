@@ -31,6 +31,9 @@
 (in-readtable :com.dvlsoft.declt)
 
 
+;; #### FIXME: when we make this a customizable variable instead of a
+;; constant, we need to decide on whether this should be raw Texinfo contents,
+;; or whether to escape the notices before using them.
 (define-constant +licenses+
     '((:mit
        "The MIT License"
@@ -119,7 +122,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 @settitle The ~A Reference Manual
 @afourpaper
 @c %**end of header~4%"
-    info-file library-name)
+    info-file (escape library-name))
 
   (format t "~
 @c ====================================================================
@@ -130,7 +133,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 @documentdescription
 The ~A Reference Manual~@[, version ~A~].
 @end documentdescription~4%"
-    library-name version)
+    (escape library-name) version)
 
   (format t "~
 @c ====================================================================
@@ -324,7 +327,7 @@ into another language, under the above conditions for modified versions,
 except that this permission notice may be translated as well.
 @end quotation
 @end copying~4%"
-    copyright-date maintainer))
+    (escape copyright-date) (escape maintainer)))
 
   (format t "~
 @c ====================================================================
@@ -333,13 +336,13 @@ except that this permission notice may be translated as well.
 @titlepage
 @title The ~A Reference Manual
 ~A~A~%"
-    library-name
+    (escape library-name)
     (if (or tagline version)
 	(format nil "@subtitle ~@[~A~]~:[~;, ~]~@[version ~A~]~%"
 	  tagline (and tagline version) version)
       "")
     (format nil "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-       maintainer contact contact))
+       (escape maintainer) contact contact))
 
   (when (or declt-notice license)
     (format t "@page~%"))
@@ -349,8 +352,8 @@ except that this permission notice may be translated as well.
 @quotation
 This manual was generated automatically by Declt ~A on ~A.
 @end quotation~%"
-    (version declt-notice)
-    current-time-string))
+    (escape (version declt-notice))
+    (escape current-time-string)))
 
   (when license
     (format t "@vskip 0pt plus 1filll~%@insertcopying~%"))
@@ -396,8 +399,8 @@ This manual was generated automatically by Declt ~A on ~A.
 		   conclusion
 		   hyperlinks
 	      &aux (system (find-system system-name))
-		   (texi-name (escape (file-namestring texi-file)))
-		   (current-time-string (escape (current-time-string))))
+		   (texi-name (file-namestring texi-file))
+		   (current-time-string (current-time-string)))
   "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
 - LIBRARY-NAME defaults to SYSTEM-NAME.
 - TEXI-FILE is the full path to the Texinfo file.
@@ -418,14 +421,20 @@ This manual was generated automatically by Declt ~A on ~A.
 - HYPERLINKS is whether to create hyperlinks to files or directories in the
   reference manual. Note that those links being specific to the machine on
   which the manual was generated, it is preferable to keep it to NIL for
-  creating reference manuals meant to be put online."
+  creating reference manuals meant to be put online.
+
+Both the INTRODUCTION and the CONCLUSION may contain Texinfo directives (no
+post-processing will occur). All other textual material is considered raw text
+and will be properly escaped for Texinfo."
 
   ;; First load the target system. If this fails, there's no point in working
   ;; hard on the rest.
   (asdf:load-system system-name)
 
   ;; Next, post-process some parameters.
-  (setq library-name (escape library-name))
+  ;; #### NOTE: some Texinfo contents is escaped once and for all below, but
+  ;; not everything. The exceptions are the pieces that we also use in
+  ;; comments (in which case we don't want to escape them).
   (setq info-file (escape info-file))
   (unless taglinep
     (setq tagline (or (system-long-name system)
@@ -444,9 +453,8 @@ This manual was generated automatically by Declt ~A on ~A.
 	(parse-author-string (system-author system))
       (unless maintainer
 	(setq maintainer (or system-maintainer system-author)))
-      (if maintainer
-	  (setq maintainer (escape maintainer))
-	  (error "Maintainer must be provided."))
+      (unless maintainer
+	(error "Maintainer must be provided."))
       (unless contactp
 	(setq contact (or (system-mailto system)
 			  system-maintainer-email
@@ -458,11 +466,11 @@ This manual was generated automatically by Declt ~A on ~A.
     (unless license
       (error "License not found.")))
   (setq copyright-date
-	(escape (or copyright-date
-		    (multiple-value-bind (second minute hour date month year)
-			(get-decoded-time)
-		      (declare (ignore second minute hour date month))
-		      (format nil "~A" year)))))
+	(or copyright-date
+	    (multiple-value-bind (second minute hour date month year)
+		(get-decoded-time)
+	      (declare (ignore second minute hour date month))
+	      (format nil "~A" year))))
 
   ;; Construct the nodes hierarchy.
   (let ((context (make-context
@@ -474,16 +482,16 @@ This manual was generated automatically by Declt ~A on ~A.
 	(top-node
 	  (make-node :name "Top"
 		     :section-name (format nil "The ~A Reference Manual"
-				     library-name)
+				     (escape library-name))
 		     :section-type :unnumbered
 		     :before-menu-contents (format nil "~
 This is the ~A Reference Manual~@[, version ~A~],
 generated automatically by Declt version ~A
 on ~A."
-					     library-name
+					     (escape library-name)
 					     version
 					     (escape (version :long))
-					     current-time-string)
+					     (escape current-time-string))
 		     :after-menu-contents (when license "@insertcopying"))))
     (add-definitions context)
     (when license
@@ -509,8 +517,7 @@ on ~A."
       (add-child top-node
 	(make-node :name "Conclusion"
 		   :synopsis "Time to go"
-		   :before-menu-contents
-		   (render-to-string (render-text conclusion)))))
+		   :before-menu-contents conclusion)))
     (let ((indexes-node (add-child top-node
 			  (make-node :name "Indexes"
 				     :synopsis (format nil "~

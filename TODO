@@ -19,7 +19,11 @@ Abstract it so that we may provide an option for case behavior.
 Clean up the code so that Texinfo becomes a backend with a clean
 interface. This way, we could envision adding other backends. Part of the
 cleanup would also be to decide on a good coding style for fresh lines
-(FRESH-LINE, TERPRI, ~& and ~%).
+(FRESH-LINE, TERPRI, ~& and ~%). Another problem that will happen is that the
+introduction and conclusion material are currently allowed to contain Texinfo
+directives (contrary to all other user-provided contents). This will be
+difficult to abstract if we generalize the backend notion.
+
 
 ** Pathnames
 If the system definition pathname or definition sources contain funky stuff
