@@ -24,6 +24,11 @@ introduction and conclusion material are currently allowed to contain Texinfo
 directives (contrary to all other user-provided contents). This will be
 difficult to abstract if we generalize the backend notion.
 
+** Strings formatting
+Lift the 80 columns formatting assumption, for instance by providing an
+additional keyword to DECLT. In the future, provide markup support through
+backends (Cf. MarCL). We could already have at least the current DWIM one,
+plus a raw/verbatim one.
 
 ** Pathnames
 If the system definition pathname or definition sources contain funky stuff
