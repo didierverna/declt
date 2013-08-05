@@ -461,6 +461,10 @@ manual was generated, it is preferable to keep it to @nil{} for creating
 reference manuals meant to be put online.
 @end table
 
+Note that both the introduction and the conclusion may contain Texinfo
+directives (no post-processing will occur). All other textual material
+is considered raw text and will be properly escaped for Texinfo.
+
 
 @c -------------
 @c Coding Style
@@ -519,13 +523,16 @@ a docstring and be concatenated together.
 @subsection 80 Columns
 
 @findex declt
+@fkindex{declt,introduction}
+@fkindex{declt,conclusion}
 All text coming from either @cl{} or one of @code{declt}'s
-initialization arguments is properly escaped for the Texinfo format, so
-you don't need to worry about that. @declt{} also attempts to do some
-DWIM processing on things like docstrings, system long description
-@etc{}. In particular, it will try to detect paragraphs and short lines
-that should probably stand on their own. In order to do that, it assumes
-that your plain text is formatted to fit 80 columns.
+initialization arguments (@code{:introduction} and @code{:conclusion}
+excepted) is properly escaped for the Texinfo format, so you don't need
+to worry about that. @declt{} also attempts to do some DWIM processing
+on things like docstrings, system long description @etc{}. In
+particular, it will try to detect paragraphs and short lines that should
+probably stand on their own. In order to do that, it assumes that your
+plain text is formatted to fit 80 columns.
 
 
 
