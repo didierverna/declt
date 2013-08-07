@@ -87,14 +87,14 @@ Return NAME and EMAIL as two values."
 ;; fancy occurs in DEFPACKAGE...
 (defun safe-read (stream)
   "Read once from STREAM protecting against errors."
-  (handler-case (read stream nil :eof)
+  (handler-case (read stream nil stream)
     (error ())))
 
 (defun file-packages (file)
   "Return the list of all packages defined in FILE."
   (with-open-file (stream file :direction :input)
     (loop :for form := (safe-read stream) :then (safe-read stream)
-	  :until (eq form :eof)
+	  :until (eq form stream)
 	  :if (and (consp form)
 		   (eq (car form) 'defpackage))
 	    :collect (find-package (cadr form)))))
