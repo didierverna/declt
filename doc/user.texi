@@ -379,6 +379,7 @@ Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
 @menu
 * Customization::       Tweaking the generated output
 * Coding Style::        Another way to influence the output
+* Caveats::             Current limitations
 @end menu
 
 
@@ -469,7 +470,7 @@ is considered raw text and will be properly escaped for Texinfo.
 @c -------------
 @c Coding Style
 @c -------------
-@node Coding Style, , Customization, Usage
+@node Coding Style, Caveats, Customization, Usage
 @section Coding Style
 
 Some elements of your own coding style will affect the reference manuals
@@ -533,6 +534,69 @@ on things like docstrings, system long description @etc{}. In
 particular, it will try to detect paragraphs and short lines that should
 probably stand on their own. In order to do that, it assumes that your
 plain text is formatted to fit 80 columns.
+
+
+@c -------
+@c Caveats
+@c -------
+@node Caveats, , Coding Style, Usage
+@section Caveats
+
+@declt{} currently has two main limitations that you need to understand
+in order to avoid bad surprises.
+
+@menu
+* SBCL Only::           Declt is not portable yet
+* Foreign Definitions:: Not belonging to the system being documented
+@end menu
+
+@node SBCL Only, Foreign Definitions, Caveats, Caveats
+@subsection SBCL Only
+
+@sysindex{sb-introspect}
+First, @declt{} is an SBCL-only library. That is because it relies on
+@t{sb-introspect}. This limitation may be lifted in the future by using
+equivalent API from other @cl{} implementations, but in the meantime,
+this means two things.
+
+@enumerate
+@item
+@declt{} can only document libraries that work with SBCL, because it
+needs to load them (@pxref{Introduction}).
+@item
+If your ASDF system contains vendor-specific modules or components,
+@declt{} will only be able to document SBCL-specific ones.
+@end enumerate
+
+Note that more generally, @declt{} only documents modules or components
+that ASDF actually loads, so if your system definition contains some
+form of conditional inclusion, this will affect the generated
+documentation.
+
+@node Foreign Definitions, , SBCL Only, Caveats
+@subsection Foreign Definitions
+
+@cindex Foreign Definition
+In order to understand what a @dfn{foreign definition} is, you need to
+understand how @declt{} works first. This was briefly explained in the
+introduction, but here is the story again: @declt{} first loads the ASDF
+system from which it retrieves modules and components, notably including
+Lisp files. It then scans those Lisp files (including the system file
+itself), looking for package definitions (toplevel calls to
+@code{DEFPACKAGE} forms). Finally, it collects all definitions for the
+symbols in those packages.
+
+That is the extent of what is documented by @declt{}. In this context, a
+@dfn{foreign definition} is a definition that @declt{} would miss
+because of the way it works. This includes definitions found in one of
+the system's files, but belonging to a package that was not defined in
+the system, packages defined by non-toplevel forms @etc{}
+
+@declt{} currently does not document foreign definitions, although in
+some cases, it is already possible to avoid missing them. In fact, the
+very question of deciding on whether foreign definitions should actually
+be documented is still open for discussion. See the @file{TODO} file in
+the distribution for more information.
 
 
 
@@ -692,6 +756,7 @@ works, I have described it in the following blog entry:
 @node Supported Platforms, , Configuration, Technical Notes
 @section Supported Platforms
 
+@sysindex{sb-introspect}
 @declt{} currently works on Unix (including MacOS X) and Windows (Cygwin
 or MinGW) with SBCL. Other Lisp implementations are not currently
 supported, as @declt{} relies on SBCL's @t{sb-introspect} contrib.
