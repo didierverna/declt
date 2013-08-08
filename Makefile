@@ -58,17 +58,17 @@ uninstall:
 	$(MAKE) gen TARGET=uninstall
 
 clean:
-	-rm *~
+	rm *~
 	$(MAKE) gen TARGET=clean
 
 # #### NOTE: be sure to propagate to the subdirs first, otherwise, version.inc
 # will keep on being reconstructed.
 distclean: clean
 	$(MAKE) gen TARGET=distclean
-	-rm *.tar.gz *.tar.gz.asc
-	-rm -fr version.inc
-	-rm -fr $($(LISP)_BINLOC)-*
-	-rm -fr "${HOME}"/.cache/common-lisp/$($(LISP)_CACHE)-*"`pwd`"
+	rm *.tar.gz *.tar.gz.asc
+	rm -fr version.inc
+	rm -fr $($(LISP)_BINLOC)-*
+	rm -fr "${HOME}"/.cache/common-lisp/$($(LISP)_CACHE)-*"`pwd`"
 
 tag:
 	git tag -a -m 'Version $(LONG_VERSION)' 'version-$(SHORT_VERSION)'
@@ -78,8 +78,7 @@ gpg: $(SIGNATURE)
 dist: tar gpg
 
 www-dist: dist
-	scp -p $(TARBALL)       $(WWW_HOST):$(WWW_DIR)/attic/
-	scp -p $(SIGNATURE)     $(WWW_HOST):$(WWW_DIR)/attic/
+	scp -p $(TARBALL) $(SIGNATURE) $(WWW_HOST):$(WWW_DIR)/attic/
 	echo "\
 <? lref (\"$(PROJECT)/attic/$(TARBALL)\", \
 	 contents (\"Dernière version\", \"Latest version\")); ?> \
@@ -120,7 +119,7 @@ doc/$(PROJECT)-user.info:
 
 $(TARBALL):
 	git archive --format=tar --prefix=$(DIST_NAME)/	\
-	    --worktree-attributes HEAD			\
+	    --worktree-attributes HEAD				\
 	  | gzip -c > $@
 
 $(SIGNATURE): $(TARBALL)
