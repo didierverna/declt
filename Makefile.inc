@@ -33,7 +33,8 @@ PERL := perl
 
 SHARE := $(PREFIX)/share
 
-W3DIR := $(HOME)/www/software/lisp/$(PROJECT)
+WWW_HOST := www
+WWW_DIR  := ~/www/software/lisp/$(PROJECT)
 
 
 SBCL_CACHE  := sbcl

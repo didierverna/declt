@@ -65,22 +65,21 @@ all: info pdf html
 
 all-formats: all dvi ps
 
-install-at: $(PDF_FILES) $(REF_PDF_FILES) $(HTML_DIRS) $(REF_HTML_DIRS)
-	$(INSTALL) -d "$(LOCATION)"
-	$(INSTALL) -m 644 $(PDF_FILES) $(REF_PDF_FILES) "$(LOCATION)/"
-	for i in $(HTML_DIRS) $(REF_HTML_DIRS); do	\
-	  $(INSTALL) -d -m 755 "$(LOCATION)/$$i" ;	\
-	  $(INSTALL) -m 644 $$i/* "$(LOCATION)/$$i/" ;	\
-	done
-
-install: $(INFO_FILES) $(REF_INFO_FILES)
+install: $(INFO_FILES) $(REF_INFO_FILES)	\
+	 $(PDF_FILES) $(REF_PDF_FILES)		\
+	 $(HTML_DIRS) $(REF_HTML_DIRS)
 	$(INSTALL) -d "$(INFO_DIR)"
 	$(INSTALL) -m 644 $(ALL_INFO_FILES) $(ALL_REF_INFO_FILES) \
 	  "$(INFO_DIR)/"
 	for i in $(INFO_FILES) $(REF_INFO_FILES); do		\
 	  $(INSTALL-INFO) --info-dir="$(INFO_DIR)" $$i;	\
 	done
-	$(MAKE) install-at LOCATION="$(PROJECT_DOC_DIR)"
+	$(INSTALL) -d "$(PROJECT_DOC_DIR)"
+	$(INSTALL) -m 644 $(PDF_FILES) $(REF_PDF_FILES) "$(PROJECT_DOC_DIR)/"
+	for i in $(HTML_DIRS) $(REF_HTML_DIRS); do	\
+	  $(INSTALL) -d -m 755 "$(PROJECT_DOC_DIR)/$$i" ;	\
+	  $(INSTALL) -m 644 $$i/* "$(PROJECT_DOC_DIR)/$$i/" ;	\
+	done
 	for i in $(DVI_FILES) $(PS_FILES)				\
 		 $(REF_DVI_FILES) $(REF_PS_FILES); do			\
 	  test -f $$i && $(INSTALL) -m 644 $$i "$(PROJECT_DOC_DIR)/";	\
@@ -93,10 +92,8 @@ uninstall:
 	done
 	cd "$(INFO_DIR)" && rm -f $(ALL_INFO_FILES) $(ALL_REF_INFO_FILES)
 
-install-www:
-	$(MAKE) install-at LOCATION="$(W3DIR)"	\
-	  REF_PDF_FILES="$(WEBREF_PDF_FILES)"	\
-	  REF_HTML_DIRS="$(WEBREF_HTML_DIRS)"
+www-dist: $(PDF_FILES) $(WEBREF_PDF_FILES) $(HTML_DIRS) $(WEBREF_HTML_DIRS)
+	scp -r $? $(WWW_HOST):$(WWW_DIR)/
 
 info: $(INFO_FILES) $(REF_INFO_FILES)
 pdf:  $(PDF_FILES)  $(REF_PDF_FILES)
@@ -146,10 +143,10 @@ update-version:
 	    $$f;							   \
 	done
 
-.PHONY: hack all all-formats \
-	install-at install uninstall install-www	\
-	info pdf html dvi ps				\
-	clean distclean				\
+.PHONY: hack all all-formats		\
+	install uninstall www-dist	\
+	info pdf html dvi ps		\
+	clean distclean		\
 	update-version
 
 

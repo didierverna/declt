@@ -77,22 +77,26 @@ tar: $(TARBALL)
 gpg: $(SIGNATURE)
 dist: tar gpg
 
-install-www: dist
-	-$(INSTALL) -m 644 $(TARBALL)   "$(W3DIR)/attic/"
-	-$(INSTALL) -m 644 $(SIGNATURE) "$(W3DIR)/attic/"
+www-dist: dist
+	scp -p $(TARBALL)       $(WWW_HOST):$(WWW_DIR)/attic/
+	scp -p $(SIGNATURE)     $(WWW_HOST):$(WWW_DIR)/attic/
 	echo "\
-<? lref (\"$(PROJECT)/attic/$(PROJECT)-$(SHORT_VERSION).tar.gz\", \
+<? lref (\"$(PROJECT)/attic/$(TARBALL)\", \
 	 contents (\"Dernière version\", \"Latest version\")); ?> \
 | \
-<? lref (\"$(PROJECT)/attic/$(PROJECT)-$(SHORT_VERSION).tar.gz.asc\", \
+<? lref (\"$(PROJECT)/attic/$(SIGNATURE)\", \
 	 contents (\"Signature GPG\", \"GPG Signature\")); ?>" \
-	  > "$(W3DIR)/latest.txt"
-	chmod 644 "$(W3DIR)/latest.txt"
-	git push --tags "$(W3DIR)/$(PROJECT).git" :
-	$(MAKE) gen TARGET=install-www
-	cd "$(W3DIR)"					\
-	  && ln -fs attic/$(TARBALL) latest.tar.gz	\
-	  && ln -fs attic/$(SIGNATURE) latest.tar.gz.asc
+	  > /tmp/latest.txt"
+	chmod 644 /tmp/latest.txt
+	scp -p /tmp/latest.txt  $(WWW_HOST):$(WWW_DIR)/
+	$(MAKE) gen TARGET=www-dist
+	ssh $(WWW_HOST)					\
+	  'cd $(WWW_DIR)					\
+	   && ln -fs attic/$(TARBALL) latest.tar.gz		\
+	   && ln -fs attic/$(SIGNATURE) latest.tar.gz.asc'
+
+www-undist:
+	ssh $(WWW_HOST) 'rm -fr $(WWW_DIR)'
 
 update-version:
 	cd doc && $(MAKE) $@
@@ -129,7 +133,7 @@ $(SIGNATURE): $(TARBALL)
 	all-formats dvi ps ref all-formats-ref dvi-ref ps-ref	\
 	install install-ref uninstall				\
 	clean distclean					\
-	tag tar gpg dist install-www				\
+	tag tar gpg dist www-dist				\
 	update-version						\
 	gen
 
