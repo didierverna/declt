@@ -673,34 +673,17 @@ Note that this only returns standalone (toplevel) generic writers."
 				     (sb-mop:generic-function-methods
 				      writer)))
 		   pool)))))
-	;; #### WARNING: the method combination interface is probably the
-	;; ugliest thing I know about Common Lisp. The problem is that the
-	;; relation NAME <-> COMBINATION is not bijective. Generic functions
-	;; created with a named method combination get the current definition
-	;; for this name, and it becomes local. Subsequent redefinitions of a
-	;; method combination of that name will not affect them; only newly
-	;; defined generic functions.
-	;;
-	;; As a result, there is in fact no such thing as "the method
-	;; combination named BLABLA". Here's how SBCL works with this mess.
-	;; When you call DEFINE-METHOD-COMBINATION, SBCL creates a new method
-	;; for FIND-METHOD-COMBINATION. This method is encapsulated in a
-	;; closure containing the method combination's definition, ignores its
-	; first argument and recreates a method combination object on the fly.
-	;; In order to get this object, you may hence call
-	;; FIND-METHOD-COMBINATION with whatever generic function you wish.
-	;;
-	;; Consequence for Declt: normally, it's impossible to provide a list
-	;; of global method combinations. Every generic function can
-	;; potentially have one with the same name as another. The proper way
-	;; to retrieve a method combination per generic function is to call
-	;; GENERIC-FUNCTION-METHOD-COMBINATION. In Declt however, I will make
-	;; the assumption that the programmer has some sanity and only defines
-	;; one method combination for every name. The corresponding object
-	;; will be documented like the other ones. In generic function
-	;; documentations, there will be a reference to the method combination
-	;; and only the method combination options will be documented there,
-	;; as they may be generic function specific.
+	;; #### WARNING: method combinations in CL don't have a real namespace
+	;; (Cf. this blog: http://www.didierverna.net/blog/index.php?post/2013/08/16/Lisp-Corner-Cases%3A-Method-Combinations).
+	;; As a consequence, in order to be 100% correct (and also 200%
+	;; pedantic), I should normally document every single generic
+	;; function's method combination separately. However, I will make the
+	;; assumption that the programmer has some sanity and only defines one
+	;; method combination for every name. The corresponding object will be
+	;; documented like the other ones. In generic function documentations,
+	;; there will be a reference to the method combination and only the
+	;; method combination options will be documented there, as they may be
+	;; generic function specific.
 	(:combination
 	 (let* ((method (find-method #'sb-mop:find-method-combination
 				     nil
