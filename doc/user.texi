@@ -548,6 +548,7 @@ in order to avoid bad surprises.
 @menu
 * SBCL Only::           Declt is not portable yet
 * Foreign Definitions:: Not belonging to the system being documented
+* Method Combinations:: Please behave
 @end menu
 
 @node SBCL Only, Foreign Definitions, Caveats, Caveats
@@ -573,7 +574,7 @@ that ASDF actually loads, so if your system definition contains some
 form of conditional inclusion, this will affect the generated
 documentation.
 
-@node Foreign Definitions, , SBCL Only, Caveats
+@node Foreign Definitions, Method Combinations, SBCL Only, Caveats
 @subsection Foreign Definitions
 
 @cindex Foreign Definition
@@ -597,6 +598,24 @@ some cases, it is already possible to avoid missing them. In fact, the
 very question of deciding on whether foreign definitions should actually
 be documented is still open for discussion. See the @file{TODO} file in
 the distribution for more information.
+
+
+@node Method Combinations, , Foreign Definitions, Caveats
+@subsection Method Combinations
+
+@cindex Method Combinations
+The method combination interface in @cl{} is a bit weird. In particular,
+although you define method combinations globally, changing them
+afterwards won't affect already created generic functions. As a result,
+you could in theory end up with @strong{many} different method
+combinations with the same name, used in various generic functions. See
+this
+@uref{http://www.didierverna.net/blog/index.php?post/2013/08/16/Lisp-Corner-Cases%3A-Method-Combinations,
+blog entry} for more explanations.
+
+@declt{} assumes however that you have some sanity and only define
+method combinations once per name. They are documented as top level
+items and generic functions using them provide cross-references.
 
 
 
