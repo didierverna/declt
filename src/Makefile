@@ -38,12 +38,12 @@ include $(TOP_DIR)/Makefile.inc
 all:
 
 clean:
-	-rm *~
+	rm -f *~
 
 distclean: clean
-	-rm -fr $($(LISP)_BINLOC)-*	\
-		*/$($(LISP)_BINLOC)-*	\
-		*/*/$($(LISP)_BINLOC)-*
+	rm -fr $($(LISP)_BINLOC)-*	\
+	       */$($(LISP)_BINLOC)-*	\
+	       */*/$($(LISP)_BINLOC)-*
 install:
 uninstall:
 www-dist:

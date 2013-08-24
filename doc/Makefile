@@ -132,7 +132,7 @@ $(HTML_DIRS) $(REF_HTML_DIRS) $(WEBREF_HTML_DIRS): %: %.texi
 	$(CONVERT) $< $@
 
 clean:
-	-rm *.tmp *.fn* *.vr* *.ky* *.tp* *.cp* *.pg *.toc *.aux *.log *~
+	rm -f *.tmp *.fn* *.vr* *.ky* *.tp* *.cp* *.pg *.toc *.aux *.log *~
 
 distclean: clean
 	rm -fr $(REF_TEXI_FILES) $(WEBREF_TEXI_FILES)			\

@@ -58,15 +58,15 @@ uninstall:
 	$(MAKE) gen TARGET=uninstall
 
 clean:
-	rm *~
+	rm -f *~
 	$(MAKE) gen TARGET=clean
 
 # #### NOTE: be sure to propagate to the subdirs first, otherwise, version.inc
 # will keep on being reconstructed.
 distclean: clean
 	$(MAKE) gen TARGET=distclean
-	rm *.tar.gz *.tar.gz.asc
-	rm -fr version.inc
+	rm -f *.tar.gz *.tar.gz.asc
+	rm -f version.inc
 	rm -fr $($(LISP)_BINLOC)-*
 	rm -fr "${HOME}"/.cache/common-lisp/$($(LISP)_CACHE)-*"`pwd`"
 
