@@ -305,7 +305,7 @@ every documented item.
 
 Reference manuals are generated in Texinfo format (compatible, but not
 requiring Texinfo 5). From there it is possible to produce readable /
-printable outut in info, HTML, PDF, DVI and PostScript with tools such
+printable output in info, HTML, PDF, DVI and PostScript with tools such
 as @command{makeinfo}, @command{texi2dvi} or @command{texi2pdf}.
 
 The @declt{}
