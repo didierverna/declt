@@ -85,7 +85,7 @@ www-dist: dist
 | \
 <? lref (\"$(PROJECT)/attic/$(SIGNATURE)\", \
 	 contents (\"Signature GPG\", \"GPG Signature\")); ?>" \
-	  > /tmp/latest.txt"
+	  > /tmp/latest.txt
 	chmod 644 /tmp/latest.txt
 	scp -p /tmp/latest.txt  $(WWW_HOST):$(WWW_DIR)/
 	$(MAKE) gen TARGET=www-dist
