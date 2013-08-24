@@ -94,6 +94,11 @@ uninstall:
 
 www-dist: $(PDF_FILES) $(WEBREF_PDF_FILES) $(HTML_DIRS) $(WEBREF_HTML_DIRS)
 	scp -r $? $(WWW_HOST):$(WWW_DIR)/
+	ssh $(WWW_HOST)					\
+	  'cd $(WWW_DIR)					\
+	   && mv $(WEBREF_PDF_FILES) $(REF_PDF_FILES)		\
+	   && rm -fr $(REF_HTML_DIRS)				\
+	   && mv $(WEBREF_HTML_DIRS) $(REF_HTML_DIRS)'
 
 info: $(INFO_FILES) $(REF_INFO_FILES)
 pdf:  $(PDF_FILES)  $(REF_PDF_FILES)
