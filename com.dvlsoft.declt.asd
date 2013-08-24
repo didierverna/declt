@@ -85,10 +85,10 @@ Current options are:
 (defconstant +release-minor-level+ 0
   "The minor level of this release.")
 
-(defconstant +release-status+ :beta
+(defconstant +release-status+ :patchlevel
   "The status of this release.")
 
-(defconstant +release-status-level+ 15
+(defconstant +release-status-level+ 0
   "The status level of this release.")
 
 (define-constant +release-name+ "James T. Kirk"

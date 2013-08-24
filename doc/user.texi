@@ -42,7 +42,7 @@
 @c ====================================================================
 @c Settings
 @c ====================================================================
-@set VERSION 1.0 beta 15 "James T. Kirk"
+@set VERSION 1.0 "James T. Kirk"
 @set COPYRIGHT_DATE 2013
 @setchapternewpage odd
 @setcontentsaftertitlepage
