@@ -3,60 +3,63 @@
 **************
 
 *Note Supported Platforms::, for information on portability and
-requirements.  See Declt’s homepage for tarballs, Git repository and
-online documentation.  Declt is also available via Quicklisp.  The
-system’s name is com.dvlsoft.declt.
+requirements. See Declt's homepage for tarballs, Git repository and
+online documentation. Declt is also available via Quicklisp. The
+system's name is com.dvlsoft.declt.
 
    In addition to the bare Lisp library, the Declt distribution offers
 documentation in the form of 2 different manuals: the User Manual (you
-are reading it) and the *note (reference)Top::.  The latter is generated
-with Declt itself.  Here are some instructions for a installing Declt
-manually.
+are reading it) and the *note Top: (reference)Top. The latter is
+generated with Declt itself.  Here are some instructions for a
+installing Declt manually.
 
   1. Unpack somewhere in the ASDF source registry.
-  2. Edit ‘Makefile.cnf’ to your specific needs.
-  3. Type ‘make’ to compile the documentation (this also implies
-     compiling and loading the library).  By default, the documentation
-     is built in info, PDF and HTML formats.  If you want other formats
-     (DVI and PostScript are available), type ‘make all-formats’.  You
-     can also type individually ‘make dvi’ and/or ‘make ps’ in order to
-     get the corresponding format.
-  4. Type ‘make install’ to install the documentation.  If you have
-     compiled the documentation in DVI and PostScript format, those will
-     be installed as well.
 
-   Type ‘make uninstall’ to uninstall the library.
+  2. Edit `Makefile.cnf' to your specific needs.
+
+  3. Type `make' to compile the documentation (this also implies
+     compiling and loading the library). By default, the documentation
+     is built in info, PDF and HTML formats. If you want other formats
+     (DVI and PostScript are available), type `make all-formats'. You
+     can also type individually `make dvi' and/or `make ps' in order to
+     get the corresponding format.
+
+  4. Type `make install' to install the documentation. If you have
+     compiled the documentation in DVI and PostScript format, those
+     will be installed as well.
+
+   Type `make uninstall' to uninstall the library.
 
 
 A.1 Configuration
 =================
 
-Some aspects of Declt’s behavior can be configured _before_ the ASDF
-system is actually loaded.  Declt looks for configuration options in a
-variable called ‘com.dvlsoft.declt.configuration’ in the ‘cl-user’
-package.  If set, this variable should contain a property list of
-configuration options and their corresponding values.  Currently, the
+Some aspects of Declt's behavior can be configured _before_ the ASDF
+system is actually loaded. Declt looks for configuration options in a
+variable called `com.dvlsoft.declt.configuration' in the `cl-user'
+package. If set, this variable should contain a property list of
+configuration options and their corresponding values. Currently, the
 following options are provided.
 
 :swank-eval-in-emacs
-     This option is only useful if you use Slime, and mostly if you plan
-     on hacking Declt itself.  The library provides indentation
+     This option is only useful if you use Slime, and mostly if you
+     plan on hacking Declt itself. The library provides indentation
      information for some of its functions directly embedded in the
-     code.  This information can be automatically transmitted to
+     code. This information can be automatically transmitted to
      (X)Emacs when the ASDF system is loaded if you set this option to
-     ‘t’.  However, note that for this to work, the Slime variable
-     ‘slime-enable-evaluate-in-emacs’ must also be set to ‘t’ in your
-     (X)Emacs session.  If you’re interested to know how this process
+     `t'. However, note that for this to work, the Slime variable
+     `slime-enable-evaluate-in-emacs' must also be set to `t' in your
+     (X)Emacs session. If you're interested to know how this process
      works, I have described it in the following blog entry:
-     <http://www.didierverna.net/blog/index.php?post/2011/07/20/One-more-indentation-hack>.
+     `http://www.didierverna.net/blog/index.php?post/2011/07/20/One-more-indentation-hack'.
 
 
 A.2 Supported Platforms
 =======================
 
-Declt currently works on Unix (including MacOS X) and Windows (Cygwin or
-MinGW) with SBCL. Other Lisp implementations are not currently
-supported, as Declt relies on SBCL’s sb-introspect contrib.
+Declt currently works on Unix (including MacOS X) and Windows (Cygwin
+or MinGW) with SBCL. Other Lisp implementations are not currently
+supported, as Declt relies on SBCL's sb-introspect contrib.
 
    Declt also requires ASDF 3.
 
