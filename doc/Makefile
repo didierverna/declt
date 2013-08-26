@@ -119,7 +119,7 @@ $(PROJECT)-%.info: %.texi
 	$(TEXI2PDF) $<
 
 $(HTML_DIRS) $(REF_HTML_DIRS) $(WEBREF_HTML_DIRS): %: %.texi
-	$(MAKEINFO) --html -o $@ $<
+	$(MAKEINFO) --css-include=janix-texinfo.css --html -o $@ $<
 	touch $@
 
 %.dvi: %.texi
