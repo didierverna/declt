@@ -28,7 +28,6 @@
 {
 margin: 0;
 padding: 0;
-/*border: 0; commented out so "About this document" page drew table right*/
 vertical-align: baseline;
 }
 
@@ -44,7 +43,7 @@ border-top: 1px solid #C2C2C2;
 
 body
 {
-margin: 2% 3% 3% 3%;
+margin: 2% 7% 3% 7%;
 font-size: 125%;
 }
 
@@ -109,17 +108,22 @@ border-radius: 4px;
 blockquote
 {
 border: 1px solid #900;
-margin: 1em 3em .25em 3em;
+margin: 1em 3em 1em 3em;
 background: rgba(248, 248, 2, 0.16);
 border-radius: 4px;
 padding: .25em .5em .25em .5em;
 }
 
+img
+{
+margin-top: 1em;
+margin-bottom: .5em;
+}
+
 
 h1, h2, h3, h4, h5
 {
-color: #990000;
-font-family: Arial,sans-serif;
+ color: #990000;
 }
 
 h1
@@ -128,17 +132,12 @@ margin-top: 1em;
 margin-bottom: .5em;
 }
 
-h1.chapter, h2.section
+h1.chapter, h2.section, .subheading
 {
 margin-bottom: .375em;
 }
 
-h2.section, h3.section
-{
-margin-top: 1em;
-}
-
-h3.subsection
+h2.section, h3.section, h3.heading, h3.subsection
 {
 margin-top: 1em;
 }
@@ -183,8 +182,10 @@ p
     margin: 1em 0em 1em 0em;
 }
 
+/*
 table.header a:link, div.header p a:link
 {text-decoration:none;}
+*/
 
 table.header a:visited, div.header p a:visited
 {text-decoration:none;}
@@ -218,7 +219,7 @@ div.contents li
     white-space: nowrap;
 }
 
-div.contents li ul
+div.contents li, ul
 {
     margin-top: .25ex;
 }
