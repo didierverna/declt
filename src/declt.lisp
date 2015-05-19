@@ -129,7 +129,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 @c Settings
 @c ====================================================================
 @setchapternewpage odd
-@setcontentsaftertitlepage
 @documentdescription
 The ~A Reference Manual~@[, version ~A~].
 @end documentdescription~4%"
