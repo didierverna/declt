@@ -1,6 +1,6 @@
 ;;; asdf.lisp --- ASDF items documentation
 
-;; Copyright (C) 2010-2013 Didier Verna
+;; Copyright (C) 2010-2013, 2015 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -63,6 +63,14 @@
   (anchor-and-index component relative-to)
   (@table () (call-next-method)))
 
+(defun render-dependencies
+    (dependencies &optional (prefix "") &aux (length (length dependencies)))
+  "Render a list of DEPENDENCIES under the title 'PREFIXDependenc[y|ies]'."
+  (@tableitem (format nil "~ADependenc~@p" prefix length)
+    (if (eq length 1)
+	(format t "@t{~(~A}~)" (escape (first dependencies)))
+	(@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape))))
+
 (defmethod document ((component asdf:component) context
 		     &key
 		     &aux (relative-to (context-directory context)))
@@ -78,25 +86,17 @@
   (format t "~@[@item Version~%~
 		  ~A~%~]"
     (escape (component-version component)))
-  (when-let* ((dependencies (when (eq (type-of component) 'asdf:system)
-			      (defsystem-dependencies component)))
-	      (length (length dependencies)))
+  (when-let ((dependencies (when (eq (type-of component) 'asdf:system)
+			     (defsystem-dependencies component))))
     ;; Don't reference defsystem dependencies because they are foreign. Just
     ;; mention them.
-    (@tableitem (format nil "Defsystem Dependenc~@p" length)
-      (if (eq length 1)
-	  (format t "@t{~(~A}~)" (escape (first dependencies)))
-	  (@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape))))
+    (render-dependencies dependencies "Defsystem "))
   (when-let* ((dependencies (component-sideway-dependencies component))
 	      (length (length dependencies)))
     (if (eq (type-of component) 'asdf:system)
 	;; Don't reference system dependencies because they are foreign. Just
 	;; mention them.
-	(@tableitem (format nil "Dependenc~@p" length)
-	  (if (eq length 1)
-	      (format t "@t{~(~A}~)" (escape (first dependencies)))
-	      (@itemize-list dependencies
-		:format "@t{~(~A}~)" :key #'escape)))
+	(render-dependencies dependencies)
 	(@tableitem (format nil "Dependenc~@p" length)
 	  (if (eq length 1)
 	      (reference
