@@ -2,7 +2,7 @@
 
 @c user.texi --- User manual
 
-@c Copyright (C) 2013 Didier Verna
+@c Copyright (C) 2013, 2015 Didier Verna
 
 @c Author: Didier Verna <didier@didierverna.net>
 
@@ -45,7 +45,6 @@
 @set VERSION 1.0 "James T. Kirk"
 @set COPYRIGHT_DATE 2013
 @setchapternewpage odd
-@setcontentsaftertitlepage
 @documentdescription
 The Declt User Manual for version @value{VERSION}.
 @end documentdescription
