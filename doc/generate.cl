@@ -1,6 +1,6 @@
 ;;; generate.cl --- Declt reference manual generation script
 
-;; Copyright (C) 2010-2013 Didier Verna
+;; Copyright (C) 2010-2013, 2015 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -104,14 +104,14 @@ for a more human-readable guide to using @declt{}."
 		 :info-file "declt-webreference" ; but we don't care
 		 :introduction +introduction+
 		 :license :gpl
-		 :copyright-date "2010--2013")
+		 :copyright-date "2010--2013, 2015")
     (declt:declt :com.dvlsoft.declt
 		 :library-name "Declt"
 		 :texi-file "reference.texi"
 		 :info-file "declt-reference"
 		 :introduction +introduction+
 		 :license :gpl
-		 :copyright-date "2010--2013"
+		 :copyright-date "2010--2013, 2015"
 		 :hyperlinks t))
 
 (sb-ext:quit)
