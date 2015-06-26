@@ -36,6 +36,9 @@
 
 (defgeneric name (object)
   (:documentation "Return OBJECT's name as a string.")
+  (:method (object)
+    "Princ object to a string."
+    (princ-to-string object))
   (:method ((symbol symbol))
     "Return SYMBOL's name."
     (symbol-name symbol))

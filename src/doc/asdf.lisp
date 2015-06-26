@@ -63,26 +63,56 @@
   (anchor-and-index component relative-to)
   (@table () (call-next-method)))
 
-(defgeneric render-dependency (dependency)
-  (:documentation "Render DEPENDENCY.")
-  (:method (simple-component-name)
-    "Render SIMPLE-COMPONENT-NAME dependency."
-    (format t "@t{~(~A}~)" (escape simple-component-name)))
-  (:method ((dependency list))
-    "Render complex (list) DEPENDENCY specification."
-    (cond ((eq (car dependency) :feature)
-	   (render-dependency (caddr dependency))
+(defun sub-component-p (component relative-to)
+  "Return T if COMPONENT can be found under RELATIVE-TO."
+  (pathname-match-p (component-pathname component)
+		    (make-pathname :name :wild
+				   :directory
+				   (append (pathname-directory relative-to)
+					   '(:wild-inferiors)))))
+
+(defgeneric render-dependency (dependency-def component relative-to)
+  (:documentation "Render COMPONENT's DEPENDENCY-DEF RELATIVE-TO.
+Dependencies are referenced only if they are RELATIVE-TO the system being
+documented. Otherwise, they are just listed.")
+  (:method (simple-component-name component relative-to
+	    &aux (dependency
+		  (resolve-dependency-name component simple-component-name)))
+    "Render COMPONENT's SIMPLE-COMPONENT-NAME dependency RELATIVE-TO."
+    (if (sub-component-p dependency relative-to)
+	(reference dependency relative-to)
+	(format t "@t{~(~A}~)" (escape simple-component-name))))
+  ;; #### NOTE: this is where I'd like more advanced pattern matching
+  ;; capabilities.
+  (:method ((dependency-def list) component relative-to)
+    "Render COMPONENT's DEPENDENCY-DEF (a list) RELATIVE-TO."
+    (cond ((eq (car dependency-def) :feature)
+	   (render-dependency (caddr dependency-def) component relative-to)
 	   (format t " (for feature @t{~(~A}~))"
-	     (escape (princ-to-string (cadr dependency)))))
-	  ((eq (car dependency) :version)
-	   (render-dependency (cadr dependency))
+	     (escape (cadr dependency-def))))
+	  ((eq (car dependency-def) :version)
+	   (render-dependency (cadr dependency-def) component relative-to)
 	   (format t " (at least version @t{~(~A}~))"
-	     (escape (princ-to-string (caddr dependency)))))
-	  ((eq (car dependency) :require)
+	     (escape (caddr dependency-def))))
+	  ((eq (car dependency-def) :require)
 	   )
 	  (t
 	   (warn "Invalid ASDF dependency.")
-	   (format t "@t{~(~A}~)" (escape (princ-to-string dependency)))))))
+	   (format t "@t{~(~A}~)"
+	     (escape (princ-to-string dependency-def)))))))
+
+(defun render-dependencies (dependencies component relative-to
+			    &optional (prefix "")
+			    &aux (length (length dependencies)))
+  "Render COMPONENT's DEPENDENCIES RELATIVE-TO.
+Optionally PREFIX the title."
+  (@tableitem (format nil "~ADependenc~@p" prefix length)
+    (if (eq length 1)
+	(render-dependency (first dependencies) component relative-to)
+	(@itemize-list dependencies
+	  :renderer (lambda (dependency)
+		      (render-dependency dependency component
+					 relative-to))))))
 
 (defmethod document ((component asdf:component) context
 		     &key
@@ -99,34 +129,11 @@
   (format t "~@[@item Version~%~
 		  ~A~%~]"
     (escape (component-version component)))
-  (when-let* ((dependencies (when (eq (type-of component) 'asdf:system)
-			      (defsystem-dependencies component)))
-	      (length (length dependencies)))
-    ;; Don't reference defsystem dependencies because they are foreign. Just
-    ;; mention them.
-    (@tableitem (format nil "Defsystem Dependenc~@p" length)
-      (if (eq length 1)
-	  (render-dependency (first dependencies))
-	  (@itemize-list dependencies :renderer #'render-dependency))))
-  (when-let* ((dependencies (component-sideway-dependencies component))
-	      (length (length dependencies)))
-    (if (eq (type-of component) 'asdf:system)
-	;; Don't reference system dependencies because they are foreign. Just
-	;; mention them.
-	(@tableitem (format nil "Dependenc~@p" length)
-	  (if (eq length 1)
-	      (render-dependency (first dependencies))
-	      (@itemize-list dependencies :renderer #'render-dependency)))
-	(@tableitem (format nil "Dependenc~@p" length)
-	  (if (eq length 1)
-	      (reference
-	       (resolve-dependency-name component (first dependencies))
-	       relative-to)
-	      (@itemize-list dependencies
-		:renderer (lambda (dependency)
-			    (reference
-			     (resolve-dependency-name component dependency)
-			     relative-to)))))))
+  (when-let ((dependencies (when (eq (type-of component) 'asdf:system)
+			     (defsystem-dependencies component))))
+    (render-dependencies dependencies component relative-to "Defsystem "))
+  (when-let ((dependencies (component-sideway-dependencies component)))
+    (render-dependencies dependencies component relative-to))
   (when-let ((parent (component-parent component)))
     (@tableitem "Parent" (reference parent relative-to)))
   (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
