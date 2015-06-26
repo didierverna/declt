@@ -63,6 +63,27 @@
   (anchor-and-index component relative-to)
   (@table () (call-next-method)))
 
+(defgeneric render-dependency (dependency)
+  (:documentation "Render DEPENDENCY.")
+  (:method (simple-component-name)
+    "Render SIMPLE-COMPONENT-NAME dependency."
+    (format t "@t{~(~A}~)" (escape simple-component-name)))
+  (:method ((dependency list))
+    "Render complex (list) DEPENDENCY specification."
+    (cond ((eq (car dependency) :feature)
+	   (render-dependency (caddr dependency))
+	   (format t " (for feature @t{~(~A}~))"
+	     (escape (princ-to-string (cadr dependency)))))
+	  ((eq (car dependency) :version)
+	   (render-dependency (cadr dependency))
+	   (format t " (at least version @t{~(~A}~))"
+	     (escape (princ-to-string (caddr dependency)))))
+	  ((eq (car dependency) :require)
+	   )
+	  (t
+	   (warn "Invalid ASDF dependency.")
+	   (format t "@t{~(~A}~)" (escape (princ-to-string dependency)))))))
+
 (defmethod document ((component asdf:component) context
 		     &key
 		     &aux (relative-to (context-directory context)))
@@ -85,8 +106,8 @@
     ;; mention them.
     (@tableitem (format nil "Defsystem Dependenc~@p" length)
       (if (eq length 1)
-	  (format t "@t{~(~A}~)" (escape (first dependencies)))
-	  (@itemize-list dependencies :format "@t{~(~A}~)" :key #'escape))))
+	  (render-dependency (first dependencies))
+	  (@itemize-list dependencies :renderer #'render-dependency))))
   (when-let* ((dependencies (component-sideway-dependencies component))
 	      (length (length dependencies)))
     (if (eq (type-of component) 'asdf:system)
@@ -94,9 +115,8 @@
 	;; mention them.
 	(@tableitem (format nil "Dependenc~@p" length)
 	  (if (eq length 1)
-	      (format t "@t{~(~A}~)" (escape (first dependencies)))
-	      (@itemize-list dependencies
-		:format "@t{~(~A}~)" :key #'escape)))
+	      (render-dependency (first dependencies))
+	      (@itemize-list dependencies :renderer #'render-dependency)))
 	(@tableitem (format nil "Dependenc~@p" length)
 	  (if (eq length 1)
 	      (reference
