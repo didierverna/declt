@@ -426,7 +426,11 @@ Both the INTRODUCTION and the CONCLUSION may contain Texinfo directives (no
 post-processing will occur). All other textual material is considered raw text
 and will be properly escaped for Texinfo."
 
-  ;; First, post-process some parameters.
+  ;; First load the target system. If this fails, there's no point in working
+  ;; hard on the rest.
+  (asdf:load-system system-name)
+
+  ;; Next, post-process some parameters.
   ;; #### NOTE: some Texinfo contents is escaped once and for all below, but
   ;; not everything. The exceptions are the pieces that we also use in
   ;; comments (in which case we don't want to escape them).
@@ -467,7 +471,7 @@ and will be properly escaped for Texinfo."
 	      (declare (ignore second minute hour date month))
 	      (format nil "~A" year))))
 
-  ;; Next, construct the nodes hierarchy.
+  ;; Construct the nodes hierarchy.
   (let ((context (make-context
 		  :system system
 		  :packages (system-packages system)
