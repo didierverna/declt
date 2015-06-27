@@ -98,19 +98,20 @@
 ;; ==========================================================================
 
 (defun add-packages-node
-    (parent context
-     &aux (packages-node
-	   (add-child parent
-	     (make-node :name "Packages"
-			:synopsis "The packages documentation"
-			:before-menu-contents (format nil "~
-Packages are listed by definition order.")))))
+    (parent context &aux (packages (context-packages context)))
   "Add the packages node to PARENT in CONTEXT."
-  (dolist (package (context-packages context))
-    (add-child packages-node
-      (make-node :name (escape (format nil "~@(~A~)" (title package)))
-		 :section-name (format nil "@t{~(~A~)}" (escape package))
-		 :before-menu-contents
-		 (render-to-string (document package context))))))
+  (when packages
+    (let ((packages-node
+	    (add-child parent
+	      (make-node :name "Packages"
+			 :synopsis "The packages documentation"
+			 :before-menu-contents (format nil "~
+Packages are listed by definition order.")))))
+      (dolist (package packages)
+	(add-child packages-node
+	  (make-node :name (escape (format nil "~@(~A~)" (title package)))
+		     :section-name (format nil "@t{~(~A~)}" (escape package))
+		     :before-menu-contents
+		     (render-to-string (document package context))))))))
 
 ;;; package.lisp ends here
