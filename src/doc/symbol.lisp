@@ -801,26 +801,34 @@ The standard method combination is not rendered."
       (add-category-node parent context status (second category)
 			 category-definitions))))
 
+(defun add-status-definitions-node (parent context status definitions)
+  "Add the STATUS DEFINITIONS node to PARENT in CONTEXT."
+  (let ((node (add-child parent
+		(make-node :name (format nil "~@(~A~) definitions" status)))))
+    (add-categories-node node context status definitions)))
+
 (defun add-definitions-node
     (parent context
-     &aux (definitions-node
-	   (add-child parent
-	     (make-node :name "Definitions"
-			:synopsis "The symbols documentation"
-			:before-menu-contents(format nil "~
+     &aux (external-definitions (context-external-definitions context))
+       (external-definitions-number
+	(definitions-pool-size external-definitions))
+       (internal-definitions (context-internal-definitions context))
+       (internal-definitions-number
+	(definitions-pool-size internal-definitions)))
+  "Add the definitions node to PARENT in CONTEXT."
+  (unless (zerop (+ external-definitions-number internal-definitions-number))
+    (let ((definitions-node
+	    (add-child parent
+	      (make-node :name "Definitions"
+			 :synopsis "The symbols documentation"
+			 :before-menu-contents(format nil "~
 Definitions are sorted by export status, category, package, and then by
 lexicographic order.")))))
-  "Add the definitions node to PARENT in CONTEXT."
-  (loop :for status :in '("exported" "internal")
-	:for definitions :in (list
-			      (context-external-definitions context)
-			      (context-internal-definitions context))
-	:unless (zerop (definitions-pool-size definitions))
-	  :do (let ((node (add-child definitions-node
-			    (make-node
-			     :name (format nil "~@(~A~) definitions"
-				     status)))))
-		(add-categories-node node context status definitions))))
-
+      (unless (zerop external-definitions-number)
+	(add-status-definitions-node definitions-node context "exported"
+				     external-definitions))
+      (unless (zerop internal-definitions-number)
+	(add-status-definitions-node definitions-node context "internal"
+				     internal-definitions)))))
 
 ;;; symbol.lisp ends here
