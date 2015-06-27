@@ -367,12 +367,12 @@ This manual was generated automatically by Declt ~A on ~A.
 
 (defun add-external-definitions (context)
   "Add all external definitions to CONTEXT."
-  (dolist (symbol (system-external-symbols (context-system context)))
+  (dolist (symbol (system-external-symbols (car (context-systems context))))
     (add-symbol-definitions symbol (context-external-definitions context))))
 
 (defun add-internal-definitions (context)
   "Add all internal definitions to CONTEXT."
-  (dolist (symbol (system-internal-symbols (context-system context)))
+  (dolist (symbol (system-internal-symbols (car (context-systems context))))
     (add-symbol-definitions symbol (context-internal-definitions context))))
 
 (defun add-definitions (context)
@@ -473,7 +473,7 @@ and will be properly escaped for Texinfo."
 
   ;; Construct the nodes hierarchy.
   (let ((context (make-context
-		  :system system
+		  :systems (list system)
 		  :packages (system-packages system)
 		  :external-definitions (make-definitions-pool)
 		  :internal-definitions (make-definitions-pool)
@@ -507,7 +507,7 @@ on ~A."
 	(make-node :name "Introduction"
 		   :synopsis (format nil "What ~A is all about" library-name)
 		   :before-menu-contents introduction)))
-    (add-system-node      top-node context)
+    (add-systems-node     top-node context)
     (add-modules-node     top-node context)
     (add-files-node       top-node context)
     (add-packages-node    top-node context)

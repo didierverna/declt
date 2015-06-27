@@ -36,7 +36,7 @@
 
 (defstruct context
   "The documentation context structure."
-  system
+  systems
   packages
   external-definitions
   internal-definitions
@@ -45,8 +45,8 @@
 
 ;; This is used rather often so it is worth a shortcut
 (defun context-directory (context)
-  "Return CONTEXT's system directory."
-  (system-directory (context-system context)))
+  "Return CONTEXT's main system directory."
+  (system-directory (car (context-systems context))))
 
 
 
@@ -117,7 +117,7 @@ Rendering is done on *standard-output*."
   "Render an itemized source line for ITEM in CONTEXT.
 Rendering is done on *standard-output*."
   (when-let ((source (source item))
-	     (system (context-system context))
+	     (system (car (context-systems context)))
 	     (relative-to (context-directory context)))
     (cond
       ;; First, try the system definition file.

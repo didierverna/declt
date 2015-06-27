@@ -228,7 +228,7 @@ Optionally PREFIX the title."
 	     :before-menu-contents (render-to-string (document file context))))
 
 (defun add-files-node
-    (parent context &aux (system (context-system context))
+    (parent context &aux (system (car (context-systems context)))
 			 (lisp-files (lisp-components system))
 			 (other-files
 			  (mapcar (lambda (type) (components system type))
@@ -345,7 +345,7 @@ components tree."))))
 
 (defun add-modules-node (parent context)
   "Add the modules node to PARENT in CONTEXT."
-  (when-let* ((modules (module-components (context-system context)))
+  (when-let* ((modules (module-components (car (context-systems context))))
 	      (modules-node
 	       (add-child parent
 			  (make-node :name "Modules"
@@ -423,16 +423,17 @@ Modules are listed depth-first from the system components tree.")))))
 ;; Nodes
 ;; -----
 
-(defun system-node (context)
-  "Create and return the system node in CONTEXT."
-  (make-node :name "System"
-	     :synopsis "The system documentation"
+(defun systems-node (context)
+  "Create and return the systems node in CONTEXT."
+  (make-node :name "Systems"
+	     :synopsis "The systems documentation"
 	     :before-menu-contents
-	     (render-to-string (document (context-system context) context))))
+	     (render-to-string
+	       (document (car (context-systems context)) context))))
 
-(defun add-system-node (parent context)
-  "Add the system node to PARENT in CONTEXT."
-  (add-child parent (system-node context)))
+(defun add-systems-node (parent context)
+  "Add the systems node to PARENT in CONTEXT."
+  (add-child parent (systems-node context)))
 
 
 ;;; asdf.lisp ends here
