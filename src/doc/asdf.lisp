@@ -95,7 +95,8 @@ documented. Otherwise, they are just listed.")
 	   (format t " (at least version @t{~(~A}~))"
 	     (escape (caddr dependency-def))))
 	  ((eq (car dependency-def) :require)
-	   )
+	   (format t "required module @t{~(~A}~)"
+		   (escape (cadr dependency-def))))
 	  (t
 	   (warn "Invalid ASDF dependency.")
 	   (format t "@t{~(~A}~)"
