@@ -378,8 +378,6 @@ Modules are listed depth-first from the system components tree.")))))
 
 (defmethod document ((system asdf:system) context &key)
   "Render SYSTEM's documentation in CONTEXT."
-  (@tableitem "Name"
-    (format t "@t{~A}~%" (escape system)))
   (when-let ((long-name (system-long-name system)))
     (@tableitem "Long Name"
       (format t "~A~%" (escape long-name))))
@@ -423,17 +421,24 @@ Modules are listed depth-first from the system components tree.")))))
 ;; Nodes
 ;; -----
 
-(defun systems-node (context)
-  "Create and return the systems node in CONTEXT."
-  (make-node :name "Systems"
-	     :synopsis "The systems documentation"
+(defun system-node (system context)
+  "Create and return a SYSTEM node in CONTEXT."
+  (make-node :name (escape (format nil "~@(~A~)" (title system)))
+	     :section-name (format nil "@t{~(~A~)}" (escape system))
 	     :before-menu-contents
-	     (render-to-string
-	       (document (car (context-systems context)) context))))
+	     (render-to-string (document system context))))
 
-(defun add-systems-node (parent context)
+(defun add-systems-node
+    (parent context
+     &aux (systems-node (add-child parent
+			  (make-node :name "Systems"
+				     :synopsis "The systems documentation"
+				     :before-menu-contents
+				     (format nil "~
+The main system appears first, followed by any subsystem dependency.")))))
   "Add the systems node to PARENT in CONTEXT."
-  (add-child parent (systems-node context)))
+  (dolist (system (context-systems context))
+    (add-child systems-node (system-node system context))))
 
 
 ;;; asdf.lisp ends here
