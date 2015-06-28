@@ -116,36 +116,23 @@ Rendering is done on *standard-output*."
 (defun render-source (item context)
   "Render an itemized source line for ITEM in CONTEXT.
 Rendering is done on *standard-output*."
-  (when-let ((source (source item))
-	     (system (car (context-systems context)))
-	     (relative-to (context-directory context)))
-    (cond
-      ;; First, try the system definition file.
-      ((equal source (system-source-file system))
-       ;; #### NOTE: Probing the pathname as the virtue of dereferencing
-       ;; symlinks. This is good because when the system definition file is
-       ;; involved, it is the installed symlink which is seen, whereas we want
-       ;; to advertise the original one.
-       (let ((location
-	       (escape (enough-namestring (probe-file source) relative-to))))
-	 (@tableitem "Source"
-	   ;; #### FIXME: somewhat ugly. We fake a cl-source-file anchor name.
-	   (format t "@ref{go to the ~A file, , @t{~(~A}~)} (Lisp file)~%"
-	     location
-	     location))))
-      (t
-       ;; Next, try a SYSTEM's cl-source-file.
-       (let ((cl-source-file
-	       (loop :for file :in (lisp-components system)
-		     :when (equal source (component-pathname file))
-		       :return file)))
-	 (if cl-source-file
-	     (@tableitem "Source"
-	       (reference cl-source-file relative-to))
-	   ;; Otherwise, the source file does not belong to the system. This
-	   ;; may happen for automatically generated sources (sb-grovel does
-	   ;; this for instance). So let's just reference the file itself.
-	   (render-location source context "Source")))))))
+  (when-let ((source-pathname (source item)))
+    (let* ((systems (context-systems context))
+	   (relative-to (context-directory context))
+	   ;; Remember that a source can be a system, although systems are not
+	   ;; actual cl-source-file's.
+	   (source-component
+	     (loop :for component
+		     :in (append systems (mapcan #'lisp-components systems))
+		   :when (equal source-pathname
+				(component-pathname component))
+		     :return component)))
+      (if source-component
+	  (@tableitem "Source" (reference source-component relative-to))
+	  ;; Otherwise, the source does not belong to the system. This may
+	  ;; happen for automatically generated sources (sb-grovel does this
+	  ;; for instance). So let's just reference the file itself.
+	  (render-location source-pathname context "Source")))))
 
 (defun render-docstring (item)
   "Render ITEM's documentation string.
