@@ -109,9 +109,10 @@
   "Return the list of SYSTEM's subsystems.
 A subsystem is a SYSTEM dependency located somewhere under SYSTEM's
 directory."
-  (loop :for dependency :in (append (defsystem-dependencies system)
-				    (component-sideway-dependencies system))
-	:when (system-dependency-subsystem dependency system relative-to)
-	  :collect :it))
+  (remove-duplicates
+   (loop :for dependency :in (append (defsystem-dependencies system)
+				     (component-sideway-dependencies system))
+	 :when (system-dependency-subsystem dependency system relative-to)
+	   :collect :it)))
 
 ;;; asdf.lisp ends here
