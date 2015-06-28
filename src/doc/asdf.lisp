@@ -220,10 +220,13 @@ Optionally PREFIX the title."
 	     :before-menu-contents (render-to-string (document file context))))
 
 (defun add-files-node
-    (parent context &aux (system (car (context-systems context)))
-			 (lisp-files (lisp-components system))
+    (parent context &aux (systems (context-systems context))
+			 (lisp-files (mapcan #'lisp-components systems))
 			 (other-files
-			  (mapcar (lambda (type) (components system type))
+			  (mapcar (lambda (type)
+				    (mapcan (lambda (system)
+					      (components system type))
+					    systems))
 				  '(asdf:c-source-file
 				    asdf:java-source-file
 				    asdf:doc-file
@@ -235,8 +238,8 @@ Optionally PREFIX the title."
 			     :name "Files"
 			     :synopsis "The files documentation"
 			     :before-menu-contents (format nil "~
-Files are sorted by type and then listed depth-first from the system
-components tree."))))
+Files are sorted by type and then listed depth-first from the systems
+components trees."))))
 			 (lisp-files-node
 			  (add-child files-node
 			    (make-node :name "Lisp files"
@@ -245,7 +248,7 @@ components tree."))))
   ;; #### NOTE: the .asd are Lisp files, but not components. I still want them
   ;; to be listed here (and first) so I need to duplicate some of what the
   ;; DOCUMENT method on lisp files does.
-  (dolist (system (context-systems context))
+  (dolist (system systems)
     (let ((system-base-name (escape (system-base-name system))))
       (add-child lisp-files-node
 	(make-node :name (format nil "The ~A file" system-base-name)
