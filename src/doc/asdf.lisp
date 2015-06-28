@@ -248,7 +248,9 @@ components trees."))))
   ;; #### NOTE: the .asd are Lisp files, but not components. I still want them
   ;; to be listed here (and first) so I need to duplicate some of what the
   ;; DOCUMENT method on lisp files does.
-  (dolist (system systems)
+  ;; #### WARNING: multiple systems may be defined in the same .asd file.
+  (dolist (system (remove-duplicates systems
+		    :test #'equal :key #'system-source-file))
     (let ((system-base-name (escape (system-base-name system))))
       (add-child lisp-files-node
 	(make-node :name (format nil "The ~A file" system-base-name)
