@@ -473,7 +473,7 @@ and will be properly escaped for Texinfo."
 
   ;; Construct the nodes hierarchy.
   (let ((context (make-context
-		  :systems (list system)
+		  :systems (cons system (system-subsystems system))
 		  :packages (system-packages system)
 		  :external-definitions (make-definitions-pool)
 		  :internal-definitions (make-definitions-pool)

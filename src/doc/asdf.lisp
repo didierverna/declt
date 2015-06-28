@@ -63,14 +63,6 @@
   (anchor-and-index component relative-to)
   (@table () (call-next-method)))
 
-(defun sub-component-p (component relative-to)
-  "Return T if COMPONENT can be found under RELATIVE-TO."
-  (pathname-match-p (component-pathname component)
-		    (make-pathname :name :wild
-				   :directory
-				   (append (pathname-directory relative-to)
-					   '(:wild-inferiors)))))
-
 (defgeneric render-dependency (dependency-def component relative-to)
   (:documentation "Render COMPONENT's DEPENDENCY-DEF RELATIVE-TO.
 Dependencies are referenced only if they are RELATIVE-TO the system being

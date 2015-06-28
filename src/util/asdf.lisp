@@ -38,6 +38,14 @@
   "Return COMPONENT's location RELATIVE-TO."
   (enough-namestring (component-pathname component) relative-to))
 
+(defun sub-component-p (component relative-to)
+  "Return T if COMPONENT can be found under RELATIVE-TO."
+  (pathname-match-p (component-pathname component)
+		    (make-pathname :name :wild
+				   :directory
+				   (append (pathname-directory relative-to)
+					   '(:wild-inferiors)))))
+
 (defun components (module type)
   "Return the list of all components of (sub)TYPE from ASDF MODULE."
   ;; #### NOTE: we accept subtypes of TYPE because ASDF components might be
@@ -74,5 +82,36 @@
   "Return the type part of ASDF SYSTEM's definition file."
   (pathname-type (system-source-file system)))
 
+;; #### FIXME: there is redundancy with RENDER-DEPENDENCIES. I should write a
+;; more abstract dependency walker.
+(defgeneric system-dependency-subsystem (dependency-def system relative-to)
+  (:documentation "Return SYSTEM's subsystem from DEPENDENCY-DEF or nil.")
+  (:method (simple-component-name system relative-to
+	    &aux (dependency
+		  (resolve-dependency-name system simple-component-name)))
+    "Return SYSTEM's subsystem named SIMPLE-COMPONENT-NAME or nil."
+    (when (sub-component-p dependency relative-to)
+      dependency))
+  ;; #### NOTE: this is where I'd like more advanced pattern matching
+  ;; capabilities.
+  (:method ((dependency-def list) system relative-to)
+    "Return SYSTEM's subsystem from DEPENDENCY-DEF or nil."
+    (cond ((eq (car dependency-def) :feature)
+	   (system-dependency-subsystem
+	    (caddr dependency-def) system relative-to))
+	  ((eq (car dependency-def) :version)
+	   (system-dependency-subsystem
+	    (cadr dependency-def) system relative-to))
+	  ((eq (car dependency-def) :require))
+	  (t (warn "Invalid ASDF dependency.")))))
+
+(defun system-subsystems (system &aux (relative-to (system-directory system)))
+  "Return the list of SYSTEM's subsystems.
+A subsystem is a SYSTEM dependency located somewhere under SYSTEM's
+directory."
+  (loop :for dependency :in (append (defsystem-dependencies system)
+				    (component-sideway-dependencies system))
+	:when (system-dependency-subsystem dependency system relative-to)
+	  :collect :it))
 
 ;;; asdf.lisp ends here
