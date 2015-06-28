@@ -479,7 +479,10 @@ and will be properly escaped for Texinfo."
 
   ;; Construct the nodes hierarchy.
   (let ((context (make-context
-		  :systems (cons system (system-subsystems system))
+		  :systems
+		  (cons system
+			(remove-duplicates
+			 (subsystems system (system-directory system))))
 		  :external-definitions (make-definitions-pool)
 		  :internal-definitions (make-definitions-pool)
 		  :hyperlinksp hyperlinks))

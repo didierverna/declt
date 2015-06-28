@@ -61,6 +61,12 @@
   "Return the list of all Lisp source file components from ASDF MODULE."
   (components module 'asdf:cl-source-file))
 
+(defun system-dependencies (system)
+  "Return all SYSTEM dependencies.
+This includes both :defsystem-depends-on and :depends-on."
+  (append (defsystem-dependencies system)
+	  (component-sideway-dependencies system)))
+
 ;; #### WARNING: do not confuse this function with asdf:module-components!
 (defun module-components (module)
   "Return the list of all module components from ASDF MODULE."
@@ -102,17 +108,17 @@
 	  ((eq (car dependency-def) :version)
 	   (system-dependency-subsystem
 	    (cadr dependency-def) system relative-to))
-	  ((eq (car dependency-def) :require))
+	  ((eq (car dependency-def) :require) nil)
 	  (t (warn "Invalid ASDF dependency.")))))
 
-(defun system-subsystems (system &aux (relative-to (system-directory system)))
-  "Return the list of SYSTEM's subsystems.
-A subsystem is a SYSTEM dependency located somewhere under SYSTEM's
-directory."
-  (remove-duplicates
-   (loop :for dependency :in (append (defsystem-dependencies system)
-				     (component-sideway-dependencies system))
-	 :when (system-dependency-subsystem dependency system relative-to)
-	   :collect :it)))
+(defun subsystems (system relative-to)
+  "Return the list of SYSTEM subsystems RELATIVE-TO.
+This function recursively descends all found subsystems."
+  (loop :with subsystem
+	:for dependency :in (system-dependencies system)
+	:do (setq subsystem (system-dependency-subsystem
+			     dependency system relative-to))
+	:when subsystem
+	  :nconc (cons subsystem (subsystems subsystem relative-to))))
 
 ;;; asdf.lisp ends here
