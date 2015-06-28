@@ -121,7 +121,10 @@ Optionally PREFIX the title."
       (fresh-line)))
   (format t "~@[@item Version~%~
 		  ~A~%~]"
-    (escape (component-version component)))
+	  (escape (component-version component)))
+  (when-let ((if-feature (component-if-feature component)))
+    (@tableitem "If Feature"
+      (format t "@t{~(~A}~)" (escape if-feature))))
   (when-let ((dependencies (when (eq (type-of component) 'asdf:system)
 			     (defsystem-dependencies component))))
     (render-dependencies dependencies component relative-to "Defsystem "))

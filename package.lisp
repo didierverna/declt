@@ -53,6 +53,7 @@
     :component-parent
     :component-pathname
     :component-relative-pathname
+    :component-if-feature
     :component-sideway-dependencies
     :find-system
     :resolve-dependency-name
