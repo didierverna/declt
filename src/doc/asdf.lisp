@@ -242,37 +242,35 @@ components tree."))))
 			    (make-node :name "Lisp files"
 				       :section-name "Lisp"))))
   "Add the files node to PARENT in CONTEXT."
-  (let ((system-base-name (escape (system-base-name system))))
-    (add-child lisp-files-node
-      ;; #### NOTE: the .asd is a Lisp file, but not a component in itself. I
-      ;; want it to be listed here so I need to duplicate some of what the
-      ;; DOCUMENT method on lisp files does.
-      (make-node :name (format nil "The ~A file" system-base-name)
-		 :section-name (format nil "@t{~A}" system-base-name)
-		 :before-menu-contents
-		 (render-to-string
-		   (@anchor
-		    (format nil "go to the ~A file" system-base-name))
-		   (format t "@lispfileindex{~A}@c~%" system-base-name)
-		   (@table ()
-		     (render-location (system-source-file system)
-				      context)
-		     (render-packages-references
-		      (file-packages (system-source-file system)))
-		     (render-external-definitions-references
-		      (sort
-		       (file-definitions (system-source-file system)
-					 (context-external-definitions
-					  context))
-		       #'string-lessp
-		       :key #'definition-symbol))
-		     (render-internal-definitions-references
-		      (sort
-		       (file-definitions (system-source-file system)
-					 (context-internal-definitions
-					  context))
-		       #'string-lessp
-		       :key #'definition-symbol)))))))
+  ;; #### NOTE: the .asd are Lisp files, but not components. I still want them
+  ;; to be listed here (and first) so I need to duplicate some of what the
+  ;; DOCUMENT method on lisp files does.
+  (dolist (system (context-systems context))
+    (let ((system-base-name (escape (system-base-name system))))
+      (add-child lisp-files-node
+	(make-node :name (format nil "The ~A file" system-base-name)
+		   :section-name (format nil "@t{~A}" system-base-name)
+		   :before-menu-contents
+		   (render-to-string
+		     (@anchor
+		      (format nil "go to the ~A file" system-base-name))
+		     (format t "@lispfileindex{~A}@c~%" system-base-name)
+		     (@table ()
+		       (render-location (system-source-file system) context)
+		       (render-packages-references
+			(file-packages (system-source-file system)))
+		       (render-external-definitions-references
+			(sort (file-definitions (system-source-file system)
+						(context-external-definitions
+						 context))
+			      #'string-lessp
+			      :key #'definition-symbol))
+		       (render-internal-definitions-references
+			(sort (file-definitions (system-source-file system)
+						(context-internal-definitions
+						 context))
+			      #'string-lessp
+			      :key #'definition-symbol))))))))
   (dolist (file lisp-files)
     (add-child lisp-files-node (file-node file context)))
   (loop :with other-files-node
