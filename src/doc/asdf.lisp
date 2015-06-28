@@ -335,18 +335,19 @@ components tree."))))
 	     :before-menu-contents
 	     (render-to-string (document module context))))
 
-(defun add-modules-node (parent context)
+(defun add-modules-node
+    (parent context
+     &aux (modules (mapcan #'module-components (context-systems context))))
   "Add the modules node to PARENT in CONTEXT."
-  (when-let* ((modules (module-components (car (context-systems context))))
-	      (modules-node
-	       (add-child parent
+  (when modules
+    (let ((modules-node (add-child parent
 			  (make-node :name "Modules"
 				     :synopsis "The modules documentation"
 				     :before-menu-contents
 				     (format nil "~
 Modules are listed depth-first from the system components tree.")))))
-    (dolist (module modules)
-      (add-child modules-node (module-node module context)))))
+      (dolist (module modules)
+	(add-child modules-node (module-node module context))))))
 
 
 

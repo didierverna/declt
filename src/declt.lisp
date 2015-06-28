@@ -365,14 +365,19 @@ This manual was generated automatically by Declt ~A on ~A.
 @c ====================================================================
 @contents~%"))
 
+(defun add-packages (context)
+  "Add all package definitions to CONTEXT."
+  (setf (context-packages context)
+	(mapcan #'system-packages (context-systems context))))
+
 (defun add-external-definitions (context)
   "Add all external definitions to CONTEXT."
-  (dolist (symbol (system-external-symbols (car (context-systems context))))
+  (dolist (symbol (mapcan #'system-external-symbols (context-systems context)))
     (add-symbol-definitions symbol (context-external-definitions context))))
 
 (defun add-internal-definitions (context)
   "Add all internal definitions to CONTEXT."
-  (dolist (symbol (system-internal-symbols (car (context-systems context))))
+  (dolist (symbol (mapcan #'system-internal-symbols (context-systems context)))
     (add-symbol-definitions symbol (context-internal-definitions context))))
 
 (defun add-definitions (context)
@@ -474,7 +479,6 @@ and will be properly escaped for Texinfo."
   ;; Construct the nodes hierarchy.
   (let ((context (make-context
 		  :systems (cons system (system-subsystems system))
-		  :packages (system-packages system)
 		  :external-definitions (make-definitions-pool)
 		  :internal-definitions (make-definitions-pool)
 		  :hyperlinksp hyperlinks))
@@ -492,6 +496,7 @@ on ~A."
 					     (escape (version :long))
 					     (escape current-time-string))
 		     :after-menu-contents (when license "@insertcopying"))))
+    (add-packages context)
     (add-definitions context)
     (when license
       (add-child top-node
