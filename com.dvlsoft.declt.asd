@@ -82,7 +82,7 @@ Current options are:
 (defconstant +release-major-level+ 1
   "The major level of this release.")
 
-(defconstant +release-minor-level+ 0
+(defconstant +release-minor-level+ 1
   "The minor level of this release.")
 
 (defconstant +release-status+ :patchlevel
@@ -91,7 +91,7 @@ Current options are:
 (defconstant +release-status-level+ 0
   "The status level of this release.")
 
-(define-constant +release-name+ "James T. Kirk"
+(define-constant +release-name+ "Jean-Luc Picard"
   "The name of this release.")
 
 ;; #### TODO: I'm sure the format strings can be improved
