@@ -44,7 +44,7 @@ Common-Lisp
 @declt{} (pronounce ``dec'let'') is a reference manual generator for
 @cl{} libraries.  It works by loading an ASDF system and introspecting
 its contents. The generated documentation contains the description of
-the system itself and its local dependencies (othersystems in the same
+the system itself and its local dependencies (other systems in the same
 distribution): components (modules and files), packages and definitions
 found in those packages.
 
