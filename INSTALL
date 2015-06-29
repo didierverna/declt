@@ -10,10 +10,10 @@ system’s name is com.dvlsoft.declt.
    In addition to the bare Lisp library, the Declt distribution offers
 documentation in the form of 2 different manuals: the User Manual (you
 are reading it) and the *note (reference)Top::.  The latter is generated
-with Declt itself.  Here are some instructions for a installing Declt
-manually.
+by Declt itself.  Here are some instructions for a installing Declt
+manually and generating the documentation.
 
-  1. Unpack somewhere in the ASDF source registry.
+  1. Unpack somewhere in the ASDF 3 source registry.
   2. Edit ‘Makefile.cnf’ to your specific needs.
   3. Type ‘make’ to compile the documentation (this also implies
      compiling and loading the library).  By default, the documentation
