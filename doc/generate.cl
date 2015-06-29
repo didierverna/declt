@@ -26,8 +26,7 @@
 
 ;;; Code:
 
-(require :asdf)
-(asdf:load-system :asdf)
+(require "asdf")
 
 (defconstant +introduction+
   "@macro declt
@@ -44,9 +43,10 @@ Common-Lisp
 
 @declt{} (pronounce ``dec'let'') is a reference manual generator for
 @cl{} libraries.  It works by loading an ASDF system and introspecting
-its contents. The generated documentation contains the description for
-the system itself and its components (modules and files), the packages
-defined in that system and the definitions found in those packages.
+its contents. The generated documentation contains the description of
+the system itself and its local dependencies (othersystems in the same
+distribution): components (modules and files), packages and definitions
+found in those packages.
 
 Exported and internal definitions are listed separately. This allows the
 reader to have a quick view on the library's public API. Within each
@@ -114,7 +114,6 @@ for a more human-readable guide to using @declt{}."
 		 :copyright-date "2010--2013, 2015"
 		 :hyperlinks t))
 
-(sb-ext:quit)
-
+(uiop:quit)
 
 ;;; generate.cl ends here
