@@ -126,6 +126,12 @@ Common Lisp
 @vindex @r{Constant, }\var\
 @end macro
 
+@c Parameter variables
+@macro pvindex{var}
+@vindex \var\
+@vindex @r{Parameter, }\var\
+@end macro
+
 
 @c Data Types index
 @c ----------------
@@ -434,12 +440,12 @@ system definition (either the @code{maintainer}, the @code{author} or
 the @code{mailto} slots).
 @item :license
 @fkindex{declt,license}
-@cvindex{+licenses+}
+@pvindex{*licenses*}
 The library's license type. This information is used to insert licensing
 information at several places in the manual. The default is @nil{} and
 the possible values are: @code{:mit}, @code{:bsd}, @code{:gpl} and
 @code{:lgpl}. The corresponding license texts are stored in the
-@var{+licenses+} constant. Please ask if you need other kinds of
+@var{*licenses*} parameter. Please ask if you need other kinds of
 licenses added to @declt{}. Note that this information is @strong{not}
 extracted from the system's @t{license} slot, as this slot is not well
 defined.
@@ -662,31 +668,31 @@ returned value is a fixnum. Otherwise, it is a string.
 A @declt{} version is characterized by 4 elements as described below.
 @itemize
 @item
-@cvindex{+release-major-level+}
-A major version number stored in the constant
-@code{+release-major-level+}.
+@pvindex{*release-major-level*}
+A major version number stored in the parameter
+@code{*release-major-level*}.
 @item
-@cvindex{+release-minor-level+}
-A minor version number, stored in the constant
-@code{+release-minor-level+}.
+@pvindex{*release-minor-level*}
+A minor version number, stored in the parameter
+@code{*release-minor-level*}.
 @item
-@cvindex{+release-status+}
-A release status stored in the constant @code{+release-status+}. The
+@pvindex{*release-status*}
+A release status stored in the parameter @code{*release-status*}. The
 status of a release can be @code{:alpha}, @code{:beta}, @code{:rc}
 (standing for ``release candidate'') or @code{:patchlevel}. These are in
 effect 4 levels of expected stability.
 @item
-@cvindex{+release-status-level+}
-A status-specific version number stored in the constant
-@code{+release-status-level+}. Status levels start at 1 (alpha 1, beta 1
+@pvindex{*release-status-level*}
+A status-specific version number stored in the parameter
+@code{*release-status-level*}. Status levels start at 1 (alpha 1, beta 1
 and release candidate 1) except for stable versions, in which case patch
 levels start at 0 (@eg{} 2.4.0).
 @end itemize
 
-@cvindex{+release-name+}
+@pvindex{*release-name*}
 In addition to that, each version of @declt{} (in the sense
 @emph{major.minor}, regardless of the status) has a name, stored in the
-constant @code{+release-name+}. The general theme for @declt{} is ``Star
+parameter @code{*release-name*}. The general theme for @declt{} is ``Star
 Trek Characters''.
 
 Here is how the @code{version} function computes its value.
