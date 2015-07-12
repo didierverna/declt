@@ -27,7 +27,8 @@
 ;;; Code:
 
 (asdf:defsystem :com.dvlsoft.declt.setup
-  :long-name ""
+  :long-name
+  "Documentation Extractor from Common Lisp to Texinfo, setup library"
   :description "Declt's preload setup library"
   :long-description "\
 Declt's setup library provides support for various preload configuration
