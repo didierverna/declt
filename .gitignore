@@ -1,6 +1,10 @@
-sbcl-*/
+.clisp.cnf
 
-version.inc
+sbcl-*/
+cmu-*/
+openmcl-*/
+
+doc/declt.make
 
 doc/user.pdf
 doc/user.pdf
