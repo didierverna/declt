@@ -136,11 +136,11 @@ Current options are:
 See section A.1 of the user manual for more information.")
 
 (defun configuration (key)
-  "Return KEY's value in the current Clon configuration."
+  "Return KEY's value in the current Declt configuration."
   (getf configuration key))
 
 (defun configure (key value)
-  "Set KEY to VALUE in the current Clon configuration."
+  "Set KEY to VALUE in the current Declt configuration."
   (setf (getf configuration key) value))
 
 ;;; setup.lisp ends here
