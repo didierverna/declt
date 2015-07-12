@@ -44,7 +44,7 @@ converted into info, HTML, DVI, PostScript or PDF."
   :mailto "didier@didierverna.net"
   :homepage "http://www.lrde.epita.fr/~didier/software/lisp/misc.php#declt"
   :source-control "https://github.com/didierverna/declt"
-  :license "GNU GPL"
+  :license "BSD"
   :version #.(com.dvlsoft.declt.setup:version :short)
   :depends-on (:com.dvlsoft.declt.setup :com.dvlsoft.declt.core))
 
