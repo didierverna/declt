@@ -38,28 +38,28 @@
 ;; ----------
 
 ;; #### NOTE: when constructing the context lists of external and internal
-;; definitions, only the definitions listed in +CATEGORIES+ appear. This is
+;; definitions, only the definitions listed in *CATEGORIES* appear. This is
 ;; because these lists follow the structure of the Definitions chapter in the
 ;; generated manual. For instance, methods are listed under the corresponding
 ;; generic function, so they don't represent a category of its own.
 
-;; #### NOTE: the order in +CATEGORIES+ is important (see
+;; #### NOTE: the order in *CATEGORIES* is important (see
 ;; ADD-CATEGORIES-NODE). It conditions the order of appearance of the
 ;; definitions in the generated manual.
 
-(define-constant +categories+
-    '((:constant       "constants")
-      (:special        "special variables")
-      (:symbol-macro   "symbol macros")
-      (:macro          "macros")
-      (:compiler-macro "compiler macros")
-      (:function       "functions")
-      (:generic        "generic functions")
-      (:combination    "method combinations")
-      (:condition      "conditions")
-      (:structure      "structures")
-      (:class          "classes")
-      (:type           "types"))
+(defparameter *categories*
+  '((:constant       "constants")
+    (:special        "special variables")
+    (:symbol-macro   "symbol macros")
+    (:macro          "macros")
+    (:compiler-macro "compiler macros")
+    (:function       "functions")
+    (:generic        "generic functions")
+    (:combination    "method combinations")
+    (:condition      "conditions")
+    (:structure      "structures")
+    (:class          "classes")
+    (:type           "types"))
   "The list of definition categories.
 Each category is of type (:KEYWORD DESCRIPTION-STRING).")
 
@@ -278,7 +278,7 @@ definitions.")
 A definitions pool is a hash table of categorized definitions.
 Keys must be of the form (NAME :CATEGORY).
   - NAME is the symbol naming the definition,
-  - :CATEGORY is one listed in +CATEGORIES+."
+  - :CATEGORY is one listed in *CATEGORIES*."
   (make-hash-table :test 'equal))
 
 (defun definitions-pool-size (pool)
@@ -756,7 +756,7 @@ Note that this only returns standalone (toplevel) generic writers."
 
 (defun add-symbol-definitions (symbol pool)
   "Add all categorized definitions for SYMBOL to POOL."
-  (dolist (category +categories+)
+  (dolist (category *categories*)
     (add-symbol-definition symbol (first category) pool)))
 
 ;; #### PORTME.

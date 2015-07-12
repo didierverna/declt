@@ -34,10 +34,10 @@
 ;; #### FIXME: when we make this a customizable variable instead of a
 ;; constant, we need to decide on whether this should be raw Texinfo contents,
 ;; or whether to escape the notices before using them.
-(define-constant +licenses+
-    '((:mit
-       "The MIT License"
-       "Permission to use, copy, modify, and distribute this software for any
+(defparameter *licenses*
+  '((:mit
+     "The MIT License"
+     "Permission to use, copy, modify, and distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
 copyright notice and this permission notice appear in all copies.
 
@@ -48,9 +48,9 @@ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
 WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.")
-      (:bsd
-       "The BSD License"
-       "Permission to use, copy, modify, and distribute this software for any
+    (:bsd
+     "The BSD License"
+     "Permission to use, copy, modify, and distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
 copyright notice and this permission notice appear in all copies.
 
@@ -61,9 +61,9 @@ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
 WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.")
-      (:gpl
-       "The GNU GPL License"
-       "This program is free software; you can redistribute it and/or modify
+    (:gpl
+     "The GNU GPL License"
+     "This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
 (at your option) any later version.
@@ -467,7 +467,7 @@ and will be properly escaped for Texinfo."
   (when contact
     (setq contact (escape contact)))
   (when license
-    (setq license (assoc license +licenses+))
+    (setq license (assoc license *licenses*))
     (unless license
       (error "License not found.")))
   (setq copyright-date

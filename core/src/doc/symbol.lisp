@@ -795,7 +795,7 @@ The standard method combination is not rendered."
 
 (defun add-categories-node (parent context status definitions)
   "Add the STATUS DEFINITIONS categories nodes to PARENT in CONTEXT."
-  (dolist (category +categories+)
+  (dolist (category *categories*)
     (when-let ((category-definitions
 		(category-definitions (first category) definitions)))
       (add-category-node parent context status (second category)

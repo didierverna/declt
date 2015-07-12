@@ -1,6 +1,6 @@
-;;; com.dvlsoft.declt.asd --- ASDF system definition
+;;; com.dvlsoft.setup.setup.asd --- ASDF system definition
 
-;; Copyright (C) 2010-2013, 2015 Didier Verna
+;; Copyright (C) 2015 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -26,26 +26,18 @@
 
 ;;; Code:
 
-(asdf:load-system :com.dvlsoft.declt.setup)
-
-(asdf:defsystem :com.dvlsoft.declt
-  :long-name "Documentation Extractor from Common Lisp to Texinfo"
-  :description "A reference manual generator for Common Lisp libraries"
+(asdf:defsystem :com.dvlsoft.declt.setup
+  :long-name ""
+  :description "Declt's preload setup library"
   :long-description "\
-Declt (pronounce dec'let) is a reference manual generator for Common Lisp.
-It extracts and formats documentation from ASDF systems, including the system
-itself, its components, the packages defined in the system and an extensive
-list of definitions (variables, functions etc.). The formatted documentation
-comes with full indexing and cross-references.
-
-Reference manuals are generated in Texinfo format which can subsequently be
-converted into info, HTML, DVI, PostScript or PDF."
-  :author "Didier Verna"
+Declt's setup library provides support for various preload configuration
+parameters. For a more complete description of Declt, see the
+com.dvlsoft.declt system."
+  :author "Didier Verna <didier@didierverna.net>"
   :mailto "didier@didierverna.net"
   :homepage "http://www.lrde.epita.fr/~didier/software/lisp/misc.php#declt"
   :source-control "https://github.com/didierverna/declt"
-  :license "GNU GPL"
-  :version #.(com.dvlsoft.declt.setup:version :short)
-  :depends-on (:com.dvlsoft.declt.setup :com.dvlsoft.declt.core))
+  :license "BSD"
+  :components ((:file "setup")))
 
-;;; com.dvlsoft.declt.asd ends here
+;;; com.dvlsoft.declt.setup.asd ends here

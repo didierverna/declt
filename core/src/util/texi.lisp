@@ -383,13 +383,13 @@ Return that string."
 ;; Node Implementation
 ;; ==========================================================================
 
-(define-constant +section-names+
-    '((:numbered   nil
-       "chapter"    "section"       "subsection"       "subsubsection")
-      (:unnumbered "top"
-       "unnumbered" "unnumberedsec" "unnumberedsubsec" "unnumberedsubsubsec")
-      (:appendix   nil
-       "appendix"   "appendixsec"   "appendixsubsec"   "appendixsubsubsec" ))
+(defparameter *section-names*
+  '((:numbered   nil
+     "chapter"    "section"       "subsection"       "subsubsection")
+    (:unnumbered "top"
+     "unnumbered" "unnumberedsec" "unnumberedsubsec" "unnumberedsubsubsec")
+    (:appendix   nil
+     "appendix"   "appendixsec"   "appendixsubsec"   "appendixsubsubsec" ))
   "The numbered, unumbered and appendix section names sorted by level.")
 
 ;; #### NOTE: all contents in the NODE structure must be already escaped for
@@ -399,7 +399,7 @@ Return that string."
 This structure holds Texinfo nodes."
   name                      ;; node name
   synopsis                  ;; node menu description
-  (section-type :numbered)  ;; see +section-names+
+  (section-type :numbered)  ;; see *section-names*
   section-name              ;; alternate name for section
   next                      ;; next node
   previous                  ;; previous node (or up)
@@ -459,7 +459,7 @@ This structure holds Texinfo nodes."
 	"(dir)"
       (node-name (node-up node))))
   (format t "@~A ~A~%"
-    (nth level (cdr (assoc (node-section-type node) +section-names+)))
+    (nth level (cdr (assoc (node-section-type node) *section-names*)))
     (or (node-section-name node) (node-name node)))
   (when (node-before-menu-contents node)
     (write-string (node-before-menu-contents node))

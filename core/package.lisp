@@ -31,18 +31,8 @@
 (defpackage :com.dvlsoft.declt
   (:documentation
    "The Documentation Extractor from Common Lisp to Texinfo package.")
-  (:use :cl)
+  (:use :cl :com.dvlsoft.declt.setup)
   (:shadow :*readtable*)
-  (:import-from :com.dvlsoft.declt.asdf
-   :generate-quickutils
-    :configuration
-    :define-constant
-    :+release-major-level+
-    :+release-minor-level+
-    :+release-status+
-    :+release-status-level+
-    :+release-name+
-    :version)
   (:import-from :quickutil
     :when-let :when-let*)
   (:import-from :asdf
@@ -68,14 +58,14 @@
     :system-source-directory
     :system-source-file)
   (:export
-   ;; From com.dvlsoft.declt.asd:
-   :+release-major-level+
-   :+release-minor-level+
-   :+release-status+
-   :+release-status-level+
-   :+release-name+
-   :version
-   ;; From package.lisp:
+    ;; From the :com.dvlsoft.declt.setup package:
+    :*release-major-level*
+    :*release-minor-level*
+    :*release-status*
+    :*release-status-level*
+    :*release-name*
+    :version
+   ;; From package.lisp (this file):
    :nickname-package
    ;; From src/declt.lisp:
    :declt))

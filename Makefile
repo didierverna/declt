@@ -1,46 +1,49 @@
 ### Makefile --- Toplevel directory
 
-## Copyright (C) 2010, 2011, 2013 Didier Verna
+## Copyright (C) 2010-2013, 2015 Didier Verna
 
 ## Author: Didier Verna <didier@didierverna.net>
 
 ## This file is part of Declt.
 
-## Declt is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License version 3,
-## as published by the Free Software Foundation.
+## Permission to use, copy, modify, and distribute this software for any
+## purpose with or without fee is hereby granted, provided that the above
+## copyright notice and this permission notice appear in all copies.
 
-## Declt is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
-
-## You should have received a copy of the GNU General Public License
-## along with this program; if not, write to the Free Software
-## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+## THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+## WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+## MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+## ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+## WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+## ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+## OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 ### Commentary:
+
+## Contents management by FCM version 0.1.
 
 ## Please use GNU Make with this makefile.
 
 
 ### Code:
 
+# Needed in include.make
 TOP_DIR := .
 
-include $(TOP_DIR)/Makefile.cnf
-
+include make/config.make
 hack: all
+include make/include.make
+ifeq ($(LISP),CLISP)
+  include make/clisp.make
+endif
+include make/version.make
 
-include $(TOP_DIR)/Makefile.inc
-include $(TOP_DIR)/version.inc
-
-
-SUBDIRS   := src doc
+SUBDIRS   := core doc
 DIST_NAME := $(PROJECT)-$(SHORT_VERSION)
 TARBALL   := $(DIST_NAME).tar.gz
 SIGNATURE := $(TARBALL).asc
+
 
 all:
 	$(MAKE) gen TARGET=all
@@ -58,17 +61,15 @@ uninstall:
 	$(MAKE) gen TARGET=uninstall
 
 clean:
-	rm -f *~
+	-rm *~
 	$(MAKE) gen TARGET=clean
 
-# #### NOTE: be sure to propagate to the subdirs first, otherwise, version.inc
-# will keep on being reconstructed.
 distclean: clean
 	$(MAKE) gen TARGET=distclean
-	rm -f *.tar.gz *.tar.gz.asc
-	rm -f version.inc
-	rm -fr $($(LISP)_BINLOC)-*
-	rm -fr "${HOME}"/.cache/common-lisp/$($(LISP)_CACHE)-*"`pwd`"
+	-rm -f .clisp.cnf
+	-rm *.tar.gz *.tar.gz.asc
+	-rm -fr $($(LISP)_BINLOC)-*
+	-rm -fr "${HOME}"/.cache/common-lisp/$($(LISP)_CACHE)-*"`pwd`"
 
 tag:
 	git tag -a -m 'Version $(LONG_VERSION)' 'version-$(SHORT_VERSION)'
@@ -77,25 +78,21 @@ tar: $(TARBALL)
 gpg: $(SIGNATURE)
 dist: tar gpg
 
-www-dist: dist
-	scp -p $(TARBALL) $(SIGNATURE) $(WWW_HOST):$(WWW_DIR)/attic/
+install-www: dist
+	$(MAKE) gen TARGET=install-www
+	-install -m 644 $(TARBALL)   "$(W3DIR)/attic/"
+	-install -m 644 $(SIGNATURE) "$(W3DIR)/attic/"
 	echo "\
-<? lref (\"$(PROJECT)/attic/$(TARBALL)\", \
+<? lref (\"$(PROJECT)/attic/$(PROJECT)-$(SHORT_VERSION).tar.gz\", \
 	 contents (\"Dernière version\", \"Latest version\")); ?> \
 | \
-<? lref (\"$(PROJECT)/attic/$(SIGNATURE)\", \
+<? lref (\"$(PROJECT)/attic/$(PROJECT)-$(SHORT_VERSION).tar.gz.asc\", \
 	 contents (\"Signature GPG\", \"GPG Signature\")); ?>" \
-	  > /tmp/latest.txt
-	chmod 644 /tmp/latest.txt
-	scp -p /tmp/latest.txt  $(WWW_HOST):$(WWW_DIR)/
-	$(MAKE) gen TARGET=www-dist
-	ssh $(WWW_HOST)					\
-	  'cd $(WWW_DIR)					\
-	   && ln -fs attic/$(TARBALL) latest.tar.gz		\
-	   && ln -fs attic/$(SIGNATURE) latest.tar.gz.asc'
-
-www-undist:
-	ssh $(WWW_HOST) 'rm -fr $(WWW_DIR)'
+	  > "$(W3DIR)/latest.txt"
+	chmod 644 "$(W3DIR)/latest.txt"
+	cd "$(W3DIR)"					\
+	  && ln -fs attic/$(TARBALL) latest.tar.gz	\
+	  && ln -fs attic/$(SIGNATURE) latest.tar.gz.asc
 
 update-version:
 	cd doc && $(MAKE) $@
@@ -119,7 +116,7 @@ doc/$(PROJECT)-user.info:
 
 $(TARBALL):
 	git archive --format=tar --prefix=$(DIST_NAME)/	\
-	    --worktree-attributes HEAD				\
+	    --worktree-attributes HEAD			\
 	  | gzip -c > $@
 
 $(SIGNATURE): $(TARBALL)
@@ -131,8 +128,8 @@ $(SIGNATURE): $(TARBALL)
 .PHONY: hack all						\
 	all-formats dvi ps ref all-formats-ref dvi-ref ps-ref	\
 	install install-ref uninstall				\
-	clean distclean					\
-	tag tar gpg dist www-dist				\
+	clean distclean						\
+	tag tar gpg dist install-www				\
 	update-version						\
 	gen
 
