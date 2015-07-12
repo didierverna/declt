@@ -25,19 +25,6 @@
 
 ;;; Code:
 
-;; --------------------
-;; Very early utilities
-;; --------------------
-
-;; Quickutil
-(defun generate-quickutils ()
-  "Generate the offline quickutil file."
-  (funcall (intern "SAVE-UTILS-AS" :quickutil-client)
-	   (merge-pathnames (make-pathname :name "quickutil" :type "lisp")
-			    (asdf:system-source-directory :com.dvlsoft.declt))
-	   :when-let))
-
-
 ;; -----------------
 ;; System definition
 ;; -----------------
@@ -58,10 +45,12 @@ com.dvlsoft.declt system."
   :source-control "https://github.com/didierverna/declt"
   :license "BSD"
   :version #.(com.dvlsoft.declt.setup:version :short)
-  :depends-on (:com.dvlsoft.declt.setup :sb-introspect)
+  :if-feature :sbcl
+  :depends-on (:com.dvlsoft.declt.setup
+	       (:feature :sbcl :sb-introspect))
   :serial t
   :components ((:file "quickutil")
-	       (:file "package")
+	       (:file "meta")
 	       (:module "src"
 		:serial t
 		:components ((:module "util"

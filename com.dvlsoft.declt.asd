@@ -46,6 +46,7 @@ converted into info, HTML, DVI, PostScript or PDF."
   :source-control "https://github.com/didierverna/declt"
   :license "BSD"
   :version #.(com.dvlsoft.declt.setup:version :short)
+  :if-feature :sbcl
   :depends-on (:com.dvlsoft.declt.setup :com.dvlsoft.declt.core))
 
 ;;; com.dvlsoft.declt.asd ends here

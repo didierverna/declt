@@ -1,6 +1,6 @@
-;;; package.lisp --- Common Lisp package definition
+;;; meta.lisp --- Meta utilities
 
-;; Copyright (C) 2010-2013 Didier Verna
+;; Copyright (C) 2010-2013, 2015 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -146,4 +146,17 @@ See CLINDENT for more information."
      (setf cl:*readtable* (symbol-value (find-symbol "*READTABLE*" ,name)))))
 
 
-;;; package.lisp ends here
+;; --------------------
+;; Very early utilities
+;; --------------------
+
+;; Quickutil
+(defun generate-quickutils ()
+  "Generate the offline quickutil file."
+  (funcall (intern "SAVE-UTILS-AS" :quickutil-client)
+	   (merge-pathnames (make-pathname :name "quickutil" :type "lisp")
+			    (asdf:system-source-directory
+			     :com.dvlsoft.declt.core))
+	   :when-let))
+
+;;; meta.lisp ends here
