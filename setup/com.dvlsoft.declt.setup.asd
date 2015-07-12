@@ -33,7 +33,7 @@
 Declt's setup library provides support for various preload configuration
 parameters. For a more complete description of Declt, see the
 com.dvlsoft.declt system."
-  :author "Didier Verna <didier@didierverna.net>"
+  :author "Didier Verna"
   :mailto "didier@didierverna.net"
   :homepage "http://www.lrde.epita.fr/~didier/software/lisp/misc.php#declt"
   :source-control "https://github.com/didierverna/declt"
