@@ -65,8 +65,8 @@ install-at: $(PDF_FILES) $(HTML_DIRS)
 	install -m 644 $(PDF_FILES) "$(LOCATION)/"
 	install -d -m 755 "$(LOCATION)/user"
 	install -m 644 user/* "$(LOCATION)/user/"
-	install -d -m 755 "$(LOCATION)/enduser"
-	install -m 644 enduser/* "$(LOCATION)/enduser/"
+#	install -d -m 755 "$(LOCATION)/enduser"
+#	install -m 644 enduser/* "$(LOCATION)/enduser/"
 
 install: $(INFO_FILES)
 	install -d "$(INFO_DIR)"
