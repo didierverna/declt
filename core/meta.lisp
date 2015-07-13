@@ -27,10 +27,10 @@
 
 (in-package :cl-user)
 
-(defpackage :com.dvlsoft.declt
+(defpackage :net.didierverna.declt
   (:documentation
    "The Documentation Extractor from Common Lisp to Texinfo package.")
-  (:use :cl :com.dvlsoft.declt.setup)
+  (:use :cl :net.didierverna.declt.setup)
   (:shadow :*readtable*)
   (:import-from :quickutil
     :when-let :when-let*)
@@ -57,7 +57,7 @@
     :system-source-directory
     :system-source-file)
   (:export
-    ;; From the :com.dvlsoft.declt.setup package:
+    ;; From the :net.didierverna.declt.setup package:
     :*release-major-level*
     :*release-minor-level*
     :*release-status*
@@ -70,7 +70,7 @@
    :declt))
 
 
-(in-package :com.dvlsoft.declt)
+(in-package :net.didierverna.declt)
 
 
 ;; -------------------
@@ -78,10 +78,10 @@
 ;; -------------------
 
 (defun nickname-package (&optional (nickname :declt))
-  "Add NICKNAME (:DECLT by default) to the :COM.DVLSOFT.DECLT package."
-  (rename-package :com.dvlsoft.declt
-		  (package-name :com.dvlsoft.declt)
-		  (adjoin nickname (package-nicknames :com.dvlsoft.declt)
+  "Add NICKNAME (:DECLT by default) to the :NET.DIDIERVERNA.DECLT package."
+  (rename-package :net.didierverna.declt
+		  (package-name :net.didierverna.declt)
+		  (adjoin nickname (package-nicknames :net.didierverna.declt)
 			  :test #'string-equal)))
 
 
@@ -156,7 +156,7 @@ See CLINDENT for more information."
   (funcall (intern "SAVE-UTILS-AS" :quickutil-client)
 	   (merge-pathnames (make-pathname :name "quickutil" :type "lisp")
 			    (asdf:system-source-directory
-			     :com.dvlsoft.declt.core))
+			     :net.didierverna.declt.core))
 	   :when-let))
 
 ;;; meta.lisp ends here

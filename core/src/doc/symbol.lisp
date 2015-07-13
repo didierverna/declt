@@ -24,8 +24,8 @@
 
 ;;; Code:
 
-(in-package :com.dvlsoft.declt)
-(in-readtable :com.dvlsoft.declt)
+(in-package :net.didierverna.declt)
+(in-readtable :net.didierverna.declt)
 
 
 ;; ==========================================================================
@@ -55,7 +55,7 @@ Each element is rendered as a table item."
     (kind varoid context &body body
      &aux (the-varoid (gensym "varoid"))
 	  (defcmd (intern (concatenate 'string "@DEF" (symbol-name kind))
-			  :com.dvlsoft.declt)))
+			  :net.didierverna.declt)))
   "Render VAROID definition of KIND in CONTEXT."
   `(let ((,the-varoid ,varoid))
      (,defcmd (string-downcase (name ,the-varoid))
@@ -69,7 +69,7 @@ Each element is rendered as a table item."
     (kind |funcoid(s)| context &body body
      &aux (the-funcoid (gensym "funcoid"))
 	  (defcmd (intern (concatenate 'string "@DEF" (symbol-name kind))
-			  :com.dvlsoft.declt)))
+			  :net.didierverna.declt)))
   "Render FUNCOID(S) definition of KIND in CONTEXT."
   `(let ((,the-funcoid ,(if (consp |funcoid(s)|)
 			    (car |funcoid(s)|)
@@ -167,7 +167,7 @@ not advertised if they are the same as GENERIC-SOURCE."
 (defmacro render-classoid (kind classoid context &body body)
   "Render CLASSOID's definition of KIND in CONTEXT."
   (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
-			    :com.dvlsoft.declt))
+			    :net.didierverna.declt))
 	(the-classoid (gensym "classoid")))
     `(let ((,the-classoid ,classoid))
        (,|@defform| (string-downcase (name ,the-classoid))

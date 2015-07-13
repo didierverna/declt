@@ -26,7 +26,7 @@
 
 ;;; Code:
 
-(defpackage :com.dvlsoft.declt.setup
+(defpackage :net.didierverna.declt.setup
   (:documentation "Documentation Extractor from Common Lisp to Texinfo.")
   (:use :cl)
   (:export
@@ -36,7 +36,7 @@
    :configuration
    :configure))
 
-(in-package :com.dvlsoft.declt.setup)
+(in-package :net.didierverna.declt.setup)
 
 
 ;; ----------

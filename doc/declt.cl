@@ -31,12 +31,12 @@
 (with-open-file (stream "declt.make" :direction :output :if-exists :supersede)
   (princ "TEXI_REF :=" stream)
   (handler-case
-      (progn (asdf:load-system :com.dvlsoft.declt)
+      (progn (asdf:load-system :net.didierverna.declt)
 	     (princ " reference.texi" stream))
   (asdf:missing-component ()
     (format *error-output* "~
 *********************************************************************
-* WARNING: ASDF component COM.DVLSOFT.DECLT not found.              *
+* WARNING: ASDF component NET.DIDIERVERNA.DECLT not found.              *
 * The Declt reference manual will not be generated.                 *
 *********************************************************************~%")))
   (terpri stream))

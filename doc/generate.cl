@@ -92,19 +92,19 @@ See @xref{Top, , The Declt User Manual, user},
 for a more human-readable guide to using @declt{}."
   "The reference manual's introductory text.")
 
-(asdf:load-system :com.dvlsoft.declt)
-(com.dvlsoft.declt:nickname-package)
+(asdf:load-system :net.didierverna.declt)
+(net.didierverna.declt:nickname-package)
 
 (if (and (second sb-ext:*posix-argv*)
 	 (string= (second sb-ext:*posix-argv*) "--web"))
-    (declt:declt :com.dvlsoft.declt
+    (declt:declt :net.didierverna.declt
 		 :library-name "Declt"
 		 :texi-file "webreference.texi"
 		 :info-file "declt-webreference" ; but we don't care
 		 :introduction +introduction+
 		 :license :bsd
 		 :copyright-date "2010--2013, 2015")
-    (declt:declt :com.dvlsoft.declt
+    (declt:declt :net.didierverna.declt
 		 :library-name "Declt"
 		 :texi-file "reference.texi"
 		 :info-file "declt-reference"

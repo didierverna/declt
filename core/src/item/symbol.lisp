@@ -24,8 +24,8 @@
 
 ;;; Code:
 
-(in-package :com.dvlsoft.declt)
-(in-readtable :com.dvlsoft.declt)
+(in-package :net.didierverna.declt)
+(in-readtable :net.didierverna.declt)
 
 
 ;; ==========================================================================

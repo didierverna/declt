@@ -1,4 +1,4 @@
-;;; com.dvlsoft.declt.core.asd --- ASDF system definition, core library
+;;; net.didierverna.declt.core.asd --- ASDF system definition, core library
 
 ;; Copyright (C) 2015 Didier Verna
 
@@ -29,24 +29,24 @@
 ;; System definition
 ;; -----------------
 
-(asdf:load-system :com.dvlsoft.declt.setup)
+(asdf:load-system :net.didierverna.declt.setup)
 
 ;; #### PORTME.
-(asdf:defsystem :com.dvlsoft.declt.core
+(asdf:defsystem :net.didierverna.declt.core
   :long-name
   "Documentation Extractor from Common Lisp to Texinfo, core library"
   :description "A reference manual generator for Common Lisp libraries"
   :long-description "\
 Declt's core functionality. For a more complete description of Declt, see the
-com.dvlsoft.declt system."
+net.didierverna.declt system."
   :author "Didier Verna"
   :mailto "didier@didierverna.net"
   :homepage "http://www.lrde.epita.fr/~didier/software/lisp/misc.php#declt"
   :source-control "https://github.com/didierverna/declt"
   :license "BSD"
-  :version #.(com.dvlsoft.declt.setup:version :short)
+  :version #.(net.didierverna.declt.setup:version :short)
   :if-feature :sbcl
-  :depends-on (:com.dvlsoft.declt.setup
+  :depends-on (:net.didierverna.declt.setup
 	       (:feature :sbcl :sb-introspect))
   :serial t
   :components ((:file "quickutil")
@@ -73,4 +73,4 @@ com.dvlsoft.declt system."
 			     (:file "declt")))))
 
 
-;;; com.dvlsoft.declt.core.asd ends here
+;;; net.didierverna.declt.core.asd ends here

@@ -95,7 +95,7 @@ Common Lisp
 
 @c Configuration options
 @macro coindex{name}
-@vindex com.dvlsoft.declt.configuration
+@vindex net.didierverna.declt.configuration
 @cindex Configuration Option, @t{:\name\}
 @cindex @t{:\name\}
 @end macro
@@ -330,9 +330,9 @@ available via @uref{http://www.quicklisp.org,,Quicklisp}.
 
 In order to install and load the bare Lisp library, unpack it somewhere
 in the ASDF 3 source registry and type this at the REPL:
-@sysindex{com.dvlsoft.declt}
+@sysindex{net.didierverna.declt}
 @verbatim
-(asdf:load-system :com.dvlsoft.declt)
+(asdf:load-system :net.didierverna.declt)
 @end verbatim
 
 In addition to the bare Lisp library, the @declt{} distribution offers
@@ -371,12 +371,12 @@ Type @command{make uninstall} to uninstall the library.
 @node Usage, Advanced Usage, Installation, Top
 @chapter Usage
 
-@pkgindex{com.dvlsoft.declt}
-@declt{} itself resides in a package called @t{com.dvlsoft.declt}. You
+@pkgindex{net.didierverna.declt}
+@declt{} itself resides in a package called @t{net.didierverna.declt}. You
 can automatically nickname this package with the following function.
 @cindex Package, nicknames
 @defun nickname-package [NICKNAME]
-Add NICKNAME (:DECLT by default) to the :COM.DVLSOFT.DECLT package.
+Add NICKNAME (:DECLT by default) to the :NET.DIDIERVERNA.DECLT package.
 @end defun
 
 Apart from that, @declt{} has a single entry point: the @t{declt}
@@ -407,7 +407,7 @@ to customize the generated reference manual. They are listed below.
 The library name, used in the reference manual title and at some other
 places. It defaults to the system name, but you are encouraged to
 provide a more human-readable version, such as @t{"Declt"} instead of
-just @t{com.dvlsoft.declt}.
+just @t{net.didierverna.declt}.
 @item :texi-file
 @fkindex{declt,texi-file}
 The full path of the generated Texinfo file. It defaults to
@@ -752,18 +752,18 @@ configuration and portability concerns.
 @node Configuration, Supported Platforms, Technical Notes, Technical Notes
 @section Configuration
 @cindex Configuration
-@sysindex{com.dvlsoft.declt.setup}@c
-@pkgindex{com.dvlsoft.declt.setup}@c
+@sysindex{net.didierverna.declt.setup}@c
+@pkgindex{net.didierverna.declt.setup}@c
 Some aspects of @declt{}'s behavior can be configured @emph{before} the
 library system is actually loaded. @declt{} stores its user-level
 configuration (along with some other setup parameters) in another ASDF
-system called @samp{com.dvlsoft.declt.setup} (and the eponym
+system called @samp{net.didierverna.declt.setup} (and the eponym
 package). In order to configure the library (I repeat, prior to loading
 it), you will typically do something like this:
 @verbatim
 (require "asdf")
-(asdf:load-system :com.dvlsoft.declt.setup)
-(com.dvlsoft.declt.setup:configure <option> <value>)
+(asdf:load-system :net.didierverna.declt.setup)
+(net.didierverna.declt.setup:configure <option> <value>)
 @end verbatim
 
 @defun configure KEY VALUE

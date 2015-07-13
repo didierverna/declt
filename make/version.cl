@@ -30,12 +30,12 @@
 
 (require "asdf")
 
-(asdf:load-system :com.dvlsoft.declt.setup)
+(asdf:load-system :net.didierverna.declt.setup)
 
 (format t "LONG_VERSION  := ~A~%~
 	   SHORT_VERSION := ~A~%"
-  (com.dvlsoft.declt.setup:version :long)
-  (com.dvlsoft.declt.setup:version :short))
+  (net.didierverna.declt.setup:version :long)
+  (net.didierverna.declt.setup:version :short))
 
 (uiop:quit)
 

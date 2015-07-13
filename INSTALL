@@ -10,7 +10,7 @@ documentation.  Declt is also available via Quicklisp.
 
    In order to install and load the bare Lisp library, unpack it
 somewhere in the ASDF 3 source registry and type this at the REPL:
-(asdf:load-system :com.dvlsoft.declt)
+(asdf:load-system :net.didierverna.declt)
 
    In addition to the bare Lisp library, the Declt distribution offers
 documentation in the form of 2 different manuals: the User Manual (you
@@ -42,12 +42,12 @@ A.1 Configuration
 Some aspects of Declt’s behavior can be configured _before_ the library
 system is actually loaded.  Declt stores its user-level configuration
 (along with some other setup parameters) in another ASDF system called
-‘com.dvlsoft.declt.setup’ (and the eponym package).  In order to
+‘net.didierverna.declt.setup’ (and the eponym package).  In order to
 configure the library (I repeat, prior to loading it), you will
 typically do something like this:
 (require "asdf")
-(asdf:load-system :com.dvlsoft.declt.setup)
-(com.dvlsoft.declt.setup:configure <option> <value>)
+(asdf:load-system :net.didierverna.declt.setup)
+(net.didierverna.declt.setup:configure <option> <value>)
 
  -- Function: configure KEY VALUE
      Set KEY to VALUE in the current Declt configuration.

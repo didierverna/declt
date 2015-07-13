@@ -1,4 +1,4 @@
-;;; com.dvlsoft.declt.asd --- ASDF system definition
+;;; net.didierverna.declt.asd --- ASDF system definition
 
 ;; Copyright (C) 2010-2013, 2015 Didier Verna
 
@@ -26,9 +26,9 @@
 
 ;;; Code:
 
-(asdf:load-system :com.dvlsoft.declt.setup)
+(asdf:load-system :net.didierverna.declt.setup)
 
-(asdf:defsystem :com.dvlsoft.declt
+(asdf:defsystem :net.didierverna.declt
   :long-name "Documentation Extractor from Common Lisp to Texinfo"
   :description "A reference manual generator for Common Lisp libraries"
   :long-description "\
@@ -45,8 +45,8 @@ converted into info, HTML, DVI, PostScript or PDF."
   :homepage "http://www.lrde.epita.fr/~didier/software/lisp/misc.php#declt"
   :source-control "https://github.com/didierverna/declt"
   :license "BSD"
-  :version #.(com.dvlsoft.declt.setup:version :short)
+  :version #.(net.didierverna.declt.setup:version :short)
   :if-feature :sbcl
-  :depends-on (:com.dvlsoft.declt.setup :com.dvlsoft.declt.core))
+  :depends-on (:net.didierverna.declt.setup :net.didierverna.declt.core))
 
-;;; com.dvlsoft.declt.asd ends here
+;;; net.didierverna.declt.asd ends here
