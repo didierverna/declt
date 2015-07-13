@@ -40,7 +40,7 @@
 @c ====================================================================
 @c Settings
 @c ====================================================================
-@set VERSION 1.1 "Jean-Luc Picard"
+@set VERSION 2.0 "Kathryn Janeway"
 @set COPYRIGHT_DATE 2010--2013, 2015
 @setchapternewpage odd
 @documentdescription

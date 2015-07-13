@@ -43,10 +43,10 @@
 ;; Versioning
 ;; ----------
 
-(defparameter *release-major-level* 1
+(defparameter *release-major-level* 2
   "The major level of this release.")
 
-(defparameter *release-minor-level* 1
+(defparameter *release-minor-level* 0
   "The minor level of this release.")
 
 (defparameter *release-status* :patchlevel
@@ -55,7 +55,7 @@
 (defparameter *release-status-level* 0
   "The status level of this release.")
 
-(defparameter *release-name* "Jean-Luc Picard"
+(defparameter *release-name* "Kathryn Janeway"
   "The name of this release.")
 
 (defun release-status-number (release-status)

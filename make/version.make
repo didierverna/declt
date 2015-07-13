@@ -1,2 +1,2 @@
-LONG_VERSION  := 1.1 "Jean-Luc Picard"
-SHORT_VERSION := 1.1
+LONG_VERSION  := 2.0 "Kathryn Janeway"
+SHORT_VERSION := 2.0
