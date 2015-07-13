@@ -95,6 +95,9 @@ for a more human-readable guide to using @declt{}."
 (asdf:load-system :net.didierverna.declt)
 (net.didierverna.declt:nickname-package)
 
+;; ASDF doesn't understand my version numnbering scheme. That will change
+;; soon, but in the meantime, I have to provide my version number explicitly
+;; here.
 (if (and (second sb-ext:*posix-argv*)
 	 (string= (second sb-ext:*posix-argv*) "--web"))
     (declt:declt :net.didierverna.declt
@@ -102,6 +105,7 @@ for a more human-readable guide to using @declt{}."
 		 :texi-file "webreference.texi"
 		 :info-file "declt-webreference" ; but we don't care
 		 :introduction +introduction+
+		 :version (declt:version :long)
 		 :license :bsd
 		 :copyright-date "2010--2013, 2015")
     (declt:declt :net.didierverna.declt
@@ -109,6 +113,7 @@ for a more human-readable guide to using @declt{}."
 		 :texi-file "reference.texi"
 		 :info-file "declt-reference"
 		 :introduction +introduction+
+		 :version (declt:version :long)
 		 :license :bsd
 		 :copyright-date "2010--2013, 2015"
 		 :hyperlinks t))
