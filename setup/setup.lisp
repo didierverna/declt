@@ -127,7 +127,7 @@ the short version, a patchlevel of 0 is ignored in the output."
 ;; Configuration
 ;; -------------
 
-(defvar configuration nil
+(defvar *configuration* nil
   "The Declt configuration settings.
 This variable contains a property list of configuration options.
 Current options are:
@@ -137,10 +137,10 @@ See section A.1 of the user manual for more information.")
 
 (defun configuration (key)
   "Return KEY's value in the current Declt configuration."
-  (getf configuration key))
+  (getf *configuration* key))
 
 (defun configure (key value)
   "Set KEY to VALUE in the current Declt configuration."
-  (setf (getf configuration key) value))
+  (setf (getf *configuration* key) value))
 
 ;;; setup.lisp ends here
