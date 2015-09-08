@@ -56,7 +56,8 @@
   "The status level of this release.")
 
 (defparameter *release-name* "Kathryn Janeway"
-  "The name of this release.")
+  "The name of this release.
+The general naming theme for Declt is \"Star Trek characters\".")
 
 (defun release-status-number (release-status)
   (ecase release-status
@@ -116,7 +117,7 @@ Alpha, beta or rc levels start at 1. Patchlevels start at 0 but are ignored
 in the output, so that 1.3.0 appears as just 1.3.
 
 A long version is something like
-1.3 {alpha,beta,release candidate,patchlevel} 4 \"Michael Brecker\". As for
+1.3 {alpha,beta,release candidate,patchlevel} 4 \"James T. Kirk\". As for
 the short version, a patchlevel of 0 is ignored in the output."
   (%version type *release-major-level* *release-minor-level*
 	    *release-status* *release-status-level*
