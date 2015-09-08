@@ -25,10 +25,6 @@
 
 ;;; Code:
 
-;; -----------------
-;; System definition
-;; -----------------
-
 (asdf:load-system :net.didierverna.declt.setup)
 
 ;; #### PORTME.
@@ -71,6 +67,5 @@ net.didierverna.declt system."
 					   (:file "package")
 					   (:file "asdf")))
 			     (:file "declt")))))
-
 
 ;;; net.didierverna.declt.core.asd ends here
