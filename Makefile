@@ -39,7 +39,7 @@ ifeq ($(LISP),CLISP)
 endif
 include make/version.make
 
-SUBDIRS   := core doc
+SUBDIRS   := setup core doc
 DIST_NAME := $(PROJECT)-$(SHORT_VERSION)
 TARBALL   := $(DIST_NAME).tar.gz
 SIGNATURE := $(TARBALL).asc
