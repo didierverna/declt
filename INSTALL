@@ -2,11 +2,9 @@
 2 Installation
 **************
 
-Declt is currently an SBCL only library.  It is provided as an ASDF 3
-system.  *Note Supported Platforms::, for more information.
-
-   See Declt’s homepage for tarballs, Git repository and online
-documentation.  Declt is also available via Quicklisp.
+*Note Supported Platforms::, for information on portability or
+requirements.  See Declt’s homepage for tarballs, Git repository and
+online documentation.  Declt is also available via Quicklisp.
 
    In order to install and load the bare Lisp library, unpack it
 somewhere in the ASDF 3 source registry and type this at the REPL:
