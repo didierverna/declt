@@ -125,9 +125,8 @@ $(SIGNATURE): $(TARBALL)
 .PHONY: hack all						\
 	all-formats dvi ps ref all-formats-ref dvi-ref ps-ref	\
 	install install-ref uninstall				\
-	clean distclean						\
+	clean distclean					\
 	tag tar gpg dist install-www				\
-	update-version						\
 	gen
 
 
