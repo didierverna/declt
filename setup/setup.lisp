@@ -52,10 +52,10 @@
 (defparameter *release-status* :patchlevel
   "The status of this release.")
 
-(defparameter *release-status-level* 0
+(defparameter *release-status-level* 1
   "The status level of this release.")
 
-(defparameter *release-name* "Kathryn Janeway"
+(defparameter *release-name* "Benjamin Sisko"
   "The name of this release.
 The general naming theme for Declt is \"Star Trek characters\".")
 

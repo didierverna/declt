@@ -40,7 +40,7 @@
 @c ====================================================================
 @c Settings
 @c ====================================================================
-@set VERSION 2.0 "Kathryn Janeway"
+@set VERSION 2.0 patchlevel 1 "Benjamin Sisko"
 @set COPYRIGHT_DATE 2010--2013, 2015
 @setchapternewpage odd
 @documentdescription
