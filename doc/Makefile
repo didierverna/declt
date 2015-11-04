@@ -176,7 +176,6 @@ declt.make: $(TOP_DIR)/make/config.make
 	dvi				\
 	ps				\
 	clean distclean		\
-	update-version			\
 	install-www
 
 
