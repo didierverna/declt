@@ -79,6 +79,15 @@ Each category is of type (:KEYWORD DESCRIPTION-STRING).")
 This structure holds the symbol naming the definition."
   symbol)
 
+(defun definition-package (definition)
+  "Return DEFINITION's symbol home package."
+  (symbol-package (definition-symbol definition)))
+
+(defun definition-package-name (definition)
+  "Return DEFINITION's symbol home package name."
+  (name (definition-package definition)))
+
+
 (defstruct (constant-definition (:include definition))
   "Structure for constant definitions.")
 (defstruct (special-definition (:include definition))

@@ -226,41 +226,65 @@ not advertised if they are the same as GENERIC-SOURCE."
 ;; Documentation Protocols
 ;; ==========================================================================
 
+;; #### WARNING: note that in all the TITLE methods below, the symbols are
+;; #### fully qualified with their package names. That is because these
+;; #### methods are used to compute anchor names, and anchor names need to be
+;; #### unique (in particular, different for symbols of the same name but in
+;; #### different packages). This is a bit shaky and only work because we
+;; #### never actually display a symbol-based definition's title (contrary to
+;; #### other definitions such as packages). Indeed, I think we wouldn't want
+;; #### to actually print fully qualified symbols. If this ever changes, we
+;; #### may need to review the ANCHOR protocol and use something different
+;; #### from the definitions TITLEs.
+
 (defmethod title ((constant constant-definition) &optional relative-to)
   "Return CONSTANT's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~) constant" (name constant)))
+  (format nil "the ~(~A::~A~) constant"
+	  (definition-package-name constant)
+	  (name constant)))
 
 (defmethod title ((special special-definition) &optional relative-to)
   "Return SPECIAL's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~) special variable" (name special)))
+  (format nil "the ~(~A::~A~) special variable"
+	  (definition-package-name special)
+	  (name special)))
 
 (defmethod title ((symbol-macro symbol-macro-definition) &optional relative-to)
   "Return SYMBOL-MACRO's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~) symbol macro" (name symbol-macro)))
+  (format nil "the ~(~A::~A~) symbol macro"
+	  (definition-package-name symbol-macro)
+	  (name symbol-macro)))
 
 (defmethod title ((macro macro-definition) &optional relative-to)
   "Return MACRO's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~) macro" (name macro)))
+  (format nil "the ~(~A::~A~) macro"
+	  (definition-package-name macro)
+	  (name macro)))
 
 (defmethod title
     ((compiler-macro compiler-macro-definition) &optional relative-to)
   "Return COMPILER-MACRO's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~) compiler macro" (name compiler-macro)))
+  (format nil "the ~(~A::~A~) compiler macro"
+	  (definition-package-name compiler-macro)
+	  (name compiler-macro)))
 
 (defmethod title ((function function-definition) &optional relative-to)
   "Return FUNCTION's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~) function" (name function)))
+  (format nil "the ~(~A::~A~) function"
+	  (definition-package-name function)
+	  (name function)))
 
 (defmethod title ((method method-definition) &optional relative-to)
   "Return METHOD's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~{ ~A~^~}~{ ~A~^~}~) method"
+  (format nil "the ~(~A::~A~{ ~A~^~}~{ ~A~^~}~) method"
+    (definition-package-name method)
     (name method)
     (mapcar #'pretty-specializer (specializers method))
     (qualifiers method)))
@@ -268,12 +292,16 @@ not advertised if they are the same as GENERIC-SOURCE."
 (defmethod title ((generic generic-definition) &optional relative-to)
   "Return GENERIC's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~) generic function" (name generic)))
+  (format nil "the ~(~A::~A~) generic function"
+	  (definition-package-name generic)
+	  (name generic)))
 
 (defmethod title ((expander setf-expander-definition) &optional relative-to)
   "Return setf EXPANDER's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~) setf expander" (name expander)))
+  (format nil "the ~(~A::~A~) setf expander"
+	  (definition-package-name expander)
+	  (name expander)))
 
 ;; #### NOTE: no TITLE method for SLOT-DEFINITION
 
@@ -281,33 +309,45 @@ not advertised if they are the same as GENERIC-SOURCE."
     ((combination short-combination-definition)&optional relative-to)
   "Return short method COMBINATION's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~) short method combination" (name combination)))
+  (format nil "the ~(~A::~A~) short method combination"
+	  (definition-package-name combination)
+	  (name combination)))
 
 (defmethod title
     ((combination long-combination-definition)&optional relative-to)
   "Return long method COMBINATION's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~) long method combination" (name combination)))
+  (format nil "the ~(~A::~A~) long method combination"
+	  (definition-package-name combination)
+	  (name combination)))
 
 (defmethod title ((condition condition-definition) &optional relative-to)
   "Return CONDITION's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~) condition" (name condition)))
+  (format nil "the ~(~A::~A~) condition"
+	  (definition-package-name condition)
+	  (name condition)))
 
 (defmethod title ((structure structure-definition) &optional relative-to)
   "Return STRUCTURE's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~) structure" (name structure)))
+  (format nil "the ~(~A::~A~) structure"
+	  (definition-package-name structure)
+	  (name structure)))
 
 (defmethod title ((class class-definition) &optional relative-to)
   "Return CLASS's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~) class" (name class)))
+  (format nil "the ~(~A::~A~) class"
+	  (definition-package-name class)
+	  (name class)))
 
 (defmethod title ((type type-definition) &optional relative-to)
   "Return TYPE's title."
   (declare (ignore relative-to))
-  (format nil "the ~(~A~) type" (name type)))
+  (format nil "the ~(~A::~A~) type"
+	  (definition-package-name type)
+	  (name type)))
 
 ;; #### NOTE: the INDEX methods below only perform sub-indexing because the
 ;; main index entries are created automatically in Texinfo by the @defXXX
