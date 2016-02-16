@@ -101,21 +101,21 @@ for a more human-readable guide to using @declt{}."
 (if (and (second sb-ext:*posix-argv*)
 	 (string= (second sb-ext:*posix-argv*) "--web"))
     (declt:declt :net.didierverna.declt
-		 :library-name "Declt"
-		 :texi-file "webreference.texi"
-		 :info-file "declt-webreference" ; but we don't care
-		 :introduction +introduction+
+		 :library "Declt"
 		 :version (declt:version :long)
+		 :copyright "2010--2013, 2015"
 		 :license :bsd
-		 :copyright-date "2010--2013, 2015")
+		 :introduction +introduction+
+		 :texi-file "webreference.texi"
+		 :info-file "declt-webreference") ; but we don't care
     (declt:declt :net.didierverna.declt
-		 :library-name "Declt"
+		 :library "Declt"
+		 :version (declt:version :long)
+		 :copyright "2010--2013, 2015"
+		 :license :bsd
+		 :introduction +introduction+
 		 :texi-file "reference.texi"
 		 :info-file "declt-reference"
-		 :introduction +introduction+
-		 :version (declt:version :long)
-		 :license :bsd
-		 :copyright-date "2010--2013, 2015"
 		 :hyperlinks t))
 
 (uiop:quit)
