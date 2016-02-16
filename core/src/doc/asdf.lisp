@@ -379,18 +379,30 @@ Modules are listed depth-first from the system components tree.")))))
   (when-let ((long-name (system-long-name system)))
     (@tableitem "Long Name"
       (format t "~A~%" (escape long-name))))
-  (multiple-value-bind (maintainer email)
-      (parse-contact-string (system-maintainer system))
-    (when (or maintainer email)
-      (@tableitem "Maintainer"
-	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-	  (escape maintainer) (and maintainer email) (escape email)))))
-  (multiple-value-bind (author email)
-      (parse-contact-string (system-author system))
-    (when (or author email)
-      (@tableitem "Author"
-	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-	  (escape author) (and author email) (escape email)))))
+  (multiple-value-bind (maintainers emails)
+      (|parse-contact(s)| (system-maintainer system))
+    (when maintainers
+      (@tableitem (format nil "Maintainer~P" (length maintainers))
+	;; #### FIXME: @* and map uglyness. I'm sure FORMAT can do all this.
+	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
+	  (escape (car maintainers)) (car emails) (escape (car emails)))
+	(mapc (lambda (maintainer email)
+		(format t "@*~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
+		  (escape maintainer) email (escape email)))
+	  (cdr maintainers) (cdr emails)))
+      (terpri)))
+  (multiple-value-bind (authors emails)
+      (|parse-contact(s)| (system-author system))
+    (when authors
+      (@tableitem (format nil "Author~P" (length authors))
+	;; #### FIXME: @* and map uglyness. I'm sure FORMAT can do all this.
+	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
+	  (escape (car authors)) (car emails) (escape (car emails)))
+	(mapc (lambda (author email)
+		(format t "@*~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
+		  (escape author) email (escape email)))
+	  (cdr authors) (cdr emails)))
+      (terpri)))
   (when-let ((mailto (system-mailto system)))
     (@tableitem "Contact"
       (format t "@email{~A}~%" (escape mailto))))
