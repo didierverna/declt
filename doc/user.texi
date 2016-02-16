@@ -398,81 +398,108 @@ Generate a reference manual in Texinfo format for ASDF @var{SYSTEM-NAME}.
 @section Customization
 
 The @declt{} function accepts a number of keyword arguments allowing you
-to customize the generated reference manual. They are listed below.
+to customize the generated reference manual.
+
+@menu
+* Output Workarounds::  Prettifying the output
+* Output Supplements::  Additional information and contents
+* Output Control::      Basic output control
+@end menu
+
+@node Output Workarounds, Output Supplements, Customization, Customization
+@subsection Output Workarounds
+The following information is normally extracted from the system,
+although you may want to tweak it for better formatting.
 
 @table @code
-@item :library-name
-@fkindex{declt,library-name}
+@item :library
+@fkindex{declt,library}
 The library name, used in the reference manual title and at some other
 places. It defaults to the system name, but you are encouraged to
-provide a more human-readable version, such as @t{"Declt"} instead of
+provide a more human-readable version, such as @t{Declt} instead of
 just @t{net.didierverna.declt}.
-@item :texi-file
-@fkindex{declt,texi-file}
-The full path of the generated Texinfo file. It defaults to
-@file{LIBRARY-NAME.texi} in the current directory.
-@item :info-file
-@fkindex{declt,info-file}
-The base name of the info file, sans extension. The default is built
-from @t{TEXI-FILE}.
 @item :tagline
 @fkindex{declt,tagline}
 A tagline for the library, use in the reference manual subtitle. It
-defaults to the system's long name or description.
+defaults to the system's long name or description, but see @ref{Taglines}.
 @item :version
 @fkindex{declt,version}
 The library's version, used in the reference manual subtitle and at some
 other places. It defaults to the system's version.
-@item :maintainer
-@fkindex{declt,maintainer}
-The library's maintainer. It defaults to the system's maintainer or
-author. Note that having a maintainer is mandatory to produce a
-reference manual (the maintainer appear on the title page).
 @item :contact
 @fkindex{declt,contact}
-The contact address for the library. The default is extracted from the
-system definition (either the @code{maintainer}, the @code{author} or
-the @code{mailto} slots).
+The contact(s) for the library. The default is extracted from the
+system definition (the @code{maintainer} and @code{author} slots,
+possibly also the @code{mailto} one). At least one contact is needed
+because it is typeset in various places (@eg{} on the title page). If
+the library doesn't provide that information, you need to provide it by
+hand, as an author string or a list of such. An author string contains a
+name, optionally followed by an @code{<email@@ddress>}.
+@end table
+
+@node Output Supplements, Output Control, Output Workarounds, Customization
+@subsection Output Supplements
+The following information is either not provided by the system, or too
+difficult to extract properly (DWIM rulez not).
+
+@table @code
+@item :copyright-date
+@fkindex{declt,copyright}
+Copyright year(s) used to typeset copyright header lines. You can use
+@nil{} to disable such lines. It defaults to the current year.  You may
+use any kind of string here, such as @code{"2013"}, @code{"2010, 2011"},
+@code{"2010--2013"} @etc{}
 @item :license
 @fkindex{declt,license}
 @pvindex{*licenses*}
 The library's license type. This information is used to insert licensing
 information at several places in the manual. The default is @nil{} and
-the possible values are: @code{:mit}, @code{:bsd}, @code{:gpl} and
+the possible other values are: @code{:mit}, @code{:bsd}, @code{:gpl} and
 @code{:lgpl}. The corresponding license texts are stored in the
 @var{*licenses*} parameter. Please ask if you need other kinds of
 licenses added to @declt{}. Note that this information is @strong{not}
-extracted from the system's @t{license} slot, as this slot is not well
-defined.
-@item :copyright-date
-@fkindex{declt,copyright-date}
-A copyright date to be used in conjunction with the licensing
-information.  It defaults to the current year. You may use any kind of
-string here, such as @code{"2013"}, @code{"2010, 2011"},
-@code{"2010--2013"} @etc{}
-@item :declt-notice
-@fkindex{declt,declt-notice}
-Controls the output of a small paragraph about automatic manual
-generation by Declt. Possible values are @nil{}, @code{:short} and
-@code{:long} (the default). I would be grateful if you kept at least the
-short version in your manuals, as an acknowledgment for using @declt{}.
+currently extracted from the system's @t{license} slot, as this slot is
+not well defined.
 @item :introduction
 @fkindex{declt,introduction}
 A potential contents for an introductive chapter.
 @item :conclusion
 @fkindex{declt,conclusion}
 A potential contents for a conclusive chapter.
+@end table
+
+Note that both the introduction and the conclusion may contain Texinfo
+directives (no post-processing will occur). All other textual material
+is considered raw text and will be properly escaped for Texinfo.
+
+@node Output Control, , Output Supplements, Customization
+@subsection Output Control
+The following options let you customize some basic aspects of the
+generated documentation.
+
+@table @code
+@item :texi-file
+@fkindex{declt,texi-file}
+The full path of the generated Texinfo file. It defaults to
+@file{LIBRARY.texi} in the current directory (@pxref{Output
+Workarounds}).
+@item :info-file
+@fkindex{declt,info-file}
+The base name of the info file, sans extension. The default is built
+from @t{TEXI-FILE}.
 @item :hyperlinks
 @fkindex{declt,hyperlinks}
 Whether to create hyperlinks to files or directories in the reference
 manual. Note that those links being specific to the machine on which the
 manual was generated, it is preferable to keep it to @nil{} for creating
 reference manuals meant to be put online.
+@item :declt-notice
+@fkindex{declt,declt-notice}
+Controls the output of a small paragraph about automatic manual
+generation by Declt. Possible values are @nil{}, @code{:short} and
+@code{:long} (the default). I would be grateful if you kept at least the
+short version in your manuals, as an acknowledgment for using @declt{}.
 @end table
-
-Note that both the introduction and the conclusion may contain Texinfo
-directives (no post-processing will occur). All other textual material
-is considered raw text and will be properly escaped for Texinfo.
 
 
 @c -------------
