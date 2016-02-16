@@ -96,7 +96,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
   "Render the header of the Texinfo file."
   (format t "\\input texinfo~2%@c ~A --- Reference manual~2%" texi-name)
 
-  (when license
+  (when copyright-date
     (mapc (lambda (name)
 	    (format t "@c Copyright (C) ~A ~A~%" copyright-date name))
       contact-names)
@@ -104,10 +104,11 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 
   (format t "@c This file is part of ~A.~2%" library-name)
 
-  (with-input-from-string (str (caddr license))
-    (loop :for line := (read-line str nil str)
-	  :until (eq line str)
-	  :do (format t "@c ~A~%" line)))
+  (when license
+    (with-input-from-string (str (caddr license))
+      (loop :for line := (read-line str nil str)
+	    :until (eq line str)
+	    :do (format t "@c ~A~%" line))))
 
   (terpri)
   (terpri)
