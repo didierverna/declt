@@ -380,13 +380,13 @@ Modules are listed depth-first from the system components tree.")))))
     (@tableitem "Long Name"
       (format t "~A~%" (escape long-name))))
   (multiple-value-bind (maintainer email)
-      (parse-author-string (system-maintainer system))
+      (parse-contact-string (system-maintainer system))
     (when (or maintainer email)
       (@tableitem "Maintainer"
 	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	  (escape maintainer) (and maintainer email) (escape email)))))
   (multiple-value-bind (author email)
-      (parse-author-string (system-author system))
+      (parse-contact-string (system-author system))
     (when (or author email)
       (@tableitem "Author"
 	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"

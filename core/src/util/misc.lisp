@@ -66,7 +66,7 @@
       (- tz))))
 
 ;; Stolen from Tinaa.
-(defun parse-author-string
+(defun parse-contact-string
     (string &aux (pos-< (position #\< string :test #'char-equal))
 		 (pos-> (position #\> string :test #'char-equal)))
   "Parse STRING as \"NAME <EMAIL>\".
@@ -75,6 +75,20 @@ Return NAME and EMAIL as two values."
       (values (subseq string 0 (1- pos-<))
 	      (subseq string (1+ pos-<) pos->))
     string))
+
+(defun |parse-contact(s)| (|contact(s)|)
+  "Parse CONTACT(S) as either a contact string, or a list of such.
+Return a list of name(s) an email(s) as two values.
+See `PARSE-CONTACT-STRING' for more information."
+  (if (stringp |contact(s)|)
+      (multiple-value-bind (name email) (parse-contact-string |contact(s)|)
+	(values (list name) (list email)))
+    (loop :for contact-string :in |contact(s)|
+	  :for (name email)
+	    := (multiple-value-list (parse-contact-string contact-string))
+	  :collect name :into names
+	  :collect email :into emails
+	  :finally (return (values names emails)))))
 
 
 
