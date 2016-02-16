@@ -91,20 +91,26 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 
 (defun render-header (library-name texi-name info-file tagline version
-		      maintainer contact license declt-notice
+		      contact-names contact-emails license declt-notice
 		      copyright-date current-time-string)
   "Render the header of the Texinfo file."
   (format t "\\input texinfo~2%@c ~A --- Reference manual~2%" texi-name)
 
   (when license
-    (format t "@c Copyright (C) ~A ~A~2%@c This file is part of ~A.~2%"
-      copyright-date maintainer library-name)
-    (with-input-from-string (str (caddr license))
-      (loop :for line := (read-line str nil str)
-	    :until (eq line str)
-	    :do (format t "@c ~A~%" line)))
-    (terpri)
+    (mapc (lambda (name)
+	    (format t "@c Copyright (C) ~A ~A~%" copyright-date name))
+      contact-names)
     (terpri))
+
+  (format t "@c This file is part of ~A.~2%" library-name)
+
+  (with-input-from-string (str (caddr license))
+    (loop :for line := (read-line str nil str)
+	  :until (eq line str)
+	  :do (format t "@c ~A~%" line)))
+
+  (terpri)
+  (terpri)
 
   (format t "@c Commentary:~2%~
 	     @c Generated automatically by Declt version ~A~%~
@@ -301,9 +307,14 @@ The ~A Reference Manual~@[, version ~A~].
 @c Copying
 @c ====================================================================
 @copying
-@quotation
-Copyright @copyright{} ~A ~A
+@quotation~%")
 
+    (mapc (lambda (name)
+	    (format t "Copyright @copyright{} ~A ~A~%"
+	      (escape copyright-date) (escape name)))
+      contact-names)
+    (terpri)
+    (format t "~
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
 preserved on all copies.
@@ -323,8 +334,7 @@ Permission is granted to copy and distribute translations of this manual
 into another language, under the above conditions for modified versions,
 except that this permission notice may be translated as well.
 @end quotation
-@end copying~4%"
-    (escape copyright-date) (escape maintainer)))
+@end copying~4%"))
 
   (format t "~
 @c ====================================================================
@@ -332,15 +342,19 @@ except that this permission notice may be translated as well.
 @c ====================================================================
 @titlepage
 @title The ~A Reference Manual
-~A~A~%"
+~A~%"
     (escape library-name)
     (if (or tagline version)
 	(format nil "@subtitle ~@[~A~]~:[~;, ~]~@[version ~A~]~%"
 	  tagline (and tagline version) version)
-      "")
-    (format nil "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-       (escape maintainer) contact contact))
-
+	""))
+  (mapc (lambda (name email)
+	  (format t "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
+	    (escape name)
+	    email
+	    (escape email)))
+    contact-names contact-emails)
+  (terpri)
   (when (or declt-notice license)
     (format t "@page~%"))
 
@@ -393,7 +407,6 @@ This manual was generated automatically by Declt ~A on ~A.
 		   (info-file (pathname-name texi-file))
 		   (tagline nil taglinep)
 		   (version nil versionp)
-		   maintainer
 		   (contact nil contactp)
 		   license
 		   copyright-date
@@ -403,7 +416,8 @@ This manual was generated automatically by Declt ~A on ~A.
 		   hyperlinks
 	      &aux (system (find-system system-name))
 		   (texi-name (file-namestring texi-file))
-		   (current-time-string (current-time-string)))
+		   (current-time-string (current-time-string))
+		   contact-names contact-emails)
   "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
 - LIBRARY-NAME defaults to SYSTEM-NAME.
 - TEXI-FILE is the full path to the Texinfo file.
@@ -412,9 +426,10 @@ This manual was generated automatically by Declt ~A on ~A.
   Defaults is built from TEXI-FILE.
 - TAGLINE defaults to the system's long name or description.
 - VERSION defaults to the system version.
-- MAINTAINER defaults to the system's maintainer or author.
-- CONTACT defaults to the system's email (from either the mailto, maintainer
-  or author information).
+- CONTACT defaults to the system's maintainer(s) and author(s). CONTACT must
+  not be null. If the library doesn't provide that information, you need
+  to provide it by hand, as an author string or a list of such. An author
+  string contains a name, optionally followed by an <email@ddress>.
 - LICENSE defaults to nil (possible values are: :mit, :bsd, :gpl and :lgpl).
 - COPYRIGHT-DATE defaults to the current year.
 - DECLT-NOTICE is a small paragraph about automatic manual generation by
@@ -450,20 +465,23 @@ and will be properly escaped for Texinfo."
     (setq version (component-version system)))
   (when version
     (setq version (escape version)))
-  (multiple-value-bind (system-maintainer system-maintainer-email)
-      (parse-author-string (system-maintainer system))
-    (multiple-value-bind (system-author system-author-email)
-	(parse-author-string (system-author system))
-      (unless maintainer
-	(setq maintainer (or system-maintainer system-author)))
-      (unless maintainer
-	(error "Maintainer must be provided."))
-      (unless contactp
-	(setq contact (or (system-mailto system)
-			  system-maintainer-email
-			  system-author-email)))))
-  (when contact
-    (setq contact (escape contact)))
+  (unless contact
+    (setq contact (system-author system))
+    (when (stringp contact) (setq contact (list contact)))
+    (cond ((stringp (system-maintainer system))
+	   (push (system-maintainer system) contact))
+	  ((consp (system-maintainer system))
+	   (setq contact (append (system-maintainer system) contact)))))
+  (unless contact
+    (error "At least one contact must be provided."))
+  (multiple-value-bind (names emails) (|parse-contact(s)| contact)
+    (setq contact-names names
+	  contact-emails emails))
+  (when (and (= (length contact-names) 1)
+	     (not contactp)
+	     (null (car contact-emails))
+	     (system-mailto system))
+    (setq contact-emails (list (system-mailto system))))
   (when license
     (setq license (assoc license *licenses*))
     (unless license
@@ -556,8 +574,9 @@ Concepts, functions, variables and data types")
 				       :direction :output
 				       :if-exists :supersede
 				       :if-does-not-exist :create)
-      (render-header library-name texi-name info-file tagline version maintainer
-		     contact license declt-notice
+      (render-header library-name texi-name info-file tagline version
+		     contact-names contact-emails
+		     license declt-notice
 		     copyright-date current-time-string)
       (render-top-node top-node)
       (format t "~%@bye~%~%@c ~A ends here~%" texi-name)))
