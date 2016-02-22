@@ -2,7 +2,7 @@
 
 @c user.texi --- User manual
 
-@c Copyright (C) 2013, 2015 Didier Verna
+@c Copyright (C) 2013, 2015, 2016 Didier Verna
 
 @c Author: Didier Verna <didier@didierverna.net>
 
@@ -41,7 +41,7 @@
 @c Settings
 @c ====================================================================
 @set VERSION 2.0 patchlevel 1 "Benjamin Sisko"
-@set COPYRIGHT_DATE 2010--2013, 2015
+@set COPYRIGHT_DATE 2010--2013, 2015, 2016
 @setchapternewpage odd
 @documentdescription
 The Declt User Manual for version @value{VERSION}.
