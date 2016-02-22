@@ -227,6 +227,7 @@ This is the @declt{} User Manual for @declt{} version @value{VERSION}.
 * Conclusion::          That's all folks
 * Technical Notes::     Configuration, platforms and portability
 * Indexes::             Concepts, functions, variables and data types
+* Acknowledgments::     Hall of Pride
 @end menu
 
 @insertcopying
@@ -837,7 +838,7 @@ SBCL's @t{sb-introspect} contrib.
 @c ====================================================================
 @c Indexes
 @c ====================================================================
-@node Indexes, , Technical Notes, Top
+@node Indexes, Acknowledgments, Technical Notes, Top
 @appendix Indexes
 
 @menu
@@ -881,6 +882,20 @@ SBCL's @t{sb-introspect} contrib.
 @node Data Type Index, , Variable Index, Indexes
 @section Data Types
 @printindex tp
+
+
+
+@c ====================================================================
+@c Acknowledgments
+@c ====================================================================
+@node Acknowledgments, , Indexes, Top
+@appendix Acknowledgments
+The following people have contributed bug reports or fixes, suggestions,
+compiler support or any other kind of help. You have my gratitude!
+
+@multitable @columnfractions .99
+@item Sabra Crolleton@*
+@end multitable
 
 
 @bye
