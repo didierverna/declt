@@ -37,13 +37,21 @@
   "Return COMPONENT's location RELATIVE-TO."
   (enough-namestring (component-pathname component) relative-to))
 
-(defun sub-component-p (component relative-to)
+(defun sub-component-p
+    (component relative-to
+     ;; #### NOTE: COMPONENT-PATHNAME can return nil when it's impossible to
+     ;; locate the component's source. This happens for example with UIOP when
+     ;; ASDF is embedded in a Lisp implementation like SBCL. Sabra Crolleton
+     ;; fell on this issue when trying to document CL-PROJECT, which
+     ;; explicitly depends on UIOP.
+     &aux (component-pathname (component-pathname component)))
   "Return T if COMPONENT can be found under RELATIVE-TO."
-  (pathname-match-p (component-pathname component)
-		    (make-pathname :name :wild
-				   :directory
-				   (append (pathname-directory relative-to)
-					   '(:wild-inferiors)))))
+  (when component-pathname
+    (pathname-match-p component-pathname
+		      (make-pathname :name :wild
+				     :directory
+				     (append (pathname-directory relative-to)
+					     '(:wild-inferiors))))))
 
 (defun components (module type)
   "Return the list of all components of (sub)TYPE from ASDF MODULE."
