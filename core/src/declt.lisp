@@ -378,20 +378,12 @@ This manual was generated automatically by Declt ~A on ~A.
 @c ====================================================================
 @contents~%"))
 
-(defun all-lisp-pathnames (context &aux (systems (context-systems context)))
-  "Return a list of all Lisp files in CONTEXT.
-This list includes the .asd ones."
-  (mapcan #'lisp-pathnames
-	  ;; #### FIXME: code duplication from ADD-FILES-NODE.
-	  (remove-duplicates systems
-			     :test #'equal :key #'system-source-file)))
-
-(defun add-packages (context &aux (files (all-lisp-pathnames context)))
+(defun add-packages (context)
   "Add all package definitions to CONTEXT."
   (setf (context-packages context)
-	(remove-if-not (lambda (package)
-			 (member (source package) files :test #'equal))
-		       (list-all-packages))))
+	;; #### FIXME: why would there be duplicates ?
+	(remove-duplicates
+	 (mapcan #'system-packages (context-systems context)))))
 
 (defun add-external-definitions (context)
   "Add all external definitions to CONTEXT."
