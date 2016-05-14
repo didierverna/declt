@@ -382,9 +382,7 @@ This manual was generated automatically by Declt ~A on ~A.
   "Return a list of all Lisp files in CONTEXT.
 This list includes the .asd ones."
   (mapcan #'lisp-pathnames
-	  ;; #### FIXME: code duplication from
-	  ;; ADD-FILES-NODE. Shouldn't the context-systems be already
-	  ;; duplicate-free ?
+	  ;; #### FIXME: code duplication from ADD-FILES-NODE.
 	  (remove-duplicates systems
 			     :test #'equal :key #'system-source-file)))
 
