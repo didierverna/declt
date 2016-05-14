@@ -174,22 +174,21 @@
 ;; Utilities
 ;; ---------
 
-(defun file-packages (file)
-  "Return the list of all packages defined in FILE."
-  (loop :for package :in (list-all-packages)
-	:when (equal (source package) file)
-	  :collect package))
-
 (defun lisp-pathnames (system)
   "Return the list of all ASDF SYSTEM's Lisp source file pathnames.
 The list includes the system definition file."
   (cons (system-source-file system)
 	(mapcar #'component-pathname (lisp-components system))))
 
+(defun file-packages (file)
+  "Return the list of all packages defined in FILE."
+  (loop :for package :in (list-all-packages)
+	:when (equal (source package) file)
+	  :collect package))
+
 (defun system-packages (system)
   "Return the list of packages defined in ASDF SYSTEM."
-  ;; #### FIXME: why would there be any duplicates here ?
-  (remove-duplicates (mapcan #'file-packages (lisp-pathnames system))))
+  (mapcan #'file-packages (lisp-pathnames system)))
 
 (defun system-external-symbols (system)
   "Return the list of ASDF SYSTEM's external symbols."
