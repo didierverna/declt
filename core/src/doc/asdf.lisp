@@ -134,7 +134,7 @@ Optionally PREFIX the title."
   (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
 	 ;; That sucks. I need to fake a cl-source-file reference because the
 	 ;; system file is not an ASDF component per-se.
-	 (@tableitem "Definition file"
+	 (@tableitem "Source"
 	   (let ((system-base-name (escape (system-base-name component))))
 	     (format t "@ref{go to the ~A file, , @t{~(~A}~)} (Lisp file)~%"
 	       system-base-name
