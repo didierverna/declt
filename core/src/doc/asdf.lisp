@@ -265,6 +265,12 @@ components trees."))))
 		     (format t "@lispfileindex{~A}@c~%" system-base-name)
 		     (@table ()
 		       (render-location system-source-file context)
+		       (render-references
+			(loop :for system :in systems
+			      :when (equal (system-source-file system)
+					   system-source-file)
+				:collect system)
+			"Systems")
 		       (render-packages-references
 			(file-packages system-source-file))
 		       (render-external-definitions-references
