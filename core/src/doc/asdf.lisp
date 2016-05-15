@@ -142,7 +142,7 @@ Optionally PREFIX the title."
 	 (when (context-hyperlinksp context)
 	   (let ((system-source-directory
 		   (escape (system-source-directory component))))
-	     (@tableitem "Source Directory"
+	     (@tableitem "Directory"
 	       (format t "@url{file://~A, ignore, @t{~A}}~%"
 		 system-source-directory
 		 system-source-directory)))))
