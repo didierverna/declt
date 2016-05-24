@@ -216,7 +216,7 @@ Optionally PREFIX the title."
 (defun file-node
     (file context &aux (relative-to (context-directory context)))
   "Create and return a FILE node in CONTEXT."
-  (make-node :name (escape (format nil "~@(~A~)" (title file relative-to)))
+  (make-node :name (format nil "~@(~A~)" (title file relative-to))
 	     :section-name (format nil "@t{~A}"
 			     (escape (relative-location file relative-to)))
 	     :before-menu-contents (render-to-string (document file context))))
@@ -341,7 +341,7 @@ components trees."))))
 (defun module-node
     (module context &aux (relative-to (context-directory context)))
   "Create and return a MODULE node in CONTEXT."
-  (make-node :name (escape (format nil "~@(~A~)" (title module relative-to)))
+  (make-node :name (format nil "~@(~A~)" (title module relative-to))
 	     :section-name (format nil "@t{~A}"
 			     (escape (relative-location module relative-to)))
 	     :before-menu-contents
@@ -440,7 +440,7 @@ Modules are listed depth-first from the system components tree.")))))
 
 (defun system-node (system context)
   "Create and return a SYSTEM node in CONTEXT."
-  (make-node :name (escape (format nil "~@(~A~)" (title system)))
+  (make-node :name (format nil "~@(~A~)" (title system))
 	     :section-name (format nil "@t{~(~A~)}" (escape system))
 	     :before-menu-contents
 	     (render-to-string (document system context))))

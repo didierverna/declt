@@ -391,7 +391,8 @@ Return that string."
   "The numbered, unumbered and appendix section names sorted by level.")
 
 ;; #### NOTE: all contents in the NODE structure must be already escaped for
-;; Texinfo.
+;; Texinfo.  #### WARNING: not any more. The node names are not escaped any
+;; more. RENDER-NODE does it now.
 (defstruct node
   "The NODE structure.
 This structure holds Texinfo nodes."
@@ -419,7 +420,9 @@ This structure holds Texinfo nodes."
   (setf (node-up child) parent)
   child)
 
-(defun render-node (node level)
+(defun render-node (node level
+		    &aux (node-name (node-name node))
+			 (safe-node-name (escape node-name)))
   "Render NODE at LEVEL and all its children at LEVEL+1."
   (cond ((<= level 1)
 	 (format t "
@@ -428,9 +431,9 @@ This structure holds Texinfo nodes."
 @c ====================================================================
 @c ~A
 @c ====================================================================~%"
-	   (node-name node)))
+	   node-name))
 	((= level 2)
-	 (let ((separator (make-string (length (node-name node))
+	 (let ((separator (make-string (length node-name)
 			    :initial-element #\-)))
 	   (format t
 		   "
@@ -438,24 +441,24 @@ This structure holds Texinfo nodes."
 @c ~A
 @c ~A
 @c ~A~%"
-	     separator (node-name node) separator)))
+	     separator node-name separator)))
 	(t (terpri)))
   (when (= level 0)
     (format t "@ifnottex~%"))
   (format t "@node ~A, ~@[~A~], ~@[~A~], ~A~%"
-    (node-name node)
+    safe-node-name
     (or (when (= level 0)
-	  (node-name (first (node-children node))))
+	  (escape (node-name (first (node-children node)))))
 	(when (node-next node)
-	  (node-name (node-next node))))
+	  (escape (node-name (node-next node)))))
     (or (when (= level 0)
 	  "(dir)")
 	(when (node-previous node)
-	  (node-name (node-previous node)))
-	(node-name (node-up node)))
+	  (escape (node-name (node-previous node))))
+	(escape (node-name (node-up node))))
     (if (= level 0)
 	"(dir)"
-      (node-name (node-up node))))
+      (escape (node-name (node-up node)))))
   (format t "@~A ~A~%"
     (nth level (cdr (assoc (node-section-type node) *section-names*)))
     (or (node-section-name node) (node-name node)))
@@ -468,7 +471,8 @@ This structure holds Texinfo nodes."
     (format t "@menu~%")
     (dolist (child (node-children node))
       ;; #### FIXME: this could be improved with proper alignment of synopsis.
-      (format t "* ~A::~@[ ~A~]~%" (node-name child) (node-synopsis child)))
+      (format t "* ~A::~@[ ~A~]~%"
+	(escape (node-name child)) (node-synopsis child)))
     (format t "@end menu~%"))
   (when (node-after-menu-contents node)
     (when (or (node-children node) (node-before-menu-contents node))

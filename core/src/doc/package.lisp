@@ -108,7 +108,7 @@
 Packages are listed by definition order.")))))
       (dolist (package packages)
 	(add-child packages-node
-	  (make-node :name (escape (format nil "~@(~A~)" (title package)))
+	  (make-node :name (format nil "~@(~A~)" (title package))
 		     :section-name (format nil "@t{~(~A~)}" (escape package))
 		     :before-menu-contents
 		     (render-to-string (document package context))))))))
