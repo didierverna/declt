@@ -63,6 +63,22 @@ The escaped characters are @, {, } and optionally a list of OTHER-CHARS."
 		  :collect char)
 	    'string)))
 
+(defun escape-anchor (object &optional other-chars)
+  "When OBJECT, escape its name for use as a Texinfo anchor.
+The escaped characters are @, {, } and optionally a list of OTHER-CHARS.
+Additionally, periods, commas and colons are wrapped inside calls to the
+@asis macro."
+  (when object
+    (apply #'concatenate 'string
+	   (loop :for char across (name object)
+		 :if (member char (append '(#\@ #\{ #\}) other-chars))
+		   :collect (format nil "@~A" char)
+		 :else
+		   :if (member char '(#\. #\, #\:))
+		     :collect (format nil "@asis{~A}" char)
+		 :else
+		   :collect (string char)))))
+
 (defun first-word-length (string)
   "Return the length of the first word in STRING.
 Initial whitespace characters are skipped."
@@ -105,7 +121,7 @@ embellish the output by detecting potential paragraphs from standalone lines."
   "Render ANCHOR as an @anchor.
 ANCHOR is escaped for Texinfo prior to rendering.
 Rendering is done on *standard-output*."
-  (format t "@anchor{~A}@c~%" (escape anchor)))
+  (format t "@anchor{~A}@c~%" (escape-anchor anchor)))
 
 (defmacro @tableitem (title &body body)
   "Execute BODY within a table @item TITLE.
@@ -422,7 +438,7 @@ This structure holds Texinfo nodes."
 
 (defun render-node (node level
 		    &aux (node-name (node-name node))
-			 (safe-node-name (escape node-name)))
+			 (safe-node-name (escape-anchor node-name)))
   "Render NODE at LEVEL and all its children at LEVEL+1."
   (cond ((<= level 1)
 	 (format t "
@@ -448,17 +464,17 @@ This structure holds Texinfo nodes."
   (format t "@node ~A, ~@[~A~], ~@[~A~], ~A~%"
     safe-node-name
     (or (when (= level 0)
-	  (escape (node-name (first (node-children node)))))
+	  (escape-anchor (node-name (first (node-children node)))))
 	(when (node-next node)
-	  (escape (node-name (node-next node)))))
+	  (escape-anchor (node-name (node-next node)))))
     (or (when (= level 0)
 	  "(dir)")
 	(when (node-previous node)
-	  (escape (node-name (node-previous node))))
-	(escape (node-name (node-up node))))
+	  (escape-anchor (node-name (node-previous node))))
+	(escape-anchor (node-name (node-up node))))
     (if (= level 0)
 	"(dir)"
-      (escape (node-name (node-up node)))))
+      (escape-anchor (node-name (node-up node)))))
   (format t "@~A ~A~%"
     (nth level (cdr (assoc (node-section-type node) *section-names*)))
     (or (node-section-name node) (node-name node)))
@@ -472,7 +488,7 @@ This structure holds Texinfo nodes."
     (dolist (child (node-children node))
       ;; #### FIXME: this could be improved with proper alignment of synopsis.
       (format t "* ~A::~@[ ~A~]~%"
-	(escape (node-name child)) (node-synopsis child)))
+	(escape-anchor (node-name child)) (node-synopsis child)))
     (format t "@end menu~%"))
   (when (node-after-menu-contents node)
     (when (or (node-children node) (node-before-menu-contents node))

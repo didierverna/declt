@@ -440,7 +440,7 @@ not advertised if they are the same as GENERIC-SOURCE."
   "Render DEFINITION's reference."
   (declare (ignore relative-to))
   (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
-    (escape (anchor-name definition))
+    (escape-anchor (anchor-name definition))
     (escape definition)
     (type-name definition)))
 

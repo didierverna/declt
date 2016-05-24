@@ -46,7 +46,9 @@
 (defmethod reference ((package package) &optional relative-to)
   "Render PACKAGE's reference."
   (declare (ignore relative-to))
-  (format t "@ref{~A, , @t{~(~A}~)}~%" (anchor-name package) (escape package)))
+  (format t "@ref{~A, , @t{~(~A}~)}~%"
+    (escape-anchor (anchor-name package))
+    (escape package)))
 
 (defun render-use-list (list title context)
   "Render a package use/used-by LIST with TITLE in CONTEXT."

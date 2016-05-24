@@ -50,7 +50,7 @@
 (defmethod reference ((component asdf:component) &optional relative-to)
   "Render COMPONENT's reference."
   (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
-    (escape (anchor-name component relative-to))
+    (escape-anchor (anchor-name component relative-to))
     (escape component)
     (type-name component)))
 
@@ -137,8 +137,8 @@ Optionally PREFIX the title."
 	 (@tableitem "Source"
 	   (let ((system-base-name (escape (system-base-name component))))
 	     (format t "@ref{go to the ~A file, , @t{~(~A}~)} (Lisp file)~%"
-	       system-base-name
-	       system-base-name)))
+	       (escape-anchor system-base-name)
+	       (escape system-base-name))))
 	 (when (context-hyperlinksp context)
 	   (let ((system-source-directory
 		   (escape (system-source-directory component))))
