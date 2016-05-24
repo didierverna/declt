@@ -24,12 +24,24 @@ Abstract it so that we may provide an option for case behavior.
 
 ** Backend
 Clean up the code so that Texinfo becomes a backend with a clean
-interface. This way, we could envision adding other backends. Part of the
-cleanup would also be to decide on a good coding style for fresh lines
-(FRESH-LINE, TERPRI, ~& and ~%). Another problem that will happen is that the
-introduction and conclusion material are currently allowed to contain Texinfo
-directives (contrary to all other user-provided contents). This will be
-difficult to abstract if we generalize the backend notion.
+interface. This way, we could envision adding other backends.
+
+There are several obstacles to this:
+1. currently, the constructed node structure contains a mix of things to be
+rendered (such as the nodes titles and sections) and this already rendered as
+strings (definitions in :before-menu-contents). We would need to completely
+separate the structure from its rendering so that the structure itself can be
+passed along to various backends. That shouldn't be too hard tho. THe node
+structure can be augmented by additional slots for, e.g., a list of
+definitions to render.
+
+2. Part of the cleanup would also be to decide on a good coding style for
+fresh lines (FRESH-LINE, TERPRI, ~& and ~%).
+
+3. Another problem that will happen is that the introduction and conclusion
+material are currently allowed to contain Texinfo directives (contrary to all
+other user-provided contents). This will be difficult to abstract if we
+generalize the backend notion.
 
 ** Strings formatting
 Lift the 80 columns formatting assumption, for instance by providing an
