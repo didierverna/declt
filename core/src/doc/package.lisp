@@ -43,6 +43,9 @@
   (declare (ignore relative-to))
   (format t "@packageindex{~(~A~)}@c~%" (escape package)))
 
+;; #### NOTE: contrary to other REFERENCE methods, we don't specify the type
+;; in parenthesis here, i.e. "(package)", because it is never ambiguous what
+;; the item is in the documentation.
 (defmethod reference ((package package) &optional relative-to)
   "Render PACKAGE's reference."
   (declare (ignore relative-to))
