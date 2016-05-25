@@ -489,9 +489,14 @@ This structure holds Texinfo nodes."
       (terpri))
     (format t "@menu~%")
     (dolist (child (node-children node))
+      (let* ((node-name (node-name child))
+	     (safe-node-name (escape-anchor node-name)))
       ;; #### FIXME: this could be improved with proper alignment of synopsis.
-      (format t "* ~A::~@[ ~A~]~%"
-	(escape-anchor (node-name child)) (node-synopsis child)))
+	(format t "* ~:[~A: ~A.~;~A~*::~]~@[ ~A~]~%"
+	  (string= node-name safe-node-name)
+	  node-name
+	  safe-node-name
+	  (node-synopsis child))))
     (format t "@end menu~%"))
   (when (node-after-menu-contents node)
     (when (or (node-children node) (node-before-menu-contents node))
