@@ -75,7 +75,10 @@ Additionally, periods, commas and colons are wrapped inside calls to the
 		   :collect (format nil "@~A" char)
 		 :else
 		   :if (member char '(#\. #\, #\:))
-		     :collect (format nil "@asis{~A}" char)
+		     :collect (format nil " <~A> "
+				(case char (#\. "dot")
+					   (#\, "comma")
+					   (#\: "colon")))
 		 :else
 		   :collect (string char)))))
 
