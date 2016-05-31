@@ -895,6 +895,7 @@ compiler support or any other kind of help. You have my gratitude!
 
 @multitable @columnfractions .99
 @item Sabra Crolleton@*
+@item Robert Goldman@*
 @end multitable
 
 
