@@ -487,8 +487,7 @@ Note that this only returns standalone (toplevel) generic writers."
 	 (when-let* ((macro (macro-function symbol))
 		     (macro-definition
 		      (make-macro-definition :symbol symbol :function macro)))
-	   (when-let ((expander (or (sb-int:info :setf :inverse symbol)
-				    (sb-int:info :setf :expander symbol))))
+           (when-let ((expander (sb-int:info :setf :expander symbol)))
 	     (let ((expander-definition
 		     (make-setf-expander-definition
 		      :symbol symbol
@@ -529,8 +528,7 @@ Note that this only returns standalone (toplevel) generic writers."
 			    (fdefinition writer-name))))
 		(ordinary-writer-p
 		  (and writer (not (typep writer 'generic-function))))
-		(expander (or (sb-int:info :setf :inverse symbol)
-			      (sb-int:info :setf :expander symbol))))
+                (expander (sb-int:info :setf :expander symbol)))
 	   (cond ((and function (or writer expander))
 		  (let ((accessor-definition (make-accessor-definition
 					      :symbol symbol
@@ -579,8 +577,7 @@ Note that this only returns standalone (toplevel) generic writers."
 		    (when (fboundp writer-name)
 		      (fdefinition writer-name))))
 		(generic-writer-p (typep writer 'generic-function))
-		(expander (or (sb-int:info :setf :inverse symbol)
-			      (sb-int:info :setf :expander symbol))))
+                (expander (sb-int:info :setf :expander symbol)))
 	   (cond ((and function (or writer expander))
 		  (let ((generic-definition
 			  (make-generic-accessor-definition
