@@ -465,6 +465,16 @@ Note that this only returns standalone (toplevel) generic writers."
 	     :slot slot))
 	  (sb-mop:class-direct-slots class)))
 
+;; Stolen from Slime:
+;; github.com/slime/slime/commit/51997f5eedb529969f223f14a80a0c14d49eca59
+;; #### PORTME.
+(defun setf-expander-p (symbol)
+  "Return whether SYMBOL defines a setf-expander."
+  (or
+   #+#.(cl:if (sb-c::meta-info :setf :inverse ()) '(:and) '(:or))
+   (sb-int:info :setf :inverse symbol)
+   (sb-int:info :setf :expander symbol)))
+
 ;; #### PORTME.
 (defun add-symbol-definition (symbol category pool)
   "Add and return the CATEGORY kind of definition for SYMBOL to pool, if any."
@@ -487,8 +497,7 @@ Note that this only returns standalone (toplevel) generic writers."
 	 (when-let* ((macro (macro-function symbol))
 		     (macro-definition
 		      (make-macro-definition :symbol symbol :function macro)))
-	   (when-let ((expander (or (sb-int:info :setf :inverse symbol)
-				    (sb-int:info :setf :expander symbol))))
+	   (when-let ((expander (setf-expander-p symbol)))
 	     (let ((expander-definition
 		     (make-setf-expander-definition
 		      :symbol symbol
@@ -529,8 +538,7 @@ Note that this only returns standalone (toplevel) generic writers."
 			    (fdefinition writer-name))))
 		(ordinary-writer-p
 		  (and writer (not (typep writer 'generic-function))))
-		(expander (or (sb-int:info :setf :inverse symbol)
-			      (sb-int:info :setf :expander symbol))))
+		(expander (setf-expander-p symbol)))
 	   (cond ((and function (or writer expander))
 		  (let ((accessor-definition (make-accessor-definition
 					      :symbol symbol
@@ -579,8 +587,7 @@ Note that this only returns standalone (toplevel) generic writers."
 		    (when (fboundp writer-name)
 		      (fdefinition writer-name))))
 		(generic-writer-p (typep writer 'generic-function))
-		(expander (or (sb-int:info :setf :inverse symbol)
-			      (sb-int:info :setf :expander symbol))))
+		(expander (setf-expander-p symbol)))
 	   (cond ((and function (or writer expander))
 		  (let ((generic-definition
 			  (make-generic-accessor-definition
