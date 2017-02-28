@@ -1,20 +1,12 @@
 							     -*- outline -*-
 
-* Copyright (C) 2010-2013 Didier Verna
+* Copyright (C) 2010-2013, 2017 Didier Verna
 
 This file is part of Declt.
 
 Copying and distribution of this file, with or without modification,
 are permitted in any medium without royalty provided the copyright
 notice and this notice are preserved.
-
-** Labels
-Node and anchor names are restricted (Cf. section 4.4 of the Texinfo manual)
-and I should respect that. Texinfo 6.1 seems to issue warnings now.
-
-** DEFPACKAGE wrappers
-Declt scans calls to DEFPACKAGE, which won't work when libraries provide
-wrappers. This happens with UIOP for example. Cf. Robert's mail.
 
 ** Packages and symbols
 See what to do about shadowings, imports etc.
