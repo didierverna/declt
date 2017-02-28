@@ -53,7 +53,7 @@ HTML_DIRS      := $(TEXI_FILES:%.texi=%)
 
 INFO_REF       := $(PROJECT)-reference.info
 
-CSS := http://sirgazil.bitbucket.org/static/docs/css/texinfo/tip/document.css
+CSS := https://sirgazil.bitbucket.org/static/docs/css/texinfo/tip/document.css
 
 
 all: info pdf html
