@@ -1,6 +1,6 @@
 ;;; generate.cl --- Declt reference manual generation script
 
-;; Copyright (C) 2010-2013, 2015, 2016 Didier Verna
+;; Copyright (C) 2010-2013, 2015-2017 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -26,6 +26,8 @@
 ;;; Code:
 
 (require "asdf")
+
+(defconstant +copyright-years+ "2010--2013, 2015--2017")
 
 (defconstant +introduction+
   "@macro declt
@@ -103,7 +105,7 @@ for a more human-readable guide to using @declt{}."
     (declt:declt :net.didierverna.declt
 		 :library "Declt"
 		 :version (declt:version :long)
-		 :copyright "2010--2013, 2015, 2016"
+		 :copyright +copyright-years+
 		 :license :bsd
 		 :introduction +introduction+
 		 :texi-file "webreference.texi"
@@ -111,7 +113,7 @@ for a more human-readable guide to using @declt{}."
     (declt:declt :net.didierverna.declt
 		 :library "Declt"
 		 :version (declt:version :long)
-		 :copyright "2010--2013, 2015, 2016"
+		 :copyright +copyright-years+
 		 :license :bsd
 		 :introduction +introduction+
 		 :texi-file "reference.texi"
