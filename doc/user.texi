@@ -618,16 +618,16 @@ In order to understand what a @dfn{foreign definition} is, you need to
 understand how @declt{} works first. This was briefly explained in the
 introduction, but here is the story again: @declt{} first loads the ASDF
 system from which it retrieves modules and components, notably including
-Lisp files. It then scans those Lisp files (including the system file
-itself), looking for package definitions (toplevel calls to
-@code{DEFPACKAGE} forms). Finally, it collects all definitions for the
+Lisp files. It then scans all live packages and collects those which
+were defined within that system (@emph{i.e.} those the source of which
+belong to that system). Finally, it collects all definitions for the
 symbols in those packages.
 
 That is the extent of what is documented by @declt{}. In this context, a
-@dfn{foreign definition} is a definition that @declt{} would miss
-because of the way it works. This includes definitions found in one of
-the system's files, but belonging to a package that was not defined in
-the system, packages defined by non-toplevel forms @etc{}
+@dfn{foreign definition} is a definition that @declt{}'s current
+information collection scheme would miss. This includes, for instance,
+definitions found in one of the system's files, but belonging to a
+package that was not defined in the system itself.
 
 @declt{} currently does not document foreign definitions, although in
 some cases, it is already possible to avoid missing them. In fact, the
