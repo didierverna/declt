@@ -40,7 +40,7 @@
 @c ====================================================================
 @c Settings
 @c ====================================================================
-@set VERSION 2.0 patchlevel 1 "Benjamin Sisko"
+@set VERSION 2.1 "Jonathan Archer"
 @set COPYRIGHT_DATE 2010--2013, 2015--2017
 @setchapternewpage odd
 @documentdescription

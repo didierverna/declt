@@ -1,2 +1,2 @@
-LONG_VERSION  := 2.0 patchlevel 1 "Benjamin Sisko"
-SHORT_VERSION := 2.0.1
+LONG_VERSION  := 2.1 "Jonathan Archer"
+SHORT_VERSION := 2.1
