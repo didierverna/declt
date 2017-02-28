@@ -76,3 +76,9 @@ Probably create toplevel setf expander definitions.
 Cf.
 sb-introspect:who-calls
 sb-introspect:find-function-callees
+
+** Source files
+Currently, we can link to source files on the local machine, which is not
+advisable for web installation of the reference manuals. However, if the
+library provides a source control address, we could link to files in a public
+repo !
