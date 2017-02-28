@@ -444,7 +444,7 @@ The following information is either not provided by the system, or too
 difficult to extract properly (DWIM rulez not).
 
 @table @code
-@item :copyright-date
+@item :copyright
 @fkindex{declt,copyright}
 Copyright year(s) used to typeset copyright header lines. You can use
 @nil{} to disable such lines. It defaults to the current year.  You may
