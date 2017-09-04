@@ -402,7 +402,9 @@ This manual was generated automatically by Declt ~A on ~A.
    (context-internal-definitions context)))
 
 (defun declt (system-name
-	      &key (library (string-downcase (symbol-name system-name)))
+	      &key (library (if (stringp system-name)
+				system-name
+			      (string-downcase (symbol-name system-name))))
 		   (tagline nil taglinep)
 		   (version nil versionp)
 		   (contact nil contactp)
@@ -423,6 +425,7 @@ This manual was generated automatically by Declt ~A on ~A.
 		   contact-names contact-emails)
   "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
 
+- SYSTEM-NAME is a system designator, as understood by ASDF.
 - LIBRARY: defaults to SYSTEM-NAME.
 - TAGLINE: defaults to the system's long name or description.
 - VERSION: defaults to the system version.
