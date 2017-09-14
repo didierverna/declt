@@ -407,7 +407,7 @@ This manual was generated automatically by Declt ~A on ~A.
 			      (string-downcase (symbol-name system-name))))
 		   (tagline nil taglinep)
 		   (version nil versionp)
-		   (contact nil contactp)
+		   (contact "John Doe" contactp)
 
 		   copyright
 		   license
@@ -429,9 +429,9 @@ This manual was generated automatically by Declt ~A on ~A.
 - LIBRARY: defaults to SYSTEM-NAME.
 - TAGLINE: defaults to the system's long name or description.
 - VERSION: defaults to the system version.
-- CONTACT: defaults to the system's maintainer(s) and author(s). CONTACT must
-  not be null. If the library doesn't provide that information, you need to
-  provide it by hand, as an author string or a list of such. An author string
+- CONTACT: defaults to the system's maintainer(s) and author(s). If the
+  library doesn't provide that information, \"John Doe\" is used. If you
+  provide it by hand, use an author string or a list of such. An author string
   contains a name, optionally followed by an <email@ddress>.
 
 - COPYRIGHT: defaults to the current year. Possible values are nil or any
