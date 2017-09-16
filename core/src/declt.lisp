@@ -474,7 +474,7 @@ and will be properly escaped for Texinfo."
     (setq version (component-version system)))
   (when version
     (setq version (escape version)))
-  (unless contact
+  (unless contactp
     (setq contact (system-author system))
     (when (stringp contact) (setq contact (list contact)))
     (cond ((stringp (system-maintainer system))
