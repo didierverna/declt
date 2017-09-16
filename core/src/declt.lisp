@@ -466,6 +466,8 @@ and will be properly escaped for Texinfo."
   (unless taglinep
     (setq tagline (or (system-long-name system)
 		      (component-description system))))
+  (when (and tagline (zerop (length tagline)))
+    (setq tagline nil))
   (when tagline
     (when (char= (aref tagline (1- (length tagline))) #\.)
       (setq tagline (subseq tagline 0 (1- (length tagline)))))
