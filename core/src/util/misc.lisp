@@ -72,7 +72,7 @@
   "Parse STRING as \"NAME <EMAIL>\".
 Return NAME and EMAIL as two values."
   (if (and pos-< pos-> (< pos-< pos->))
-      (values (subseq string 0 (1- pos-<))
+      (values (if (zerop pos-<) "" (subseq string 0 (1- pos-<)))
 	      (subseq string (1+ pos-<) pos->))
     string))
 
