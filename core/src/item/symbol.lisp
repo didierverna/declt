@@ -466,13 +466,25 @@ Note that this only returns standalone (toplevel) generic writers."
 	     :slot slot))
 	  (sb-mop:class-direct-slots class)))
 
-;; Stolen from Slime:
-;; github.com/slime/slime/commit/51997f5eedb529969f223f14a80a0c14d49eca59
+;; 3 functions stolen/adapted from Slime:
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defun boolean-to-feature-expression (value)
+    "Convert boolean VALUE to a form suitable for feature testing."
+    (if value '(:and) '(:or)))
+  ;; #### PORTME.
+  (defun sbcl-has-setf-inverse-meta-info ()
+    (boolean-to-feature-expression
+     ;; going through FIND-SYMBOL since META-INFO was renamed from
+     ;; TYPE-INFO in 1.2.10.
+     (let ((sym (find-symbol "META-INFO" "SB-C")))
+       (and sym
+	    (fboundp sym)
+	    (funcall sym :setf :inverse ()))))))
 ;; #### PORTME.
-(defun setf-expander-p (symbol)
+(defun setf-expander (symbol)
   "Return whether SYMBOL defines a setf-expander."
   (or
-   #+#.(cl:if (sb-c::meta-info :setf :inverse ()) '(:and) '(:or))
+   #+#.(net.didierverna.declt::sbcl-has-setf-inverse-meta-info)
    (sb-int:info :setf :inverse symbol)
    (sb-int:info :setf :expander symbol)))
 
