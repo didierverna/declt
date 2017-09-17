@@ -251,15 +251,14 @@ definitions.")
     "Return FUNCOID's lambda-list."
     (sb-introspect:function-lambda-list
      (funcoid-definition-function funcoid)))
-  (:method ((expander setf-expander-definition))
+  (:method ((expander setf-expander-definition)
+	    &aux (update (setf-expander-definition-update expander)))
     "Return setf EXPANDER's lambda-list."
     (sb-introspect:function-lambda-list
-     (etypecase (setf-expander-definition-update expander)
-       (function
-	(setf-expander-definition-update expander))
-       (funcoid-definition
-	(funcoid-definition-function
-	 (setf-expander-definition-update expander))))))
+     (etypecase update
+       (list (cdr update))
+       (function update)
+       (funcoid-definition (funcoid-definition-function update)))))
   (:method ((method method-definition))
     "Return METHOD's lambda-list."
     (sb-mop:method-lambda-list (method-definition-method method)))
@@ -1115,8 +1114,9 @@ Currently, this means resolving:
   ;; long forms, this should be OK. For short forms however, what we get is
   ;; the source of the update function, which is not quite correct.
   (etypecase update
-    (definition (source update))
-    (function   (definition-source update))))
+    (list       (definition-source (cdr update)))
+    (function   (definition-source update))
+    (definition (source update))))
 
 (defmethod source ((method method-definition))
   "Return METHOD's definition source."
