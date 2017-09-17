@@ -855,7 +855,7 @@ Return nil."
 ;;   1. it makes it easier to handle cross references (e.g. class inheritance)
 ;;      because at that time, we know that all definitions have been created,
 ;;   2. it also makes it easier to handle foreign definitions (that we don't
-;;      want to add in the definitions pools) bacause at that time, we know
+;;      want to add in the definitions pools) because at that time, we know
 ;;      that if a definition doesn't exist in the pools, then it is foreign.
 ;; #### PORTME.
 (defun finalize-definitions (pool1 pool2)
