@@ -240,6 +240,7 @@ documentation."
   "Structure for class definitions.
 This structure holds the direct superclasses and direct subclasses
 definitions.")
+
 (defstruct (type-definition (:include definition))
   "Structure for type definitions.")
 
