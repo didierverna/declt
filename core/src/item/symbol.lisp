@@ -123,8 +123,8 @@ setf expander definition that expands to this macro."
 (defstruct (function-definition (:include funcoid-definition))
   "Structure for ordinary function definitions.
 This structure holds a slot for marking foreign definitions, i.e. those which
-do pertain to the system being documented, and a setf expander definition that
-expands to this function."
+do not pertain to the system being documented, and a setf expander definition
+that expands to this function."
   foreignp
   update-expander)
 ;; #### FIXME: writer definitions can't have an associated update expander so
