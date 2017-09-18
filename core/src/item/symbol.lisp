@@ -480,7 +480,7 @@ Note that this only returns standalone (toplevel) generic writers."
 	    (fboundp sym)
 	    (funcall sym :setf :inverse ()))))))
 ;; #### PORTME.
-(defun setf-expander (symbol)
+(defun setf-expander-p (symbol)
   "Return whether SYMBOL defines a setf-expander."
   (or
    #+#.(net.didierverna.declt::sbcl-has-setf-inverse-meta-info)
