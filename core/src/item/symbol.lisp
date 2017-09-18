@@ -819,10 +819,25 @@ Note that this only returns standalone (toplevel) generic writers."
   (:method (slot pool1 pool2)
     "Default method for class and condition slots."
     (mapcar
-     (lambda (writer-name &aux (writer-name (second writer-name)))
-       (or (find-definition writer-name :generic-writer pool1)
-	   (find-definition writer-name :generic-writer pool2)
-	   (make-generic-writer-definition :symbol writer-name :foreignp t)))
+     (lambda (writer-name &aux (setfp (listp writer-name)))
+       (cond (setfp
+	      ;; A SETF form is identified and stored in one of the pools,
+	      ;; either as a standalone (toplevel) generic writer, or as part
+	      ;; of a generic accessor definition.
+	      (setq writer-name (second writer-name))
+	      (or (find-definition writer-name :generic-writer pool1)
+		  (find-definition writer-name :generic-writer pool2)
+		  (make-generic-writer-definition
+		   :symbol writer-name :foreignp t)))
+	     (t
+	      ;; A non SETF form is stored in one of the pools, as a plain
+	      ;; generic definition (neither a generic writer, nor a generic
+	      ;; accessor) because there's no way to tell that the function is
+	      ;; actually a writer (until now).
+	      (or (find-definition writer-name :generic pool1)
+		  (find-definition writer-name :generic pool2)
+		  (make-generic-definition
+		   :symbol writer-name :foreignp t)))))
      (slot-property slot :writers)))
   ;; #### PORTME.
   (:method ((slot sb-pcl::structure-direct-slot-definition) pool1 pool2)
