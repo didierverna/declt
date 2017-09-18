@@ -100,7 +100,11 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
   (when copyright
     (mapc (lambda (name)
 	    (format t "@c Copyright (C) ~A ~A~%" copyright name))
-      contact-names)
+      ;; #### NOTE: we already removed the duplicates in the original contact
+      ;; list, but there may still be duplicates in the names, for instance if
+      ;; somebody used his name several times, with a different email
+      ;; address.
+      (remove-duplicates contact-names :from-end t :test #'string=))
     (terpri))
 
   (format t "@c This file is part of ~A.~2%" library)
@@ -315,7 +319,11 @@ The ~A Reference Manual~@[, version ~A~].
       (mapc (lambda (name)
 	      (format t "Copyright @copyright{} ~A ~A~%"
 		(escape copyright) (escape name)))
-	contact-names)
+	;; #### NOTE: we already removed the duplicates in the original
+	;; contact list, but there may still be duplicates in the names, for
+	;; instance if somebody used his name several times, with a different
+	;; email address.
+	(remove-duplicates contact-names :from-end t :test #'string=))
       (terpri))
     (format t "~
 Permission is granted to make and distribute verbatim copies of this
@@ -485,6 +493,7 @@ and will be properly escaped for Texinfo."
 	   (setq contact (append (system-maintainer system) contact)))))
   (unless contact
     (error "At least one contact must be provided."))
+  (setq contact (remove-duplicates contact :from-end t :test #'string=))
   (multiple-value-bind (names emails) (|parse-contact(s)| contact)
     (setq contact-names names
 	  contact-emails emails))
