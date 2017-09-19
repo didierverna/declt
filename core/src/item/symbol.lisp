@@ -21,6 +21,13 @@
 
 ;;; Commentary:
 
+;; #### WARNING: currently, we don't fill in the FUNCTION slot for foreign
+;; #### funcoid definitions. That's because we don't care, since we only print
+;; #### foreign names. There is one exception however: the case of setf
+;; #### expanders update functions. See comment in the SOURCE method about
+;; #### that. Also, we may need to change this policy globally when we start
+;; #### cross-referencing systems for Quickref.
+
 
 ;;; Code:
 
@@ -1025,7 +1032,14 @@ Currently, this means resolving:
 			       ;; print their name), we can just use a
 			       ;; function definition here (it's out of
 			       ;; laziness).
+			       ;; #### FIXME: is using FDEFINITION correct? Or
+			       ;; do we risk missing a closure or something
+			       ;; like that? Also, see comment at the top of
+			       ;; the file, and in the SOURCE method, about
+			       ;; the need to fill the FUNCTION slot.
 			       (make-function-definition :symbol name
+							 :function
+							 (fdefinition name)
 							 :foreignp t))))
 		     ;; #### NOTE: do you see why dropping structures and
 		     ;; using mixin classes would help here ? ;-)
@@ -1127,7 +1141,16 @@ Currently, this means resolving:
   ;; #### NOTE: looking at how sb-introspect does it, it seems that the
   ;; "source" of a setf expander is the source of the function object. For
   ;; long forms, this should be OK. For short forms however, what we get is
-  ;; the source of the update function, which is not quite correct.
+  ;; the source of the update function, which may be different from where
+  ;; DEFSETF was called, hence incorrect. There is an additional problem when
+  ;; the update function is foreign: we don't normally fill in the FUNCTION
+  ;; slot in foreign funcoid definitions because we don't care (we only print
+  ;; their names). In the case of setf expanders however, we need to do so
+  ;; because Declt will try to find the definition source for it, and will
+  ;; attempt to locate the source of the foreign function. This triggered a
+  ;; bug in a previous version (with the package cl-stdutils, which uses
+  ;; RPLACA as an update function for the stdutils.gds::vknode-value
+  ;; expander).
   (etypecase update
     (list       (definition-source (cdr update)))
     (function   (definition-source update))
