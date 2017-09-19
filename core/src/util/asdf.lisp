@@ -95,7 +95,7 @@ This includes both :defsystem-depends-on and :depends-on."
   "Return the type part of ASDF SYSTEM's definition file."
   (pathname-type (system-source-file system)))
 
-;; #### FIXME: there is redundancy with RENDER-DEPENDENCIES. I should write a
+;; #### FIXME: there is redundant with RENDER-DEPENDENCIES. I should write a
 ;; more abstract dependency walker.
 (defgeneric system-dependency-subsystem (dependency-def system relative-to)
   (:documentation "Return SYSTEM's subsystem from DEPENDENCY-DEF or nil.")
