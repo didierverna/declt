@@ -235,7 +235,12 @@ BODY should render on *standard-output*."
   "Render LAMBDA-LIST with potential SPECIALIZERS.
 LAMBDA-LIST and SPECIALIZERS are escaped for Texinfo prior to rendering.
 Rendering is done on *standard-output*."
-  (dolist (part lambda-list)
+  ;; #### NOTE: we cannot use DOLIST here because some lambda lists may be
+  ;; improper (e.g. in the case of macros).
+  (do ((part (car lambda-list))
+       (next (cdr lambda-list))
+       stop)
+      (stop)
     (when (and (consp part) after-required-args-p)
       (setq part (first part)))
     (unless firstp
@@ -255,7 +260,17 @@ Rendering is done on *standard-output*."
 		 (format t "(~A @t{~(~A~)})"
 		   (escape part)
 		   (escape specializer))
-	       (write-string (escape part))))))))
+	       (write-string (escape part))))))
+    (cond ((not next)
+	   (setq stop t))
+	  ((consp next)
+	   (setq part (car next)
+		 next (cdr next)))
+	  (t
+	   (write-char #\ )
+	   (write-char #\.)
+	   (setq  part next
+		  next nil)))))
 
 (defmacro @deffn ((category name lambda-list &optional specializers qualifiers)
 		  &body body)
