@@ -415,7 +415,7 @@ This manual was generated automatically by Declt ~A on ~A.
 			      (string-downcase (symbol-name system-name))))
 		   (tagline nil taglinep)
 		   (version nil versionp)
-		   (contact "John Doe" contactp)
+		   (contact nil contactp)
 
 		   copyright
 		   license
@@ -484,15 +484,14 @@ and will be properly escaped for Texinfo."
     (setq version (component-version system)))
   (when version
     (setq version (escape version)))
-  (unless contactp
+  (unless contact
     (setq contact (system-author system))
     (when (stringp contact) (setq contact (list contact)))
     (cond ((stringp (system-maintainer system))
 	   (push (system-maintainer system) contact))
 	  ((consp (system-maintainer system))
-	   (setq contact (append (system-maintainer system) contact)))))
-  (unless contact
-    (error "At least one contact must be provided."))
+	   (setq contact (append (system-maintainer system) contact))))
+    (unless contact (setq contact (list "John Doe"))))
   (setq contact (remove-duplicates contact :from-end t :test #'string=))
   (multiple-value-bind (names emails) (|parse-contact(s)| contact)
     (setq contact-names names
