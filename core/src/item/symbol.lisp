@@ -252,12 +252,14 @@ definitions.")
   "Structure for type definitions.")
 
 ;; #### PORTME.
-(defgeneric lambda-list (definition)
-  (:documentation "Return DEFINITION's lambda-list.")
+(defgeneric lambda-list (object)
+  (:documentation "Return OBJECT's lambda-list.")
+  (:method ((function function))
+    "Return FUNCTION's lambda-list."
+    (sb-introspect:function-lambda-list function))
   (:method ((funcoid funcoid-definition))
     "Return FUNCOID's lambda-list."
-    (sb-introspect:function-lambda-list
-     (funcoid-definition-function funcoid)))
+    (lambda-list (funcoid-definition-function funcoid)))
   (:method ((expander setf-expander-definition)
 	    &aux (update (setf-expander-definition-update expander)))
     "Return setf EXPANDER's lambda-list."
@@ -622,6 +624,8 @@ Note that this only returns standalone (toplevel) generic writers."
 			    (lambda (method)
 			      (let ((writer-method
 				      (and generic-writer-p
+					   (equal (cdr (lambda-list writer))
+						  (lambda-list function))
 					   (find-method
 					    writer
 					    (method-qualifiers method)
@@ -651,15 +655,18 @@ Note that this only returns standalone (toplevel) generic writers."
 			       (mapcan
 				(lambda (method)
 				  (unless
-				      (find-method
-				       function
-				       (method-qualifiers method)
-				       ;; #### NOTE: don't forget to remove
-				       ;; the first (NEW-VALUE) specializer
-				       ;; from the writer method.
-				       (cdr (sb-mop:method-specializers
-					     method))
-				       nil)
+				      (and
+				       (equal (cdr (lambda-list writer))
+					      (lambda-list function))
+				       (find-method
+					function
+					(method-qualifiers method)
+					;; #### NOTE: don't forget to remove
+					;; the first (NEW-VALUE) specializer
+					;; from the writer method.
+					(cdr (sb-mop:method-specializers
+					      method))
+					nil))
 				    (list (make-writer-method-definition
 					   :symbol symbol
 					   :method method))))
