@@ -895,6 +895,7 @@ Return nil."
     "Method for generic accessor definitions."
     (nconc (call-next-method)
 	   (definition-combination-users
+	    ;; #### NOTE: a null writer is caught by the default method.
 	    (generic-accessor-definition-writer definition) combination))))
 
 (defun pool-combination-users (pool combination)
