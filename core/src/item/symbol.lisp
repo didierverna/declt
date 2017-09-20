@@ -395,13 +395,13 @@ Return NIL if not found."
   (:method (category pool)
     "Default method used for root CATEGORYs."
     (loop :for key   :being :the :hash-keys   :in pool
-	  :for value :being :the :hash-values :in pool
+	    :using (:hash-value value)
 	  :when (eq (second key) category)
 	    :collect value))
   (:method ((category (eql :accessor)) pool)
     "Method used for ordinary accessors."
     (loop :for key   :being :the :hash-keys   :in pool
-	  :for value :being :the :hash-values :in pool
+	    :using (:hash-value value)
 	  :when (and (eq (second key) :function)
 		     (accessor-definition-p value))
 	    :collect value))
@@ -409,14 +409,14 @@ Return NIL if not found."
     "Method used for ordinary writers.
 Note that this only returns standalone (toplevel) writers."
     (loop :for key   :being :the :hash-keys   :in pool
-	  :for value :being :the :hash-values :in pool
+	    :using (:hash-value value)
 	  :when (and (eq (second key) :function)
 		     (writer-definition-p value))
 	    :collect value))
   (:method ((category (eql :generic-accessor)) pool)
     "Method used for generic accessors."
     (loop :for key   :being :the :hash-keys   :in pool
-	  :for value :being :the :hash-values :in pool
+	    :using (:hash-value value)
 	  :when (and (eq (second key) :generic)
 		     (generic-accessor-definition-p value))
 	    :collect value))
@@ -424,28 +424,28 @@ Note that this only returns standalone (toplevel) writers."
     "Method used for generic writers.
 Note that this only returns standalone (toplevel) generic writers."
     (loop :for key   :being :the :hash-keys   :in pool
-	  :for value :being :the :hash-values :in pool
+	    :using (:hash-value value)
 	  :when (and (eq (second key) :generic)
 		     (generic-writer-definition-p value))
 	    :collect value))
   (:method ((category (eql :short-combination)) pool)
     "Method used for short method combinations."
     (loop :for key   :being :the :hash-keys   :in pool
-	  :for value :being :the :hash-values :in pool
+	    :using (:hash-value value)
 	  :when (and (eq (second key) :combination)
 		     (short-combination-definition-p value))
 	    :collect value))
   (:method ((category (eql :long-combination)) pool)
     "Method used for long method combinations."
     (loop :for key   :being :the :hash-keys   :in pool
-	  :for value :being :the :hash-values :in pool
+	    :using (:hash-value value)
 	  :when (and (eq (second key) :combination)
 		     (long-combination-definition-p value))
 	    :collect value))
   (:method ((category (eql :setf-expander)) pool)
     "Method used for setf expanders."
     (loop :for key   :being :the :hash-keys   :in pool
-	  :for value :being :the :hash-values :in pool
+	    :using (:hash-value value)
 	  ;; #### NOTE: do you see why dropping structures and using mixin
 	  ;; classes would help here ? ;-)
 	  :when (and (eq (second key) :macro)
