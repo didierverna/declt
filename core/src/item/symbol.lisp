@@ -965,7 +965,8 @@ Currently, this means resolving:
 			    (slot-definition-slot slot) pool1 pool2))))))
 	     (dolist (generic (category-definitions :generic pool))
 	       (compute-combination generic)
-	       (when (generic-accessor-definition-p generic)
+	       (when (and (generic-accessor-definition-p generic)
+			  (generic-accessor-definition-writer generic))
 		 (compute-combination
 		  (generic-accessor-definition-writer generic))))
 	     (dolist
