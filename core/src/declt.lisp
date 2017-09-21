@@ -131,6 +131,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 @setfilename ~A.info
 @settitle The ~A Reference Manual
 @afourpaper
+@documentencoding UTF-8
 @c %**end of header~4%"
     info-file (escape library))
 
@@ -595,7 +596,8 @@ Concepts, functions, variables and data types")
     (with-open-file (*standard-output* texi-file
 				       :direction :output
 				       :if-exists :supersede
-				       :if-does-not-exist :create)
+				       :if-does-not-exist :create
+				       :external-format :utf8)
       (render-header library tagline version contact-names contact-emails
 		     copyright license
 		     texi-name info-file declt-notice
