@@ -28,18 +28,6 @@
 ;; #### that. Also, we may need to change this policy globally when we start
 ;; #### cross-referencing systems for Quickref.
 
-;; #### FIXME: the setf expander code needs to be redone. Currently we only
-;; #### look for setf expanders as part of other categories (macros, functions
-;; #### etc). But it seems that it is possible to define standalone
-;; #### expanders. For example:
-;; #### (defgeneric set-state (state chain)
-;; ####   (:method (state chain)))
-;; ####
-;; #### (defsetf state (object) (store)
-;; ####   `(set-state ,store ,object))
-;; #### In such a case, there is no accessor. Only an updater.
-
-
 
 ;;; Code:
 
