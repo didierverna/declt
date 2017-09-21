@@ -37,6 +37,19 @@
   "Render a list of PACKAGES references."
   (render-references packages "Packages"))
 
+;; #### NOTE: the only ASDF components documented by Declt are source files,
+;; #### modules and systems. This function is used by the corresponding
+;; #### REFERENCE methods because the code is the same. The reason we don't do
+;; #### this as a method on COMPONENT directly is that such a method (see
+;; #### below) handles other components, such as extensions, that we don't
+;; #### know about.
+(defun reference-component (component &optional relative-to)
+  "Render COMPONENT's reference."
+  (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
+    (escape-anchor (anchor-name component relative-to))
+    (escape component)
+    (type-name component)))
+
 
 
 ;; ==========================================================================
@@ -47,12 +60,14 @@
 ;; Documentation protocols
 ;; -----------------------
 
+;; #### NOTE: this method is needed as a default method for potential ASDF
+;; extensions. I'm not willing to hard-code all possible such extensions, past
+;; present and future. Besides, those components would not be related to code,
+;; so Declt will not document them.
 (defmethod reference ((component asdf:component) &optional relative-to)
-  "Render COMPONENT's reference."
-  (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
-    (escape-anchor (anchor-name component relative-to))
-    (escape component)
-    (type-name component)))
+  "Render unreferenced COMPONENT."
+  (declare (ignore relative-to))
+  (format t "@t{~(~A}~) (other component)~%" (escape component)))
 
 (defmethod document :around
     ((component asdf:component) context
@@ -162,6 +177,10 @@ Optionally PREFIX the title."
 (defmethod title ((source-file asdf:source-file) &optional relative-to)
   "Return SOURCE-FILE's title."
   (format nil "the ~A file" (relative-location source-file relative-to)))
+
+(defmethod reference ((source-file asdf:source-file) &optional relative-to)
+  "Render SOURCE-FILE's reference."
+  (reference-component source-file relative-to))
 
 (defmethod index ((lisp-file asdf:cl-source-file) &optional relative-to)
   "Render LISP-FILE's indexing command."
@@ -314,6 +333,10 @@ components trees."))))
   "Return MODULE's title."
   (format nil "the ~A module" (relative-location module relative-to)))
 
+(defmethod reference ((module asdf:module) &optional relative-to)
+  "Render MODULE's reference."
+  (reference-component module relative-to))
+
 (defmethod index ((module asdf:module) &optional relative-to)
   "Render MODULE's indexing command."
   (format t "@moduleindex{~A}@c~%"
@@ -375,6 +398,10 @@ Modules are listed depth-first from the system components tree.")))))
   "Return SYSTEM's title."
   (declare (ignore relative-to))
   (format nil "the ~A system" (name system)))
+
+(defmethod reference ((system asdf:system) &optional relative-to)
+  "Render SYSTEM's reference."
+  (reference-component system relative-to))
 
 (defmethod index ((system asdf:system) &optional relative-to)
   "Render SYSTEM's indexing command."
