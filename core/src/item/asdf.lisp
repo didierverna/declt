@@ -174,11 +174,15 @@
 ;; Utilities
 ;; ---------
 
-(defun lisp-pathnames (system)
+(defun lisp-pathnames
+    (system &aux (file (system-source-file system))
+		 (lisp-pathnames
+		  (mapcar #'component-pathname (lisp-components system))))
   "Return the list of all ASDF SYSTEM's Lisp source file pathnames.
 The list includes the system definition file."
-  (cons (system-source-file system)
-	(mapcar #'component-pathname (lisp-components system))))
+  (if file
+    (cons file lisp-pathnames)
+    lisp-pathnames))
 
 (defun file-packages (file)
   "Return the list of all packages defined in FILE."

@@ -139,21 +139,22 @@ Optionally PREFIX the title."
   (when-let ((if-feature (component-if-feature component)))
     (@tableitem "If Feature"
       (format t "@t{~(~A}~)" (escape if-feature))))
-  (when-let ((dependencies (when (eq (type-of component) 'asdf:system)
+  (when-let ((dependencies (when (typep component 'asdf:system)
 			     (defsystem-dependencies component))))
     (render-dependencies dependencies component relative-to "Defsystem "))
   (when-let ((dependencies (component-sideway-dependencies component)))
     (render-dependencies dependencies component relative-to))
   (when-let ((parent (component-parent component)))
     (@tableitem "Parent" (reference parent relative-to)))
-  (cond ((eq (type-of component) 'asdf:system) ;; Yuck!
+  (cond ((typep component 'asdf:system) ;; Yuck!
 	 ;; That sucks. I need to fake a cl-source-file reference because the
 	 ;; system file is not an ASDF component per-se.
-	 (@tableitem "Source"
-	   (let ((system-base-name (escape (system-base-name component))))
-	     (format t "@ref{go to the ~A file, , @t{~(~A}~)} (Lisp file)~%"
-	       (escape-anchor system-base-name)
-	       (escape system-base-name))))
+	 (when (system-source-file component)
+	   (@tableitem "Source"
+	     (let ((system-base-name (escape (system-base-name component))))
+	       (format t "@ref{go to the ~A file, , @t{~(~A}~)} (Lisp file)~%"
+		 (escape-anchor system-base-name)
+		 (escape system-base-name)))))
 	 (when (context-hyperlinksp context)
 	   (let ((system-source-directory
 		   (escape (system-source-directory component))))
@@ -270,8 +271,9 @@ components trees."))))
   ;; to be listed here (and first) so I need to duplicate some of what the
   ;; DOCUMENT method on lisp files does.
   ;; #### WARNING: multiple systems may be defined in the same .asd file.
-  (dolist (system (remove-duplicates systems
-		    :test #'equal :key #'system-source-file))
+  (dolist (system (remove-duplicates
+		   (remove-if #'null systems :key #'system-source-file)
+		   :test #'equal :key #'system-source-file))
     (let ((system-base-name (escape (system-base-name system)))
 	  (system-source-file (system-source-file system)))
       (add-child lisp-files-node

@@ -83,17 +83,19 @@ This includes both :defsystem-depends-on and :depends-on."
   "Return ASDF SYSTEM's directory."
   (component-pathname system))
 
-(defun system-base-name (system)
+(defun system-base-name (system &aux (file (system-source-file system)))
   "Return the basename part of ASDF SYSTEM's definition file."
-  (file-namestring (system-source-file system)))
+  (when file (file-namestring file)))
 
-(defun system-file-name (system)
+;; #### NOTE: currently unused.
+(defun system-file-name (system &aux (file (system-source-file system)))
   "Return the name part of ASDF SYSTEM's definition file."
-  (pathname-name (system-source-file system)))
+  (when file (pathname-name file)))
 
-(defun system-file-type (system)
+;; #### NOTE: currently unused.
+(defun system-file-type (system &aux (file (system-source-file system)))
   "Return the type part of ASDF SYSTEM's definition file."
-  (pathname-type (system-source-file system)))
+  (when file (pathname-type file)))
 
 ;; #### FIXME: there is redundant with RENDER-DEPENDENCIES. I should write a
 ;; more abstract dependency walker.
