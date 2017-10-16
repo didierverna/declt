@@ -46,7 +46,7 @@
 (defparameter *release-major-level* 2
   "The major level of this release.")
 
-(defparameter *release-minor-level* 1
+(defparameter *release-minor-level* 2
   "The minor level of this release.")
 
 (defparameter *release-status* :patchlevel
@@ -55,7 +55,7 @@
 (defparameter *release-status-level* 0
   "The status level of this release.")
 
-(defparameter *release-name* "Jonathan Archer"
+(defparameter *release-name* "Christopher Pike"
   "The name of this release.
 The general naming theme for Declt is \"Star Trek characters\".")
 
