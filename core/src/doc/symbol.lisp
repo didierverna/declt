@@ -237,114 +237,96 @@ not advertised if they are the same as GENERIC-SOURCE."
 ;; #### may need to review the ANCHOR protocol and use something different
 ;; #### from the definitions TITLEs.
 
-(defmethod title ((constant constant-definition) &optional relative-to)
+(defmethod title ((constant constant-definition))
   "Return CONSTANT's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~) constant"
 	  (definition-package-name constant)
 	  (name constant)))
 
-(defmethod title ((special special-definition) &optional relative-to)
+(defmethod title ((special special-definition))
   "Return SPECIAL's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~) special variable"
 	  (definition-package-name special)
 	  (name special)))
 
-(defmethod title ((symbol-macro symbol-macro-definition) &optional relative-to)
+(defmethod title ((symbol-macro symbol-macro-definition))
   "Return SYMBOL-MACRO's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~) symbol macro"
 	  (definition-package-name symbol-macro)
 	  (name symbol-macro)))
 
-(defmethod title ((macro macro-definition) &optional relative-to)
+(defmethod title ((macro macro-definition))
   "Return MACRO's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~) macro"
 	  (definition-package-name macro)
 	  (name macro)))
 
-(defmethod title
-    ((compiler-macro compiler-macro-definition) &optional relative-to)
+(defmethod title ((compiler-macro compiler-macro-definition))
   "Return COMPILER-MACRO's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~) compiler macro"
 	  (definition-package-name compiler-macro)
 	  (name compiler-macro)))
 
-(defmethod title ((function function-definition) &optional relative-to)
+(defmethod title ((function function-definition))
   "Return FUNCTION's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~) function"
 	  (definition-package-name function)
 	  (name function)))
 
-(defmethod title ((method method-definition) &optional relative-to)
+(defmethod title ((method method-definition))
   "Return METHOD's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~{ ~A~^~}~{ ~A~^~}~) method"
     (definition-package-name method)
     (name method)
     (mapcar #'pretty-specializer (specializers method))
     (qualifiers method)))
 
-(defmethod title ((generic generic-definition) &optional relative-to)
+(defmethod title ((generic generic-definition))
   "Return GENERIC's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~) generic function"
 	  (definition-package-name generic)
 	  (name generic)))
 
-(defmethod title ((expander setf-expander-definition) &optional relative-to)
+(defmethod title ((expander setf-expander-definition))
   "Return setf EXPANDER's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~) setf expander"
 	  (definition-package-name expander)
 	  (name expander)))
 
 ;; #### NOTE: no TITLE method for SLOT-DEFINITION
 
-(defmethod title
-    ((combination short-combination-definition)&optional relative-to)
+(defmethod title ((combination short-combination-definition))
   "Return short method COMBINATION's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~) short method combination"
 	  (definition-package-name combination)
 	  (name combination)))
 
-(defmethod title
-    ((combination long-combination-definition)&optional relative-to)
+(defmethod title ((combination long-combination-definition))
   "Return long method COMBINATION's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~) long method combination"
 	  (definition-package-name combination)
 	  (name combination)))
 
-(defmethod title ((condition condition-definition) &optional relative-to)
+(defmethod title ((condition condition-definition))
   "Return CONDITION's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~) condition"
 	  (definition-package-name condition)
 	  (name condition)))
 
-(defmethod title ((structure structure-definition) &optional relative-to)
+(defmethod title ((structure structure-definition))
   "Return STRUCTURE's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~) structure"
 	  (definition-package-name structure)
 	  (name structure)))
 
-(defmethod title ((class class-definition) &optional relative-to)
+(defmethod title ((class class-definition))
   "Return CLASS's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~) class"
 	  (definition-package-name class)
 	  (name class)))
 
-(defmethod title ((type type-definition) &optional relative-to)
+(defmethod title ((type type-definition))
   "Return TYPE's title."
-  (declare (ignore relative-to))
   (format nil "the ~(~A::~A~) type"
 	  (definition-package-name type)
 	  (name type)))
@@ -353,129 +335,103 @@ not advertised if they are the same as GENERIC-SOURCE."
 ;; main index entries are created automatically in Texinfo by the @defXXX
 ;; routines.
 
-(defmethod index ((constant constant-definition) &optional relative-to)
+(defmethod index ((constant constant-definition))
   "Render CONSTANT's indexing command."
-  (declare (ignore relative-to))
   (format t "@constantsubindex{~(~A~)}@c~%" (escape constant)))
 
-(defmethod index ((special special-definition) &optional relative-to)
+(defmethod index ((special special-definition))
   "Render SPECIAL's indexing command."
-  (declare (ignore relative-to))
   (format t "@specialsubindex{~(~A~)}@c~%" (escape special)))
 
-(defmethod index ((symbol-macro symbol-macro-definition) &optional relative-to)
+(defmethod index ((symbol-macro symbol-macro-definition))
   "Render SYMBOL-MACRO's indexing command."
-  (declare (ignore relative-to))
   (format t "@symbolmacrosubindex{~(~A~)}@c~%" (escape symbol-macro)))
 
-(defmethod index ((macro macro-definition) &optional relative-to)
+(defmethod index ((macro macro-definition))
   "Render MACRO's indexing command."
-  (declare (ignore relative-to))
   (format t "@macrosubindex{~(~A~)}@c~%" (escape macro)))
 
-(defmethod index
-    ((compiler-macro compiler-macro-definition) &optional relative-to)
+(defmethod index ((compiler-macro compiler-macro-definition))
   "Render COMPILER-MACRO's indexing command."
-  (declare (ignore relative-to))
   (format t "@compilermacrosubindex{~(~A~)}@c~%" (escape compiler-macro)))
 
-(defmethod index ((function function-definition) &optional relative-to)
+(defmethod index ((function function-definition))
   "Render FUNCTION's indexing command."
-  (declare (ignore relative-to))
   (format t "@functionsubindex{~(~A~)}@c~%" (escape function)))
 
-(defmethod index ((method method-definition) &optional relative-to)
+(defmethod index ((method method-definition))
   "Render METHOD's indexing command."
-  (declare (ignore relative-to))
   (format t "@methodsubindex{~(~A~)}@c~%" (escape method)))
 
-(defmethod index ((generic generic-definition) &optional relative-to)
+(defmethod index ((generic generic-definition))
   "Render GENERIC's indexing command."
-  (declare (ignore relative-to))
   (format t "@genericsubindex{~(~A~)}@c~%" (escape generic)))
 
-(defmethod index ((expander setf-expander-definition) &optional relative-to)
+(defmethod index ((expander setf-expander-definition))
   "Render setf EXPANDER's indexing command."
-  (declare (ignore relative-to))
   (format t "@setfexpandersubindex{~(~A~)}@c~%" (escape expander)))
 
-(defmethod index ((slot slot-definition) &optional relative-to)
+(defmethod index ((slot slot-definition))
   "Render SLOT's indexing command."
-  (declare (ignore relative-to))
   (format t "@slotsubindex{~(~A~)}@c~%" (escape slot)))
 
-(defmethod index
-    ((combination short-combination-definition) &optional relative-to)
+(defmethod index ((combination short-combination-definition))
   "Render short method COMBINATION's indexing command."
-  (declare (ignore relative-to))
   (format t "@shortcombinationsubindex{~(~A~)}@c~%" (escape combination)))
 
-(defmethod index
-    ((combination long-combination-definition) &optional relative-to)
+(defmethod index ((combination long-combination-definition))
   "Render long method COMBINATION's indexing command."
-  (declare (ignore relative-to))
   (format t "@longcombinationsubindex{~(~A~)}@c~%" (escape combination)))
 
-(defmethod index ((condition condition-definition) &optional relative-to)
+(defmethod index ((condition condition-definition))
   "Render CONDITION's indexing command."
-  (declare (ignore relative-to))
   (format t "@conditionsubindex{~(~A~)}@c~%" (escape condition)))
 
-(defmethod index ((structure structure-definition) &optional relative-to)
+(defmethod index ((structure structure-definition))
   "Render STRUCTURE's indexing command."
-  (declare (ignore relative-to))
   (format t "@structuresubindex{~(~A~)}@c~%" (escape structure)))
 
-(defmethod index ((class class-definition) &optional relative-to)
+(defmethod index ((class class-definition))
   "Render CLASS's indexing command."
-  (declare (ignore relative-to))
   (format t "@classsubindex{~(~A~)}@c~%" (escape class)))
 
-(defmethod index ((type type-definition) &optional relative-to)
+(defmethod index ((type type-definition))
   "Render TYPE's indexing command."
-  (declare (ignore relative-to))
   (format t "@typesubindex{~(~A~)}@c~%" (escape type)))
 
-(defmethod reference ((definition definition) &optional relative-to)
+(defmethod reference ((definition definition))
   "Render DEFINITION's reference."
-  (declare (ignore relative-to))
   (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
     (escape-anchor (anchor-name definition))
     (escape definition)
     (type-name definition)))
 
-(defmethod reference ((function function-definition) &optional relative-to)
+(defmethod reference ((function function-definition))
   "Render FUNCTION's reference."
-  (declare (ignore relative-to))
   (if (function-definition-foreignp function)
       (format t "@t{~(~A}~)~%" (escape function))
     (call-next-method)))
 
-(defmethod reference ((method method-definition) &optional relative-to)
+(defmethod reference ((method method-definition))
   "Render METHOD's reference."
-  (declare (ignore relative-to))
   (if (method-definition-foreignp method)
       (format t "@t{~(~A}~)~%" (escape method))
     (call-next-method)))
 
-(defmethod reference ((generic generic-definition) &optional relative-to)
+(defmethod reference ((generic generic-definition))
   "Render GENERIC function's reference."
-  (declare (ignore relative-to))
   (if (generic-definition-foreignp generic)
       (format t "@t{~(~A}~)~%" (escape generic))
     (call-next-method)))
 
-(defmethod reference
-    ((combination combination-definition) &optional relative-to)
+(defmethod reference ((combination combination-definition))
   "Render COMBINATION's reference."
-  (declare (ignore relative-to))
   (if (combination-definition-foreignp combination)
       (format t "@t{~(~A}~)~%" (escape combination))
     (call-next-method)))
 
-(defmethod reference ((classoid classoid-definition) &optional relative-to)
+(defmethod reference ((classoid classoid-definition))
   "Render CLASSOID's reference."
-  (declare (ignore relative-to))
   (if (classoid-definition-foreignp classoid)
       (format t "@t{~(~A}~)~%" (escape classoid))
     (call-next-method)))

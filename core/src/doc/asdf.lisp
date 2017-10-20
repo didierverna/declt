@@ -43,10 +43,10 @@
 ;; #### this as a method on COMPONENT directly is that such a method (see
 ;; #### below) handles other components, such as extensions, that we don't
 ;; #### know about.
-(defun reference-component (component &optional relative-to)
+(defun reference-component (component)
   "Render COMPONENT's reference."
   (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
-    (escape-anchor (anchor-name component relative-to))
+    (escape-anchor (anchor-name component))
     (escape component)
     (type-name component)))
 
@@ -69,17 +69,13 @@ toplevel system, separated by slashes."
 ;; extensions. I'm not willing to hard-code all possible such extensions, past
 ;; present and future. Besides, those components would not be related to code,
 ;; so Declt will not document them.
-(defmethod reference ((component asdf:component) &optional relative-to)
+(defmethod reference ((component asdf:component))
   "Render unreferenced COMPONENT."
-  (declare (ignore relative-to))
   (format t "@t{~(~A}~) (other component)~%" (escape component)))
 
-(defmethod document :around
-    ((component asdf:component) context
-     &key
-     &aux (relative-to (context-directory context)))
+(defmethod document :around ((component asdf:component) context &key)
   "Anchor and index COMPONENT in CONTEXT. Document it in a @table environment."
-  (anchor-and-index component relative-to)
+  (anchor-and-index component)
   (@table () (call-next-method)))
 
 (defgeneric render-dependency (dependency-def component relative-to)
@@ -91,7 +87,7 @@ documented. Otherwise, they are just listed.")
 		  (resolve-dependency-name component simple-component-name)))
     "Render COMPONENT's SIMPLE-COMPONENT-NAME dependency RELATIVE-TO."
     (if (sub-component-p dependency relative-to)
-	(reference dependency relative-to)
+	(reference dependency)
 	(format t "@t{~(~A}~)" (escape simple-component-name))))
   ;; #### NOTE: this is where I'd like more advanced pattern matching
   ;; capabilities.
@@ -150,7 +146,7 @@ Optionally PREFIX the title."
   (when-let ((dependencies (component-sideway-dependencies component)))
     (render-dependencies dependencies component relative-to))
   (when-let ((parent (component-parent component)))
-    (@tableitem "Parent" (reference parent relative-to)))
+    (@tableitem "Parent" (reference parent)))
   (cond ((typep component 'asdf:system) ;; Yuck!
 	 ;; That sucks. I need to fake a cl-source-file reference because the
 	 ;; system file is not an ASDF component per-se.
@@ -180,43 +176,36 @@ Optionally PREFIX the title."
 ;; Documentation protocols
 ;; -----------------------
 
-(defmethod title ((source-file asdf:source-file) &optional relative-to)
+(defmethod title ((source-file asdf:source-file))
   "Return SOURCE-FILE's title."
-  (declare (ignore relative-to))
   (format nil "the ~A file" (virtual-path source-file)))
 
-(defmethod reference ((source-file asdf:source-file) &optional relative-to)
+(defmethod reference ((source-file asdf:source-file))
   "Render SOURCE-FILE's reference."
-  (reference-component source-file relative-to))
+  (reference-component source-file))
 
-(defmethod index ((lisp-file asdf:cl-source-file) &optional relative-to)
+(defmethod index ((lisp-file asdf:cl-source-file))
   "Render LISP-FILE's indexing command."
-  (declare (ignore relative-to))
   (format t "@lispfileindex{~A}@c~%" (escape (virtual-path lisp-file))))
 
-(defmethod index ((c-file asdf:c-source-file) &optional relative-to)
+(defmethod index ((c-file asdf:c-source-file))
   "Render C-FILE's indexing command."
-  (declare (ignore relative-to))
   (format t "@cfileindex{~A}@c~%" (escape (virtual-path c-file))))
 
-(defmethod index ((java-file asdf:java-source-file) &optional relative-to)
+(defmethod index ((java-file asdf:java-source-file))
   "Render JAVA-FILE's indexing command."
-  (declare (ignore relative-to))
   (format t "@javafileindex{~A}@c~%" (escape (virtual-path java-file))))
 
-(defmethod index ((static-file asdf:static-file) &optional relative-to)
+(defmethod index ((static-file asdf:static-file))
   "Render STATIC-FILE's indexing command."
-  (declare (ignore relative-to))
   (format t "@otherfileindex{~A}@c~%" (escape (virtual-path static-file))))
 
-(defmethod index ((doc-file asdf:doc-file) &optional relative-to)
+(defmethod index ((doc-file asdf:doc-file))
   "Render DOC-FILE's indexing command."
-  (declare (ignore relative-to))
   (format t "@docfileindex{~A}@c~%" (escape (virtual-path doc-file))))
 
-(defmethod index ((html-file asdf:html-file) &optional relative-to)
+(defmethod index ((html-file asdf:html-file))
   "Render HTML-FILE's indexing command."
-  (declare (ignore relative-to))
   (format t "@htmlfileindex{~A}@c~%" (escape (virtual-path html-file))))
 
 (defmethod document ((file asdf:cl-source-file) context
@@ -239,10 +228,9 @@ Optionally PREFIX the title."
 ;; Nodes
 ;; -----
 
-(defun file-node
-    (file context &aux (relative-to (context-directory context)))
+(defun file-node (file context)
   "Create and return a FILE node in CONTEXT."
-  (make-node :name (format nil "~@(~A~)" (title file relative-to))
+  (make-node :name (format nil "~@(~A~)" (title file))
 	     :section-name (format nil "@t{~A}" (escape (virtual-path file)))
 	     :before-menu-contents (render-to-string (document file context))))
 
@@ -336,18 +324,16 @@ components trees."))))
 ;; Documentation protocols
 ;; -----------------------
 
-(defmethod title ((module asdf:module) &optional relative-to)
+(defmethod title ((module asdf:module))
   "Return MODULE's title."
-  (declare (ignore relative-to))
   (format nil "the ~A module" (virtual-path module)))
 
-(defmethod reference ((module asdf:module) &optional relative-to)
+(defmethod reference ((module asdf:module))
   "Render MODULE's reference."
-  (reference-component module relative-to))
+  (reference-component module))
 
-(defmethod index ((module asdf:module) &optional relative-to)
+(defmethod index ((module asdf:module))
   "Render MODULE's indexing command."
-  (declare (ignore relative-to))
   (format t "@moduleindex{~A}@c~%" (escape (virtual-path module))))
 
 (defmethod document ((module asdf:module) context &key)
@@ -355,24 +341,19 @@ components trees."))))
   (call-next-method)
   (when-let* ((components (asdf:module-components module))
 	      (length (length components)))
-    (let ((relative-to (context-directory context)))
-      (@tableitem (format nil "Component~p" length)
-	(if (eq length 1)
-	    (reference (first components) relative-to)
-	    (@itemize-list components
-			   :renderer
-			   (lambda (component)
-			     (reference component relative-to))))))))
+    (@tableitem (format nil "Component~p" length)
+      (if (eq length 1)
+	(reference (first components))
+	(@itemize-list components :renderer #'reference)))))
 
 
 ;; -----
 ;; Nodes
 ;; -----
 
-(defun module-node
-    (module context &aux (relative-to (context-directory context)))
+(defun module-node (module context)
   "Create and return a MODULE node in CONTEXT."
-  (make-node :name (format nil "~@(~A~)" (title module relative-to))
+  (make-node :name (format nil "~@(~A~)" (title module))
 	     :section-name (format nil "@t{~A}" (escape (virtual-path module)))
 	     :before-menu-contents
 	     (render-to-string (document module context))))
@@ -401,18 +382,16 @@ Modules are listed depth-first from the system components tree.")))))
 ;; Documentation protocols
 ;; -----------------------
 
-(defmethod title ((system asdf:system) &optional relative-to)
+(defmethod title ((system asdf:system))
   "Return SYSTEM's title."
-  (declare (ignore relative-to))
   (format nil "the ~A system" (name system)))
 
-(defmethod reference ((system asdf:system) &optional relative-to)
+(defmethod reference ((system asdf:system))
   "Render SYSTEM's reference."
-  (reference-component system relative-to))
+  (reference-component system))
 
-(defmethod index ((system asdf:system) &optional relative-to)
+(defmethod index ((system asdf:system))
   "Render SYSTEM's indexing command."
-  (declare (ignore relative-to))
   (format t "@systemindex{~A}@c~%" (escape system)))
 
 (defmethod document ((system asdf:system) context &key)

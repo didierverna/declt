@@ -53,16 +53,13 @@
 ;; Documentation Protocols
 ;; ==========================================================================
 
-(defgeneric title (item &optional relative-to)
-  (:documentation "Return ITEM's title."))
+(defgeneric title (item) (:documentation "Return ITEM's title."))
 
-(defgeneric index (item &optional relative-to)
-  (:documentation "Render ITEM's indexing command."))
+(defgeneric index (item) (:documentation "Render ITEM's indexing command."))
 
 ;; #### FIXME: methods on this function contain Texinfo code. There should be
 ;; an @ref function in ../utils/texi.lisp.
-(defgeneric reference (item &optional relative-to)
-  (:documentation "Render ITEM's reference."))
+(defgeneric reference (item) (:documentation "Render ITEM's reference."))
 
 (defgeneric document (item context &key &allow-other-keys)
   (:documentation "Render ITEM's documentation in CONTEXT."))
@@ -75,18 +72,18 @@
 
 ;; Since node references are boring in Texinfo, we prefer to create custom
 ;; anchors for our items and link to them instead.
-(defun anchor-name (item &optional relative-to)
+(defun anchor-name (item)
   "Return ITEM's anchor name."
-  (format nil "go to ~A" (title item relative-to)))
+  (format nil "go to ~A" (title item)))
 
-(defun anchor (item &optional relative-to)
+(defun anchor (item)
   "Render ITEM's anchor."
-  (@anchor (anchor-name item relative-to)))
+  (@anchor (anchor-name item)))
 
-(defun anchor-and-index (item &optional relative-to)
+(defun anchor-and-index (item)
   "Anchor and index ITEM."
-  (anchor item relative-to)
-  (index item relative-to))
+  (anchor item)
+  (index item))
 
 
 ;; #### NOTE: the use of PROBE-FILE below has two purposes:
@@ -119,7 +116,6 @@ Rendering is done on *standard-output*."
 Rendering is done on *standard-output*."
   (when-let ((source-pathname (source item)))
     (let* ((systems (context-systems context))
-	   (relative-to (context-directory context))
 	   ;; Remember that a source can be a system, although systems are not
 	   ;; actual cl-source-file's.
 	   (source-component
@@ -129,7 +125,7 @@ Rendering is done on *standard-output*."
 				(component-pathname component))
 		     :return component)))
       (if source-component
-	  (@tableitem "Source" (reference source-component relative-to))
+	  (@tableitem "Source" (reference source-component))
 	  ;; Otherwise, the source does not belong to the system. This may
 	  ;; happen for automatically generated sources (sb-grovel does this
 	  ;; for instance). So let's just reference the file itself.
