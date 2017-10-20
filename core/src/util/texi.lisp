@@ -32,6 +32,21 @@
 ;; Rendering Protocols
 ;; ==========================================================================
 
+(defun reveal (string)
+  "Replace invisible characters in STRING with unicode symbols."
+  (coerce (loop :for char :across string
+		:if (char= char #\ )
+		  :collect #\␠
+		:else
+		  :if (char= char #\Newline)
+		    :collect #\␤
+		:else
+		  :if (char= char #\Tab)
+		    :collect #\␉
+		:else
+		  :collect char)
+	  'string))
+
 (defgeneric name (object)
   (:documentation "Return OBJECT's name as a string.")
   (:method (object)
@@ -39,13 +54,13 @@
     (princ-to-string object))
   (:method ((symbol symbol))
     "Return SYMBOL's name."
-    (symbol-name symbol))
+    (reveal (symbol-name symbol)))
   (:method ((string string))
     "Return STRING."
     string)
   (:method ((pathname pathname))
     "Return PATHNAME's name."
-    (namestring pathname)))
+    (reveal (namestring pathname))))
 
 
 

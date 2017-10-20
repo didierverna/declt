@@ -39,7 +39,7 @@
 
 (defmethod name ((component asdf:component))
   "Return COMPONENT's name."
-  (component-name component))
+  (reveal (component-name component)))
 
 
 

@@ -56,7 +56,7 @@
 
 (defmethod name ((package package))
   "Return PACKAGE's name."
-  (package-name package))
+  (reveal (package-name package)))
 
 
 
