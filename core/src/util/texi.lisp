@@ -87,13 +87,13 @@ The escaped characters are @, {, } and optionally a list of OTHER-CHARS."
 
 (defun escape-anchor (object &optional other-chars)
   "When OBJECT, escape its name for use as a Texinfo anchor.
-The escaped characters are @, {, }, <space> and optionally a list of
-OTHER-CHARS. Additionally, periods, commas and colons are wrapped inside
-special <> constructs."
+The escaped characters are @, {, } and optionally a list of OTHER-CHARS.
+Additionally, periods, commas and colons are wrapped inside special <>
+constructs."
   (when object
     (apply #'concatenate 'string
 	   (loop :for char across (name object)
-		 :if (member char (append '(#\@ #\{ #\} #\ ) other-chars))
+		 :if (member char (append '(#\@ #\{ #\}) other-chars))
 		   :collect (format nil "@~A" char)
 		 :else
 		   :if (member char '(#\. #\, #\:))
