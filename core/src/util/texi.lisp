@@ -57,11 +57,18 @@
   "When OBJECT, escape its name for Texinfo.
 The escaped characters are @, {, } and optionally a list of OTHER-CHARS."
   (when object
-    (coerce (loop :for char across (name object)
-		  :if (member char (append '(#\@ #\{ #\}) other-chars))
-		    :collect #\@
-		  :collect char)
-	    'string)))
+    (apply #'concatenate 'string
+	   (loop :for char across (name object)
+		 :if (member char (push #\@ other-chars))
+		   :collect (format nil "@~A" char)
+		 :else
+		   :if (char= char #\{)
+		     :collect "@lbracechar{}"
+		 :else
+		   :if (char= char #\})
+		     :collect "@rbracechar{}"
+		 :else
+		   :collect (string char)))))
 
 (defun escape-anchor (object &optional other-chars)
   "When OBJECT, escape its name for use as a Texinfo anchor.
