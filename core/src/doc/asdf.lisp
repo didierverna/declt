@@ -153,7 +153,9 @@ Optionally PREFIX the title."
 	 (when (system-source-file component)
 	   (@tableitem "Source"
 	     (let ((system-base-name (escape (system-base-name component))))
-	       (format t "@ref{go to the ~A file, , @t{~(~A}~)} (Lisp file)~%"
+	       ;; #### FIXME: something's wrong here. Why do I need to
+	       ;; reproduce ANCHOR-NAME?
+	       (format t "@ref{go@ to@ the@ ~A@ file, , @t{~(~A}~)} (Lisp file)~%"
 		 (escape-anchor system-base-name)
 		 (escape system-base-name)))))
 	 (when (context-hyperlinksp context)

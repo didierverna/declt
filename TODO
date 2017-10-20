@@ -82,3 +82,8 @@ Currently, we can link to source files on the local machine, which is not
 advisable for web installation of the reference manuals. However, if the
 library provides a source control address, we could link to files in a public
 repo !
+
+** Weird symbol names
+Some symbol names may contain weird characters such as space. We should find a
+way to make those visible (and then, maybe we won't need to treat spaces
+specially in anchor names anymore: see escape-anchor).
