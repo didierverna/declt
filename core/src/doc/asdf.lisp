@@ -182,7 +182,8 @@ Optionally PREFIX the title."
 
 (defmethod title ((source-file asdf:source-file) &optional relative-to)
   "Return SOURCE-FILE's title."
-  (format nil "the ~A file" (relative-location source-file relative-to)))
+  (declare (ignore relative-to))
+  (format nil "the ~A file" (virtual-path source-file)))
 
 (defmethod reference ((source-file asdf:source-file) &optional relative-to)
   "Render SOURCE-FILE's reference."
@@ -190,33 +191,33 @@ Optionally PREFIX the title."
 
 (defmethod index ((lisp-file asdf:cl-source-file) &optional relative-to)
   "Render LISP-FILE's indexing command."
-  (format t "@lispfileindex{~A}@c~%"
-    (escape (relative-location lisp-file relative-to))))
+  (declare (ignore relative-to))
+  (format t "@lispfileindex{~A}@c~%" (escape (virtual-path lisp-file))))
 
 (defmethod index ((c-file asdf:c-source-file) &optional relative-to)
   "Render C-FILE's indexing command."
-  (format t "@cfileindex{~A}@c~%"
-    (escape (relative-location c-file relative-to))))
+  (declare (ignore relative-to))
+  (format t "@cfileindex{~A}@c~%" (escape (virtual-path c-file))))
 
 (defmethod index ((java-file asdf:java-source-file) &optional relative-to)
   "Render JAVA-FILE's indexing command."
-  (format t "@javafileindex{~A}@c~%"
-    (escape (relative-location java-file relative-to))))
+  (declare (ignore relative-to))
+  (format t "@javafileindex{~A}@c~%" (escape (virtual-path java-file))))
 
 (defmethod index ((static-file asdf:static-file) &optional relative-to)
   "Render STATIC-FILE's indexing command."
-  (format t "@otherfileindex{~A}@c~%"
-    (escape (relative-location static-file relative-to))))
+  (declare (ignore relative-to))
+  (format t "@otherfileindex{~A}@c~%" (escape (virtual-path static-file))))
 
 (defmethod index ((doc-file asdf:doc-file) &optional relative-to)
   "Render DOC-FILE's indexing command."
-  (format t "@docfileindex{~A}@c~%"
-    (escape (relative-location doc-file relative-to))))
+  (declare (ignore relative-to))
+  (format t "@docfileindex{~A}@c~%" (escape (virtual-path doc-file))))
 
 (defmethod index ((html-file asdf:html-file) &optional relative-to)
   "Render HTML-FILE's indexing command."
-  (format t "@htmlfileindex{~A}@c~%"
-    (escape (relative-location html-file relative-to))))
+  (declare (ignore relative-to))
+  (format t "@htmlfileindex{~A}@c~%" (escape (virtual-path html-file))))
 
 (defmethod document ((file asdf:cl-source-file) context
 		     &key
@@ -242,8 +243,7 @@ Optionally PREFIX the title."
     (file context &aux (relative-to (context-directory context)))
   "Create and return a FILE node in CONTEXT."
   (make-node :name (format nil "~@(~A~)" (title file relative-to))
-	     :section-name (format nil "@t{~A}"
-			     (escape (relative-location file relative-to)))
+	     :section-name (format nil "@t{~A}" (escape (virtual-path file)))
 	     :before-menu-contents (render-to-string (document file context))))
 
 (defun add-files-node
