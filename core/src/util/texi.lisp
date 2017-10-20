@@ -73,8 +73,8 @@ The escaped characters are @, {, } and optionally a list of OTHER-CHARS."
 (defun escape-anchor (object &optional other-chars)
   "When OBJECT, escape its name for use as a Texinfo anchor.
 The escaped characters are @, {, } and optionally a list of OTHER-CHARS.
-Additionally, periods, commas and colons are wrapped inside calls to the
-@asis macro."
+Additionally, periods, commas and colons are wrapped inside special <>
+constructs."
   (when object
     (apply #'concatenate 'string
 	   (loop :for char across (name object)
