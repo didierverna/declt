@@ -333,7 +333,8 @@ components trees."))))
 
 (defmethod title ((module asdf:module) &optional relative-to)
   "Return MODULE's title."
-  (format nil "the ~A module" (relative-location module relative-to)))
+  (declare (ignore relative-to))
+  (format nil "the ~{~A~^/~} module" (component-find-path module)))
 
 (defmethod reference ((module asdf:module) &optional relative-to)
   "Render MODULE's reference."
@@ -341,8 +342,9 @@ components trees."))))
 
 (defmethod index ((module asdf:module) &optional relative-to)
   "Render MODULE's indexing command."
-  (format t "@moduleindex{~A}@c~%"
-    (escape (relative-location module relative-to))))
+  (declare (ignore relative-to))
+  (format t "@moduleindex{~{~A~^/~}}@c~%"
+    (mapcar #'escape (component-find-path module))))
 
 (defmethod document ((module asdf:module) context &key)
   "Render MODULE's documentation in CONTEXT."
@@ -367,8 +369,8 @@ components trees."))))
     (module context &aux (relative-to (context-directory context)))
   "Create and return a MODULE node in CONTEXT."
   (make-node :name (format nil "~@(~A~)" (title module relative-to))
-	     :section-name (format nil "@t{~A}"
-			     (escape (relative-location module relative-to)))
+	     :section-name (format nil "@t{~{~A~^/~}}"
+			     (mapcar #'escape (component-find-path module)))
 	     :before-menu-contents
 	     (render-to-string (document module context))))
 

@@ -44,6 +44,7 @@
     :component-relative-pathname
     :component-if-feature
     :component-sideway-dependencies
+    :component-find-path
     :find-system
     :resolve-dependency-name
     :system-long-name
