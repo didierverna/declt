@@ -50,6 +50,11 @@
     (escape component)
     (type-name component)))
 
+(defun virtual-path (component)
+  "Return CONMPONENT's virtual path.
+This is the string of successive component names to access COMPONENT from the
+toplevel system, separated by slashes."
+  (format nil "~{~A~^/~}" (component-find-path component)))
 
 
 ;; ==========================================================================
@@ -334,7 +339,7 @@ components trees."))))
 (defmethod title ((module asdf:module) &optional relative-to)
   "Return MODULE's title."
   (declare (ignore relative-to))
-  (format nil "the ~{~A~^/~} module" (component-find-path module)))
+  (format nil "the ~A module" (virtual-path module)))
 
 (defmethod reference ((module asdf:module) &optional relative-to)
   "Render MODULE's reference."
@@ -343,8 +348,7 @@ components trees."))))
 (defmethod index ((module asdf:module) &optional relative-to)
   "Render MODULE's indexing command."
   (declare (ignore relative-to))
-  (format t "@moduleindex{~{~A~^/~}}@c~%"
-    (mapcar #'escape (component-find-path module))))
+  (format t "@moduleindex{~A}@c~%" (escape (virtual-path module))))
 
 (defmethod document ((module asdf:module) context &key)
   "Render MODULE's documentation in CONTEXT."
@@ -369,8 +373,7 @@ components trees."))))
     (module context &aux (relative-to (context-directory context)))
   "Create and return a MODULE node in CONTEXT."
   (make-node :name (format nil "~@(~A~)" (title module relative-to))
-	     :section-name (format nil "@t{~{~A~^/~}}"
-			     (mapcar #'escape (component-find-path module)))
+	     :section-name (format nil "@t{~A}" (escape (virtual-path module)))
 	     :before-menu-contents
 	     (render-to-string (document module context))))
 
