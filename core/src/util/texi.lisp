@@ -240,16 +240,29 @@ NAME is escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(@defvr "Slot" ,name ,@body))
 
-(defgeneric pretty-specializer (specializer)
-  (:documentation "Return a printable form of SPECIALIZER.")
-  (:method (specializer)
+(defgeneric pretty-specializer (specializer &optional qualify)
+  (:documentation "Return a printable form of SPECIALIZER.
+If QUALIFY, also qualify the symbols.")
+  (:method (specializer &optional qualify)
     "Return either SPECIALIZER itself, or its class name when appropriate."
-    (name (or (ignore-errors (class-name specializer)) specializer)))
+    (let ((specializer (or (ignore-errors (class-name specializer))
+			   specializer)))
+      (if qualify
+	  (format nil "~A::~A"
+	    (name (symbol-package specializer))
+	    (name specializer))
+	(name specializer))))
   ;; #### PORTME.
-  (:method ((specializer sb-mop:eql-specializer))
+  (:method ((specializer sb-mop:eql-specializer) &optional qualify)
     "Return the (eql object) list corresponding to SPECIALIZER in a string."
-    (format nil "~A"
-      `(eql ,(name (sb-mop:eql-specializer-object specializer))))))
+    (let ((specializer-object (sb-mop:eql-specializer-object specializer)))
+      ;; #### WARNING: this is shaky at best. EQL specializers can be of any
+      ;; form so in theory we would need to qualify every symbol inside.
+      (if (and qualify (symbolp specializer-object))
+	  (format nil "(eql ~A::~A)"
+	    (name (symbol-package specializer-object))
+	    (name specializer-object))
+	(format nil "(eql ~A)" (name specializer-object))))))
 
 ;; Based on Edi Weitz's write-lambda-list* from documentation-template.
 (defun render-lambda-list (lambda-list &optional specializers
@@ -278,6 +291,11 @@ Rendering is done on *standard-output*."
 	   (setq after-required-args-p t)
 	   (format t "~(~A~)" part))
 	  (t
+	   ;; #### WARNING: we don't ask to qualify the specializers here
+	   ;; because that would completely clutter the display. There are
+	   ;; some cases however (like MCClim) which have specializers on the
+	   ;; same symbol but from different packages (e.g. defclass). These
+	   ;; won't show in the output unfortunately.
 	   (let ((specializer (pretty-specializer (pop specializers))))
 	     (if (and specializer (not (eq specializer t)))
 		 (format t "(~A @t{~(~A~)})"

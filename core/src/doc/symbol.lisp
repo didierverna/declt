@@ -278,7 +278,8 @@ not advertised if they are the same as GENERIC-SOURCE."
   (format nil "the ~(~A::~A~{ ~A~^~}~{ ~A~^~}~) method"
     (definition-package-name method)
     (name method)
-    (mapcar #'pretty-specializer (specializers method))
+    (mapcar (lambda (specializer) (pretty-specializer specializer t))
+	    (specializers method))
     (qualifiers method)))
 
 (defmethod title ((generic generic-definition))
