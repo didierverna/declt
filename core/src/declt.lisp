@@ -390,7 +390,11 @@ This manual was generated automatically by Declt ~A on ~A.
 (defun add-packages (context)
   "Add all package definitions to CONTEXT."
   (setf (context-packages context)
-	(mapcan #'system-packages (context-systems context))))
+	;; #### NOTE: several subsystems may share the same packages (because
+	;; they would share files defining them) so we need to filter
+	;; potential duplicates out.
+	(remove-duplicates
+	 (mapcan #'system-packages (context-systems context)))))
 
 (defun add-external-definitions (context)
   "Add all external definitions to CONTEXT."
