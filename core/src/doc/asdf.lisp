@@ -230,6 +230,8 @@ Optionally PREFIX the title."
 ;; Nodes
 ;; -----
 
+;; #### FIXME: one of the casing problem is here. We shouldn't downcase file
+;; names!
 (defun file-node (file context)
   "Create and return a FILE node in CONTEXT."
   (make-node :name (format nil "~@(~A~)" (title file))
@@ -239,16 +241,25 @@ Optionally PREFIX the title."
 (defun add-files-node
     (parent context &aux (systems (context-systems context))
 			 (lisp-files (mapcan #'lisp-components systems))
+			 ;; #### NOTE: maybe one day, see about adding other
+			 ;; kinds of files.
 			 (other-files
-			  (mapcar (lambda (type)
-				    (mapcan (lambda (system)
-					      (components system type))
-					    systems))
-				  '(asdf:c-source-file
-				    asdf:java-source-file
-				    asdf:doc-file
-				    asdf:html-file
-				    asdf:static-file)))
+			  (list
+			   (mapcan (lambda (system)
+				     (components system 'asdf:c-source-file))
+				   systems)
+			   (mapcan (lambda (system)
+				     (components system 'asdf:java-source-file))
+				   systems)
+			   (mapcan (lambda (system)
+				     (components system 'asdf:html-file))
+				   systems)
+			   (remove-if
+			    (lambda (component)
+			      (typep component 'asdf:html-file))
+			    (mapcan (lambda (system)
+				      (components system 'asdf:doc-file))
+				    systems))))
 			 (files-node
 			  (add-child parent
 			    (make-node
@@ -305,9 +316,8 @@ components trees."))))
     (add-child lisp-files-node (file-node file context)))
   (loop :with other-files-node
 	:for files :in other-files
-	:for name :in '("C files" "Java files" "Doc files" "HTML files"
-			"Other files")
-	:for section-name :in '("C" "Java" "Doc" "HTML" "Other")
+	:for name :in '("C files" "Java files" "HTML files" "Doc files")
+	:for section-name :in '("C" "Java" "HTML" "Doc")
 	:when files
 	  :do (setq other-files-node
 		    (add-child files-node
