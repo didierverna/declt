@@ -241,8 +241,6 @@ Optionally PREFIX the title."
 (defun add-files-node
     (parent context &aux (systems (context-systems context))
 			 (lisp-files (mapcan #'lisp-components systems))
-			 ;; #### NOTE: maybe one day, see about adding other
-			 ;; kinds of files.
 			 (other-files
 			  (list
 			   (mapcan (lambda (system)
@@ -259,6 +257,12 @@ Optionally PREFIX the title."
 			      (typep component 'asdf:html-file))
 			    (mapcan (lambda (system)
 				      (components system 'asdf:doc-file))
+				    systems))
+			   (remove-if
+			    (lambda (component)
+			      (typep component 'asdf:doc-file))
+			    (mapcan (lambda (system)
+				      (components system 'asdf:static-file))
 				    systems))))
 			 (files-node
 			  (add-child parent
@@ -277,6 +281,8 @@ components trees."))))
   ;; to be listed here (and first) so I need to duplicate some of what the
   ;; DOCUMENT method on lisp files does.
   ;; #### WARNING: multiple systems may be defined in the same .asd file.
+  ;; #### FIXME: Arnesi lists the asd file as a static-file, so it appears
+  ;; twice.
   (dolist (system (remove-duplicates
 		   (remove-if #'null systems :key #'system-source-file)
 		   :test #'equal :key #'system-source-file))
@@ -316,8 +322,9 @@ components trees."))))
     (add-child lisp-files-node (file-node file context)))
   (loop :with other-files-node
 	:for files :in other-files
-	:for name :in '("C files" "Java files" "HTML files" "Doc files")
-	:for section-name :in '("C" "Java" "HTML" "Doc")
+	:for name
+	  :in '("C files" "Java files" "HTML files" "Doc files" "Other files")
+	:for section-name :in '("C" "Java" "HTML" "Doc" "Other")
 	:when files
 	  :do (setq other-files-node
 		    (add-child files-node
