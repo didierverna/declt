@@ -36,7 +36,7 @@
   "Replace invisible characters in STRING with unicode symbols."
   (coerce (loop :for char :across string
 		:if (char= char #\ )
-		  :collect #\␠
+		  :collect #\␣
 		:else
 		  :if (char= char #\Newline)
 		    :collect #\␤
