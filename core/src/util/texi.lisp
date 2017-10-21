@@ -32,20 +32,18 @@
 ;; Rendering Protocols
 ;; ==========================================================================
 
-(defun reveal (string)
-  "Replace invisible characters in STRING with unicode symbols."
-  (coerce (loop :for char :across string
-		:if (char= char #\ )
-		  :collect #\␣
-		:else
-		  :if (char= char #\Newline)
-		    :collect #\␤
-		:else
-		  :if (char= char #\Tab)
-		    :collect #\␉
-		:else
-		  :collect char)
-	  'string))
+(defgeneric reveal (object)
+  (:documentation
+   "Replace invisible characters in OBJECT with unicode symbols.")
+  (:method ((char character))
+    (case char
+      (#\        #\␣)
+      (#\Newline #\↩)
+      (#\Tab     #\⇥)
+      (t char)))
+  (:method ((string string))
+    (coerce (loop :for char :across string :collect (reveal char))
+	    'string)))
 
 (defgeneric name (object)
   (:documentation "Return OBJECT's name as a string.")
@@ -55,6 +53,9 @@
   (:method ((symbol symbol))
     "Return SYMBOL's name."
     (reveal (symbol-name symbol)))
+  (:method ((char character))
+    "Return revealed CHAR."
+    (reveal char))
   (:method ((string string))
     "Return STRING."
     string)
@@ -243,12 +244,12 @@ BODY should render on *standard-output*."
   (:documentation "Return a printable form of SPECIALIZER.")
   (:method (specializer)
     "Return either SPECIALIZER itself, or its class name when appropriate."
-    (or (ignore-errors (class-name specializer))
-	specializer))
+    (name (or (ignore-errors (class-name specializer)) specializer)))
   ;; #### PORTME.
   (:method ((specializer sb-mop:eql-specializer))
     "Return the (eql object) list corresponding to SPECIALIZER in a string."
-    (format nil "~A" `(eql ,(sb-mop:eql-specializer-object specializer)))))
+    (format nil "~A"
+      `(eql ,(name (sb-mop:eql-specializer-object specializer))))))
 
 ;; Based on Edi Weitz's write-lambda-list* from documentation-template.
 (defun render-lambda-list (lambda-list &optional specializers
