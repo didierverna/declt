@@ -88,3 +88,8 @@ The Anchoring code is awful and shaky. It's practically impossible to provide
 unique anchor names based on the printing of objects. I think I need to
 clearly separate the TITLE protocol from the ANCHOR one, and use simpler
 anchor names coupled with uids of some sort.
+
+** Lambda-list rendering is wrong.
+In so many ways that I can't begin to describe it. We shouldn't use aesthetic
+display. Keywords are not visible, case is insensitive etc. This needs to be
+completely redone.
