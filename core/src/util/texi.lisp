@@ -297,7 +297,7 @@ Rendering is done on *standard-output*."
 	   ;; same symbol but from different packages (e.g. defclass). These
 	   ;; won't show in the output unfortunately.
 	   (let ((specializer (pop specializers)))
-	     (if (and specializer (not (eq specializer t)))
+	     (if (and specializer (not (eq specializer (find-class t))))
 	       (format t "(~A @t{~(~A~)})"
 		 (escape part)
 		 (escape (pretty-specializer specializer)))
