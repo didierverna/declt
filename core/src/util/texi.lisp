@@ -296,11 +296,11 @@ Rendering is done on *standard-output*."
 	   ;; some cases however (like MCClim) which have specializers on the
 	   ;; same symbol but from different packages (e.g. defclass). These
 	   ;; won't show in the output unfortunately.
-	   (let ((specializer (pretty-specializer (pop specializers))))
+	   (let ((specializer (pop specializers)))
 	     (if (and specializer (not (eq specializer t)))
-		 (format t "(~A @t{~(~A~)})"
-		   (escape part)
-		   (escape specializer))
+	       (format t "(~A @t{~(~A~)})"
+		 (escape part)
+		 (escape (pretty-specializer specializer)))
 	       (write-string (escape part))))))
     (cond ((not next)
 	   (setq stop t))
