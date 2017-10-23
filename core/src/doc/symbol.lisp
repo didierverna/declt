@@ -275,7 +275,7 @@ not advertised if they are the same as GENERIC-SOURCE."
 
 (defmethod title ((method method-definition))
   "Return METHOD's title."
-  (format nil "the ~(~A::~A~{ ~A~^~}~{ ~A~^~}~) method"
+  (format nil "the ~(~A::~A~)~{ ~A~^~}~{ ~A~^~} method"
     (definition-package-name method)
     (name method)
     (mapcar (lambda (specializer) (pretty-specializer specializer t))
