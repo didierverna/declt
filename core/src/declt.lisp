@@ -602,12 +602,13 @@ Concepts, functions, variables and data types")
 				       :if-exists :supersede
 				       :if-does-not-exist :create
 				       :external-format :utf8)
-      (render-header library tagline version contact-names contact-emails
-		     copyright license
-		     texi-name info-file declt-notice
-		     current-time-string)
-      (render-top-node top-node)
-      (format t "~%@bye~%~%@c ~A ends here~%" texi-name)))
+      (with-standard-io-syntax
+	(render-header library tagline version contact-names contact-emails
+		       copyright license
+		       texi-name info-file declt-notice
+		       current-time-string)
+	(render-top-node top-node)
+	(format t "~%@bye~%~%@c ~A ends here~%" texi-name))))
   (values))
 
 
