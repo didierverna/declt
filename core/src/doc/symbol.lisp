@@ -195,7 +195,7 @@ not advertised if they are the same as GENERIC-SOURCE."
     (@tableitem "Direct Default Initargs"
       ;; #### FIXME: we should rather compute the longest initarg name and use
       ;; that as a template size for the @headitem specification.
-      (@multitable (.3 .5)
+      (@multitable (.3f0 .5f0)
 	(format t "@headitem Initarg @tab Value~%")
 	(dolist (initarg initargs)
 	  (format t "@item @t{~A}~%@tab @t{~A}~%"
