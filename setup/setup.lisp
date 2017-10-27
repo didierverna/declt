@@ -46,16 +46,16 @@
 (defparameter *release-major-level* 2
   "The major level of this release.")
 
-(defparameter *release-minor-level* 2
+(defparameter *release-minor-level* 3
   "The minor level of this release.")
 
-(defparameter *release-status* :patchlevel
+(defparameter *release-status* :beta
   "The status of this release.")
 
-(defparameter *release-status-level* 0
+(defparameter *release-status-level* 1
   "The status level of this release.")
 
-(defparameter *release-name* "Christopher Pike"
+(defparameter *release-name* "Robert April"
   "The name of this release.
 The general naming theme for Declt is \"Star Trek characters\".")
 
