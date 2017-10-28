@@ -98,7 +98,7 @@ constructs."
 		   :collect (format nil "@~A" char)
 		 :else
 		   :if (member char '(#\. #\, #\:))
-		     :collect (format nil " <~A> "
+		     :collect (format nil "<~A>"
 				(case char (#\. "dot")
 					   (#\, "comma")
 					   (#\: "colon")))
