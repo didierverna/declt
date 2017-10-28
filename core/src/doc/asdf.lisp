@@ -148,13 +148,12 @@ Optionally PREFIX the title."
   (when-let ((parent (component-parent component)))
     (@tableitem "Parent" (reference parent)))
   (cond ((typep component 'asdf:system) ;; Yuck!
-	 ;; That sucks. I need to fake a cl-source-file reference because the
-	 ;; system file is not an ASDF component per-se.
+	 ;; #### WARNING: the system file is not an ASDF component per-se, so
+	 ;; I need to fake a reference to a CL-SOURCE-FILE. This is done by
+	 ;; reproducing the effect of REFERENCE-COMPONENT.
 	 (when (system-source-file component)
 	   (@tableitem "Source"
 	     (let ((system-base-name (escape (system-base-name component))))
-	       ;; #### FIXME: something's wrong here. Why do I need to
-	       ;; reproduce ANCHOR-NAME?
 	       (format t "@ref{go to the ~A file, , @t{~(~A}~)} (Lisp file)~%"
 		 (escape-anchor system-base-name)
 		 (escape system-base-name)))))
