@@ -50,11 +50,16 @@
     (escape component)
     (type-name component)))
 
-(defun virtual-path (component)
-  "Return CONMPONENT's virtual path.
+(defgeneric virtual-path (component)
+  (:documentation "Return CONMPONENT's virtual path.
 This is the string of successive component names to access COMPONENT from the
-toplevel system, separated by slashes."
-  (format nil "~{~A~^/~}" (component-find-path component)))
+toplevel system, separated by slashes.")
+  (:method (component)
+    "Default method for all components."
+    (format nil "~{~A~^/~}" (component-find-path component)))
+  (:method :around ((component asdf:cl-source-file))
+    "Add the .lisp extention at the end of the virtual path."
+    (concatenate 'string (call-next-method) ".lisp")))
 
 
 ;; ==========================================================================
