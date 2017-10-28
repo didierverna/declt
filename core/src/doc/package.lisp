@@ -37,6 +37,10 @@
   "Return PACKAGE's title."
   (format nil "the ~(~A~) package" (name package)))
 
+(defmethod anchor-name ((package package))
+  "Return PACKAGE's anchor name."
+  (format nil "~A package" (name package)))
+
 (defmethod index ((package package))
   "Render PACKAGE's indexing command."
   (format t "@packageindex{~(~A~)}@c~%" (escape package)))

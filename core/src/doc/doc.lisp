@@ -55,6 +55,14 @@
 
 (defgeneric title (item) (:documentation "Return ITEM's title."))
 
+;; Since node references are boring in Texinfo, we prefer to create custom
+;; anchors for our items and link to them instead.
+(defgeneric anchor-name (item)
+  (:documentation "Return ITEM's anchor name.")
+  (:method :around (item)
+    "Prefix ITEM's anchor name with \"go to the \"."
+    (concatenate 'string "go to the " (call-next-method))))
+
 (defgeneric index (item) (:documentation "Render ITEM's indexing command."))
 
 ;; #### FIXME: methods on this function contain Texinfo code. There should be
@@ -69,12 +77,6 @@
 ;; ==========================================================================
 ;; Utilities
 ;; ==========================================================================
-
-;; Since node references are boring in Texinfo, we prefer to create custom
-;; anchors for our items and link to them instead.
-(defun anchor-name (item)
-  "Return ITEM's anchor name."
-  (format nil "go to ~A" (title item)))
 
 (defun anchor (item)
   "Render ITEM's anchor."

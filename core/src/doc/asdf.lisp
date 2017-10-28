@@ -182,9 +182,9 @@ Optionally PREFIX the title."
   "Return SOURCE-FILE's title."
   (format nil "the ~A file" (virtual-path source-file)))
 
-(defmethod reference ((source-file asdf:source-file))
-  "Render SOURCE-FILE's reference."
-  (reference-component source-file))
+(defmethod anchor-name ((source-file asdf:source-file))
+  "Return SOURCE-FILE's anchor name."
+  (format nil "~A file" (virtual-path source-file)))
 
 (defmethod index ((lisp-file asdf:cl-source-file))
   "Render LISP-FILE's indexing command."
@@ -209,6 +209,10 @@ Optionally PREFIX the title."
 (defmethod index ((html-file asdf:html-file))
   "Render HTML-FILE's indexing command."
   (format t "@htmlfileindex{~A}@c~%" (escape (virtual-path html-file))))
+
+(defmethod reference ((source-file asdf:source-file))
+  "Render SOURCE-FILE's reference."
+  (reference-component source-file))
 
 (defmethod document ((file asdf:cl-source-file) context
 		     &key
@@ -347,13 +351,21 @@ components trees."))))
   "Return MODULE's title."
   (format nil "the ~A module" (virtual-path module)))
 
-(defmethod reference ((module asdf:module))
-  "Render MODULE's reference."
-  (reference-component module))
+(defmethod title ((module asdf:module))
+  "Return MODULE's title."
+  (format nil "the ~A module" (virtual-path module)))
+
+(defmethod anchor-name ((module asdf:module))
+  "Return MODULE's anchor name."
+  (format nil "~A module" (virtual-path module)))
 
 (defmethod index ((module asdf:module))
   "Render MODULE's indexing command."
   (format t "@moduleindex{~A}@c~%" (escape (virtual-path module))))
+
+(defmethod reference ((module asdf:module))
+  "Render MODULE's reference."
+  (reference-component module))
 
 (defmethod document ((module asdf:module) context &key)
   "Render MODULE's documentation in CONTEXT."
@@ -405,13 +417,17 @@ Modules are listed depth-first from the system components tree.")))))
   "Return SYSTEM's title."
   (format nil "the ~A system" (name system)))
 
-(defmethod reference ((system asdf:system))
-  "Render SYSTEM's reference."
-  (reference-component system))
+(defmethod anchor-name ((system asdf:system))
+  "Return SYSTEM's anchor name."
+  (format nil "~A system" (name system)))
 
 (defmethod index ((system asdf:system))
   "Render SYSTEM's indexing command."
   (format t "@systemindex{~A}@c~%" (escape system)))
+
+(defmethod reference ((system asdf:system))
+  "Render SYSTEM's reference."
+  (reference-component system))
 
 (defmethod document ((system asdf:system) context &key)
   "Render SYSTEM's documentation in CONTEXT."
