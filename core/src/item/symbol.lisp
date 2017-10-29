@@ -915,7 +915,7 @@ Currently, this means resolving:
 	     (mapcar
 	      (lambda (name)
 		;; #### NOTE: documenting inheritance works here because SBCL
-		;; uses classes for reprensenting structures and conditions,
+		;; uses classes for representing structures and conditions,
 		;; which is not required by the standard. It also means that
 		;; there may be intermixing of conditions, structures and
 		;; classes in inheritance graphs, so we need to handle that.
