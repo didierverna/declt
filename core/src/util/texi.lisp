@@ -149,6 +149,20 @@ ANCHOR is escaped for Texinfo prior to rendering.
 Rendering is done on *standard-output*."
   (format t "@anchor{~A}@c~%" (escape-anchor anchor)))
 
+(defun @ref (anchor label)
+  "Render ANCHOR as an @ref with online and printed LABEL.
+Both ANCHOR and LABEL are escaped for Texinfo prior to rendering.
+LABEL is rendered in teletype.
+Rendering is done on *standard-output*."
+  ;; #### FIXME: handle case conversion somewhere else.
+  (format t "@ref{~A, , @t{~(~A}~)}"
+    (escape-anchor anchor)
+    ;; #### NOTE: in principle, LABEL should be escaped as an anchor as well,
+    ;; but some restrictions do not apply (for instance, dots seem to be
+    ;; allowed which is a relief). We just need to make sure that colons will
+    ;; never be used in a label.
+    (escape label)))
+
 (defmacro @tableitem (title &body body)
   "Execute BODY within a table @item TITLE.
 BODY should render on *standard-output*."

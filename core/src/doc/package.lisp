@@ -50,9 +50,8 @@
 ;; the item is in the documentation.
 (defmethod reference ((package package))
   "Render PACKAGE's reference."
-  (format t "@ref{~A, , @t{~(~A}~)}~%"
-    (escape-anchor (anchor-name package))
-    (escape package)))
+  (@ref (anchor-name package) package)
+  (terpri))
 
 (defun render-use-list (list title context)
   "Render a package use/used-by LIST with TITLE in CONTEXT."

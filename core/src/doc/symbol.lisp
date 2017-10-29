@@ -391,10 +391,8 @@ not advertised if they are the same as GENERIC-SOURCE."
 
 (defmethod reference ((definition definition))
   "Render DEFINITION's reference."
-  (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
-    (escape-anchor (anchor-name definition))
-    (escape definition)
-    (type-name definition)))
+  (@ref (anchor-name definition) definition)
+  (format t " (~A)~%" (type-name definition)))
 
 (defmethod reference ((function function-definition))
   "Render FUNCTION's reference."
