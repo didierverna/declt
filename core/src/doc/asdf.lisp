@@ -45,10 +45,8 @@
 ;; #### know about.
 (defun reference-component (component)
   "Render COMPONENT's reference."
-  (format t "@ref{~A, , @t{~(~A}~)} (~A)~%"
-    (escape-anchor (anchor-name component))
-    (escape component)
-    (type-name component)))
+  (@ref (anchor-name component) component)
+  (format t " (~A)~%" (type-name component)))
 
 (defun virtual-path (component)
   "Return CONMPONENT's virtual path.

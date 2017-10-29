@@ -57,8 +57,6 @@
 
 (defgeneric index (item) (:documentation "Render ITEM's indexing command."))
 
-;; #### FIXME: methods on this function contain Texinfo code. There should be
-;; an @ref function in ../utils/texi.lisp.
 (defgeneric reference (item) (:documentation "Render ITEM's reference."))
 
 (defgeneric document (item context &key &allow-other-keys)
