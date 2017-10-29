@@ -403,7 +403,9 @@ not advertised if they are the same as GENERIC-SOURCE."
 (defmethod reference ((definition definition))
   "Render DEFINITION's reference."
   (cond ((definition-foreignp definition)
-	 (format t "@t{~(~A}~)~%" (escape definition)))
+	 (format t "@t{~(~A}~) (~A)~%"
+	   (escape definition)
+	   (type-name definition)))
 	(t
 	 (@ref (anchor-name definition) definition)
 	 (format t " (~A)~%" (type-name definition)))))
