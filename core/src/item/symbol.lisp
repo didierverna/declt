@@ -909,22 +909,19 @@ Currently, this means resolving:
 - method combinations operators (for short ones) and users (for both),
 - heterogeneous accessors,
 - (generic) functions and macros (short form) setf expanders definitions."
-  (labels ((classes-definitions (classes)
+  (labels ((classoids-definitions (classoids category)
 	     (mapcar
 	      (lambda (name)
-		;; #### NOTE: documenting inheritance works here because SBCL
-		;; uses classes for representing structures and conditions,
-		;; which is not required by the standard. It also means that
-		;; there may be intermixing of conditions, structures and
-		;; classes in inheritance graphs, so we need to handle that.
-		(or  (find-definition name :class pool1)
-		     (find-definition name :class pool2)
-		     (find-definition name :structure pool1)
-		     (find-definition name :structure pool2)
-		     (find-definition name :condition pool1)
-		     (find-definition name :condition pool2)
-		     (make-classoid-definition :symbol name :foreignp t)))
-	      (reverse (mapcar #'class-name classes))))
+		(or  (find-definition name category pool1)
+		     (find-definition name category pool2)
+		     (ecase category
+		       (:class
+			(make-class-definition :symbol name :foreignp t))
+		       (:structure
+			(make-structure-definition :symbol name :foreignp t))
+		       (:condition
+			(make-condition-definition :symbol name :foreignp t)))))
+	      (reverse (mapcar #'class-name classoids))))
 	   (methods-definitions (methods)
 	     (mapcar
 	      (lambda (method)
@@ -947,11 +944,13 @@ Currently, this means resolving:
 	       (dolist (definition (category-definitions category pool))
 		 (let ((class (find-class (definition-symbol definition))))
 		   (setf (classoid-definition-parents definition)
-			 (classes-definitions
-			  (sb-mop:class-direct-superclasses class)))
+			 (classoids-definitions
+			  (sb-mop:class-direct-superclasses class)
+			  category))
 		   (setf (classoid-definition-children definition)
-			 (classes-definitions
-			  (sb-mop:class-direct-subclasses class)))
+			 (classoids-definitions
+			  (sb-mop:class-direct-subclasses class)
+			  category))
 		   (setf (classoid-definition-methods definition)
 			 (methods-definitions
 			  (sb-mop:specializer-direct-methods class)))
