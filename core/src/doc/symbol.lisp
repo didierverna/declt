@@ -402,38 +402,11 @@ not advertised if they are the same as GENERIC-SOURCE."
 
 (defmethod reference ((definition definition))
   "Render DEFINITION's reference."
-  (@ref (anchor-name definition) definition)
-  (format t " (~A)~%" (type-name definition)))
-
-(defmethod reference ((function function-definition))
-  "Render FUNCTION's reference."
-  (if (definition-foreignp function)
-      (format t "@t{~(~A}~)~%" (escape function))
-    (call-next-method)))
-
-(defmethod reference ((method method-definition))
-  "Render METHOD's reference."
-  (if (definition-foreignp method)
-      (format t "@t{~(~A}~)~%" (escape method))
-    (call-next-method)))
-
-(defmethod reference ((generic generic-definition))
-  "Render GENERIC function's reference."
-  (if (definition-foreignp generic)
-      (format t "@t{~(~A}~)~%" (escape generic))
-    (call-next-method)))
-
-(defmethod reference ((combination combination-definition))
-  "Render COMBINATION's reference."
-  (if (definition-foreignp combination)
-      (format t "@t{~(~A}~)~%" (escape combination))
-    (call-next-method)))
-
-(defmethod reference ((classoid classoid-definition))
-  "Render CLASSOID's reference."
-  (if (definition-foreignp classoid)
-      (format t "@t{~(~A}~)~%" (escape classoid))
-    (call-next-method)))
+  (cond ((definition-foreignp definition)
+	 (format t "@t{~(~A}~)~%" (escape definition)))
+	(t
+	 (@ref (anchor-name definition) definition)
+	 (format t " (~A)~%" (type-name definition)))))
 
 (defmethod document ((constant constant-definition) context &key)
   "Render CONSTANT's documentation in CONTEXT."
