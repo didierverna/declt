@@ -407,31 +407,31 @@ not advertised if they are the same as GENERIC-SOURCE."
 
 (defmethod reference ((function function-definition))
   "Render FUNCTION's reference."
-  (if (function-definition-foreignp function)
+  (if (definition-foreignp function)
       (format t "@t{~(~A}~)~%" (escape function))
     (call-next-method)))
 
 (defmethod reference ((method method-definition))
   "Render METHOD's reference."
-  (if (method-definition-foreignp method)
+  (if (definition-foreignp method)
       (format t "@t{~(~A}~)~%" (escape method))
     (call-next-method)))
 
 (defmethod reference ((generic generic-definition))
   "Render GENERIC function's reference."
-  (if (generic-definition-foreignp generic)
+  (if (definition-foreignp generic)
       (format t "@t{~(~A}~)~%" (escape generic))
     (call-next-method)))
 
 (defmethod reference ((combination combination-definition))
   "Render COMBINATION's reference."
-  (if (combination-definition-foreignp combination)
+  (if (definition-foreignp combination)
       (format t "@t{~(~A}~)~%" (escape combination))
     (call-next-method)))
 
 (defmethod reference ((classoid classoid-definition))
   "Render CLASSOID's reference."
-  (if (classoid-definition-foreignp classoid)
+  (if (definition-foreignp classoid)
       (format t "@t{~(~A}~)~%" (escape classoid))
     (call-next-method)))
 
