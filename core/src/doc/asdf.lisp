@@ -184,7 +184,7 @@ Optionally PREFIX the title."
 
 (defmethod title ((source-file asdf:source-file))
   "Return SOURCE-FILE's title."
-  (format nil "the ~A file" (virtual-path source-file)))
+  (format nil "~A file" (virtual-path source-file)))
 
 (defmethod anchor-name ((source-file asdf:source-file))
   "Return SOURCE-FILE's anchor name."
@@ -353,11 +353,7 @@ components trees."))))
 
 (defmethod title ((module asdf:module))
   "Return MODULE's title."
-  (format nil "the ~A module" (virtual-path module)))
-
-(defmethod title ((module asdf:module))
-  "Return MODULE's title."
-  (format nil "the ~A module" (virtual-path module)))
+  (format nil "~A module" (virtual-path module)))
 
 (defmethod anchor-name ((module asdf:module))
   "Return MODULE's anchor name."
@@ -419,7 +415,7 @@ Modules are listed depth-first from the system components tree.")))))
 
 (defmethod title ((system asdf:system))
   "Return SYSTEM's title."
-  (format nil "the ~A system" (name system)))
+  (format nil "~A system" (name system)))
 
 (defmethod anchor-name ((system asdf:system))
   "Return SYSTEM's anchor name."
