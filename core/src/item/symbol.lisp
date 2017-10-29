@@ -83,8 +83,18 @@ Each category is of type (:KEYWORD DESCRIPTION-STRING).")
 
 (defstruct definition
   "Base structure for definitions named by symbols.
-This structure holds the symbol naming the definition."
-  symbol)
+This structure holds the symbol naming the definition and a slot for marking
+foreign definitions, i.e. those which do not pertain to the system being
+documented."
+  symbol
+  ;; #### NOTE: currently, the only definitions making use of the FOREIGNP
+  ;; slot are (generic) functions, methods, method combinations and classoids,
+  ;; because foreign definitions of these kinds may be advertised as part as
+  ;; other, local ones. There are two reasons for defining this slot here
+  ;; however: 1/ who knows which new foreign definitions may need to be
+  ;; advertised in the future, and 2/ this avoid a lot of code duplication,
+  ;; e.g. for the REFERENCE methods.
+  foreignp)
 
 (defun definition-package (definition)
   "Return DEFINITION's symbol home package."
@@ -129,10 +139,8 @@ setf expander definition that expands to this macro."
 
 (defstruct (function-definition (:include funcoid-definition))
   "Structure for ordinary function definitions.
-This structure holds a slot for marking foreign definitions, i.e. those which
-do not pertain to the system being documented, and a setf expander definition
-that expands to this function."
-  foreignp
+This structure holds a setf expander definition that expands to this
+  function."
   update-expander)
 ;; #### FIXME: writer definitions can't have an associated update expander so
 ;; it's not clean that they have that slot. I need to refine the structures
@@ -155,9 +163,7 @@ this function."
 
 (defstruct (method-definition (:include definition))
   "Base structure for method definitions.
-This structure holds the method object and also a slot for marking foreign
-definitions, i.e. those which do pertain to the system being documented."
-  foreignp
+This structure holds the method object."
   method)
 (defstruct (writer-method-definition (:include method-definition))
   "Structure for writer method definitions.")
@@ -169,10 +175,7 @@ This structure holds the writer method definition."
 (defstruct (generic-definition (:include funcoid-definition))
   "Structure for generic function definitions.
 This structure holds a setf expander definition that expands to this function,
-the combination definition, the list of method definitions and also a slot for
-marking foreign definitions, i.e. those which do pertain to the system being
-documented."
-  foreignp
+the combination definition and the list of method definitions."
   update-expander
   combination
   methods)
@@ -214,7 +217,6 @@ This structure holds the slot object and the readers and writers definitions."
   "Structure for method combination definitions.
 This structure holds the method combination object and a list of users, that
 is, generic functions using this method combination."
-  foreignp
   combination
   users)
 
@@ -230,11 +232,7 @@ This structure holds the operator definition."
 (defstruct (classoid-definition (:include definition))
   "Base structure for class-like (supporting inheritance) values.
 This structure holds links to the direct ancestors and descendants
-definitions, direct methods definitions, direct slots, and also a slot for
-marking foreign definitions, i.e. those which do pertain to the system being
-documented. Foreign definitions may appear as part of an inheritance
-documentation."
-  foreignp
+definitions, direct methods definitions and direct slots."
   parents
   children
   methods
@@ -911,22 +909,19 @@ Currently, this means resolving:
 - method combinations operators (for short ones) and users (for both),
 - heterogeneous accessors,
 - (generic) functions and macros (short form) setf expanders definitions."
-  (labels ((classes-definitions (classes)
+  (labels ((classoids-definitions (classoids category)
 	     (mapcar
 	      (lambda (name)
-		;; #### NOTE: documenting inheritance works here because SBCL
-		;; uses classes for representing structures and conditions,
-		;; which is not required by the standard. It also means that
-		;; there may be intermixing of conditions, structures and
-		;; classes in inheritance graphs, so we need to handle that.
-		(or  (find-definition name :class pool1)
-		     (find-definition name :class pool2)
-		     (find-definition name :structure pool1)
-		     (find-definition name :structure pool2)
-		     (find-definition name :condition pool1)
-		     (find-definition name :condition pool2)
-		     (make-classoid-definition :symbol name :foreignp t)))
-	      (reverse (mapcar #'class-name classes))))
+		(or  (find-definition name category pool1)
+		     (find-definition name category pool2)
+		     (ecase category
+		       (:class
+			(make-class-definition :symbol name :foreignp t))
+		       (:structure
+			(make-structure-definition :symbol name :foreignp t))
+		       (:condition
+			(make-condition-definition :symbol name :foreignp t)))))
+	      (reverse (mapcar #'class-name classoids))))
 	   (methods-definitions (methods)
 	     (mapcar
 	      (lambda (method)
@@ -949,11 +944,13 @@ Currently, this means resolving:
 	       (dolist (definition (category-definitions category pool))
 		 (let ((class (find-class (definition-symbol definition))))
 		   (setf (classoid-definition-parents definition)
-			 (classes-definitions
-			  (sb-mop:class-direct-superclasses class)))
+			 (classoids-definitions
+			  (sb-mop:class-direct-superclasses class)
+			  category))
 		   (setf (classoid-definition-children definition)
-			 (classes-definitions
-			  (sb-mop:class-direct-subclasses class)))
+			 (classoids-definitions
+			  (sb-mop:class-direct-subclasses class)
+			  category))
 		   (setf (classoid-definition-methods definition)
 			 (methods-definitions
 			  (sb-mop:specializer-direct-methods class)))
