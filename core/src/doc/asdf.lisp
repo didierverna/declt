@@ -68,6 +68,10 @@ toplevel system, separated by slashes.")
 ;; Documentation protocols
 ;; -----------------------
 
+(defmethod title ((component asdf:component))
+  "Return COMPONENT's title."
+  (virtual-path component))
+
 (defmethod anchor-name ((component asdf:component))
   "Return COMPONENT's anchor name."
   (virtual-path component))
@@ -183,10 +187,6 @@ Optionally PREFIX the title."
 ;; -----------------------
 ;; Documentation protocols
 ;; -----------------------
-
-(defmethod title ((source-file asdf:source-file))
-  "Return SOURCE-FILE's title."
-  (format nil "~A file" (virtual-path source-file)))
 
 (defmethod index ((lisp-file asdf:cl-source-file))
   "Render LISP-FILE's indexing command."
@@ -349,10 +349,6 @@ components trees."))))
 ;; Documentation protocols
 ;; -----------------------
 
-(defmethod title ((module asdf:module))
-  "Return MODULE's title."
-  (format nil "~A module" (virtual-path module)))
-
 (defmethod index ((module asdf:module))
   "Render MODULE's indexing command."
   (format t "@moduleindex{~A}@c~%" (escape (virtual-path module))))
@@ -406,10 +402,6 @@ Modules are listed depth-first from the system components tree.")))))
 ;; -----------------------
 ;; Documentation protocols
 ;; -----------------------
-
-(defmethod title ((system asdf:system))
-  "Return SYSTEM's title."
-  (format nil "~A system" (name system)))
 
 (defmethod index ((system asdf:system))
   "Render SYSTEM's indexing command."

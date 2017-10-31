@@ -35,7 +35,7 @@
 
 (defmethod title ((package package))
   "Return PACKAGE's title."
-  (format nil "~(~A~) package" (name package)))
+  (format nil "~(~A~)" (name package)))
 
 (defmethod anchor-name ((package package))
   "Return PACKAGE's anchor name."

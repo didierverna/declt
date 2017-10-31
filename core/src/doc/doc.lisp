@@ -56,8 +56,8 @@
 (defgeneric title (item)
   (:documentation "Return ITEM's title.")
   (:method :around (item)
-    "Prefix ITEM's title with \"the \"."
-    (concatenate 'string "the " (call-next-method))))
+    "Surround ITEM's title with \"the [...] <type>\"."
+    (format nil "the ~A ~A" (call-next-method) (type-name item))))
 
 ;; Since node references are boring in Texinfo, we prefer to create custom
 ;; anchors for our items and link to them instead.
