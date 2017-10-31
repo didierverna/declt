@@ -51,13 +51,18 @@
 (defgeneric virtual-path (component)
   (:documentation "Return CONMPONENT's virtual path.
 This is the string of successive component names to access COMPONENT from the
-toplevel system, separated by slashes.")
+toplevel system, separated by slashes. File components also get their
+extension at the end.")
   (:method (component)
     "Default method for all components."
     (format nil "~{~A~^/~}" (component-find-path component)))
-  (:method :around ((component asdf:cl-source-file))
-    "Add the .lisp extention at the end of the virtual path."
-    (concatenate 'string (call-next-method) ".lisp")))
+  (:method :around ((source-file asdf:source-file)
+		    &aux (virtual-path (call-next-method))
+			 (extension (asdf:file-type source-file)))
+    "Potentially add SOURCE-FILE's extension at the end of the virtual path."
+    (when extension
+      (setq virtual-path (concatenate 'string virtual-path "." extension)))
+    virtual-path))
 
 
 ;; ==========================================================================

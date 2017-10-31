@@ -58,6 +58,20 @@
   "file")
 
 
+;; -------------------
+;; Rendering protocols
+;; -------------------
+
+;; Name protocol
+
+(defmethod name ((source-file asdf:source-file)
+		 &aux (name (component-name source-file))
+		      (extension (asdf:file-type source-file)))
+  "Return SOURCE-FILE's name, possibly adding its extension."
+  (when extension (setq name (concatenate 'string name "." extension)))
+  (reveal name))
+
+
 ;; ------------------------------------
 ;; Definition file definitions protocol
 ;; ------------------------------------
