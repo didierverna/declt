@@ -931,14 +931,17 @@ Currently, this means resolving:
 					     :foreignp t)))
 	      methods))
 	   (compute-combination (generic)
-	     (let ((name (sb-pcl::method-combination-type-name
-			  (sb-mop:generic-function-method-combination
-			   (generic-definition-function generic)))))
+	     (let* ((combination (sb-mop:generic-function-method-combination
+				  (generic-definition-function generic)))
+		    (name (sb-pcl::method-combination-type-name combination)))
 	       (setf (generic-definition-combination generic)
 		     (or (find-definition name :combination pool1)
 			 (find-definition name :combination pool2)
-			 (make-combination-definition :symbol name
-						      :foreignp t)))))
+			 (if (sb-pcl::short-method-combination-p combination)
+			     (make-short-combination-definition
+			      :symbol name :foreignp t)
+			   (make-long-combination-definition
+			    :symbol name :foreignp t))))))
 	   (finalize (pool)
 	     (dolist (category '(:class :structure :condition))
 	       (dolist (definition (category-definitions category pool))
