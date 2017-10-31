@@ -226,100 +226,21 @@ not advertised if they are the same as GENERIC-SOURCE."
 ;; Documentation Protocols
 ;; ==========================================================================
 
-(defmethod anchor-name ((constant constant-definition))
-  "Return CONSTANT's anchor name."
-  (format nil "~A::~A constant"
-    (definition-package-name constant)
-    (name constant)))
-
-(defmethod anchor-name ((special special-definition))
-  "Return SPECIAL's anchor name."
-  (format nil "~A::~A special variable"
-    (definition-package-name special)
-    (name special)))
-
-(defmethod anchor-name ((symbol-macro symbol-macro-definition))
-  "Return SYMBOL-MACRO's anchor name."
-  (format nil "~A::~A symbol macro"
-    (definition-package-name symbol-macro)
-    (name symbol-macro)))
-
-(defmethod anchor-name ((macro macro-definition))
-  "Return MACRO's anchor name."
-  (format nil "~A::~A macro"
-    (definition-package-name macro)
-    (name macro)))
-
-(defmethod anchor-name ((compiler-macro compiler-macro-definition))
-  "Return COMPILER-MACRO's anchor name."
-  (format nil "~A::~A compiler macro"
-    (definition-package-name compiler-macro)
-    (name compiler-macro)))
-
-(defmethod anchor-name ((function function-definition))
-  "Return FUNCTION's anchor name."
-  (format nil "~A::~A function"
-    (definition-package-name function)
-    (name function)))
+(defmethod anchor-name (definition)
+  "Return DEFINITION's qualified symbol name.
+This is the default method for most definitions."
+  (format nil "~A::~A"
+    (definition-package-name definition)
+    (name definition)))
 
 (defmethod anchor-name ((method method-definition))
-  "Return METHOD's anchor name."
-  (format nil "~A::~A~{ ~A~^~}~{ ~A~^~} method"
+  "Return METHOD's qualified symbol name, specializers and qualifiers ."
+  (format nil "~A::~A~{ ~A~^~}~{ ~A~^~}"
     (definition-package-name method)
     (name method)
     (mapcar (lambda (specializer) (pretty-specializer specializer t))
 	    (specializers method))
     (qualifiers method)))
-
-(defmethod anchor-name ((generic generic-definition))
-  "Return GENERIC's anchor name."
-  (format nil "~A::~A generic function"
-    (definition-package-name generic)
-    (name generic)))
-
-(defmethod anchor-name ((expander setf-expander-definition))
-  "Return setf EXPANDER's anchor name."
-  (format nil "~A::~A setf expander"
-    (definition-package-name expander)
-    (name expander)))
-
-;; #### NOTE: no ANCHOR-NAME method for SLOT-DEFINITION
-
-(defmethod anchor-name ((combination short-combination-definition))
-  "Return short method COMBINATION's anchor name."
-  (format nil "the ~A::~A short method combination"
-    (definition-package-name combination)
-    (name combination)))
-
-(defmethod anchor-name ((combination long-combination-definition))
-  "Return long method COMBINATION's anchor name."
-  (format nil "~A::~A long method combination"
-    (definition-package-name combination)
-    (name combination)))
-
-(defmethod anchor-name ((condition condition-definition))
-  "Return CONDITION's anchor name."
-  (format nil "~A::~A condition"
-    (definition-package-name condition)
-    (name condition)))
-
-(defmethod anchor-name ((structure structure-definition))
-  "Return STRUCTURE's anchor name."
-  (format nil "~A::~A structure"
-    (definition-package-name structure)
-    (name structure)))
-
-(defmethod anchor-name ((class class-definition))
-  "Return CLASS's anchor name."
-  (format nil "~A::~A class"
-    (definition-package-name class)
-    (name class)))
-
-(defmethod anchor-name ((type type-definition))
-  "Return TYPE's anchor name."
-  (format nil "~A::~A type"
-    (definition-package-name type)
-    (name type)))
 
 ;; #### NOTE: the INDEX methods below only perform sub-indexing because the
 ;; main index entries are created automatically in Texinfo by the @defXXX

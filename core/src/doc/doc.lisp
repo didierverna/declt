@@ -64,8 +64,8 @@
 (defgeneric anchor-name (item)
   (:documentation "Return ITEM's anchor name.")
   (:method :around (item)
-    "Prefix ITEM's anchor name with \"go to the \"."
-    (concatenate 'string "go to the " (call-next-method))))
+    "Surround ITEM's anchor name with \"go to the [...] <type>\"."
+    (format nil "go to the ~A ~A" (call-next-method) (type-name item))))
 
 (defgeneric index (item) (:documentation "Render ITEM's indexing command."))
 

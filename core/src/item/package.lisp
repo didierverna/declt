@@ -84,6 +84,15 @@
   (documentation package t))
 
 
+;; ------------------
+;; Type name protocol
+;; ------------------
+
+(defmethod type-name ((package package))
+  "Return \"package\"."
+  "package")
+
+
 ;; ---------------------------------------
 ;; Definition package definitions protocol
 ;; ---------------------------------------

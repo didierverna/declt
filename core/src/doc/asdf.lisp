@@ -68,6 +68,10 @@ toplevel system, separated by slashes.")
 ;; Documentation protocols
 ;; -----------------------
 
+(defmethod anchor-name ((component asdf:component))
+  "Return COMPONENT's anchor name."
+  (virtual-path component))
+
 ;; #### NOTE: this method is needed as a default method for potential ASDF
 ;; extensions. I'm not willing to hard-code all possible such extensions, past
 ;; present and future. Besides, those components would not be related to code,
@@ -182,10 +186,6 @@ Optionally PREFIX the title."
 
 (defmethod title ((source-file asdf:source-file))
   "Return SOURCE-FILE's title."
-  (format nil "~A file" (virtual-path source-file)))
-
-(defmethod anchor-name ((source-file asdf:source-file))
-  "Return SOURCE-FILE's anchor name."
   (format nil "~A file" (virtual-path source-file)))
 
 (defmethod index ((lisp-file asdf:cl-source-file))
@@ -353,10 +353,6 @@ components trees."))))
   "Return MODULE's title."
   (format nil "~A module" (virtual-path module)))
 
-(defmethod anchor-name ((module asdf:module))
-  "Return MODULE's anchor name."
-  (format nil "~A module" (virtual-path module)))
-
 (defmethod index ((module asdf:module))
   "Render MODULE's indexing command."
   (format t "@moduleindex{~A}@c~%" (escape (virtual-path module))))
@@ -413,10 +409,6 @@ Modules are listed depth-first from the system components tree.")))))
 
 (defmethod title ((system asdf:system))
   "Return SYSTEM's title."
-  (format nil "~A system" (name system)))
-
-(defmethod anchor-name ((system asdf:system))
-  "Return SYSTEM's anchor name."
   (format nil "~A system" (name system)))
 
 (defmethod index ((system asdf:system))

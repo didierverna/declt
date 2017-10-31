@@ -39,7 +39,7 @@
 
 (defmethod anchor-name ((package package))
   "Return PACKAGE's anchor name."
-  (format nil "~A package" (name package)))
+  (name package))
 
 (defmethod index ((package package))
   "Render PACKAGE's indexing command."

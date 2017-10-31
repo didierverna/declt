@@ -53,29 +53,9 @@
 
 ;; Type name protocol
 
-(defmethod type-name ((cl-source-file asdf:cl-source-file))
-  "Return \"Lisp file\""
-  "Lisp file")
-
-(defmethod type-name ((c-source-file asdf:c-source-file))
-  "Return \"C file\""
-  "C file")
-
-(defmethod type-name ((java-source-file asdf:java-source-file))
-  "Return \"Java file\""
-  "Java file")
-
-(defmethod type-name ((static-file asdf:static-file))
-  "Return \"File\""
-  "File")
-
-(defmethod type-name ((doc-file asdf:doc-file))
-  "Return \"Doc file\""
-  "Doc file")
-
-(defmethod type-name ((html-file asdf:html-file))
-  "Return \"HTML file\""
-  "HTML file")
+(defmethod type-name ((source-file asdf:source-file))
+  "Return \"file\""
+  "file")
 
 
 ;; ------------------------------------
