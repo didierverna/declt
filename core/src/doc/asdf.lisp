@@ -165,7 +165,7 @@ Optionally PREFIX the title."
 	 (when (system-source-file component)
 	   (@tableitem "Source"
 	     (let ((system-base-name (escape (system-base-name component))))
-	       (format t "@ref{go to the ~A file, , @t{~(~A}~)} (Lisp file)~%"
+	       (format t "@ref{go to the ~A file, , @t{~(~A}~)} (file)~%"
 		 (escape-anchor system-base-name)
 		 (escape system-base-name)))))
 	 (when (context-hyperlinksp context)
