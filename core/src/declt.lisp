@@ -521,88 +521,88 @@ and will be properly escaped for Texinfo."
   (setq info-file (escape info-file))
 
   ;; Construct the nodes hierarchy.
-  (let ((context (make-context
-		  :systems
-		  (cons system
-			(remove-duplicates
-			 (subsystems system (system-directory system))))
-		  :external-definitions (make-definitions-pool)
-		  :internal-definitions (make-definitions-pool)
-		  :hyperlinksp hyperlinks))
-	(top-node
-	  (make-node :name "Top"
-		     :section-name (format nil "The ~A Reference Manual"
-				     (escape library))
-		     :section-type :unnumbered
-		     :before-menu-contents (format nil "~
+  (with-standard-io-syntax
+    (let ((context (make-context
+		    :systems
+		    (cons system
+			  (remove-duplicates
+			   (subsystems system (system-directory system))))
+		    :external-definitions (make-definitions-pool)
+		    :internal-definitions (make-definitions-pool)
+		    :hyperlinksp hyperlinks))
+	  (top-node
+	    (make-node :name "Top"
+		       :section-name (format nil "The ~A Reference Manual"
+				       (escape library))
+		       :section-type :unnumbered
+		       :before-menu-contents (format nil "~
 This is the ~A Reference Manual~@[, version ~A~],
 generated automatically by Declt version ~A
 on ~A."
-					     (escape library)
-					     version
-					     (escape (version :long))
-					     (escape current-time-string))
-		     :after-menu-contents (when license "@insertcopying"))))
-    (add-packages context)
-    (add-definitions context)
-    (when license
-      (add-child top-node
-	(make-node :name "Copying"
-		   :synopsis (cadr license)
-		   :section-type :unnumbered
-		   :before-menu-contents (format nil "@quotation~@
+					       (escape library)
+					       version
+					       (escape (version :long))
+					       (escape current-time-string))
+		       :after-menu-contents (when license "@insertcopying"))))
+      (add-packages context)
+      (add-definitions context)
+      (when license
+	(add-child top-node
+	  (make-node :name "Copying"
+		     :synopsis (cadr license)
+		     :section-type :unnumbered
+		     :before-menu-contents (format nil "@quotation~@
 						    ~A~@
 						    @end quotation"
-					   (escape (caddr license))))))
-    (when introduction
-      (add-child top-node
-	(make-node :name "Introduction"
-		   :synopsis (format nil "What ~A is all about" library)
-		   :before-menu-contents introduction)))
-    (add-systems-node     top-node context)
-    (add-modules-node     top-node context)
-    (add-files-node       top-node context)
-    (add-packages-node    top-node context)
-    (add-definitions-node top-node context)
-    (when conclusion
-      (add-child top-node
-	(make-node :name "Conclusion"
-		   :synopsis "Time to go"
-		   :before-menu-contents conclusion)))
-    (let ((indexes-node (add-child top-node
-			  (make-node :name "Indexes"
-				     :synopsis (format nil "~
+					     (escape (caddr license))))))
+      (when introduction
+	(add-child top-node
+	  (make-node :name "Introduction"
+		     :synopsis (format nil "What ~A is all about" library)
+		     :before-menu-contents introduction)))
+      (add-systems-node     top-node context)
+      (add-modules-node     top-node context)
+      (add-files-node       top-node context)
+      (add-packages-node    top-node context)
+      (add-definitions-node top-node context)
+      (when conclusion
+	(add-child top-node
+	  (make-node :name "Conclusion"
+		     :synopsis "Time to go"
+		     :before-menu-contents conclusion)))
+      (let ((indexes-node (add-child top-node
+			    (make-node :name "Indexes"
+				       :synopsis (format nil "~
 Concepts, functions, variables and data types")
-				     :section-type :appendix))))
-      (add-child indexes-node
-	(make-node :name "Concept index"
-		   :section-type :appendix
-		   :section-name "Concepts"
-		   :before-menu-contents "@printindex cp"
-		   :after-menu-contents "@page"))
-      (add-child indexes-node
-	(make-node :name "Function index"
-		   :section-type :appendix
-		   :section-name "Functions"
-		   :before-menu-contents "@printindex fn"
-		   :after-menu-contents "@page"))
-      (add-child indexes-node
-	(make-node :name "Variable index"
-		   :section-type :appendix
-		   :section-name "Variables"
-		   :before-menu-contents "@printindex vr"
-		   :after-menu-contents "@page"))
-      (add-child indexes-node
-	(make-node :name "Data type index"
-		   :section-type :appendix
-		   :section-name "Data types"
-		   :before-menu-contents "@printindex tp")))
-    (with-open-file (*standard-output* texi-file
-				       :direction :output
-				       :if-exists :supersede
-				       :if-does-not-exist :create
-				       :external-format :utf8)
-      (with-standard-io-syntax
+				       :section-type :appendix))))
+	(add-child indexes-node
+	  (make-node :name "Concept index"
+		     :section-type :appendix
+		     :section-name "Concepts"
+		     :before-menu-contents "@printindex cp"
+		     :after-menu-contents "@page"))
+	(add-child indexes-node
+	  (make-node :name "Function index"
+		     :section-type :appendix
+		     :section-name "Functions"
+		     :before-menu-contents "@printindex fn"
+		     :after-menu-contents "@page"))
+	(add-child indexes-node
+	  (make-node :name "Variable index"
+		     :section-type :appendix
+		     :section-name "Variables"
+		     :before-menu-contents "@printindex vr"
+		     :after-menu-contents "@page"))
+	(add-child indexes-node
+	  (make-node :name "Data type index"
+		     :section-type :appendix
+		     :section-name "Data types"
+		     :before-menu-contents "@printindex tp")))
+      (with-open-file (*standard-output* texi-file
+		       :direction :output
+		       :if-exists :supersede
+		       :if-does-not-exist :create
+		       :external-format :utf8)
 	(render-header library tagline version contact-names contact-emails
 		       copyright license
 		       texi-name info-file declt-notice
