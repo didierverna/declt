@@ -1,2 +1,2 @@
-LONG_VERSION  := 2.3 beta 1 "Robert April"
-SHORT_VERSION := 2.3b1
+LONG_VERSION  := 2.3 "Robert April"
+SHORT_VERSION := 2.3

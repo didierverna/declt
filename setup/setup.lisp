@@ -49,10 +49,10 @@
 (defparameter *release-minor-level* 3
   "The minor level of this release.")
 
-(defparameter *release-status* :beta
+(defparameter *release-status* :patchlevel
   "The status of this release.")
 
-(defparameter *release-status-level* 1
+(defparameter *release-status-level* 0
   "The status level of this release.")
 
 (defparameter *release-name* "Robert April"
