@@ -461,8 +461,8 @@ This manual was generated automatically by Declt ~A on ~A.
   reference manual. Note that those links being specific to the machine on
   which the manual was generated, it is preferable to keep it to NIL for
   creating reference manuals meant to be put online.
-- DECLT-NOTICE: small paragraph about automatic manual generation by
-  Declt. Possible values are nil, :short and :long (the default).
+- DECLT-NOTICE: small paragraph about automatic manual generation by Declt.
+  Possible values are nil, :short and :long (the default).
 
 Both the INTRODUCTION and the CONCLUSION may contain Texinfo directives (no
 post-processing will occur). All other textual material is considered raw text
