@@ -138,7 +138,7 @@ embellish the output by detecting potential paragraphs from standalone lines."
 	      :if (eq ln2 stream)
 		:do (format t "~A~@[~%~]" (escape ln1) (not mnl1p))
 	    :else
-	      :if (> (- 78 (length ln1)) (first-word-length ln2))
+	      :if (> (- 77 (length ln1)) (first-word-length ln2))
 		:do (format t "~A@*~%" (escape ln1))
 	    :else
 	      :do (format t "~A~%" (escape ln1))))))
