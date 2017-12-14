@@ -122,26 +122,40 @@ Return a list of two values:
 (defun render-text (text)
   "Render TEXT for Texinfo.
 Rendering is done on *standard-output*.
-TEXT is assumed to be plain 80 columns.
 The rendering takes care of escaping the text for Texinfo, and attempts to
 embellish the output by detecting potential paragraphs from standalone lines."
   (when text
-    (with-input-from-string (stream text)
-      (loop :for (ln1 mnl1p) :=    (read-next-line stream)
-			     :then (list ln2 mnl2p)
-	    :for (ln2 mnl2p) :=    (read-next-line stream)
-			     :then (read-next-line stream)
-	    :until (eq ln1 stream)
-	    :if (zerop (length ln1))
+    (destructuring-bind (lines width missing-newline-p)
+	(with-input-from-string (stream text)
+	  (loop :with width := 0
+		:with missing-newline-p
+		:for (line mnlp) := (read-next-line stream)
+		:until (eq line stream)
+		:collect line :into lines
+		:do (setq missing-newline-p mnlp)
+		:do (setq width (max width (length line)))
+		:finally (return (list lines width missing-newline-p))))
+      ;; Let's give ourselves some additional margin before deciding we should
+      ;; go next line. This accounts for an additional space if the word
+      ;; beginning next line were to be put at the end of the current one,
+      ;; plus 3 more characters. This is because I noticed that some people
+      ;; like to align their docstrings with the first line, which is usually
+      ;; indented by 2 spaces, plus the opening ".
+      (decf width 4)
+      (loop :for remaining-lines :on lines
+	    :for line := (car remaining-lines)
+	    :for last-line-p := (null (cdr remaining-lines))
+	    :if (zerop (length line))
 	      :do (terpri)
 	    :else
-	      :if (eq ln2 stream)
-		:do (format t "~A~@[~%~]" (escape ln1) (not mnl1p))
+	      :if last-line-p
+		:do (format t "~A~@[~%~]" (escape line) (not missing-newline-p))
 	    :else
-	      :if (> (- 77 (length ln1)) (first-word-length ln2))
-		:do (format t "~A@*~%" (escape ln1))
+	      :if (> (- width (length line))
+		     (first-word-length (cadr remaining-lines)))
+		:do (format t "~A@*~%" (escape line))
 	    :else
-	      :do (format t "~A~%" (escape ln1))))))
+	      :do (format t "~A~%" (escape line))))))
 
 (defun @anchor (anchor)
   "Render ANCHOR as an @anchor.
