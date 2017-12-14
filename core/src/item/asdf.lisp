@@ -184,9 +184,31 @@ The list includes the system definition file."
 	:when (equal (source package) file)
 	  :collect package))
 
+(defun system-located-packages (system)
+  "Return the list of located packages defined in ASDF SYSTEM.
+These are the packages for which source location is available via
+introspection. We can hence verify that the file defining them indeed belongs
+to SYSTEM."
+  (mapcan #'file-packages (lisp-pathnames system)))
+
+;; #### WARNING: shaky heuristic, bound to fail one day or another.
+(defun system-unlocated-packages
+    (system &aux (prefix (concatenate 'string (component-name system) "/"))
+		 (length (length prefix)))
+  "Return the list of unlocated packages defined in ASDF SYSTEM.
+These are the packages for which source location is unavailable via
+introspection. We thus need to guess. The current heuristic considers packages
+named SYSTEM/foobar, regardless of case."
+  (loop :for package :in (list-all-packages)
+	:for package-name := (package-name package)
+	:when (and (not (source package))
+		   (> (length package-name) length)
+		   (string-equal prefix (subseq package-name 0 length)))
+	  :collect package))
+
 (defun system-packages (system)
   "Return the list of packages defined in ASDF SYSTEM."
-  (mapcan #'file-packages (lisp-pathnames system)))
+  (append (system-located-packages system) (system-unlocated-packages system)))
 
 (defun system-external-symbols (system)
   "Return the list of ASDF SYSTEM's external symbols."
