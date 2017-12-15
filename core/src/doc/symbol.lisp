@@ -335,7 +335,7 @@ This is the default method for most definitions."
 	(format t "@t{~(~A~)}~%"
 	  (escape
 	   (format nil "~S"
-		   (macroexpand (definition-symbol symbol-macro))))))))
+		   (macroexpand-1 (definition-symbol symbol-macro))))))))
 
 (defmethod document
     ((macro macro-definition) context
