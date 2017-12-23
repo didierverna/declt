@@ -560,12 +560,12 @@ and will be properly escaped for Texinfo."
 		       :section-type :unnumbered
 		       :before-menu-contents (format nil "~
 This is the ~A Reference Manual~@[, version ~A~],
-generated automatically by Declt version ~A
-on ~A."
-					       (escape library)
-					       version
-					       (escape (version :long))
-					       (escape current-time-string))
+generated automatically on ~A~@[~* by Declt version ~A~]."
+						     (escape library)
+						     version
+						     (escape current-time-string)
+						     declt-notice
+						     (escape (version :long)))
 		       :after-menu-contents (when license "@insertcopying"))))
       (add-packages context)
       (add-definitions context)
