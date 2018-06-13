@@ -437,32 +437,35 @@ This manual was generated automatically by Declt ~A on ~A.
 		   (current-time-string (current-time-string))
 		   contact-names contact-emails)
   "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
+SYSTEM-NAME is an ASDF system designator.
 
-- SYSTEM-NAME is a system designator, as understood by ASDF.
-- LIBRARY: defaults to SYSTEM-NAME.
-- TAGLINE: defaults to the system's long name or description.
-- VERSION: defaults to the system version.
-- CONTACT: defaults to the system's maintainer(s) and author(s). If the
-  library doesn't provide that information, \"John Doe\" is used. If you
-  provide it by hand, use an author string or a list of such. An author string
-  contains a name, optionally followed by an <email@ddress>.
+The following keyword arguments are available.
+- LIBRARY: name of the library being documented (defaults to the system
+  name).
+- TAGLINE: small text to be used as the manual's subtitle (defaults to the
+  system's long name or description).
+- VERSION: version information (defaults to the system version).
+- CONTACT: contact information (defaults to the system's maintainer(s) and
+  author(s)). If the library doesn't provide that information, \"John Doe\" is
+  used. If you provide it by hand, use an author string or a list of such. An
+  author string contains a name, optionally followed by an <email@ddress>.
 
-- COPYRIGHT: defaults to the current year. Possible values are nil or any
-  string.
-- LICENSE: defaults to nil (possible other values are: :mit, :bsd, :gpl and
-  :lgpl).
+- COPYRIGHT: copyright years information (defaults to the current
+  year). Possible values are NIL or any string.
+- LICENSE: license information (defaults to NIL). Possible other values are
+  :mit, :bsd, :gpl, and :lgpl).
 - INTRODUCTION: contents for an optional introduction chapter.
 - CONCLUSION: contents for an optional conclusion chapter.
 
-- TEXI-FILE: full path to the Texinfo file. Defaults to LIBRARY.texi.
-- INFO-FILE: info file basename sans extension. The default is built from
-  TEXI-FILE.
+- TEXI-FILE: path to the Texinfo file (defaults to LIBRARY.texi).
+- INFO-FILE: info file basename sans extension (defaults to the relevant part
+- of TEXI-FILE).
 - HYPERLINKS: whether to create hyperlinks to files or directories in the
   reference manual. Note that those links being specific to the machine on
   which the manual was generated, it is preferable to keep it to NIL for
   creating reference manuals meant to be put online.
-- DECLT-NOTICE: small paragraph about automatic manual generation by Declt.
-  Possible values are nil, :short and :long (the default).
+- DECLT-NOTICE: small paragraph about automatic manual generation by Declt
+  (defaults to :long). Possible other values are nil and :short.
 
 Both the INTRODUCTION and the CONCLUSION may contain Texinfo directives (no
 post-processing will occur). All other textual material is considered raw text
