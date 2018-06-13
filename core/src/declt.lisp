@@ -440,36 +440,28 @@ This manual was generated automatically by Declt ~A on ~A.
 SYSTEM-NAME is an ASDF system designator.
 
 The following keyword arguments are available.
-- LIBRARY: name of the library being documented (defaults to the system
-  name).
-- TAGLINE: small text to be used as the manual's subtitle (defaults to the
-  system's long name or description).
-- VERSION: version information (defaults to the system version).
-- CONTACT: contact information (defaults to the system's maintainer(s) and
-  author(s)). If the library doesn't provide that information, \"John Doe\" is
-  used. If you provide it by hand, use an author string or a list of such. An
-  author string contains a name, optionally followed by an <email@ddress>.
+- LIBRARY: name of the library being documented. Defaults to the system name.
+- TAGLINE: small text to be used as the manual's subtitle. Defaults to the
+  system long name or description.
+- VERSION: version information. Defaults to the system version.
+- CONTACT: contact information. Defaults to the system maintainer(s) and
+  author(s), or \"John Doe\". Accepts an author string of the form
+  \"My Name[ <my@address>]\", or a list of such.
 
-- COPYRIGHT: copyright years information (defaults to the current
-  year). Possible values are NIL or any string.
-- LICENSE: license information (defaults to NIL). Possible other values are
-  :mit, :bsd, :gpl, and :lgpl).
-- INTRODUCTION: contents for an optional introduction chapter.
-- CONCLUSION: contents for an optional conclusion chapter.
+- COPYRIGHT: copyright years information or NIL. Defaults to the current year.
+- LICENSE: license information. Defaults to NIL. Also accepts :mit, :bsd,
+  :gpl, and :lgpl.
+- INTRODUCTION: introduction chapter contents or NIL. Defaults to NIL.
+- CONCLUSION: conclusion chapter contents or NIL. Defaults to NIL.
 
-- TEXI-FILE: path to the Texinfo file (defaults to LIBRARY.texi).
-- INFO-FILE: info file basename sans extension (defaults to the relevant part
-- of TEXI-FILE).
-- HYPERLINKS: whether to create hyperlinks to files or directories in the
-  reference manual. Note that those links being specific to the machine on
-  which the manual was generated, it is preferable to keep it to NIL for
-  creating reference manuals meant to be put online.
-- DECLT-NOTICE: small paragraph about automatic manual generation by Declt
-  (defaults to :long). Possible other values are nil and :short.
+- TEXI-FILE: path to the Texinfo file. Defaults to LIBRARY.texi.
+- INFO-FILE: info file basename sans extension. Defaults to the relevant part
+  of TEXI-FILE.
+- HYPERLINKS: create hyperlinks to files or directories. Defaults to NIL.
+- DECLT-NOTICE: small credit paragraph to Declt, or NIL. Defaults to
+  :long. Also accepts :short.
 
-Both the INTRODUCTION and the CONCLUSION may contain Texinfo directives (no
-post-processing will occur). All other textual material is considered raw text
-and will be properly escaped for Texinfo."
+INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
 
   ;; First load the target system. If this fails, there's no point in working
   ;; hard on the rest.
