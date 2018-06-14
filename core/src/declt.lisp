@@ -427,7 +427,7 @@ This manual was generated automatically by Declt ~A on ~A.
 		   introduction
 		   conclusion
 
-		   (texi-file (format nil "~A.texi" library))
+		   (texi-file (make-pathname :name library :type "texi"))
 		   (info-file (pathname-name texi-file))
 		   hyperlinks
 		   (declt-notice :long)
@@ -454,7 +454,7 @@ The following keyword arguments are available.
 - INTRODUCTION: introduction chapter contents or NIL. Defaults to NIL.
 - CONCLUSION: conclusion chapter contents or NIL. Defaults to NIL.
 
-- TEXI-FILE: path to the Texinfo file. Defaults to LIBRARY.texi.
+- TEXI-FILE: Texinfo file pathname. Defaults to LIBRARY.texi.
 - INFO-FILE: info file basename sans extension. Defaults to the relevant part
   of TEXI-FILE.
 - HYPERLINKS: create hyperlinks to files or directories. Defaults to NIL.
