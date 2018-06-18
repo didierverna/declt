@@ -91,15 +91,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 
 (defun render-header (library-name tagline version contact-names contact-emails
-		      copyright license
+		      copyright-years license
 		      texi-name info-file declt-notice
 		      current-time-string)
   "Render the header of the Texinfo file."
   (format t "\\input texinfo~2%@c ~A --- Reference manual~2%" texi-name)
 
-  (when copyright
+  (when copyright-years
     (mapc (lambda (name)
-	    (format t "@c Copyright (C) ~A ~A~%" copyright name))
+	    (format t "@c Copyright (C) ~A ~A~%" copyright-years name))
       ;; #### NOTE: we already removed the duplicates in the original contact
       ;; list, but there may still be duplicates in the names, for instance if
       ;; somebody used his name several times, with a different email
@@ -316,10 +316,10 @@ The ~A Reference Manual~@[, version ~A~].
 @copying
 @quotation~%")
 
-    (when copyright
+    (when copyright-years
       (mapc (lambda (name)
 	      (format t "Copyright @copyright{} ~A ~A~%"
-		(escape copyright) (escape name)))
+		(escape copyright-years) (escape name)))
 	;; #### NOTE: we already removed the duplicates in the original
 	;; contact list, but there may still be duplicates in the names, for
 	;; instance if somebody used his name several times, with a different
@@ -422,7 +422,7 @@ This manual was generated automatically by Declt ~A on ~A.
 		   (version nil versionp)
 		   (contact nil contactp)
 
-		   copyright
+		   copyright-years
 		   license
 		   introduction
 		   conclusion
@@ -449,7 +449,8 @@ The following keyword arguments are available.
   author(s), or \"John Doe\". Accepts an author string of the form
   \"My Name[ <my@address>]\", or a list of such.
 
-- COPYRIGHT: copyright years information or NIL. Defaults to the current year.
+- COPYRIGHT-YEARS: copyright years information or NIL. Defaults to the current
+  year.
 - LICENSE: license information. Defaults to NIL. Also accepts :mit, :bsd,
   :gpl, and :lgpl.
 - INTRODUCTION: introduction chapter contents or NIL. Defaults to NIL.
@@ -503,8 +504,8 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
 	     (system-mailto system))
     (setq contact-emails (list (system-mailto system))))
 
-  (setq copyright
-	(or copyright
+  (setq copyright-years
+	(or copyright-years
 	    (multiple-value-bind (second minute hour date month year)
 		(get-decoded-time)
 	      (declare (ignore second minute hour date month))
@@ -600,7 +601,7 @@ Concepts, functions, variables and data types")
 		       :if-does-not-exist :create
 		       :external-format :utf8)
 	(render-header library-name tagline version contact-names contact-emails
-		       copyright license
+		       copyright-years license
 		       texi-name info-file declt-notice
 		       current-time-string)
 	(render-top-node top-node)
