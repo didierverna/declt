@@ -90,7 +90,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 
-(defun render-header (library tagline version contact-names contact-emails
+(defun render-header (library-name tagline version contact-names contact-emails
 		      copyright license
 		      texi-name info-file declt-notice
 		      current-time-string)
@@ -107,7 +107,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
       (remove-duplicates contact-names :from-end t :test #'string=))
     (terpri))
 
-  (format t "@c This file is part of ~A.~2%" library)
+  (format t "@c This file is part of ~A.~2%" library-name)
 
   (when license
     (with-input-from-string (str (caddr license))
@@ -133,7 +133,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 @afourpaper
 @documentencoding UTF-8
 @c %**end of header~4%"
-    info-file (escape library))
+    info-file (escape library-name))
 
   (format t "~
 @c ====================================================================
@@ -143,7 +143,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 @documentdescription
 The ~A Reference Manual~@[, version ~A~].
 @end documentdescription~4%"
-    (escape library) version)
+    (escape library-name) version)
 
   (format t "~
 @c ====================================================================
@@ -306,7 +306,7 @@ The ~A Reference Manual~@[, version ~A~].
 @direntry
 * ~A Reference: (~A). The ~A Reference Manual.
 @end direntry~4%"
-    library info-file library)
+    library-name info-file library-name)
 
   (when license
     (format t "~
@@ -355,7 +355,7 @@ except that this permission notice may be translated as well.
 @titlepage
 @title The ~A Reference Manual
 ~A~%"
-    (escape library)
+    (escape library-name)
     (if (or tagline version)
 	(format nil "@subtitle ~@[~A~]~:[~;, ~]~@[version ~A~]~%"
 	  tagline (and tagline version) version)
@@ -415,9 +415,9 @@ This manual was generated automatically by Declt ~A on ~A.
    (context-internal-definitions context)))
 
 (defun declt (system-name
-	      &key (library (if (stringp system-name)
-				system-name
-			      (string-downcase (symbol-name system-name))))
+	      &key (library-name (if (stringp system-name)
+				   system-name
+				   (string-downcase system-name)))
 		   (tagline nil taglinep)
 		   (version nil versionp)
 		   (contact nil contactp)
@@ -427,7 +427,7 @@ This manual was generated automatically by Declt ~A on ~A.
 		   introduction
 		   conclusion
 
-		   (texi-file (make-pathname :name library :type "texi"))
+		   (texi-file (make-pathname :name library-name :type "texi"))
 		   (info-file (pathname-name texi-file))
 		   hyperlinks
 		   (declt-notice :long)
@@ -440,7 +440,8 @@ This manual was generated automatically by Declt ~A on ~A.
 SYSTEM-NAME is an ASDF system designator.
 
 The following keyword arguments are available.
-- LIBRARY: name of the library being documented. Defaults to the system name.
+- LIBRARY-NAME: name of the library being documented. Defaults to the system
+  name.
 - TAGLINE: small text to be used as the manual's subtitle. Defaults to the
   system long name or description.
 - VERSION: version information. Defaults to the system version.
@@ -454,7 +455,7 @@ The following keyword arguments are available.
 - INTRODUCTION: introduction chapter contents or NIL. Defaults to NIL.
 - CONCLUSION: conclusion chapter contents or NIL. Defaults to NIL.
 
-- TEXI-FILE: Texinfo file pathname. Defaults to LIBRARY.texi.
+- TEXI-FILE: Texinfo file pathname. Defaults to LIBRARY-NAME.texi.
 - INFO-FILE: info file basename sans extension. Defaults to the relevant part
   of TEXI-FILE.
 - HYPERLINKS: create hyperlinks to files or directories. Defaults to NIL.
@@ -528,13 +529,13 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
 	  (top-node
 	    (make-node :name "Top"
 		       :section-name (format nil "The ~A Reference Manual"
-				       (escape library))
+				       (escape library-name))
 		       :section-type :unnumbered
 		       :before-menu-contents (format nil "~
 This is the ~A Reference Manual~@[, version ~A~],
 generated automatically by Declt version ~A
 on ~A."
-					       (escape library)
+					       (escape library-name)
 					       version
 					       (escape (version :long))
 					       (escape current-time-string))
@@ -553,7 +554,7 @@ on ~A."
       (when introduction
 	(add-child top-node
 	  (make-node :name "Introduction"
-		     :synopsis (format nil "What ~A is all about" library)
+		     :synopsis (format nil "What ~A is all about" library-name)
 		     :before-menu-contents introduction)))
       (add-systems-node     top-node context)
       (add-modules-node     top-node context)
@@ -598,7 +599,7 @@ Concepts, functions, variables and data types")
 		       :if-exists :supersede
 		       :if-does-not-exist :create
 		       :external-format :utf8)
-	(render-header library tagline version contact-names contact-emails
+	(render-header library-name tagline version contact-names contact-emails
 		       copyright license
 		       texi-name info-file declt-notice
 		       current-time-string)
