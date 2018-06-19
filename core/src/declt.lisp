@@ -133,7 +133,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 @afourpaper
 @documentencoding UTF-8
 @c %**end of header~4%"
-    info-name (escape library-name))
+    (escape info-name) (escape library-name))
 
   (format t "~
 @c ====================================================================
@@ -143,7 +143,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 @documentdescription
 The ~A Reference Manual~@[, version ~A~].
 @end documentdescription~4%"
-    (escape library-name) version)
+    (escape library-name) (escape version))
 
   (format t "~
 @c ====================================================================
@@ -306,7 +306,7 @@ The ~A Reference Manual~@[, version ~A~].
 @direntry
 * ~A Reference: (~A). The ~A Reference Manual.
 @end direntry~4%"
-    library-name info-name library-name)
+    (escape library-name) (escape info-name) (escape library-name))
 
   (when license
     (format t "~
@@ -358,7 +358,7 @@ except that this permission notice may be translated as well.
     (escape library-name)
     (if (or tagline version)
 	(format nil "@subtitle ~@[~A~]~:[~;, ~]~@[version ~A~]~%"
-	  tagline (and tagline version) version)
+	  (escape tagline) (and tagline version) (escape version))
 	""))
   (mapc (lambda (name email)
 	  (format t "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
@@ -473,22 +473,17 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
   (asdf:load-system system-name)
 
   ;; Next, post-process some parameters.
-  ;; #### NOTE: some Texinfo contents is escaped once and for all below, but
-  ;; not everything. The exceptions are the pieces that we also use in
-  ;; comments (in which case we don't want to escape them).
   (unless taglinep
     (setq tagline (or (system-long-name system)
 		      (component-description system))))
   (when (and tagline (zerop (length tagline)))
     (setq tagline nil))
-  (when tagline
-    (when (char= (aref tagline (1- (length tagline))) #\.)
-      (setq tagline (subseq tagline 0 (1- (length tagline)))))
-    (setq tagline (escape tagline)))
+  (when (and tagline (char= (aref tagline (1- (length tagline))) #\.))
+    (setq tagline (subseq tagline 0 (1- (length tagline)))))
   (unless versionp
     (setq version (component-version system)))
-  (when version
-    (setq version (escape version)))
+  (when (and version (zerop (length version)))
+    (setq version nil))
   (unless contact
     (setq contact (system-author system))
     (when (stringp contact) (setq contact (list contact)))
@@ -518,8 +513,6 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
     (unless license
       (error "License not found.")))
 
-  (setq info-name (escape info-name))
-
   ;; Construct the nodes hierarchy.
   (with-standard-io-syntax
     (let ((context (make-context
@@ -540,7 +533,7 @@ This is the ~A Reference Manual~@[, version ~A~],
 generated automatically by Declt version ~A
 on ~A."
 					       (escape library-name)
-					       version
+					       (escape version)
 					       (escape (version :long))
 					       (escape current-time-string))
 		       :after-menu-contents (when license "@insertcopying"))))
@@ -558,7 +551,8 @@ on ~A."
       (when introduction
 	(add-child top-node
 	  (make-node :name "Introduction"
-		     :synopsis (format nil "What ~A is all about" library-name)
+		     :synopsis (format nil "What ~A is all about"
+				 (escape library-name))
 		     :before-menu-contents introduction)))
       (add-systems-node     top-node context)
       (add-modules-node     top-node context)
