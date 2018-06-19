@@ -27,7 +27,7 @@
 
 (require "asdf")
 
-(defconstant +copyright-years+ "2010--2013, 2015--2017")
+(defconstant +copyright-years+ "2010--2013, 2015--2018")
 
 (defconstant +introduction+
   "@macro declt
