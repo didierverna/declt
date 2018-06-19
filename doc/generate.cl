@@ -1,6 +1,6 @@
 ;;; generate.cl --- Declt reference manual generation script
 
-;; Copyright (C) 2010-2013, 2015-2017 Didier Verna
+;; Copyright (C) 2010-2013, 2015-2018 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -103,21 +103,21 @@ for a more human-readable guide to using @declt{}."
 (if (and (second sb-ext:*posix-argv*)
 	 (string= (second sb-ext:*posix-argv*) "--web"))
     (declt:declt :net.didierverna.declt
-		 :library "Declt"
+		 :library-name "Declt"
 		 :version (declt:version :long)
-		 :copyright +copyright-years+
+		 :copyright-years +copyright-years+
 		 :license :bsd
 		 :introduction +introduction+
-		 :texi-file "webreference.texi"
-		 :info-file "declt-webreference") ; but we don't care
+		 :texi-name "webreference"
+		 :info-name "declt-webreference") ; but we don't care
     (declt:declt :net.didierverna.declt
-		 :library "Declt"
+		 :library-name "Declt"
 		 :version (declt:version :long)
-		 :copyright +copyright-years+
+		 :copyright-years +copyright-years+
 		 :license :bsd
 		 :introduction +introduction+
-		 :texi-file "reference.texi"
-		 :info-file "declt-reference"
+		 :texi-name "reference"
+		 :info-name "declt-reference"
 		 :hyperlinks t))
 
 (uiop:quit)
