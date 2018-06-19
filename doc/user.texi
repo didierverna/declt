@@ -2,7 +2,7 @@
 
 @c user.texi --- User manual
 
-@c Copyright (C) 2013, 2015-2017 Didier Verna
+@c Copyright (C) 2013, 2015-2018 Didier Verna
 
 @c Author: Didier Verna <didier@didierverna.net>
 
@@ -41,7 +41,7 @@
 @c Settings
 @c ====================================================================
 @set VERSION 2.3 "Robert April"
-@set COPYRIGHT_DATE 2010--2013, 2015--2017
+@set COPYRIGHT_DATE 2010--2013, 2015--2018
 @setchapternewpage odd
 @documentdescription
 The Declt User Manual for version @value{VERSION}.
@@ -413,8 +413,8 @@ The following information is normally extracted from the system,
 although you may want to tweak it for better formatting.
 
 @table @code
-@item :library
-@fkindex{declt,library}
+@item :library-name
+@fkindex{declt,library-name}
 The library name, used in the reference manual title and at some other
 places. It defaults to the system name, but you are encouraged to
 provide a more human-readable version, such as @t{Declt} instead of
@@ -444,8 +444,8 @@ The following information is either not provided by the system, or too
 difficult to extract properly (DWIM rulez not).
 
 @table @code
-@item :copyright
-@fkindex{declt,copyright}
+@item :copyright-years
+@fkindex{declt,copyright-years}
 Copyright year(s) used to typeset copyright header lines. You can use
 @nil{} to disable such lines. It defaults to the current year.  You may
 use any kind of string here, such as @code{"2013"}, @code{"2010, 2011"},
@@ -479,15 +479,17 @@ The following options let you customize some basic aspects of the
 generated documentation.
 
 @table @code
-@item :texi-file
-@fkindex{declt,texi-file}
-The full path of the generated Texinfo file. It defaults to
-@file{LIBRARY.texi} in the current directory (@pxref{Output
-Workarounds}).
-@item :info-file
-@fkindex{declt,info-file}
-The base name of the info file, sans extension. The default is built
-from @t{TEXI-FILE}.
+@item :texi-name
+@fkindex{declt,texi-name}
+The basename of the Texinfo file, sans extension. It defaults to the
+system name.
+@item :texi-directory
+@fkindex{declt,texi-directory}
+The Texinfo file directory. It defaults to the current directory.
+@item :info-name
+@fkindex{declt,info-name}
+The base name of the Info file, sans extension. It defaults to
+@t{TEXI-NAME}.
 @item :hyperlinks
 @fkindex{declt,hyperlinks}
 Whether to create hyperlinks to files or directories in the reference
@@ -497,9 +499,12 @@ reference manuals meant to be put online.
 @item :declt-notice
 @fkindex{declt,declt-notice}
 Controls the output of a small paragraph about automatic manual
-generation by Declt. Possible values are @nil{}, @code{:short} and
-@code{:long} (the default). I would be grateful if you kept at least the
-short version in your manuals, as an acknowledgment for using @declt{}.
+generation by @declt{}. Possible values are @nil{} (meaning don't
+acknowledge @declt{}), @code{:short}, and @code{:long} (the
+default). A @code{:short} paragraph advertises @declt{} with its
+version number. A @code{:long} one also prints its release code name and
+the generation time. I would be grateful if you kept at least the short
+version in your manuals, as an acknowledgment for using @declt{}.
 @end table
 
 
@@ -902,6 +907,7 @@ compiler support or any other kind of help. You have my gratitude!
 @item BR. Fenn Pocock@*
 @item Sabra Crolleton@*
 @item Robert Goldman@*
+@item Symbolics@*
 @end multitable
 
 
