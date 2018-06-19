@@ -455,9 +455,9 @@ use any kind of string here, such as @code{"2013"}, @code{"2010, 2011"},
 @pvindex{*licenses*}
 The library's license type. This information is used to insert licensing
 information at several places in the manual. The default is @nil{} and
-the possible other values are: @code{:mit}, @code{:bsd}, @code{:gpl} and
-@code{:lgpl}. The corresponding license texts are stored in the
-@var{*licenses*} parameter. Please ask if you need other kinds of
+the possible other values are: @code{:mit}, @code{:boost}, @code{:bsd},
+@code{:gpl} and @code{:lgpl}. The corresponding license texts are stored
+in the @var{*licenses*} parameter. Please ask if you need other kinds of
 licenses added to @declt{}. Note that this information is @strong{not}
 currently extracted from the system's @t{license} slot, as this slot is
 not well defined.

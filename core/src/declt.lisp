@@ -47,7 +47,7 @@ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.")
     (:boost
-     "Boost Software License - Version 1.0"
+     "The Boost Software License - Version 1.0"
 "Permission is hereby granted, free of charge, to any person or organization
 obtaining a copy of the software and accompanying documentation covered by
 this license (the \"Software\") to use, reproduce, display, distribute,
@@ -476,8 +476,8 @@ The following keyword arguments are available.
 
 - COPYRIGHT-YEARS: copyright years information or NIL. Defaults to the current
   year.
-- LICENSE: license information. Defaults to NIL. Also accepts :mit, :bsd,
-  :gpl, and :lgpl.
+- LICENSE: license information. Defaults to NIL. Also accepts :mit, :boost,
+  :bsd, :gpl, and :lgpl.
 - INTRODUCTION: introduction chapter contents or NIL. Defaults to NIL.
 - CONCLUSION: conclusion chapter contents or NIL. Defaults to NIL.
 
