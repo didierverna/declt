@@ -92,10 +92,10 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 
 (defun render-header (library-name tagline version contact-names contact-emails
 		      copyright-years license
-		      texi-name info-file declt-notice
+		      texi-name info-name declt-notice
 		      current-time-string)
   "Render the header of the Texinfo file."
-  (format t "\\input texinfo~2%@c ~A --- Reference manual~2%" texi-name)
+  (format t "\\input texinfo~2%@c ~A.texi --- Reference manual~2%" texi-name)
 
   (when copyright-years
     (mapc (lambda (name)
@@ -133,7 +133,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 @afourpaper
 @documentencoding UTF-8
 @c %**end of header~4%"
-    info-file (escape library-name))
+    info-name (escape library-name))
 
   (format t "~
 @c ====================================================================
@@ -306,7 +306,7 @@ The ~A Reference Manual~@[, version ~A~].
 @direntry
 * ~A Reference: (~A). The ~A Reference Manual.
 @end direntry~4%"
-    library-name info-file library-name)
+    library-name info-name library-name)
 
   (when license
     (format t "~
@@ -427,13 +427,15 @@ This manual was generated automatically by Declt ~A on ~A.
 		   introduction
 		   conclusion
 
-		   (texi-file (make-pathname :name library-name :type "texi"))
-		   (info-file (pathname-name texi-file))
+		   (texi-name (if (stringp system-name)
+				system-name
+				(string-downcase system-name)))
+		   (texi-directory #p"./")
+		   (info-name texi-name)
 		   hyperlinks
 		   (declt-notice :long)
 
 	      &aux (system (find-system system-name))
-		   (texi-name (file-namestring texi-file))
 		   (current-time-string (current-time-string))
 		   contact-names contact-emails)
   "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
@@ -456,9 +458,10 @@ The following keyword arguments are available.
 - INTRODUCTION: introduction chapter contents or NIL. Defaults to NIL.
 - CONCLUSION: conclusion chapter contents or NIL. Defaults to NIL.
 
-- TEXI-FILE: Texinfo file pathname. Defaults to LIBRARY-NAME.texi.
-- INFO-FILE: info file basename sans extension. Defaults to the relevant part
-  of TEXI-FILE.
+- TEXI-NAME: Texinfo file basename sans extension. Defaults to the system
+  name.
+- TEXI-DIRECTORY: Texinfo file directory. Defaults to the current directory.
+- INFO-NAME: Info file basename sans extension. Defaults to TEXI-NAME.
 - HYPERLINKS: create hyperlinks to files or directories. Defaults to NIL.
 - DECLT-NOTICE: small credit paragraph to Declt, or NIL. Defaults to
   :long. Also accepts :short.
@@ -515,7 +518,7 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
     (unless license
       (error "License not found.")))
 
-  (setq info-file (escape info-file))
+  (setq info-name (escape info-name))
 
   ;; Construct the nodes hierarchy.
   (with-standard-io-syntax
@@ -595,17 +598,20 @@ Concepts, functions, variables and data types")
 		     :section-type :appendix
 		     :section-name "Data types"
 		     :before-menu-contents "@printindex tp")))
-      (with-open-file (*standard-output* texi-file
+      (with-open-file (*standard-output*
+		       (merge-pathnames (make-pathname :name texi-name
+						       :type "texi")
+					texi-directory)
 		       :direction :output
 		       :if-exists :supersede
 		       :if-does-not-exist :create
 		       :external-format :utf8)
 	(render-header library-name tagline version contact-names contact-emails
 		       copyright-years license
-		       texi-name info-file declt-notice
+		       texi-name info-name declt-notice
 		       current-time-string)
 	(render-top-node top-node)
-	(format t "~%@bye~%~%@c ~A ends here~%" texi-name))))
+	(format t "~%@bye~%~%@c ~A.texi ends here~%" texi-name))))
   (values))
 
 
