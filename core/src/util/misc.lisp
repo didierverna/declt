@@ -1,6 +1,6 @@
 ;;; misc.lisp --- Miscellaneous utilities
 
-;; Copyright (C) 2010, 2011, 2013, 2016 Didier Verna
+;; Copyright (C) 2010, 2011, 2013, 2015-2017 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
