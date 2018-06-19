@@ -371,10 +371,10 @@ except that this permission notice may be translated as well.
   (when declt-notice
     (format t "~
 @quotation
-This manual was generated automatically by Declt ~A on ~A.
+This manual was generated automatically by Declt ~A~@[ on ~A~].
 @end quotation~%"
     (escape (version declt-notice))
-    (escape current-time-string)))
+    (when (eq declt-notice :long) (escape current-time-string))))
 
   (when license
     (format t "@vskip 0pt plus 1filll~%@insertcopying~%"))
@@ -529,13 +529,16 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
 				       (escape library-name))
 		       :section-type :unnumbered
 		       :before-menu-contents (format nil "~
-This is the ~A Reference Manual~@[, version ~A~],
-generated automatically by Declt version ~A
-on ~A."
+This is the ~A Reference Manual~@[, version ~A~]~@[,
+generated automatically by Declt version ~A~@[
+on ~A~]~]."
 					       (escape library-name)
 					       (escape version)
-					       (escape (version :long))
-					       (escape current-time-string))
+					       (when declt-notice
+						 (escape
+						  (version declt-notice)))
+					       (when (eq declt-notice :long)
+						 (escape current-time-string)))
 		       :after-menu-contents (when license "@insertcopying"))))
       (add-packages context)
       (add-definitions context)

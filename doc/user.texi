@@ -499,9 +499,12 @@ reference manuals meant to be put online.
 @item :declt-notice
 @fkindex{declt,declt-notice}
 Controls the output of a small paragraph about automatic manual
-generation by Declt. Possible values are @nil{}, @code{:short} and
-@code{:long} (the default). I would be grateful if you kept at least the
-short version in your manuals, as an acknowledgment for using @declt{}.
+generation by @declt{}. Possible values are @nil{} (meaning don't
+acknowledge @declt{}), @code{:short}, and @code{:long} (the
+default). A @code{:short} paragraph advertises @declt{} with its
+version number. A @code{:long} one also prints its release code name and
+the generation time. I would be grateful if you kept at least the short
+version in your manuals, as an acknowledgment for using @declt{}.
 @end table
 
 
@@ -904,6 +907,7 @@ compiler support or any other kind of help. You have my gratitude!
 @item BR. Fenn Pocock@*
 @item Sabra Crolleton@*
 @item Robert Goldman@*
+@item Symbolics@*
 @end multitable
 
 
