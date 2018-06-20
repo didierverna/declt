@@ -1,2 +1,2 @@
-LONG_VERSION  := 2.3 "Robert April"
-SHORT_VERSION := 2.3
+LONG_VERSION  := 2.4 "Will Decker"
+SHORT_VERSION := 2.4

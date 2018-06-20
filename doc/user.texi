@@ -40,7 +40,7 @@
 @c ====================================================================
 @c Settings
 @c ====================================================================
-@set VERSION 2.3 "Robert April"
+@set VERSION 2.4 "Will Decker"
 @set COPYRIGHT_DATE 2010--2013, 2015--2018
 @setchapternewpage odd
 @documentdescription
