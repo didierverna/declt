@@ -1083,6 +1083,12 @@ Currently, this means resolving:
 ;; #### NOTE: all of these methods are in fact equivalent. That's the drawback
 ;; of using structures instead of classes, which limits the inheritance
 ;; expressiveness (otherwise I could have used a writer mixin or something).
+
+;; #### NOTE: spaces in symbol names are "revealed", but not the ones below
+;; (between SETF and the symbol) because that would look rather weird in the
+;; output. Consequently, Declt must expect to get names with unescaped
+;; spaces. @DEFFN, @DEFFNX, AND @DEFTP take care of protecting their NAME
+;; argument with braces because of that.
 (defmethod name ((writer writer-definition))
   "Return WRITER's name, that is (setf <name>)."
   (format nil "(SETF ~A)" (name (writer-definition-symbol writer))))
