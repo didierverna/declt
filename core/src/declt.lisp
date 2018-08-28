@@ -492,8 +492,22 @@ The following keyword arguments are available.
 INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
 
   ;; First load the target system. If this fails, there's no point in working
-  ;; hard on the rest.
-  (asdf:load-system system-name)
+  ;; hard on the rest. Because of some bootstrapping issues, ASDF and UIOP
+  ;; need some special-casing.
+  (cond ((string= (asdf:coerce-name system-name) "uiop")
+	 (load (merge-pathnames "uiop/uiop.asd"
+				(system-source-directory
+				 (asdf:find-system :asdf))))
+	 (mapc #'load
+	   (asdf:input-files :monolithic-concatenate-source-op
+			     "asdf/driver")))
+	((string= (asdf:coerce-name system-name) "asdf")
+	 (setq system (find-system "asdf/defsystem"))
+	 (mapc #'load
+	   (asdf:input-files :monolithic-concatenate-source-op
+			     "asdf/defsystem")))
+	(t
+	 (asdf:load-system system-name)))
 
   ;; Next, post-process some parameters.
   (unless taglinep
