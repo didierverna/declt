@@ -52,7 +52,7 @@
 (defparameter *release-status* :patchlevel
   "The status of this release.")
 
-(defparameter *release-status-level* 0
+(defparameter *release-status-level* 1
   "The status level of this release.")
 
 (defparameter *release-name* "Will Decker"
