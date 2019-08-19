@@ -69,20 +69,29 @@
 ;; Utilities
 ;; ==========================================================================
 
-(defun escape (object &optional other-chars)
+(defvar *special-characters*
+  '((#\@ . "atchar")
+    (#\{ . "lbracechar")
+    (#\} . "rbracechar")
+    (#\, . "comma")
+    (#\\ . "backslashchar")
+    (#\# . "hashchar")
+    (#\& . "ampchar"))
+  "An association list of Texinfo special characters.
+Elements are the form (CHAR . COMMAND) where CHAR is the special character and
+COMMAND is the name of the corresponding Texinfo alphabetic command.")
+
+(defun escape (object)
   "When OBJECT, escape its name for Texinfo.
-The escaped characters are @, {, } and optionally a list of OTHER-CHARS."
+The escaped characters are @, {, and }."
   (when object
     (apply #'concatenate 'string
 	   (loop :for char across (name object)
-		 :if (member char (push #\@ other-chars))
-		   :collect (format nil "@~A" char)
-		 :else
-		   :if (char= char #\{)
-		     :collect "@lbracechar{}"
-		 :else
-		   :if (char= char #\})
-		     :collect "@rbracechar{}"
+		 :if (member char '(#\@ #\{ #\}))
+		   :collect (concatenate 'string
+			      "@"
+			      (cdr (assoc char *special-characters*))
+			      "{}")
 		 :else
 		   :collect (string char)))))
 
