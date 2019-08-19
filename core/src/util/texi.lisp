@@ -99,18 +99,29 @@ COMMAND is the name of the corresponding Texinfo alphabetic command.")
 		 :else
 		   :collect (string char)))))
 
+;; #### NOTE: Parenthesis are less restricted than the other characters (see
+;; Section 4.4 of the Texinfo manual), but for simplicity, we systematically
+;; avoid them.
+(defvar *fragile-characters*
+  '((#\. . #\﹒)
+    (#\, . #\﹐)
+    (#\: . #\﹕)
+    (#\( . #\﹙)
+    (#\) . #\﹚))
+  "An association list of Texinfo fragile (anchor) characters.
+Elements are the form (CHAR . ALT) where CHAR is the fragile (anchor)
+character and ALT is an alternative Unicode character.")
+
 (defun escape-anchor (object)
   "When OBJECT, escape its name for use as a Texinfo anchor.
-In addition to regular escaping, periods, commas and colons are wrapped inside
-special <> constructs."
+In addition to regular escaping, periods, commas, colons, and parenthesis are
+replaced with alternative Unicode characters."
   (when object
     (escape (apply #'concatenate 'string
-		   (loop :for char across (name object)
-			 :if (member char '(#\. #\, #\:))
-			   :collect (format nil "<~A>"
-					    (case char (#\. "dot")
-						  (#\, "comma")
-						  (#\: "colon")))
+		   (loop :for char :across (name object)
+			 :for fragile := (assoc char *fragile-characters*)
+			 :if fragile
+			   :collect (string (cdr fragile))
 			 :else
 			   :collect (string char))))))
 
