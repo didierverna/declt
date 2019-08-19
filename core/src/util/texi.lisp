@@ -99,24 +99,20 @@ COMMAND is the name of the corresponding Texinfo alphabetic command.")
 		 :else
 		   :collect (string char)))))
 
-(defun escape-anchor (object &optional other-chars)
+(defun escape-anchor (object)
   "When OBJECT, escape its name for use as a Texinfo anchor.
-The escaped characters are @, {, } and optionally a list of OTHER-CHARS.
-Additionally, periods, commas and colons are wrapped inside special <>
-constructs."
+In addition to regular escaping, periods, commas and colons are wrapped inside
+special <> constructs."
   (when object
-    (apply #'concatenate 'string
-	   (loop :for char across (name object)
-		 :if (member char (append '(#\@ #\{ #\}) other-chars))
-		   :collect (format nil "@~A" char)
-		 :else
-		   :if (member char '(#\. #\, #\:))
-		     :collect (format nil "<~A>"
-				(case char (#\. "dot")
-					   (#\, "comma")
-					   (#\: "colon")))
-		 :else
-		   :collect (string char)))))
+    (escape (apply #'concatenate 'string
+		   (loop :for char across (name object)
+			 :if (member char '(#\. #\, #\:))
+			   :collect (format nil "<~A>"
+					    (case char (#\. "dot")
+						  (#\, "comma")
+						  (#\: "colon")))
+			 :else
+			   :collect (string char))))))
 
 (defun first-word-length (string)
   "Return the length of the first word in STRING.
