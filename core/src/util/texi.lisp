@@ -69,6 +69,9 @@
 ;; Utilities
 ;; ==========================================================================
 
+;; #### NOTE: in many cases, it's preferable to use the alphabetic commands
+;; rather than shortcuts such as @@ etc. (see Section 12 of the Texinfo
+;; manual). For simplicity, we use those systematically.
 (defvar *special-characters*
   '((#\@ . "atchar")
     (#\{ . "lbracechar")
@@ -81,17 +84,18 @@
 Elements are the form (CHAR . COMMAND) where CHAR is the special character and
 COMMAND is the name of the corresponding Texinfo alphabetic command.")
 
+;; #### NOTE: Texinfo has different contexts in which the set of characters to
+;; escape varies. Since the escaping commands can be used (nearly?) anywhere,
+;; even when it's not actually needed, it's simpler for us to use them all the
+;; time.
 (defun escape (object)
-  "When OBJECT, escape its name for Texinfo.
-The escaped characters are @, {, and }."
+  "When OBJECT, escape its name for Texinfo."
   (when object
     (apply #'concatenate 'string
-	   (loop :for char across (name object)
-		 :if (member char '(#\@ #\{ #\}))
-		   :collect (concatenate 'string
-			      "@"
-			      (cdr (assoc char *special-characters*))
-			      "{}")
+	   (loop :for char :across (name object)
+		 :for special := (assoc char *special-characters*)
+		 :if special
+		   :collect (concatenate 'string "@" (cdr special) "{}")
 		 :else
 		   :collect (string char)))))
 
@@ -326,6 +330,11 @@ Rendering is done on *standard-output*."
 	  ((member part '(&optional &rest &key &allow-other-keys
 			  &aux &environment &whole &body))
 	   (setq after-required-args-p t)
+	   ;; #### NOTE: PART is not escaped below, which is fine because
+	   ;; Texinfo recognizes &stuff (#### FIXME: does it really recognize
+	   ;; all &stuff, or just Emacs Lisp ones?) and processes them in a
+	   ;; special way as part of definition commands. This should be
+	   ;; exactly what we want.
 	   (format t "~(~A~)" part))
 	  (t
 	   ;; #### WARNING: we don't ask to qualify the specializers here
