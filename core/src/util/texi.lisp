@@ -34,7 +34,7 @@
 
 (defgeneric reveal (object)
   (:documentation
-   "Replace invisible characters in OBJECT with unicode symbols.")
+   "Replace invisible characters in OBJECT with Unicode symbols.")
   (:method ((char character))
     (case char
       (#\        #\␣)
