@@ -162,20 +162,23 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 @c ====================================================================
 @c Format Specific Tweaks
 @c ====================================================================
-@c Declt uses several Unicode characters to \"reveal\" blanks and
-@c replace problematic ones in anchor names. This works fine in HTML or
-@c Info output but TeX will have problems with these. The code below
-@c translates those characters to something that TeX can handle.
-@c - U+23B5 (Bottom Square Bracket), used to reveal white spaces, is
-@c   translated to its Computer Modern teletype version.
-@c - U+21B5 (Downwards Arrow With Corner Leftwards), used to reveal
-@c   carriage returns, is translated to math mode's hookleftarrow.
-@c - U+21E5 (Rightwards Arrow To Bar), used to reveal tabs, is
-@c   translated to something that looks similar, based on a rightarrow
-@c   and a vertical bar from the math extension font.
 @tex
+%% Declt uses several Unicode characters to \"reveal\" blanks. This
+%% works fine in HTML or Info output, but TeX will have problems with
+%% these. The code below translates those characters to something that
+%% TeX can handle.
+
+%% U+23B5 (Bottom Square Bracket), used to reveal white spaces, is
+%% translated to its Computer Modern teletype version.
 \\DeclareUnicodeCharacter{23B5}{{\\tt\\char'040}}
+
+%% U+21B5 (Downwards Arrow With Corner Leftwards), used to reveal
+%% carriage returns, is translated to \\hookleftarrow in math mode.
 \\DeclareUnicodeCharacter{21B5}{\\ensuremath\\hookleftarrow}
+
+%% U+21E5 (Rightwards Arrow To Bar), used to reveal tabs, is
+%% translated to something that looks similar, based on a rightarrow
+%% and a vertical bar from the math extension font.
 \\DeclareUnicodeCharacter{21E5}{%
   \\ensuremath{\\rightarrow\\kern-.5em\\mathchar\\\"130C}}
 @end tex~4%")
