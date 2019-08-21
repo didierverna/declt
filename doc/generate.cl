@@ -1,6 +1,6 @@
 ;;; generate.cl --- Declt reference manual generation script
 
-;; Copyright (C) 2010-2013, 2015-2018 Didier Verna
+;; Copyright (C) 2010-2013, 2015-2019 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -27,7 +27,7 @@
 
 (require "asdf")
 
-(defconstant +copyright-years+ "2010--2013, 2015--2018")
+(defconstant +copyright-years+ "2010--2013, 2015--2019")
 
 (defconstant +introduction+
   "@macro declt
