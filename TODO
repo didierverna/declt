@@ -36,10 +36,8 @@ other user-provided contents). This will be difficult to abstract if we
 generalize the backend notion.
 
 ** Strings formatting
-Lift the 80 columns formatting assumption, for instance by providing an
-additional keyword to DECLT (even better: automatically detecting the longest
-line). In the future, provide markup support through backends (Cf. MarCL). We
-could already have at least the current DWIM one, plus a raw/verbatim one.
+Provide markup support through backends (Cf. MarCL). We could already have at
+least the current DWIM one, plus a raw/verbatim one.
 
 ** Pathnames
 If the system definition pathname or definition sources contain funky stuff
@@ -82,9 +80,6 @@ Currently, we can link to source files on the local machine, which is not
 advisable for web installation of the reference manuals. However, if the
 library provides a source control address, we could link to files in a public
 repo !
-
-** Anchoring
-Maybe use simpler anchor names coupled with uids of some sort.
 
 ** Lambda-list rendering is wrong.
 In so many ways that I can't begin to describe it. We shouldn't use aesthetic
