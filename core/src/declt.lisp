@@ -207,6 +207,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 
 %% U+2769 (Medium Right Parenthesis Ornament) replaces right parenthesis.
 \\DeclareUnicodeCharacter{2769}{)}
+
+%% U+214B (Turned Ampersand) replaces ampersands.
+\\DeclareUnicodeCharacter{214B}{&}
 @end tex~4%")
 
   (format t "~

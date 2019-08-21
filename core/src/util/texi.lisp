@@ -101,13 +101,15 @@ COMMAND is the name of the corresponding Texinfo alphabetic command.")
 
 ;; #### NOTE: Parenthesis are less restricted than the other characters (see
 ;; Section 4.4 of the Texinfo manual), but for simplicity, we systematically
-;; avoid them.
+;; avoid them. The ampersand character is not advertised as problematic, but
+;; in fact it is in PDF output (not in Info or HTML).
 (defvar *fragile-characters*
   '((#\. . #\․) ;; U+2024 (One Dot Leader)
     (#\, . #\‚) ;; U+201A (Single Low-9 Quotation Mark)
     (#\: . #\∶) ;; U+2236 (Ratio)
     (#\( . #\❨) ;; U+2768 (Medium Left Parenthesis Ornament)
-    (#\) . #\❩)) ;; U+2769 (Medium Right Parenthesis Ornament)
+    (#\) . #\❩) ;; U+2769 (Medium Right Parenthesis Ornament)
+    (#\& . #\⅋)) ;; U+214B (Turned Ampersand)
   "An association list of Texinfo fragile (anchor) characters.
 Elements are the form (CHAR . ALT) where CHAR is the fragile (anchor)
 character and ALT is an alternative Unicode character.")
