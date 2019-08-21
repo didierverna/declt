@@ -181,6 +181,32 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 %% and a vertical bar from the math extension font.
 \\DeclareUnicodeCharacter{21E5}{%
   \\ensuremath{\\rightarrow\\kern-.5em\\mathchar\\\"130C}}
+
+
+%% Declt uses several Unicode characters to replace \"fragile\" ones in
+%% anchor names and references. These characters are chosen to resemble
+%% the original ones, without interfering with Info syntax. In TeX
+%% however, we can switch them back to the original versions, because
+%% cross-references are done differently. In theory, I think we could do
+%% something similar for HTML output (again, only the Info syntax poses
+%% problems), but I don't know how to do something similar to what's
+%% below.
+
+%% U+2024 (One Dot Leader) replaces periods.
+\\DeclareUnicodeCharacter{2024}{.}
+
+%% U+201A (Single Low-9 Quotation Mark) replaces commas, but it seems to be
+%% already declared in PDFTeX, so we can't change it back.
+%% \\DeclareUnicodeCharacter{201A}{,}
+
+%% U+2236 (Ratio) replaces colons.
+\\DeclareUnicodeCharacter{2236}{:}
+
+%% U+2768 (Medium Left Parenthesis Ornament) replaces left parenthesis.
+\\DeclareUnicodeCharacter{2768}{(}
+
+%% U+2769 (Medium Right Parenthesis Ornament) replaces right parenthesis.
+\\DeclareUnicodeCharacter{2769}{)}
 @end tex~4%")
 
   (format t "~
