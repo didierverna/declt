@@ -103,11 +103,11 @@ COMMAND is the name of the corresponding Texinfo alphabetic command.")
 ;; Section 4.4 of the Texinfo manual), but for simplicity, we systematically
 ;; avoid them.
 (defvar *fragile-characters*
-  '((#\. . #\﹒)
-    (#\, . #\﹐)
-    (#\: . #\﹕)
-    (#\( . #\﹙)
-    (#\) . #\﹚))
+  '((#\. . #\․) ;; U+2024 (One Dot Leader)
+    (#\, . #\‚) ;; U+201A (Single Low-9 Quotation Mark)
+    (#\: . #\∶) ;; U+2236 (Ratio)
+    (#\( . #\❨) ;; U+2768 (Medium Left Parenthesis Ornament)
+    (#\) . #\❩)) ;; U+2769 (Medium Right Parenthesis Ornament)
   "An association list of Texinfo fragile (anchor) characters.
 Elements are the form (CHAR . ALT) where CHAR is the fragile (anchor)
 character and ALT is an alternative Unicode character.")
