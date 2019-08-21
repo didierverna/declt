@@ -37,9 +37,9 @@
    "Replace invisible characters in OBJECT with Unicode symbols.")
   (:method ((char character))
     (case char
-      (#\        #\␣)
-      (#\Newline #\↩)
-      (#\Tab     #\⇥)
+      (#\        #\⎵) ;; U+23B5 (Bottom Square Bracket)
+      (#\Newline #\↵) ;; U+21B5 (Downwards Arrow With Corner Leftwards)
+      (#\Tab     #\⇥) ;; U+21E5 (Rightwards Arrow To Bar)
       (t char)))
   (:method ((string string))
     (coerce (loop :for char :across string :collect (reveal char))

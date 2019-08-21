@@ -160,6 +160,28 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 
   (format t "~
 @c ====================================================================
+@c Format Specific Tweaks
+@c ====================================================================
+@c Declt uses several Unicode characters to \"reveal\" blanks and
+@c replace problematic ones in anchor names. This works fine in HTML or
+@c Info output but TeX will have problems with these. The code below
+@c translates those characters to something that TeX can handle.
+@c - U+23B5 (Bottom Square Bracket), used to reveal white spaces, is
+@c   translated to its Computer Modern teletype version.
+@c - U+21B5 (Downwards Arrow With Corner Leftwards), used to reveal
+@c   carriage returns, is translated to math mode's hookleftarrow.
+@c - U+21E5 (Rightwards Arrow To Bar), used to reveal tabs, is
+@c   translated to something that looks similar, based on a rightarrow
+@c   and a vertical bar from the math extension font.
+@tex
+\\DeclareUnicodeCharacter{23B5}{{\\tt\\char'040}}
+\\DeclareUnicodeCharacter{21B5}{\\ensuremath\\hookleftarrow}
+\\DeclareUnicodeCharacter{21E5}{%
+  \\ensuremath{\\rightarrow\\kern-.5em\\mathchar\\\"130C}}
+@end tex~4%")
+
+  (format t "~
+@c ====================================================================
 @c Settings
 @c ====================================================================
 @setchapternewpage odd
