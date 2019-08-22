@@ -606,7 +606,8 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
 
   ;; Construct the nodes hierarchy.
   (with-standard-io-syntax
-    (let ((context (make-context
+    (let ((*print-readably* nil)
+	  (context (make-context
 		    :systems
 		    (cons system
 			  (remove-duplicates
