@@ -193,6 +193,10 @@ Optionally PREFIX the title."
 ;; Documentation protocols
 ;; -----------------------
 
+(defmethod index ((other-file asdf:source-file))
+  "Render OTHER-FILE's indexing command."
+  (format t "@otherfileindex{~A}@c~%" (escape (virtual-path other-file))))
+
 (defmethod index ((lisp-file asdf:cl-source-file))
   "Render LISP-FILE's indexing command."
   (format t "@lispfileindex{~A}@c~%" (escape (virtual-path lisp-file))))
@@ -207,7 +211,7 @@ Optionally PREFIX the title."
 
 (defmethod index ((static-file asdf:static-file))
   "Render STATIC-FILE's indexing command."
-  (format t "@otherfileindex{~A}@c~%" (escape (virtual-path static-file))))
+  (format t "@staticfileindex{~A}@c~%" (escape (virtual-path static-file))))
 
 (defmethod index ((doc-file asdf:doc-file))
   "Render DOC-FILE's indexing command."
@@ -274,6 +278,15 @@ Optionally PREFIX the title."
 			      (typep component 'asdf:doc-file))
 			    (mapcan (lambda (system)
 				      (components system 'asdf:static-file))
+				    systems))
+			   (remove-if
+			    (lambda (component)
+			      (or (typep component 'asdf:cl-source-file)
+				  (typep component 'asdf:c-source-file)
+				  (typep component 'asdf:java-source-file)
+				  (typep component 'asdf:static-file)))
+			    (mapcan (lambda (system)
+				      (components system 'asdf:source-file))
 				    systems))))
 			 (files-node
 			  (add-child parent
@@ -334,8 +347,9 @@ components trees."))))
   (loop :with other-files-node
 	:for files :in other-files
 	:for name
-	  :in '("C files" "Java files" "HTML files" "Doc files" "Other files")
-	:for section-name :in '("C" "Java" "HTML" "Doc" "Other")
+	  :in '("C files" "Java files" "HTML files" "Doc files"
+		"Static files" "Other files")
+	:for section-name :in '("C" "Java" "HTML" "Doc" "Static" "Other")
 	:when files
 	  :do (setq other-files-node
 		    (add-child files-node

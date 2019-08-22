@@ -249,6 +249,13 @@ The ~A Reference Manual~@[, version ~A~].
 @cindex Module, @t{\\name\\}
 @end macro
 
+@c Other files
+@macro otherfileindex{name}
+@cindex @t{\\name\\}
+@cindex Other File, @t{\\name\\}
+@cindex File, other, @t{\\name\\}
+@end macro
+
 @c Lisp files
 @macro lispfileindex{name}
 @cindex @t{\\name\\}
@@ -270,11 +277,11 @@ The ~A Reference Manual~@[, version ~A~].
 @cindex File, Java, @t{\\name\\}
 @end macro
 
-@c Other files
-@macro otherfileindex{name}
+@c Static files
+@macro staticfileindex{name}
 @cindex @t{\\name\\}
-@cindex Other File, @t{\\name\\}
-@cindex File, other, @t{\\name\\}
+@cindex Static File, @t{\\name\\}
+@cindex File, static, @t{\\name\\}
 @end macro
 
 @c Doc files
