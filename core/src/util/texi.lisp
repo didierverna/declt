@@ -297,7 +297,7 @@ If QUALIFY, also qualify the symbols.")
     "Return either SPECIALIZER itself, or its class name when appropriate."
     (let ((specializer (or (ignore-errors (class-name specializer))
 			   specializer)))
-      (if qualify
+      (if (and qualify (symbolp specializer))
 	  (format nil "~A::~A"
 	    (name (symbol-package specializer))
 	    (name specializer))
