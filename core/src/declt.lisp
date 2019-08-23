@@ -210,6 +210,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 
 %% U+214B (Turned Ampersand) replaces ampersands.
 \\DeclareUnicodeCharacter{214B}{&}
+
+%% U+2216 (Set Minus) replaces backslashes.
+\\DeclareUnicodeCharacter{2216}{\\char\"5C}
 @end tex~4%")
 
   (format t "~
