@@ -33,17 +33,21 @@
 ;; ==========================================================================
 
 (defgeneric reveal (object)
-  (:documentation
-   "Replace invisible characters in OBJECT with Unicode symbols.")
+  (:documentation "Reveal blanks in OBJECT's representation.")
   (:method ((char character))
+    "Return either CHAR or a non-blank representation for it."
     (case char
       (#\        #\⎵) ;; U+23B5 (Bottom Square Bracket)
       (#\Newline #\↵) ;; U+21B5 (Downwards Arrow With Corner Leftwards)
       (#\Tab     #\⇥) ;; U+21E5 (Rightwards Arrow To Bar)
       (t char)))
   (:method ((string string))
-    (coerce (loop :for char :across string :collect (reveal char))
-	    'string)))
+    "Return STRING with blank characters revealed.
+Empty strings are represented by the empty set symbol. "
+    (if (zerop (length string))
+      "∅"
+      (coerce (loop :for char :across string :collect (reveal char))
+	      'string))))
 
 (defgeneric name (object)
   (:documentation "Return OBJECT's name as a string.")
