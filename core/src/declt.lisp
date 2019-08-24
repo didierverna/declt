@@ -577,7 +577,8 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
   (unless taglinep
     (setq tagline (or (system-long-name system)
 		      (component-description system))))
-  (when (and tagline (zerop (length tagline)))
+  ;; The tagline needs needs to fit as a subtitle, so it must be short.
+  (when (and tagline (or (zerop (length tagline)) (find #\Newline tagline)))
     (setq tagline nil))
   (when (and tagline (char= (aref tagline (1- (length tagline))) #\.))
     (setq tagline (subseq tagline 0 (1- (length tagline)))))
