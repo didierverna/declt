@@ -172,7 +172,7 @@ Optionally PREFIX the title."
 	     (let ((system-base-name (escape (system-base-name component))))
 	       (format t "@ref{go to the ~A file, , @t{~(~A}~)} (file)~%"
 		 (escape-anchor system-base-name)
-		 (escape system-base-name)))))
+		 (escape-label system-base-name)))))
 	 (when (context-hyperlinksp context)
 	   (let ((system-source-directory
 		   (escape (system-source-directory component))))

@@ -65,6 +65,9 @@
   (:documentation "Return ITEM's anchor name.")
   (:method :around (item)
     "Surround ITEM's anchor name with \"go to the [...] <type>\"."
+    ;; #### NOTE: currently, our type names do not need to be escaped because
+    ;; we know they are safe. If this ever changes, we will need to wrap the
+    ;; TYPE-NAME call into ESCAPE-ANCHOR.
     (format nil "go to the ~A ~A" (call-next-method) (type-name item))))
 
 (defgeneric index (item) (:documentation "Render ITEM's indexing command."))

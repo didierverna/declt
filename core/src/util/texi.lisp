@@ -120,7 +120,7 @@ Elements are the form (CHAR . ALT) where CHAR is the fragile (anchor)
 character and ALT is an alternative Unicode character.")
 
 (defun escape-anchor (object)
-  "When OBJECT, escape its name for use as a Texinfo anchor.
+  "When OBJECT, escape its name for use as a Texinfo anchor name.
 In addition to regular escaping, periods, commas, colons, and parenthesis are
 replaced with alternative Unicode characters."
   (when object
@@ -131,6 +131,21 @@ replaced with alternative Unicode characters."
 			   :collect (string (cdr fragile))
 			 :else
 			   :collect (string char))))))
+
+;; #### NOTE: Anchor labels have less restrictions than anchor names, but this
+;; is not well documented. Dots seem to be allowed which is a relief.
+(defun escape-label (object)
+  "When OBJECT, escape its name for use as a Texinfo anchor label.
+In addition to regular escaping, colons are replaced with alternative Unicode
+  characters."
+  (when object
+    (escape
+     (apply #'concatenate 'string
+	    (loop :for char :across (name object)
+		  :if (member char '(#\:))
+		    :collect (string (cdr (assoc char *fragile-characters*)))
+		  :else
+		    :collect (string char))))))
 
 (defun first-word-length (string)
   "Return the length of the first word in STRING.
@@ -197,12 +212,7 @@ LABEL is rendered in teletype.
 Rendering is done on *standard-output*."
   ;; #### FIXME: handle case conversion somewhere else.
   (format t "@ref{~A, , @t{~(~A}~)}"
-    (escape-anchor anchor)
-    ;; #### NOTE: in principle, LABEL should be escaped as an anchor as well,
-    ;; but some restrictions do not apply (for instance, dots seem to be
-    ;; allowed which is a relief). We just need to make sure that colons will
-    ;; never be used in a label.
-    (escape label)))
+    (escape-anchor anchor) (escape-label label)))
 
 (defmacro @tableitem (title &body body)
   "Execute BODY within a table @item TITLE.
