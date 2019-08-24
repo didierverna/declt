@@ -596,7 +596,9 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
 	  ((consp (system-maintainer system))
 	   (setq contact (append (system-maintainer system) contact))))
     (unless contact (setq contact (list "John Doe"))))
-  (setq contact (remove-duplicates contact :from-end t :test #'string=))
+  (setq contact
+	(remove-if (lambda (string) (zerop (length string)))
+		   (remove-duplicates contact :from-end t :test #'string=)))
   (multiple-value-bind (names emails) (|parse-contact(s)| contact)
     (setq contact-names names
 	  contact-emails emails))
