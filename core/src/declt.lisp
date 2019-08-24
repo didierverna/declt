@@ -195,10 +195,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 %% U+2024 (One Dot Leader) replaces periods.
 \\DeclareUnicodeCharacter{2024}{.}
 
-%% U+201A (Single Low-9 Quotation Mark) replaces commas, but it seems to be
-%% already declared in PDFTeX, so we can't change it back.
-%% \\DeclareUnicodeCharacter{201A}{,}
-
 %% U+2236 (Ratio) replaces colons.
 \\DeclareUnicodeCharacter{2236}{:}
 
@@ -213,6 +209,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 
 %% U+2216 (Set Minus) replaces backslashes.
 \\DeclareUnicodeCharacter{2216}{\\char\"5C}
+
+%% The following ones are already defined in texinfo.tex so we have nothing
+%% more to do:
+%% U+201A (Single Low-9 Quotation Mark) replaces commas.
+%% U+2205 (Empty Set) replaces empty symbol names.
+
 @end tex~4%")
 
   (format t "~
