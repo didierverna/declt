@@ -69,11 +69,11 @@
     (string &aux (pos-< (position #\< string :test #'char-equal))
 		 (pos-> (position #\> string :test #'char-equal)))
   "Parse STRING as \"NAME <EMAIL>\".
-Return NAME and EMAIL as two values."
+Return NAME and EMAIL, as two potentially NIL values."
   (if (and pos-< pos-> (< pos-< pos->))
-    (values (if (zerop pos-<) "" (subseq string 0 (1- pos-<)))
+    (values (if (zerop pos-<) nil (subseq string 0 (1- pos-<)))
 	    (subseq string (1+ pos-<) pos->))
-    (values string "")))
+    (values string nil)))
 
 (defun |parse-contact(s)| (|contact(s)|)
   "Parse CONTACT(S) as either a contact string, or a list of such.

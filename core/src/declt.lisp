@@ -127,7 +127,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
       ;; list, but there may still be duplicates in the names, for instance if
       ;; somebody used his name several times, with a different email
       ;; address.
-      (remove-duplicates contact-names :from-end t :test #'string=))
+      (remove-duplicates (remove-if #'null contact-names)
+        :from-end t :test #'string=))
     (terpri))
 
   (format t "@c This file is part of ~A.~2%" library-name)
@@ -413,7 +414,8 @@ The ~A Reference Manual~@[, version ~A~].
 	;; contact list, but there may still be duplicates in the names, for
 	;; instance if somebody used his name several times, with a different
 	;; email address.
-	(remove-duplicates contact-names :from-end t :test #'string=))
+	(remove-duplicates (remove-if #'null contact-names)
+          :from-end t :test #'string=))
       (terpri))
     (format t "~
 Permission is granted to make and distribute verbatim copies of this
@@ -608,7 +610,7 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
   (when (and (= (length contact-names) 1)
 	     (not contactp)
 	     (null (car contact-emails))
-	     (system-mailto system))
+	     (one-liner-p (system-mailto system)))
     (setq contact-emails (list (system-mailto system))))
 
   (setq copyright-years
