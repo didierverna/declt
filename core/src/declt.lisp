@@ -503,6 +503,10 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
    (context-external-definitions context)
    (context-internal-definitions context)))
 
+(defun one-liner-p (string)
+  "Return T if STRING is non empty and does not span multiple lines."
+  (and string (not (or (zerop (length string)) (find #\Newline string)))))
+
 (defun declt (system-name
 	      &key (library-name (if (stringp system-name)
 				   system-name
@@ -579,14 +583,13 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
   (unless taglinep
     (setq tagline (or (system-long-name system)
 		      (component-description system))))
-  ;; The tagline needs needs to fit as a subtitle, so it must be short.
-  (when (and tagline (or (zerop (length tagline)) (find #\Newline tagline)))
+  (unless (one-liner-p tagline)
     (setq tagline nil))
   (when (and tagline (char= (aref tagline (1- (length tagline))) #\.))
     (setq tagline (subseq tagline 0 (1- (length tagline)))))
   (unless versionp
     (setq version (component-version system)))
-  (when (and version (zerop (length version)))
+  (unless (one-liner-p version)
     (setq version nil))
   (unless contact
     (setq contact (system-author system))
@@ -597,8 +600,8 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
 	   (setq contact (append (system-maintainer system) contact))))
     (unless contact (setq contact (list "John Doe"))))
   (setq contact
-	(remove-if (lambda (string) (zerop (length string)))
-		   (remove-duplicates contact :from-end t :test #'string=)))
+	(remove-if-not #'one-liner-p
+		       (remove-duplicates contact :from-end t :test #'string=)))
   (multiple-value-bind (names emails) (|parse-contact(s)| contact)
     (setq contact-names names
 	  contact-emails emails))
@@ -614,6 +617,8 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
 		(get-decoded-time)
 	      (declare (ignore second minute hour date month))
 	      (format nil "~A" year))))
+  (unless (one-liner-p copyright-years)
+    (setq copyright-years nil))
   (when license
     (setq license (assoc license *licenses*))
     (unless license
