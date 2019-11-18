@@ -618,6 +618,7 @@ that are still worth knowing.
 * SBCL Only::                   Declt is not portable yet
 * Foreign Definitions::         Not belonging to the system being documented
 * Method Combinations::         Please behave
+* Anchor Names::                Some characters are problematic
 @end menu
 
 @node SBCL Only, Foreign Definitions, Caveats, Caveats
@@ -669,7 +670,7 @@ be documented is still open for discussion. See the @file{TODO} file in
 the distribution for more information.
 
 
-@node Method Combinations,  , Foreign Definitions, Caveats
+@node Method Combinations, Anchor Names, Foreign Definitions, Caveats
 @subsection Method Combinations
 
 @cindex Method Combinations
@@ -687,6 +688,22 @@ for more explanations.
 @declt{} assumes however that you have some sanity and only define
 method combinations once per name. They are documented as top level
 items and generic functions using them provide cross-references.
+
+
+@node Anchor Names,  , Method Combinations, Caveats
+@subsection Anchor Names
+
+Because of the Texinfo anchor syntax, some characters are very
+problematic (or even completely prohibited) in anchor names. In order to
+provide robust anchors, @declt{} transforms those characters into
+Unicode alternatives, resembling the original ones, but not quite the
+same. This is normally not a problem, but you may get bitten by this if
+you ever happen to attempt a copy/paste operation from an Info anchor or
+an HTML hyperlink (PDF links are fine): while the link may look like the
+original Lisp symbol, some characters will actually be different. More
+specifically, dots, commas, colons, parentheses, and backslashes will be
+replaced by close Unicode symbols. Additionally, the ampersand is turned
+upside down, so this one will be noticeable@dots{}
 
 
 
