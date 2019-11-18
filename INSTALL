@@ -3,8 +3,10 @@
 **************
 
 *Note Supported Platforms::, for information on portability or
-requirements.  See Declt’s homepage for tarballs, Git repository and
-online documentation.  Declt is also available via Quicklisp.
+requirements.  See Declt’s homepage
+(http://www.lrde.epita.fr/~didier/software/lisp/typesetting.php#declt)
+for tarballs, Git repository and online documentation.  Declt is also
+available via Quicklisp (http://www.quicklisp.org).
 
    In order to install and load the bare Lisp library, unpack it
 somewhere in the ASDF 3 source registry and type this at the REPL:
@@ -65,8 +67,8 @@ specific options with the following function.
      ‘t’.  However, note that for this to work, the Slime variable
      ‘slime-enable-evaluate-in-emacs’ must also be set to ‘t’ in your
      (X)Emacs session.  If you’re interested to know how this process
-     works, I have described it in the following blog entry:
-     <http://www.didierverna.net/blog/index.php?post/2011/07/20/One-more-indentation-hack>.
+     works, I have described it in this blog entry
+     (http://www.didierverna.net/blog/index.php?post/2011/07/20/One-more-indentation-hack).
 
 
 Appendix A Supported Platforms
