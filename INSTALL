@@ -62,11 +62,11 @@ specific options with the following function.
      This option is only useful if you use Slime, and mostly if you plan
      on hacking Declt itself.  The library provides indentation
      information for some of its functions directly embedded in the
-     code.  This information can be automatically transmitted to
-     (X)Emacs when the ASDF system is loaded if you set this option to
-     ‘t’.  However, note that for this to work, the Slime variable
+     code.  This information can be automatically transmitted to Emacs
+     when the ASDF system is loaded if you set this option to ‘t’.
+     However, note that for this to work, the Slime variable
      ‘slime-enable-evaluate-in-emacs’ must also be set to ‘t’ in your
-     (X)Emacs session.  If you’re interested to know how this process
+     Emacs session.  If you’re interested to know how this process
      works, I have described it in this blog entry
      (http://www.didierverna.net/blog/index.php?post/2011/07/20/One-more-indentation-hack).
 
