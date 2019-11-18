@@ -727,12 +727,12 @@ Currently, the following options are provided.
 This option is only useful if you use Slime, and mostly if you plan on
 hacking @declt{} itself. The library provides indentation information
 for some of its functions directly embedded in the code. This
-information can be automatically transmitted to (X)Emacs when the ASDF
+information can be automatically transmitted to Emacs when the ASDF
 system is loaded if you set this option to @code{t}. However, note that
 for this to work, the Slime variable
 @code{slime-enable-evaluate-in-emacs} must also be set to @code{t} in
-your (X)Emacs session. If you're interested to know how this process
-works, I have described it in this
+your Emacs session. If you're interested to know how this process works,
+I have described it in this
 @url{http://www.didierverna.net/blog/index.php?post/2011/07/20/One-more-indentation-hack,blog
 entry}.
 @end table
