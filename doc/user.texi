@@ -398,6 +398,7 @@ Generate a reference manual in Texinfo format for ASDF @var{SYSTEM-NAME}.
 @menu
 * Customization::               Tweaking the generated output
 * Coding Style::                Another way to influence the output
+* Pretty Printing::             Things are not what they seem
 * Caveats::                     Current limitations
 @end menu
 
@@ -432,16 +433,17 @@ just @t{net.didierverna.declt}.
 @item :tagline
 @fkindex{declt,tagline}
 A tagline for the library, use in the reference manual subtitle. It
-defaults to the system's long name or description, but see @ref{Taglines}.
+defaults to the system's long name or description (one-liners only), but
+see @ref{Taglines}.
 @item :version
 @fkindex{declt,version}
 The library's version, used in the reference manual subtitle and at some
-other places. It defaults to the system's version.
+other places. It defaults to the system's version (one-liner only).
 @item :contact
 @fkindex{declt,contact}
-The contact(s) for the library. The default is extracted from the
-system definition (the @code{maintainer} and @code{author} slots,
-possibly also the @code{mailto} one). At least one contact is needed
+The contact(s) for the library. The default is extracted from the system
+definition (the @code{maintainer} and @code{author} slots, possibly also
+the @code{mailto} one; onle-liners only). At least one contact is needed
 because it is typeset in various places (@eg{} on the title page). If
 the library doesn't provide that information, you need to provide it by
 hand, as an author string or a list of such. An author string contains a
@@ -521,7 +523,7 @@ version in your manuals, as an acknowledgment for using @declt{}.
 @c -------------
 @c Coding Style
 @c -------------
-@node Coding Style, Caveats, Customization, Usage
+@node Coding Style, Pretty Printing, Customization, Usage
 @section Coding Style
 
 Some elements of your own coding style will affect the reference manuals
@@ -531,7 +533,6 @@ will make the generated output look nicer.
 @menu
 * Taglines::                    Influence the subtitle
 * Docstrings::                  Influence the concatenation of definitions
-* Pretty Printing::             The heuristic in use
 @end menu
 
 @node Taglines, Docstrings, Coding Style, Coding Style
@@ -539,13 +540,13 @@ will make the generated output look nicer.
 
 @fkindex{declt,tagline}
 Unless you provide it with an explicit @code{:tagline} argument,
-@code{declt} uses the system's long name or description to construct a
-subtitle. Consequently, it is advisable to use a single (short) line of
-text for these slots. The system's long name should typically be the
-expansion of the system's name, if that's an acronym, or be left to
-@nil{}.
+@code{declt} uses the system's long name or description (provided they
+are one-liners)to construct a subtitle. Consequently, it is advisable to
+use a single (short) line of text for these slots. The system's long
+name should typically be the expansion of the system's name, if that's
+an acronym, or be left to @nil{}.
 
-@node Docstrings, Pretty Printing, Taglines, Coding Style
+@node Docstrings,  , Taglines, Coding Style
 @subsection Docstrings
 
 @declt{} tries to make the generated output look nicer in various
@@ -571,8 +572,12 @@ concatenation from happening. One thing I like to do is to provide the
 ``Access the value of @dots{}''. This way, definitions can both provide
 a docstring and be concatenated together.
 
-@node Pretty Printing,  , Docstrings, Coding Style
-@subsection Pretty Printing
+
+@c ---------------
+@c Pretty Printing
+@c ---------------
+@node Pretty Printing, Caveats, Coding Style, Usage
+@section Pretty Printing
 
 @findex declt
 @fkindex{declt,introduction}
@@ -581,6 +586,13 @@ All text coming from either @cl{} or one of @code{declt}'s
 initialization arguments (@code{:introduction} and @code{:conclusion}
 excepted) is properly escaped for the Texinfo format, so you don't need
 to worry about that.
+
+In non-verbatim contexts, @declt{} attempts to pretty-print symbols the
+names of which would otherwise be problematic. In particular, the empty
+symbol (@t{||}) is denoted as the math empty set, and blank characters
+(spaces, tabs, and newlines), are replaced by more explicit Unicode
+symbols. Note that this means that even for Info output, a Unicode
+reader is required.
 
 @declt{} also attempts to do some pretty printing on things like
 docstrings, system long description @etc{}. Currently, there's a simple
@@ -595,7 +607,7 @@ will likely be made available as well.
 @c -------
 @c Caveats
 @c -------
-@node Caveats,  , Coding Style, Usage
+@node Caveats,  , Pretty Printing, Usage
 @section Caveats
 
 @declt{} currently has two main limitations that you need to understand
