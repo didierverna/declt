@@ -867,7 +867,8 @@ Now, go my friend. Go document the whole Lisp world!
 @declt{} is an ASDF 3 library. It currently works with SBCL only. Other
 Lisp implementations are not currently supported, as @declt{} relies on
 SBCL's @t{sb-introspect} contrib. The Texinfo code that @declt{}
-generates requires Makeinfo 6.7.
+generates requires Makeinfo 6.7, and contains extended Unicode
+characters (so even for reading Info, Unicode support is necessary).
 
 
 
