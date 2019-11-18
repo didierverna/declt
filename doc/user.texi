@@ -578,6 +578,7 @@ a docstring and be concatenated together.
 @c ---------------
 @node Pretty Printing, Caveats, Coding Style, Usage
 @section Pretty Printing
+@cindex Pretty Printing
 
 @findex declt
 @fkindex{declt,introduction}
@@ -587,6 +588,7 @@ initialization arguments (@code{:introduction} and @code{:conclusion}
 excepted) is properly escaped for the Texinfo format, so you don't need
 to worry about that.
 
+@cindex Pretty Printing, blanks
 In non-verbatim contexts, @declt{} attempts to pretty-print symbols the
 names of which would otherwise be problematic. In particular, the empty
 symbol (@t{||}) is denoted as the math empty set, and blank characters
@@ -594,6 +596,7 @@ symbol (@t{||}) is denoted as the math empty set, and blank characters
 symbols. Note that this means that even for Info output, a Unicode
 reader is required.
 
+@cindex Pretty Printing, docstrings
 @declt{} also attempts to do some pretty printing on things like
 docstrings, system long description @etc{}. Currently, there's a simple
 heuristic that tries to detect short lines that should probably stand on
@@ -692,6 +695,7 @@ items and generic functions using them provide cross-references.
 
 @node Anchor Names,  , Method Combinations, Caveats
 @subsection Anchor Names
+@cindex Anchor Names
 
 Because of the Texinfo anchor syntax, some characters are very
 problematic (or even completely prohibited) in anchor names. In order to
