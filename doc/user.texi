@@ -931,10 +931,11 @@ The following people have contributed bug reports or fixes, suggestions,
 compiler support or any other kind of help. You have my gratitude!
 
 @multitable @columnfractions .99
-@item BR. Fenn Pocock@*
-@item Sabra Crolleton@*
-@item Robert Goldman@*
-@item Symbolics@*
+@item BR. Fenn Pocock
+@item Sabra Crolleton
+@item Robert Goldman
+@item ``Symbolics''
+@item Gavin Smith
 @end multitable
 
 
