@@ -1,6 +1,6 @@
 ;;; setup.lisp --- Declt setup
 
-;; Copyright (C) 2015, 2017 Didier Verna
+;; Copyright (C) 2015, 2017, 2019 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -43,19 +43,19 @@
 ;; Versioning
 ;; ----------
 
-(defparameter *release-major-level* 2
+(defparameter *release-major-level* 3
   "The major level of this release.")
 
-(defparameter *release-minor-level* 4
+(defparameter *release-minor-level* 0
   "The minor level of this release.")
 
 (defparameter *release-status* :patchlevel
   "The status of this release.")
 
-(defparameter *release-status-level* 1
+(defparameter *release-status-level* 0
   "The status level of this release.")
 
-(defparameter *release-name* "Will Decker"
+(defparameter *release-name* "Montgomery Scott"
   "The name of this release.
 The general naming theme for Declt is \"Star Trek characters\".")
 

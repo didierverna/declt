@@ -1,2 +1,2 @@
-LONG_VERSION  := 2.4 patchlevel 1 "Will Decker"
-SHORT_VERSION := 2.4.1
+LONG_VERSION  := 3.0 "Montgomery Scott"
+SHORT_VERSION := 3.0
