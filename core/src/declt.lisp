@@ -128,7 +128,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
       ;; somebody used his name several times, with a different email
       ;; address.
       (remove-duplicates (remove-if #'null contact-names)
-        :from-end t :test #'string=))
+	:from-end t :test #'string=))
     (terpri))
 
   (format t "@c This file is part of ~A.~2%" library-name)
@@ -415,7 +415,7 @@ The ~A Reference Manual~@[, version ~A~].
 	;; instance if somebody used his name several times, with a different
 	;; email address.
 	(remove-duplicates (remove-if #'null contact-names)
-          :from-end t :test #'string=))
+	  :from-end t :test #'string=))
       (terpri))
     (format t "~
 Permission is granted to make and distribute verbatim copies of this
