@@ -1108,6 +1108,7 @@ Currently, this means resolving:
   (format nil "(SETF ~A)" (name (setf-expander-definition-symbol expander))))
 
 
+
 ;; ==========================================================================
 ;; Item Protocols
 ;; ==========================================================================
@@ -1198,9 +1199,9 @@ Currently, this means resolving:
   (definition-source-by-name type :type))
 
 
-;; ---------------
-;; Source protocol
-;; ---------------
+;; ------------------
+;; Docstring protocol
+;; ------------------
 
 (defmethod docstring ((constant constant-definition))
   "Return CONSTANT's docstring."
