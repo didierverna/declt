@@ -1158,9 +1158,9 @@ Currently, this means resolving:
   (definition-source-by-name type :type))
 
 
-;; ---------------
-;; Source protocol
-;; ---------------
+;; ------------------
+;; Docstring protocol
+;; ------------------
 
 (defmethod docstring ((constant constant-definition))
   "Return CONSTANT's docstring."
