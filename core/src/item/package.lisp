@@ -107,7 +107,7 @@
    "Return the list of definitions from DEFINITION that belong to PACKAGE.")
   (:method (definition package)
     "Default method for definitions not containing sub-definitions."
-    (when (eq (symbol-package (definition-symbol definition)) package)
+    (when (eq (definition-package definition) package)
       (list definition)))
   (:method ((macro macro-definition) package)
     "Handle MACRO and its setf expander."

@@ -48,7 +48,7 @@ The documentation core includes all common definition attributes:
 
 Each element is rendered as a table item."
   (@tableitem "Package"
-    (reference (symbol-package (definition-symbol definition))))
+    (reference (definition-package definition)))
   (render-source definition context))
 
 (defmacro render-varoid
