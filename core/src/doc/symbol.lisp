@@ -1,6 +1,6 @@
 ;;; symbol.lisp --- Symbol based documentation
 
-;; Copyright (C) 2010-2013, 2015-2017 Didier Verna
+;; Copyright (C) 2010-2013, 2015-2017, 2020 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
