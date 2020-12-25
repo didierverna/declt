@@ -1,6 +1,6 @@
 ;;; asdf.lisp --- ASDF Items
 
-;; Copyright (C) 2010-2013, 2015-2017 Didier Verna
+;; Copyright (C) 2010-2013, 2015-2017, 2020 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -30,20 +30,6 @@
 
 
 ;; ==========================================================================
-;; Components
-;; ==========================================================================
-
-;; -------------------
-;; Rendering protocols
-;; -------------------
-
-(defmethod name ((component asdf:component))
-  "Return COMPONENT's name."
-  (reveal (component-name component)))
-
-
-
-;; ==========================================================================
 ;; Files
 ;; ==========================================================================
 
@@ -51,25 +37,9 @@
 ;; Item protocols
 ;; -------------------
 
-;; Type name protocol
-
 (defmethod type-name ((source-file asdf:source-file))
   "Return \"file\""
   "file")
-
-
-;; -------------------
-;; Rendering protocols
-;; -------------------
-
-;; Name protocol
-
-(defmethod name ((source-file asdf:source-file)
-		 &aux (name (component-name source-file))
-		      (extension (asdf:file-type source-file)))
-  "Return SOURCE-FILE's name, possibly adding its extension."
-  (when extension (setq name (concatenate 'string name "." extension)))
-  (reveal name))
 
 
 ;; ------------------------------------
@@ -141,8 +111,6 @@
 ;; Item protocols
 ;; -------------------
 
-;; Type name protocol
-
 (defmethod type-name ((module asdf:module))
   "Return \"module\""
   "module")
@@ -156,8 +124,6 @@
 ;; -------------------
 ;; Item protocols
 ;; -------------------
-
-;; Type name protocol
 
 (defmethod type-name ((system asdf:system))
   "Return \"system\""

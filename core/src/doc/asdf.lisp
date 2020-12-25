@@ -65,9 +65,19 @@ extension at the end.")
     virtual-path))
 
 
+
 ;; ==========================================================================
 ;; Components
 ;; ==========================================================================
+
+;; -------------------
+;; Rendering protocols
+;; -------------------
+
+(defmethod name ((component asdf:component))
+  "Return COMPONENT's name."
+  (reveal (component-name component)))
+
 
 ;; -----------------------
 ;; Documentation protocols
@@ -188,6 +198,18 @@ Optionally PREFIX the title."
 ;; ==========================================================================
 ;; Files
 ;; ==========================================================================
+
+;; -------------------
+;; Rendering protocols
+;; -------------------
+
+(defmethod name ((source-file asdf:source-file)
+		 &aux (name (component-name source-file))
+		      (extension (asdf:file-type source-file)))
+  "Return SOURCE-FILE's name, possibly adding its extension."
+  (when extension (setq name (concatenate 'string name "." extension)))
+  (reveal name))
+
 
 ;; -----------------------
 ;; Documentation protocols
