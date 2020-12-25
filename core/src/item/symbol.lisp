@@ -100,10 +100,6 @@ documented."
   "Return DEFINITION's symbol home package."
   (symbol-package (definition-symbol definition)))
 
-(defun definition-package-name (definition)
-  "Return DEFINITION's symbol home package name."
-  (name (definition-package definition)))
-
 
 (defstruct (constant-definition (:include definition))
   "Structure for constant definitions.")
@@ -1070,42 +1066,6 @@ Currently, this means resolving:
     (finalize pool1)
     (finalize pool2)))
 
-
-
-;; ==========================================================================
-;; Rendering protocols
-;; ==========================================================================
-
-(defmethod name ((definition definition))
-  "Return DEFINITION's symbol name."
-  (name (definition-symbol definition)))
-
-;; #### NOTE: all of these methods are in fact equivalent. That's the drawback
-;; of using structures instead of classes, which limits the inheritance
-;; expressiveness (otherwise I could have used a writer mixin or something).
-
-;; #### NOTE: spaces in symbol names are "revealed", but not the ones below
-;; (between SETF and the symbol) because that would look rather weird in the
-;; output. Consequently, Declt must expect to get names with unescaped
-;; spaces. @DEFFN, @DEFFNX, AND @DEFTP take care of protecting their NAME
-;; argument with braces because of that.
-(defmethod name ((writer writer-definition))
-  "Return WRITER's name, that is (setf <name>)."
-  (format nil "(SETF ~A)" (name (writer-definition-symbol writer))))
-
-(defmethod name ((writer-method writer-method-definition))
-  "Return WRITER-METHOD's name, that is (setf <name>)."
-  (format nil "(SETF ~A)"
-    (name (writer-method-definition-symbol writer-method))))
-
-(defmethod name ((generic-writer generic-writer-definition))
-  "Return GENERIC-WRITER's name, that is (setf <name>)."
-  (format nil "(SETF ~A)"
-    (name (generic-writer-definition-symbol generic-writer))))
-
-(defmethod name ((expander setf-expander-definition))
-  "Return setf EXPANDER's name, that is (setf <name>)."
-  (format nil "(SETF ~A)" (name (setf-expander-definition-symbol expander))))
 
 
 ;; ==========================================================================
