@@ -1,6 +1,6 @@
 ;;; package.lisp --- Package items
 
-;; Copyright (C) 2010-2013, 2017 Didier Verna
+;; Copyright (C) 2010-2013, 2017, 2020 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -47,16 +47,6 @@
     (when (and (not (member symbol external-symbols))
 	       (eq (symbol-package symbol) package))
       (push symbol internal-symbols))))
-
-
-
-;; ==========================================================================
-;; Rendering Protocols
-;; ==========================================================================
-
-(defmethod name ((package package))
-  "Return PACKAGE's name."
-  (reveal (package-name package)))
 
 
 

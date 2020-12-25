@@ -1,6 +1,6 @@
 ;;; package.lisp --- Package documentation
 
-;; Copyright (C) 2010-2013, 2015-2017 Didier Verna
+;; Copyright (C) 2010-2013, 2015-2017, 2020 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -27,6 +27,16 @@
 
 (in-package :net.didierverna.declt)
 (in-readtable :net.didierverna.declt)
+
+
+;; ==========================================================================
+;; Rendering Protocols
+;; ==========================================================================
+
+(defmethod name ((package package))
+  "Return PACKAGE's name."
+  (reveal (package-name package)))
+
 
 
 ;; ==========================================================================
