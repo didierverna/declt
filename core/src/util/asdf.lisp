@@ -1,6 +1,6 @@
 ;;; asdf.lisp --- ASDF Utilities
 
-;; Copyright (C) 2010, 2011, 2013, 2016-2017 Didier Verna
+;; Copyright (C) 2010, 2011, 2013, 2016-2017, 2020 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -67,6 +67,11 @@
 (defun lisp-components (module)
   "Return the list of all Lisp source file components from ASDF MODULE."
   (components module 'asdf:cl-source-file))
+
+(defun defsystem-dependencies (system)
+  "Return ASDF SYSTEM's defsystem dependencies."
+  (when (slot-boundp system 'asdf::defsystem-depends-on)
+    (asdf::system-defsystem-depends-on system)))
 
 (defun system-dependencies (system)
   "Return all SYSTEM dependencies.

@@ -1,6 +1,6 @@
 ;;; misc.lisp --- Miscellaneous utilities
 
-;; Copyright (C) 2010, 2011, 2013, 2015-2017, 2019 Didier Verna
+;; Copyright (C) 2010, 2011, 2013, 2015-2017, 2019, 2020 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -27,17 +27,6 @@
 
 (in-package :net.didierverna.declt)
 (in-readtable :net.didierverna.declt)
-
-
-;; ==========================================================================
-;; slot-unbound Proof Accessors
-;; ==========================================================================
-
-(defun defsystem-dependencies (system)
-  "Return ASDF SYSTEM's defsystem dependencies."
-  (when (slot-boundp system 'asdf::defsystem-depends-on)
-    (asdf::system-defsystem-depends-on system)))
-
 
 
 ;; ==========================================================================
