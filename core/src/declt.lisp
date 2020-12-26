@@ -478,15 +478,6 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 @c ====================================================================
 @contents~%"))
 
-(defun add-packages (context)
-  "Add all package definitions to CONTEXT."
-  (setf (context-packages context)
-	;; #### NOTE: several subsystems may share the same packages (because
-	;; they would share files defining them) so we need to filter
-	;; potential duplicates out.
-	(remove-duplicates
-	 (mapcan #'system-packages (context-systems context)))))
-
 (defun add-external-definitions (context)
   "Add all external definitions to CONTEXT."
   (dolist (symbol (mapcan #'system-external-symbols (context-systems context)))
@@ -504,6 +495,23 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
   (finalize-definitions
    (context-external-definitions context)
    (context-internal-definitions context)))
+
+(defun add-packages (context)
+  "Add all package definitions to CONTEXT."
+  (setf (context-packages context)
+	;; #### NOTE: several subsystems may share the same packages (because
+	;; they would share files defining them) so we need to filter
+	;; potential duplicates out.
+	(remove-duplicates
+	 (mapcan #'system-packages (context-systems context)))))
+
+(defun add-systems (context system)
+  "Add all system definitions to CONTEXT.
+This includes SYSTEM and its subsystems."
+  (setf (context-systems context)
+	(cons system
+	      (remove-duplicates
+	       (subsystems system (system-directory system))))))
 
 (defun one-liner-p (string)
   "Return T if STRING is non empty and does not span multiple lines."
@@ -532,7 +540,8 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 
 	      &aux (system (find-system system-name))
 		   (current-time-string (current-time-string))
-		   contact-names contact-emails)
+		   contact-names contact-emails
+		   context)
   "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
 SYSTEM-NAME is an ASDF system designator.
 
@@ -626,17 +635,18 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
     (unless license
       (error "License not found.")))
 
+  ;; Create the documentation context.
+  (setq context (make-context
+		 :external-definitions (make-definitions-pool)
+		 :internal-definitions (make-definitions-pool)
+		 :hyperlinksp hyperlinks))
+  (add-systems context system)
+  (add-packages context)
+  (add-definitions context)
+
   ;; Construct the nodes hierarchy.
   (with-standard-io-syntax
     (let ((*print-readably* nil)
-	  (context (make-context
-		    :systems
-		    (cons system
-			  (remove-duplicates
-			   (subsystems system (system-directory system))))
-		    :external-definitions (make-definitions-pool)
-		    :internal-definitions (make-definitions-pool)
-		    :hyperlinksp hyperlinks))
 	  (top-node
 	    (make-node :name "Top"
 		       :section-name (format nil "The ~A Reference Manual"
@@ -655,8 +665,6 @@ on ~A~]~]."
 					       (when (eq declt-notice :long)
 						 (escape current-time-string)))
 		       :after-menu-contents (when license "@insertcopying"))))
-      (add-packages context)
-      (add-definitions context)
       (when license
 	(add-child top-node
 	  (make-node :name "Copying"
