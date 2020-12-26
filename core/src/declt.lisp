@@ -518,8 +518,8 @@ This includes SYSTEM and its subsystems."
   (and string (not (or (zerop (length string)) (find #\Newline string)))))
 
 (defun load-system (system-name &aux (system (find-system system-name)))
-  "Load SYSTEM-NAME in a manner suitable to extract documentation.
-Return the corresponding system."
+  "Load ASDF SYSTEM-NAME in a manner suitable to extract documentation.
+Return the corresponding ASDF system."
   ;;  Because of some bootstrapping issues, ASDF and UIOP need some
   ;; special-casing.
   (cond ((string= (asdf:coerce-name system-name) "uiop")
