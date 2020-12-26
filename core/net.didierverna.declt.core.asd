@@ -52,8 +52,7 @@ net.didierverna.declt system."
 		:components ((:module "util"
 			      :serial t
 			      :components ((:file "misc")
-					   (:file "asdf")
-					   (:file "texi")))
+					   (:file "asdf")))
 			     (:module "item"
 			      :serial t
 			      :components ((:file "item")
@@ -62,7 +61,8 @@ net.didierverna.declt system."
 					   (:file "asdf")))
 			     (:module "doc"
 			      :serial t
-			      :components ((:file "doc")
+			      :components ((:file "texi")
+					   (:file "doc")
 					   (:file "symbol")
 					   (:file "package")
 					   (:file "asdf")))
