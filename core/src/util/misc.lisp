@@ -69,16 +69,40 @@
   "Return T if STRING is non empty and does not span multiple lines."
   (and string (not (or (zerop (length string)) (find #\Newline string)))))
 
+
+;; #### NOTE: the functions below are relatively robust, without using the
+;; whole regexp artillery.
+(defun validate-email
+    (string
+     &aux (string (string-trim '(#\Space #\Tab) string))
+	  (@-position (position #\@ string)))
+  "Check that STRING is of the form nonblank@nonblank, after trimming.
+Return that string, or issue a warning and return NIL."
+  (if (and @-position (> @-position 0) (< @-position (1- (length string))))
+    string
+    (warn "Invalid email address: ~A." string)))
+
 (defun parse-contact-string
-    (string &aux (pos-< (position #\< string :test #'char-equal))
-		 (pos-> (position #\> string :test #'char-equal)))
+    (string &aux (pos-< (position #\< string))
+		 (pos-> (position #\> string)))
   "Parse STRING as \"My Name <my@address>\".
-Both name and address are optional. Return name and address, as two
-potentially NIL values."
-  (if (and pos-< pos-> (< pos-< pos->))
-    (values (if (zerop pos-<) nil (subseq string 0 (1- pos-<)))
-	    (subseq string (1+ pos-<) pos->))
-    (values string nil)))
+Both name and address are optional. If only an address is provided, the angle
+brackets may be omitted. Return name and address, as two potentially NIL
+values."
+  (when (one-liner-p string)
+    (cond ((and pos-< pos-> (< pos-< pos->))
+	   (let ((name (if (zerop pos-<)
+			 ""
+			 (string-trim '(#\Space #\Tab)
+				      (subseq string 0 (1- pos-<))))))
+	     (when (zerop (length name))
+	       (setq name nil))
+	     (values name (validate-email (subseq string (1+ pos-<) pos->)))))
+	  ((position #\@ string)
+	   (values nil (validate-email string)))
+	  (t
+	   (setq string (string-trim '(#\Space #\Tab) string))
+	   (values (unless (zerop (length string)) string) nil)))))
 
 (defun |parse-contact(s)| (|contact(s)|)
   "Parse CONTACT(S) as either a contact string, or a list of such.
@@ -90,17 +114,15 @@ maintain correspondence between names and addresses: they are of the same
 length and may contain null elements, for contact strings lacking either
 one."
   (if (stringp |contact(s)|)
-    (when (one-liner-p |contact(s)|)
-      (multiple-value-bind (name email) (parse-contact-string |contact(s)|)
+    (multiple-value-bind (name email) (parse-contact-string |contact(s)|)
+      (when (or name email)
 	(values (list name) (list email))))
     (loop :for contact-string
-	    :in (remove-if-not #'one-liner-p
-			       (remove-duplicates |contact(s)|
-				 :from-end t :test #'string=))
+	    :in (remove-duplicates |contact(s)| :from-end t :test #'string=)
 	  :for (name email)
 	    := (multiple-value-list (parse-contact-string contact-string))
-	  :collect name :into names
-	  :collect email :into emails
+	  :when (or name email)
+	    :collect name :into names :and :collect email :into emails
 	  :finally (return (values names emails)))))
 
 ;;; misc.lisp ends here
