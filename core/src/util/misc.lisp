@@ -72,8 +72,9 @@
 (defun parse-contact-string
     (string &aux (pos-< (position #\< string :test #'char-equal))
 		 (pos-> (position #\> string :test #'char-equal)))
-  "Parse STRING as \"NAME <EMAIL>\".
-Return NAME and EMAIL, as two potentially NIL values."
+  "Parse STRING as \"My Name <my@address>\".
+Both name and address are optional. Return name and address, as two
+potentially NIL values."
   (if (and pos-< pos-> (< pos-< pos->))
     (values (if (zerop pos-<) nil (subseq string 0 (1- pos-<)))
 	    (subseq string (1+ pos-<) pos->))
@@ -81,11 +82,13 @@ Return NAME and EMAIL, as two potentially NIL values."
 
 (defun |parse-contact(s)| (|contact(s)|)
   "Parse CONTACT(S) as either a contact string, or a list of such.
-A contact string is of the form \"NAME <EMAIL>\", each part being optional.
+A contact string is of the form \"My Name <my@address>\", both name and
+address being optional.
 
-Return two values: a list of name(s) and a list of email(s). The two lists
-maintain correspondence between names and emails: they are of the same length
-and may contain null elements, for contact strings lacking either part."
+Return two values: a list of name(s) and a list of address(es). The two lists
+maintain correspondence between names and addresses: they are of the same
+length and may contain null elements, for contact strings lacking either
+one."
   (if (stringp |contact(s)|)
     (when (one-liner-p |contact(s)|)
       (multiple-value-bind (name email) (parse-contact-string |contact(s)|)
