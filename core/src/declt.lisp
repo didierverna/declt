@@ -535,19 +535,20 @@ SYSTEM-NAME is an ASDF system designator.
 The following keyword arguments are available.
 - LIBRARY-NAME: name of the library being documented. Defaults to the system
   name.
-- TAGLINE: small text to be used as the manual's subtitle. Defaults to the
-  system long name or description.
-- VERSION: version information. Defaults to the system version.
-- CONTACT: contact information. Defaults to the system maintainer(s) and
-  author(s), or \"John Doe\". Accepts an author string of the form
-  \"My Name[ <my@address>]\", or a list of such.
+- TAGLINE: small text to be used as the manual's subtitle, or NIL.
+  Defaults to the system long name or description.
+- VERSION: version information, or NIL. Defaults to the system version.
+- CONTACT: contact information, or NIL. Defaults to the system maintainer(s)
+  and author(s). Accepts an author string of the form
+  \"My Name <my@address>\" (both name and address being optional), or a list
+  of such.
 
 - COPYRIGHT-YEARS: copyright years information or NIL. Defaults to the current
   year.
 - LICENSE: license information. Defaults to NIL. Also accepts :mit, :boost,
   :bsd, :gpl, and :lgpl.
-- INTRODUCTION: introduction chapter contents or NIL. Defaults to NIL.
-- CONCLUSION: conclusion chapter contents or NIL. Defaults to NIL.
+- INTRODUCTION: introduction chapter contents. Defaults to NIL.
+- CONCLUSION: conclusion chapter contents. Defaults to NIL.
 
 - TEXI-NAME: Texinfo file basename sans extension. Defaults to the system
   name.
