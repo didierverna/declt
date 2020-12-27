@@ -1,6 +1,6 @@
 ;;; misc.lisp --- Miscellaneous utilities
 
-;; Copyright (C) 2010, 2011, 2013, 2015-2017, 2019 Didier Verna
+;; Copyright (C) 2010, 2011, 2013, 2015-2017, 2019, 2020 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -65,6 +65,10 @@
       year
       (- tz))))
 
+(defun one-liner-p (string)
+  "Return T if STRING is non empty and does not span multiple lines."
+  (and string (not (or (zerop (length string)) (find #\Newline string)))))
+
 (defun parse-contact-string
     (string &aux (pos-< (position #\< string :test #'char-equal))
 		 (pos-> (position #\> string :test #'char-equal)))
@@ -77,12 +81,19 @@ Return NAME and EMAIL, as two potentially NIL values."
 
 (defun |parse-contact(s)| (|contact(s)|)
   "Parse CONTACT(S) as either a contact string, or a list of such.
-Return a list of name(s) an email(s) as two values.
-See `PARSE-CONTACT-STRING' for more information."
+A contact string is of the form \"NAME <EMAIL>\", each part being optional.
+
+Return two values: a list of name(s) and a list of email(s). The two lists
+maintain correspondence between names and emails: they are of the same length
+and may contain null elements, for contact strings lacking either part."
   (if (stringp |contact(s)|)
+    (when (one-liner-p |contact(s)|)
       (multiple-value-bind (name email) (parse-contact-string |contact(s)|)
-	(values (list name) (list email)))
-    (loop :for contact-string :in |contact(s)|
+	(values (list name) (list email))))
+    (loop :for contact-string
+	    :in (remove-if-not #'one-liner-p
+			       (remove-duplicates |contact(s)|
+				 :from-end t :test #'string=))
 	  :for (name email)
 	    := (multiple-value-list (parse-contact-string contact-string))
 	  :collect name :into names

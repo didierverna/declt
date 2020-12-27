@@ -1,6 +1,6 @@
 ;;; declt.lisp --- Entry points
 
-;; Copyright (C) 2010-2013, 2015-2019 Didier Verna
+;; Copyright (C) 2010-2013, 2015-2020 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -505,10 +505,6 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
    (context-external-definitions context)
    (context-internal-definitions context)))
 
-(defun one-liner-p (string)
-  "Return T if STRING is non empty and does not span multiple lines."
-  (and string (not (or (zerop (length string)) (find #\Newline string)))))
-
 (defun declt (system-name
 	      &key (library-name (if (stringp system-name)
 				   system-name
@@ -593,17 +589,13 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
     (setq version (component-version system)))
   (unless (one-liner-p version)
     (setq version nil))
-  (unless contact
+  (unless contactp
     (setq contact (system-author system))
     (when (stringp contact) (setq contact (list contact)))
     (cond ((stringp (system-maintainer system))
 	   (push (system-maintainer system) contact))
 	  ((consp (system-maintainer system))
-	   (setq contact (append (system-maintainer system) contact))))
-    (unless contact (setq contact (list "John Doe"))))
-  (setq contact
-	(remove-if-not #'one-liner-p
-		       (remove-duplicates contact :from-end t :test #'string=)))
+	   (setq contact (append (system-maintainer system) contact)))))
   (multiple-value-bind (names emails) (|parse-contact(s)| contact)
     (setq contact-names names
 	  contact-emails emails))
