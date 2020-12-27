@@ -539,9 +539,8 @@ The following keyword arguments are available.
   Defaults to the system long name or description.
 - VERSION: version information, or NIL. Defaults to the system version.
 - CONTACT: contact information, or NIL. Defaults to the system maintainer(s)
-  and author(s). Accepts an author string of the form
-  \"My Name <my@address>\" (both name and address being optional), or a list
-  of such.
+  and author(s). Accepts a contact string, or a list of such. See
+  `parse-contact-string' for more information.
 
 - COPYRIGHT-YEARS: copyright years information or NIL. Defaults to the current
   year.
