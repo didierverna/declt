@@ -65,6 +65,12 @@
       year
       (- tz))))
 
+(defun non-empty-string-p (object)
+  "Return T if OBJECT is a non-empty string."
+  (and (stringp object) (not (zerop (length object)))))
+
+(deftype non-empty-string () '(satisfies non-empty-string-p))
+
 (defun one-liner-p (string)
   "Return T if STRING is non empty and does not span multiple lines."
   (and string (not (or (zerop (length string)) (find #\Newline string)))))

@@ -578,6 +578,7 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
 	 (asdf:load-system system-name)))
 
   ;; Next, post-process some parameters.
+  (check-type library-name non-empty-string)
   (unless taglinep
     (setq tagline (or (system-long-name system)
 		      (component-description system))))
