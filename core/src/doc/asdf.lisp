@@ -461,7 +461,7 @@ Modules are listed depth-first from the system components tree.")))))
       (|parse-contact(s)| (system-maintainer system))
     (when maintainers
       (@tableitem (format nil "Maintainer~P" (length maintainers))
-	;; #### FIXME: @* and map uglyness. I'm sure FORMAT can do all this.
+	;; #### FIXME: @* and map ugliness. I'm sure FORMAT can do all this.
 	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
 	  (escape (car maintainers)) (car emails) (escape (car emails)))
 	(mapc (lambda (maintainer email)
@@ -473,7 +473,7 @@ Modules are listed depth-first from the system components tree.")))))
       (|parse-contact(s)| (system-author system))
     (when authors
       (@tableitem (format nil "Author~P" (length authors))
-	;; #### FIXME: @* and map uglyness. I'm sure FORMAT can do all this.
+	;; #### FIXME: @* and map ugliness. I'm sure FORMAT can do all this.
 	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
 	  (escape (car authors)) (car emails) (escape (car emails)))
 	(mapc (lambda (author email)

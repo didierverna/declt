@@ -1,6 +1,6 @@
 ;;; declt.lisp --- Entry points
 
-;; Copyright (C) 2010-2013, 2015-2019 Didier Verna
+;; Copyright (C) 2010-2013, 2015-2020 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -513,10 +513,6 @@ This includes SYSTEM and its subsystems."
 	      (remove-duplicates
 	       (subsystems system (system-directory system))))))
 
-(defun one-liner-p (string)
-  "Return T if STRING is non empty and does not span multiple lines."
-  (and string (not (or (zerop (length string)) (find #\Newline string)))))
-
 (defun load-system (system-name &aux (system (find-system system-name)))
   "Load ASDF SYSTEM-NAME in a manner suitable to extract documentation.
 Return the corresponding ASDF system."
@@ -569,19 +565,19 @@ SYSTEM-NAME is an ASDF system designator.
 The following keyword arguments are available.
 - LIBRARY-NAME: name of the library being documented. Defaults to the system
   name.
-- TAGLINE: small text to be used as the manual's subtitle. Defaults to the
-  system long name or description.
-- VERSION: version information. Defaults to the system version.
-- CONTACT: contact information. Defaults to the system maintainer(s) and
-  author(s), or \"John Doe\". Accepts an author string of the form
-  \"My Name[ <my@address>]\", or a list of such.
+- TAGLINE: small text to be used as the manual's subtitle, or NIL.
+  Defaults to the system long name or description.
+- VERSION: version information, or NIL. Defaults to the system version.
+- CONTACT: contact information, or NIL. Defaults to the system maintainer(s)
+  and author(s). Accepts a contact string, or a list of such. See
+  `parse-contact-string' for more information.
 
 - COPYRIGHT-YEARS: copyright years information or NIL. Defaults to the current
   year.
 - LICENSE: license information. Defaults to NIL. Also accepts :mit, :boost,
   :bsd, :gpl, and :lgpl.
-- INTRODUCTION: introduction chapter contents or NIL. Defaults to NIL.
-- CONCLUSION: conclusion chapter contents or NIL. Defaults to NIL.
+- INTRODUCTION: introduction chapter contents. Defaults to NIL.
+- CONCLUSION: conclusion chapter contents. Defaults to NIL.
 
 - TEXI-NAME: Texinfo file basename sans extension. Defaults to the system
   name.
@@ -598,6 +594,7 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
   (setq system (load-system system-name))
 
   ;; Next, post-process some parameters.
+  (check-type library-name non-empty-string)
   (unless taglinep
     (setq tagline (or (system-long-name system)
 		      (component-description system))))
@@ -609,17 +606,13 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
     (setq version (component-version system)))
   (unless (one-liner-p version)
     (setq version nil))
-  (unless contact
+  (unless contactp
     (setq contact (system-author system))
     (when (stringp contact) (setq contact (list contact)))
     (cond ((stringp (system-maintainer system))
 	   (push (system-maintainer system) contact))
 	  ((consp (system-maintainer system))
-	   (setq contact (append (system-maintainer system) contact))))
-    (unless contact (setq contact (list "John Doe"))))
-  (setq contact
-	(remove-if-not #'one-liner-p
-		       (remove-duplicates contact :from-end t :test #'string=)))
+	   (setq contact (append (system-maintainer system) contact)))))
   (multiple-value-bind (names emails) (|parse-contact(s)| contact)
     (setq contact-names names
 	  contact-emails emails))
