@@ -113,28 +113,27 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 
-(defun render-header (library-name tagline version contact-names contact-emails
-		      copyright-years license
-		      texi-name info-name declt-notice
-		      current-time-string)
+(defun render-header
+    (context texi-name info-name declt-notice current-time-string)
   "Render the header of the Texinfo file."
   (format t "\\input texinfo~2%@c ~A.texi --- Reference manual~2%" texi-name)
 
-  (when copyright-years
+  (when (context-copyright-years context)
     (mapc (lambda (name)
-	    (format t "@c Copyright (C) ~A ~A~%" copyright-years name))
+	    (format t "@c Copyright (C) ~A ~A~%"
+	      (context-copyright-years context) name))
       ;; #### NOTE: we already removed the duplicates in the original contact
       ;; list, but there may still be duplicates in the names, for instance if
       ;; somebody used his name several times, with a different email
       ;; address.
-      (remove-duplicates (remove-if #'null contact-names)
+      (remove-duplicates (remove-if #'null (context-contact-names context))
 	:from-end t :test #'string=))
     (terpri))
 
-  (format t "@c This file is part of ~A.~2%" library-name)
+  (format t "@c This file is part of ~A.~2%" (context-library-name context))
 
-  (when license
-    (with-input-from-string (str (caddr license))
+  (when (context-license context)
+    (with-input-from-string (str (caddr (context-license context)))
       (loop :for line := (read-line str nil str)
 	    :until (eq line str)
 	    :do (format t "@c ~A~%" line))))
@@ -157,7 +156,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 @afourpaper
 @documentencoding UTF-8
 @c %**end of header~4%"
-    (escape info-name) (escape library-name))
+    (escape info-name) (escape (context-library-name context)))
 
   (format t "~
 @c ====================================================================
@@ -226,7 +225,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
 @documentdescription
 The ~A Reference Manual~@[, version ~A~].
 @end documentdescription~4%"
-    (escape library-name) (escape version))
+    (escape (context-library-name context))
+    (escape (context-version context)))
 
   (format t "~
 @c ====================================================================
@@ -396,9 +396,11 @@ The ~A Reference Manual~@[, version ~A~].
 @direntry
 * ~A Reference: (~A). The ~A Reference Manual.
 @end direntry~4%"
-    (escape library-name) (escape info-name) (escape library-name))
+    (escape (context-library-name context))
+    (escape info-name)
+    (escape (context-library-name context)))
 
-  (when license
+  (when (context-license context)
     (format t "~
 @c ====================================================================
 @c Copying
@@ -406,15 +408,16 @@ The ~A Reference Manual~@[, version ~A~].
 @copying
 @quotation~%")
 
-    (when copyright-years
+    (when (context-copyright-years context)
       (mapc (lambda (name)
 	      (format t "Copyright @copyright{} ~A ~A~%"
-		(escape copyright-years) (escape name)))
+		(escape (context-copyright-years context))
+		(escape name)))
 	;; #### NOTE: we already removed the duplicates in the original
 	;; contact list, but there may still be duplicates in the names, for
 	;; instance if somebody used his name several times, with a different
 	;; email address.
-	(remove-duplicates (remove-if #'null contact-names)
+	(remove-duplicates (remove-if #'null (context-contact-names context))
 	  :from-end t :test #'string=))
       (terpri))
     (format t "~
@@ -446,17 +449,19 @@ except that this permission notice may be translated as well.
 @titlepage
 @title The ~A Reference Manual
 ~A~%"
-    (escape library-name)
-    (if (or tagline version)
+    (escape (context-library-name context))
+    (if (or (context-tagline context) (context-version context))
 	(format nil "@subtitle ~@[~A~]~:[~;, ~]~@[version ~A~]~%"
-	  (escape tagline) (and tagline version) (escape version))
+	  (escape (context-tagline context))
+	  (and (context-tagline context) (context-version context))
+	  (escape (context-version context)))
 	""))
   (mapc (lambda (name email)
 	  (format t "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	    (escape name) email (escape email)))
-    contact-names contact-emails)
+    (context-contact-names context) (context-contact-emails context))
   (terpri)
-  (when (or declt-notice license)
+  (when (or declt-notice (context-license context))
     (format t "@page~%"))
 
   (when declt-notice
@@ -467,7 +472,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
     (escape (version declt-notice))
     (when (eq declt-notice :long) (escape current-time-string))))
 
-  (when license
+  (when (context-license context)
     (format t "@vskip 0pt plus 1filll~%@insertcopying~%"))
 
   (format t "@end titlepage~4%")
@@ -515,7 +520,8 @@ This includes SYSTEM and its subsystems."
 
 (defun load-system (system-name &aux (system (find-system system-name)))
   "Load ASDF SYSTEM-NAME in a manner suitable to extract documentation.
-Return the corresponding ASDF system."
+Return the corresponding ASDF system.
+SYSTEM-NAME is an ASDF system designator."
   ;;  Because of some bootstrapping issues, ASDF and UIOP need some
   ;; special-casing.
   (cond ((string= (asdf:coerce-name system-name) "uiop")
@@ -534,35 +540,27 @@ Return the corresponding ASDF system."
 	 (asdf:load-system system-name)))
   system)
 
-(defun declt (system-name
-	      &key (library-name (if (stringp system-name)
-				   system-name
-				   (string-downcase system-name)))
-		   (tagline nil taglinep)
-		   (version nil versionp)
-		   (contact nil contactp)
+(defun extract
+    (system-name
+     &key (library-name (if (stringp system-name)
+			  system-name
+			  (string-downcase system-name)))
+	  (tagline nil taglinep)
+	  (version nil versionp)
+	  (contact nil contactp)
+	  copyright-years
+	  license
+     &allow-other-keys ;; lazy calling from DECLT
+     &aux (system (load-system system-name))
+	  contact-names contact-emails
+	  (context (make-context
+		    :external-definitions (make-definitions-pool)
+		    :internal-definitions (make-definitions-pool))))
+  "Extract and return documentation information for ASDF SYSTEM-NAME.
+The documentation information is returned in a CONTEXT structure, which see.
 
-		   copyright-years
-		   license
-		   introduction
-		   conclusion
-
-		   (texi-name (if (stringp system-name)
-				system-name
-				(string-downcase system-name)))
-		   (texi-directory #p"./")
-		   (info-name texi-name)
-		   hyperlinks
-		   (declt-notice :long)
-
-	      &aux system
-		   (current-time-string (current-time-string))
-		   contact-names contact-emails
-		   context)
-  "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
-SYSTEM-NAME is an ASDF system designator.
-
-The following keyword arguments are available.
+SYSTEM-NAME is an ASDF system designator. The following keyword parameters
+allow to specify or override some bits of information.
 - LIBRARY-NAME: name of the library being documented. Defaults to the system
   name.
 - TAGLINE: small text to be used as the manual's subtitle, or NIL.
@@ -571,30 +569,12 @@ The following keyword arguments are available.
 - CONTACT: contact information, or NIL. Defaults to the system maintainer(s)
   and author(s). Accepts a contact string, or a list of such. See
   `parse-contact-string' for more information.
-
 - COPYRIGHT-YEARS: copyright years information or NIL. Defaults to the current
   year.
 - LICENSE: license information. Defaults to NIL. Also accepts :mit, :boost,
-  :bsd, :gpl, and :lgpl.
-- INTRODUCTION: introduction chapter contents. Defaults to NIL.
-- CONCLUSION: conclusion chapter contents. Defaults to NIL.
-
-- TEXI-NAME: Texinfo file basename sans extension. Defaults to the system
-  name.
-- TEXI-DIRECTORY: Texinfo file directory. Defaults to the current directory.
-- INFO-NAME: Info file basename sans extension. Defaults to TEXI-NAME.
-- HYPERLINKS: create hyperlinks to files or directories. Defaults to NIL.
-- DECLT-NOTICE: small credit paragraph to Declt, or NIL. Defaults to
-  :long. Also accepts :short.
-
-INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
-
-  ;; First load the target system. If this fails, there's no point in working
-  ;; hard on the rest.
-  (setq system (load-system system-name))
-
-  ;; Next, post-process some parameters.
+  :bsd, :gpl, and :lgpl."
   (check-type library-name non-empty-string)
+  (setf (context-library-name context) library-name)
   (unless taglinep
     (setq tagline (or (system-long-name system)
 		      (component-description system))))
@@ -602,10 +582,12 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
     (setq tagline nil))
   (when (and tagline (char= (aref tagline (1- (length tagline))) #\.))
     (setq tagline (subseq tagline 0 (1- (length tagline)))))
+  (setf (context-tagline context) tagline)
   (unless versionp
     (setq version (component-version system)))
   (unless (one-liner-p version)
     (setq version nil))
+  (setf (context-version context) version)
   (unless contactp
     (setq contact (system-author system))
     (when (stringp contact) (setq contact (list contact)))
@@ -621,7 +603,8 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
 	     (null (car contact-emails))
 	     (one-liner-p (system-mailto system)))
     (setq contact-emails (list (system-mailto system))))
-
+  (setf (context-contact-names context) contact-names)
+  (setf (context-contact-emails context) contact-emails)
   (setq copyright-years
 	(or copyright-years
 	    (multiple-value-bind (second minute hour date month year)
@@ -630,55 +613,98 @@ INTRODUCTION and CONCLUSION are currently expected to be in Texinfo format."
 	      (format nil "~A" year))))
   (unless (one-liner-p copyright-years)
     (setq copyright-years nil))
+  (setf (context-copyright-years context) copyright-years)
   (when license
     (setq license (assoc license *licenses*))
     (unless license
       (error "License not found.")))
+  (setf (context-license context) license)
 
-  ;; Create the documentation context.
-  (setq context (make-context
-		 :external-definitions (make-definitions-pool)
-		 :internal-definitions (make-definitions-pool)
-		 :hyperlinksp hyperlinks))
   (add-systems context system)
   (add-packages context)
   (add-definitions context)
+  context)
+
+(defun declt (system-name
+	      &rest keys
+	      &key library-name tagline version contact copyright-years
+		   license
+
+		   introduction conclusion
+
+		   (texi-name (if (stringp system-name)
+				system-name
+				(string-downcase system-name)))
+		   (texi-directory #p"./")
+		   (info-name texi-name)
+		   hyperlinks
+		   (declt-notice :long)
+
+	      &aux (current-time-string (current-time-string))
+		   (context (apply #'extract system-name keys)))
+  "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
+For a description of SYSTEM-NAME, LIBRARY-NAME, TAGLINE, VERSION, CONTACT,
+COPYRIGHT-YEARS, and LICENSE, see `extract'.
+
+The following keyword parameters are also available.
+
+- INTRODUCTION: introduction chapter contents in Texinfo format.
+  Defaults to NIL.
+- CONCLUSION: conclusion chapter contents in Texinfo format.
+  Defaults to NIL.
+
+- TEXI-NAME: Texinfo file basename sans extension. Defaults to the system
+  name.
+- TEXI-DIRECTORY: Texinfo file directory. Defaults to the current directory.
+- INFO-NAME: Info file basename sans extension. Defaults to TEXI-NAME.
+- HYPERLINKS: create hyperlinks to files or directories. Defaults to NIL.
+- DECLT-NOTICE: small credit paragraph to Declt, or NIL. Defaults to
+  :long. Also accepts :short."
+  (declare
+   (ignore library-name tagline version contact copyright-years license))
+
+  ;; #### FIXME: this shouldn't be part of the CONTEXT structure.
+  (setf (context-hyperlinksp context) hyperlinks)
 
   ;; Construct the nodes hierarchy.
   (with-standard-io-syntax
     (let ((*print-readably* nil)
 	  (top-node
 	    (make-node :name "Top"
-		       :section-name (format nil "The ~A Reference Manual"
-				       (escape library-name))
+		       :section-name
+		       (format nil "The ~A Reference Manual"
+			 (escape (context-library-name context)))
 		       :section-type :unnumbered
-		       :before-menu-contents (format nil "~
+		       :before-menu-contents
+		       (format nil "~
 
 This is the ~A Reference Manual~@[, version ~A~]~@[,
 generated automatically by Declt version ~A~@[
 on ~A~]~]."
-					       (escape library-name)
-					       (escape version)
-					       (when declt-notice
-						 (escape
-						  (version declt-notice)))
-					       (when (eq declt-notice :long)
-						 (escape current-time-string)))
-		       :after-menu-contents (when license "@insertcopying"))))
-      (when license
+			 (escape (context-library-name context))
+			 (escape (context-version context))
+			 (when declt-notice
+			   (escape
+			    (version declt-notice)))
+			 (when (eq declt-notice :long)
+			   (escape current-time-string)))
+		       :after-menu-contents
+		       (when (context-license context) "@insertcopying"))))
+      (when (context-license context)
 	(add-child top-node
 	  (make-node :name "Copying"
-		     :synopsis (cadr license)
+		     :synopsis (cadr (context-license context))
 		     :section-type :unnumbered
-		     :before-menu-contents (format nil "@quotation~@
-						    ~A~@
-						    @end quotation"
-					     (escape (caddr license))))))
+		     :before-menu-contents
+		     (format nil "@quotation~@
+				  ~A~@
+				  @end quotation"
+		       (escape (caddr (context-license context)))))))
       (when introduction
 	(add-child top-node
 	  (make-node :name "Introduction"
 		     :synopsis (format nil "What ~A is all about"
-				 (escape library-name))
+				 (escape (context-library-name context)))
 		     :before-menu-contents introduction)))
       (add-systems-node     top-node context)
       (add-modules-node     top-node context)
@@ -726,13 +752,10 @@ Concepts, functions, variables and data types")
 		       :if-exists :supersede
 		       :if-does-not-exist :create
 		       :external-format :utf8)
-	(render-header library-name tagline version contact-names contact-emails
-		       copyright-years license
-		       texi-name info-name declt-notice
+	(render-header context texi-name info-name declt-notice
 		       current-time-string)
 	(render-top-node top-node)
 	(format t "~%@bye~%~%@c ~A.texi ends here~%" texi-name))))
   (values))
-
 
 ;;; declt.lisp ends here

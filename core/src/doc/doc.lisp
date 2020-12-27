@@ -1,6 +1,6 @@
 ;;; doc.lisp --- Items documentation
 
-;; Copyright (C) 2010-2013, 2015-2017, 2019 Didier Verna
+;; Copyright (C) 2010-2013, 2015-2017, 2019, 2020 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -35,12 +35,18 @@
 
 (defstruct context
   "The documentation context structure."
+  library-name
+  tagline
+  version
+  contact-names
+  contact-emails
+  copyright-years
+  license
   systems
   packages
   external-definitions
   internal-definitions
   hyperlinksp)
-
 
 ;; This is used rather often so it is worth a shortcut
 (defun context-directory (context)
