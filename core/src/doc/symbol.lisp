@@ -81,8 +81,8 @@
   "Render references to a list of external DEFINITIONS."
   (render-references definitions "Exported Definitions"))
 
-(defun render-definition-core (definition context)
-  "Render DEFINITION's documentation core in CONTEXT.
+(defun render-definition-core (definition extract)
+  "Render DEFINITION's documentation core in EXTRACT.
 The documentation core includes all common definition attributes:
   - package,
   - source location.
@@ -90,28 +90,28 @@ The documentation core includes all common definition attributes:
 Each element is rendered as a table item."
   (@tableitem "Package"
     (reference (definition-package definition)))
-  (render-source definition context))
+  (render-source definition extract))
 
 (defmacro render-varoid
-    (kind varoid context &body body
+    (kind varoid extract &body body
      &aux (the-varoid (gensym "varoid"))
 	  (defcmd (intern (concatenate 'string "@DEF" (symbol-name kind))
 			  :net.didierverna.declt)))
-  "Render VAROID definition of KIND in CONTEXT."
+  "Render VAROID definition of KIND in EXTRACT."
   `(let ((,the-varoid ,varoid))
      (,defcmd (string-downcase (name ,the-varoid))
        (anchor-and-index ,the-varoid)
        (render-docstring ,the-varoid)
        (@table ()
-	 (render-definition-core ,the-varoid ,context)
+	 (render-definition-core ,the-varoid ,extract)
 	 ,@body))))
 
 (defmacro render-funcoid
-    (kind |funcoid(s)| context &body body
+    (kind |funcoid(s)| extract &body body
      &aux (the-funcoid (gensym "funcoid"))
 	  (defcmd (intern (concatenate 'string "@DEF" (symbol-name kind))
 			  :net.didierverna.declt)))
-  "Render FUNCOID(S) definition of KIND in CONTEXT."
+  "Render FUNCOID(S) definition of KIND in EXTRACT."
   `(let ((,the-funcoid ,(if (consp |funcoid(s)|)
 			    (car |funcoid(s)|)
 			    |funcoid(s)|)))
@@ -122,12 +122,12 @@ Each element is rendered as a table item."
 	   (when (consp |funcoid(s)|) (cdr |funcoid(s)|)))
        (render-docstring ,the-funcoid)
        (@table ()
-	 (render-definition-core ,the-funcoid ,context)
+	 (render-definition-core ,the-funcoid ,extract)
 	 ,@body))))
 
 (defmacro render-method
-    (|method(s)| context generic-source &aux (the-method (gensym "method")))
-  "Render METHOD(S) definition in CONTEXT.
+    (|method(s)| extract generic-source &aux (the-method (gensym "method")))
+  "Render METHOD(S) definition in EXTRACT.
 GENERIC-SOURCE is the source of the generic function. METHOD(S) sources are
 not advertised if they are the same as GENERIC-SOURCE."
   `(let ((,the-method ,(if (consp |method(s)|)
@@ -151,7 +151,7 @@ not advertised if they are the same as GENERIC-SOURCE."
        (render-docstring ,the-method)
        (unless (equal (source ,the-method) ,generic-source)
 	 (@table ()
-	   (render-source ,the-method ,context))))))
+	   (render-source ,the-method ,extract))))))
 
 (defun render-slot-property
     (slot property
@@ -194,19 +194,19 @@ not advertised if they are the same as GENERIC-SOURCE."
       (dolist (slot slots)
 	(render-slot slot)))))
 
-(defmacro render-combination (kind combination context &body body)
-  "Render method COMBINATION's definition of KIND in CONTEXT."
+(defmacro render-combination (kind combination extract &body body)
+  "Render method COMBINATION's definition of KIND in EXTRACT."
   (let ((the-combination (gensym "combination")))
     `(let ((,the-combination ,combination))
        (@defcombination (string-downcase (name ,the-combination)) ,kind
 	 (anchor-and-index ,the-combination)
 	 (render-docstring ,the-combination)
 	 (@table ()
-	   (render-definition-core ,the-combination ,context)
+	   (render-definition-core ,the-combination ,extract)
 	   ,@body)))))
 
-(defmacro render-classoid (kind classoid context &body body)
-  "Render CLASSOID's definition of KIND in CONTEXT."
+(defmacro render-classoid (kind classoid extract &body body)
+  "Render CLASSOID's definition of KIND in EXTRACT."
   (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
 			    :net.didierverna.declt))
 	(the-classoid (gensym "classoid")))
@@ -215,7 +215,7 @@ not advertised if they are the same as GENERIC-SOURCE."
 	 (anchor-and-index ,the-classoid)
 	 (render-docstring ,the-classoid)
 	 (@table ()
-	   (render-definition-core ,the-classoid ,context)
+	   (render-definition-core ,the-classoid ,extract)
 	   (render-references
 	    (classoid-definition-parents ,the-classoid)
 	    "Direct superclasses")
@@ -361,17 +361,17 @@ This is the default method for most definitions."
 	 (@ref (anchor-name definition) definition)
 	 (format t " (~A)~%" (type-name definition)))))
 
-(defmethod document ((constant constant-definition) context &key)
-  "Render CONSTANT's documentation in CONTEXT."
-  (render-varoid :constant constant context))
+(defmethod document ((constant constant-definition) extract &key)
+  "Render CONSTANT's documentation in EXTRACT."
+  (render-varoid :constant constant extract))
 
-(defmethod document ((special special-definition) context &key)
-  "Render SPECIAL variable's documentation in CONTEXT."
-  (render-varoid :special special context))
+(defmethod document ((special special-definition) extract &key)
+  "Render SPECIAL variable's documentation in EXTRACT."
+  (render-varoid :special special extract))
 
-(defmethod document ((symbol-macro symbol-macro-definition) context &key)
-  "Render SYMBOL-MACRO's documentation in CONTEXT."
-    (render-varoid :symbolmacro symbol-macro context
+(defmethod document ((symbol-macro symbol-macro-definition) extract &key)
+  "Render SYMBOL-MACRO's documentation in EXTRACT."
+    (render-varoid :symbolmacro symbol-macro extract
       (@tableitem "Expansion"
 	(format t "@t{~(~A~)}~%"
 	  (escape
@@ -379,7 +379,7 @@ This is the default method for most definitions."
 		   (macroexpand-1 (definition-symbol symbol-macro))))))))
 
 (defmethod document
-    ((macro macro-definition) context
+    ((macro macro-definition) extract
      &key
      &aux (access-expander (macro-definition-access-expander macro))
 	  (update-expander (macro-definition-update-expander macro))
@@ -388,14 +388,14 @@ This is the default method for most definitions."
 		       (setf-expander-definition-update access-expander))
 		      (equal (source macro) (source access-expander))
 		      (equal (docstring macro) (docstring access-expander)))))
-  "Render MACRO's documentation in CONTEXT."
+  "Render MACRO's documentation in EXTRACT."
   (cond (merge
-	 (render-funcoid :macro (macro access-expander) context
+	 (render-funcoid :macro (macro access-expander) extract
 	   (when update-expander
 	     (@tableitem "Setf Expander"
 	       (reference update-expander)))))
 	(t
-	 (render-funcoid :macro macro context
+	 (render-funcoid :macro macro extract
 	   (when update-expander
 	     (@tableitem "Setf Expander"
 	       (reference update-expander)))
@@ -403,28 +403,28 @@ This is the default method for most definitions."
 	     (@tableitem "Setf Expander"
 	       (reference access-expander))))
 	 (when access-expander
-	   (document access-expander context)))))
+	   (document access-expander extract)))))
 
-(defmethod document ((compiler-macro compiler-macro-definition) context &key)
-  "Render COMPILER-MACRO's documentation in CONTEXT."
-  (render-funcoid :compilermacro compiler-macro context))
+(defmethod document ((compiler-macro compiler-macro-definition) extract &key)
+  "Render COMPILER-MACRO's documentation in EXTRACT."
+  (render-funcoid :compilermacro compiler-macro extract))
 
-(defmethod document ((function function-definition) context &key)
-  "Render FUNCTION's documentation in CONTEXT."
-  (render-funcoid :un function context
+(defmethod document ((function function-definition) extract &key)
+  "Render FUNCTION's documentation in EXTRACT."
+  (render-funcoid :un function extract
     (when-let ((expander (function-definition-update-expander function)))
       (@tableitem "Setf Expander"
 	(reference expander)))))
 
-(defmethod document ((writer writer-definition) context &key)
-  "Render WRITER's documentation in CONTEXT."
-  (render-funcoid :un writer context
+(defmethod document ((writer writer-definition) extract &key)
+  "Render WRITER's documentation in EXTRACT."
+  (render-funcoid :un writer extract
     (when-let ((reader (writer-definition-reader writer)))
       (@tableitem "Reader"
 	(reference reader)))))
 
 (defmethod document
-    ((accessor accessor-definition) context
+    ((accessor accessor-definition) extract
      &key
      &aux (access-expander (accessor-definition-access-expander accessor))
 	  (update-expander (accessor-definition-update-expander accessor))
@@ -444,24 +444,24 @@ This is the default method for most definitions."
 		(writer-definition-p writer)
 		(equal (source access-expander) (source writer))
 		(equal (docstring access-expander) (docstring writer)))))
-  "Render ACCESSOR's documentation in CONTEXT."
+  "Render ACCESSOR's documentation in EXTRACT."
   (cond ((and merge-writer merge-expander)
-	 (render-funcoid :un (accessor access-expander writer) context
+	 (render-funcoid :un (accessor access-expander writer) extract
 	   (when update-expander
 	     (@tableitem "Setf Expander"
 	       (reference update-expander)))))
 	(merge-setters
-	 (render-funcoid :un accessor context
+	 (render-funcoid :un accessor extract
 	   (when update-expander
 	     (@tableitem "Setf Expander"
 	       (reference update-expander)))
 	   (@tableitem "Setf Expander" (reference access-expander))
 	   (@tableitem "Writer" (reference writer)))
-	 (render-funcoid :setf (access-expander writer) context
+	 (render-funcoid :setf (access-expander writer) extract
 	   (@tableitem "Reader"
 	     (reference (setf-expander-definition-access access-expander)))))
 	(merge-expander
-	 (render-funcoid :un (accessor access-expander) context
+	 (render-funcoid :un (accessor access-expander) extract
 	   (when update-expander
 	     (@tableitem "Setf Expander"
 	       (reference update-expander)))
@@ -469,9 +469,9 @@ This is the default method for most definitions."
 	     (@tableitem "Writer"
 	       (reference writer))))
 	 (when (writer-definition-p writer)
-	   (document writer context)))
+	   (document writer extract)))
 	(merge-writer
-	 (render-funcoid :un (accessor writer) context
+	 (render-funcoid :un (accessor writer) extract
 	   (when update-expander
 	     (@tableitem "Setf Expander"
 	       (reference update-expander)))
@@ -479,9 +479,9 @@ This is the default method for most definitions."
 	     (@tableitem "Setf Expander"
 	       (reference access-expander))))
 	 (when access-expander
-	   (document access-expander context)))
+	   (document access-expander extract)))
 	(t
-	 (render-funcoid :un accessor context
+	 (render-funcoid :un accessor extract
 	   (when update-expander
 	     (@tableitem "Setf Expander"
 	       (reference update-expander)))
@@ -492,25 +492,25 @@ This is the default method for most definitions."
 	     (@tableitem "Writer"
 	       (reference writer))))
 	 (when access-expander
-	   (document access-expander context))
+	   (document access-expander extract))
 	 (when (writer-definition-p writer)
-	   (document writer context)))))
+	   (document writer extract)))))
 
-(defmethod document ((method method-definition) context &key generic-source)
-  "Render METHOD's documentation in CONTEXT.
+(defmethod document ((method method-definition) extract &key generic-source)
+  "Render METHOD's documentation in EXTRACT.
 GENERIC-SOURCE is the source of METHOD's generic function."
-  (render-method method context generic-source))
+  (render-method method extract generic-source))
 
-(defmethod document ((method accessor-method-definition) context
+(defmethod document ((method accessor-method-definition) extract
 		     &key (document-writers t) generic-source)
-  "Render accessor METHOD's documentation in CONTEXT."
+  "Render accessor METHOD's documentation in EXTRACT."
   (cond ((and (equal (source method)
 		     (source (accessor-method-definition-writer method)))
 	      (equal (docstring method)
 		     (docstring (accessor-method-definition-writer method)))
 	      document-writers)
 	 (render-method (method (accessor-method-definition-writer method))
-			context
+			extract
 			generic-source))
 	(t
 	 (call-next-method)
@@ -518,7 +518,7 @@ GENERIC-SOURCE is the source of METHOD's generic function."
 	   ;; #### NOTE: if DOCUMENT-WRITERS, it means that we're merging the
 	   ;; defintions for the reader and the writer, and hence the generic
 	   ;; sources are the same. It's thus ok to use GENERIC-SOURCE here.
-	   (document (accessor-method-definition-writer method) context
+	   (document (accessor-method-definition-writer method) extract
 		     :generic-source generic-source)))))
 
 ;; #### PORTME.
@@ -539,9 +539,9 @@ The standard method combination is not rendered."
 	  (first options)
 	  (rest options))))))
 
-(defmethod document ((generic generic-definition) context &key)
-  "Render GENERIC's documentation in CONTEXT."
-  (render-funcoid :generic generic context
+(defmethod document ((generic generic-definition) extract &key)
+  "Render GENERIC's documentation in EXTRACT."
+  (render-funcoid :generic generic extract
     (when-let ((expander (generic-definition-update-expander generic)))
       (@tableitem "Setf Expander"
 	(reference expander)))
@@ -549,12 +549,12 @@ The standard method combination is not rendered."
     (when-let ((methods (generic-definition-methods generic)))
       (@tableitem "Methods"
 	(dolist (method methods)
-	  (document method context :generic-source (source generic)))))))
+	  (document method extract :generic-source (source generic)))))))
 
 (defmethod document
-    ((writer generic-writer-definition) context &key additional-methods)
-  "Render generic WRITER's documentation in CONTEXT."
-  (render-funcoid :generic writer context
+    ((writer generic-writer-definition) extract &key additional-methods)
+  "Render generic WRITER's documentation in EXTRACT."
+  (render-funcoid :generic writer extract
     (when-let ((reader (generic-writer-definition-reader writer)))
       (@tableitem "Reader"
 	(reference reader)))
@@ -563,17 +563,17 @@ The standard method combination is not rendered."
 				(generic-writer-definition-methods writer))))
       (@tableitem "Methods"
 	(dolist (method methods)
-	  (document method context :generic-source (source writer)))))))
+	  (document method extract :generic-source (source writer)))))))
 
 (defmethod document
-    ((accessor generic-accessor-definition) context
+    ((accessor generic-accessor-definition) extract
      &key
      &aux (access-expander
 	   (generic-accessor-definition-access-expander accessor))
 	  (update-expander
 	   (generic-accessor-definition-update-expander accessor))
 	  (writer (generic-accessor-definition-writer accessor)))
-  "Render generic ACCESSOR's documentation in CONTEXT."
+  "Render generic ACCESSOR's documentation in EXTRACT."
   ;; #### NOTE: contrary to the case of ordinary functions, setf expanders can
   ;; never be merged with generic definitions. The reason is that even if a
   ;; setf expander is in long form, the corresponding lambda function is not
@@ -596,7 +596,7 @@ The standard method combination is not rendered."
 		       (sb-pcl::method-combination-options
 			(sb-mop:generic-function-method-combination
 			 (generic-definition-function writer)))))
-	 (render-funcoid :generic (accessor writer) context
+	 (render-funcoid :generic (accessor writer) extract
 	   (when update-expander
 	     (@tableitem "Setf Expander"
 	       (reference update-expander)))
@@ -611,15 +611,15 @@ The standard method combination is not rendered."
 	     (when (or accessor-and-reader-methods writer-methods)
 	       (@tableitem "Methods"
 		 (dolist (method accessor-and-reader-methods)
-		   (document method context
+		   (document method extract
 		     :generic-source (source accessor)))
 		 (dolist (method writer-methods)
-		   (document method context
+		   (document method extract
 		     :generic-source (source accessor)))))))
 	 (when access-expander
-	   (document access-expander context)))
+	   (document access-expander extract)))
 	(t
-	 (render-funcoid :generic accessor context
+	 (render-funcoid :generic accessor extract
 	   (when update-expander
 	     (@tableitem "Setf Expander"
 	       (reference update-expander)))
@@ -633,22 +633,22 @@ The standard method combination is not rendered."
 	   (when-let ((methods (generic-definition-methods accessor)))
 	     (@tableitem "Methods"
 		(dolist (method methods)
-		  (document method context
+		  (document method extract
 		    :document-writers nil
 		    :generic-source (source accessor))))))
 	 (when access-expander
-	   (document access-expander context))
+	   (document access-expander extract))
 	 (when (generic-writer-definition-p writer)
-	   (document writer context
+	   (document writer extract
 		     :additional-methods
 		     (mapcar #'accessor-method-definition-writer
 			     (remove-if-not
 			      #'accessor-method-definition-p
 			      (generic-definition-methods accessor))))))))
 
-(defmethod document ((expander setf-expander-definition) context &key)
-  "Render setf EXPANDER's documentation in CONTEXT."
-  (render-funcoid :setf expander context
+(defmethod document ((expander setf-expander-definition) extract &key)
+  "Render setf EXPANDER's documentation in EXTRACT."
+  (render-funcoid :setf expander extract
     (@tableitem "Reader"
       (reference (setf-expander-definition-access expander)))
     (when (definition-p (setf-expander-definition-update expander))
@@ -658,9 +658,9 @@ The standard method combination is not rendered."
 ;; #### NOTE: no DOCUMENT method for SLOT-DEFINITION
 
 ;; #### PORTME.
-(defmethod document ((combination short-combination-definition) context &key)
-  "Render short method COMBINATION's documentation in CONTEXT."
-  (render-combination :short combination context
+(defmethod document ((combination short-combination-definition) extract &key)
+  "Render short method COMBINATION's documentation in EXTRACT."
+  (render-combination :short combination extract
     (@tableitem "Operator"
       (reference (short-combination-definition-operator combination)))
     (@tableitem "Indentity with one argument"
@@ -669,32 +669,32 @@ The standard method combination is not rendered."
 	 (combination-definition-combination combination))))
     (render-references (combination-definition-users combination) "Users")))
 
-(defmethod document ((combination long-combination-definition) context &key)
-  "Render long method COMBINATION's documentation in CONTEXT."
-  (render-combination :long combination context
+(defmethod document ((combination long-combination-definition) extract &key)
+  "Render long method COMBINATION's documentation in EXTRACT."
+  (render-combination :long combination extract
     (render-references (combination-definition-users combination) "Users")))
 
-(defmethod document ((condition condition-definition) context &key)
-  "Render CONDITION's documentation in CONTEXT."
-  (render-classoid :cond condition context
+(defmethod document ((condition condition-definition) extract &key)
+  "Render CONDITION's documentation in EXTRACT."
+  (render-classoid :cond condition extract
     (render-initargs condition)))
 
-(defmethod document ((structure structure-definition) context &key)
-  "Render STRUCTURE's documentation in CONTEXT."
-  (render-classoid :struct structure context))
+(defmethod document ((structure structure-definition) extract &key)
+  "Render STRUCTURE's documentation in EXTRACT."
+  (render-classoid :struct structure extract))
 
-(defmethod document ((class class-definition) context &key)
-  "Render CLASS's documentation in CONTEXT."
-  (render-classoid :class class context
+(defmethod document ((class class-definition) extract &key)
+  "Render CLASS's documentation in EXTRACT."
+  (render-classoid :class class extract
     (render-initargs class)))
 
-(defmethod document ((type type-definition) context &key)
-  "Render TYPE's documentation in CONTEXT."
+(defmethod document ((type type-definition) extract &key)
+  "Render TYPE's documentation in EXTRACT."
   (@deftype ((string-downcase (name type)) (lambda-list type))
     (anchor-and-index type)
     (render-docstring type)
     (@table ()
-      (render-definition-core type context))))
+      (render-definition-core type extract))))
 
 
 
@@ -702,8 +702,8 @@ The standard method combination is not rendered."
 ;; Definition Nodes
 ;; ==========================================================================
 
-(defun add-category-node (parent context status category definitions)
-  "Add the STATUS CATEGORY node to PARENT for DEFINITIONS in CONTEXT."
+(defun add-category-node (parent extract status category definitions)
+  "Add the STATUS CATEGORY node to PARENT for DEFINITIONS in EXTRACT."
   (add-child parent
     (make-node :name (format nil "~@(~A ~A~)" status category)
 	       :section-name (format nil "~@(~A~)" category)
@@ -711,31 +711,31 @@ The standard method combination is not rendered."
 	       (render-to-string
 		 (dolist (definition (sort definitions #'string-lessp
 					   :key #'definition-symbol))
-		   (document definition context))))))
+		   (document definition extract))))))
 
-(defun add-categories-node (parent context status definitions)
-  "Add the STATUS DEFINITIONS categories nodes to PARENT in CONTEXT."
+(defun add-categories-node (parent extract status definitions)
+  "Add the STATUS DEFINITIONS categories nodes to PARENT in EXTRACT."
   (dolist (category *categories*)
     (when-let ((category-definitions
 		(category-definitions (first category) definitions)))
-      (add-category-node parent context status (second category)
+      (add-category-node parent extract status (second category)
 			 category-definitions))))
 
-(defun add-status-definitions-node (parent context status definitions)
-  "Add the STATUS DEFINITIONS node to PARENT in CONTEXT."
+(defun add-status-definitions-node (parent extract status definitions)
+  "Add the STATUS DEFINITIONS node to PARENT in EXTRACT."
   (let ((node (add-child parent
 		(make-node :name (format nil "~@(~A~) definitions" status)))))
-    (add-categories-node node context status definitions)))
+    (add-categories-node node extract status definitions)))
 
 (defun add-definitions-node
-    (parent context
-     &aux (external-definitions (external-definitions context))
+    (parent extract
+     &aux (external-definitions (external-definitions extract))
        (external-definitions-number
 	(definitions-pool-size external-definitions))
-       (internal-definitions (internal-definitions context))
+       (internal-definitions (internal-definitions extract))
        (internal-definitions-number
 	(definitions-pool-size internal-definitions)))
-  "Add the definitions node to PARENT in CONTEXT."
+  "Add the definitions node to PARENT in EXTRACT."
   (unless (zerop (+ external-definitions-number internal-definitions-number))
     (let ((definitions-node
 	    (add-child parent
@@ -745,10 +745,10 @@ The standard method combination is not rendered."
 Definitions are sorted by export status, category, package, and then by
 lexicographic order.")))))
       (unless (zerop external-definitions-number)
-	(add-status-definitions-node definitions-node context "exported"
+	(add-status-definitions-node definitions-node extract "exported"
 				     external-definitions))
       (unless (zerop internal-definitions-number)
-	(add-status-definitions-node definitions-node context "internal"
+	(add-status-definitions-node definitions-node extract "internal"
 				     internal-definitions)))))
 
 ;;; symbol.lisp ends here

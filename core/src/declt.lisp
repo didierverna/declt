@@ -30,26 +30,26 @@
 
 
 (defun render-header
-    (context texi-name info-name declt-notice current-time-string)
+    (extract texi-name info-name declt-notice current-time-string)
   "Render the header of the Texinfo file."
   (format t "\\input texinfo~2%@c ~A.texi --- Reference manual~2%" texi-name)
 
-  (when (copyright-years context)
+  (when (copyright-years extract)
     (mapc (lambda (name)
 	    (format t "@c Copyright (C) ~A ~A~%"
-	      (copyright-years context) name))
+	      (copyright-years extract) name))
       ;; #### NOTE: we already removed the duplicates in the original contact
       ;; list, but there may still be duplicates in the names, for instance if
       ;; somebody used his name several times, with a different email
       ;; address.
-      (remove-duplicates (remove-if #'null (contact-names context))
+      (remove-duplicates (remove-if #'null (contact-names extract))
 	:from-end t :test #'string=))
     (terpri))
 
-  (format t "@c This file is part of ~A.~2%" (library-name context))
+  (format t "@c This file is part of ~A.~2%" (library-name extract))
 
-  (when (license context)
-    (with-input-from-string (str (caddr (license context)))
+  (when (license extract)
+    (with-input-from-string (str (caddr (license extract)))
       (loop :for line := (read-line str nil str)
 	    :until (eq line str)
 	    :do (format t "@c ~A~%" line))))
@@ -72,7 +72,7 @@
 @afourpaper
 @documentencoding UTF-8
 @c %**end of header~4%"
-    (escape info-name) (escape (library-name context)))
+    (escape info-name) (escape (library-name extract)))
 
   (format t "~
 @c ====================================================================
@@ -141,8 +141,8 @@
 @documentdescription
 The ~A Reference Manual~@[, version ~A~].
 @end documentdescription~4%"
-    (escape (library-name context))
-    (escape (library-version context)))
+    (escape (library-name extract))
+    (escape (library-version extract)))
 
   (format t "~
 @c ====================================================================
@@ -312,11 +312,11 @@ The ~A Reference Manual~@[, version ~A~].
 @direntry
 * ~A Reference: (~A). The ~A Reference Manual.
 @end direntry~4%"
-    (escape (library-name context))
+    (escape (library-name extract))
     (escape info-name)
-    (escape (library-name context)))
+    (escape (library-name extract)))
 
-  (when (license context)
+  (when (license extract)
     (format t "~
 @c ====================================================================
 @c Copying
@@ -324,16 +324,16 @@ The ~A Reference Manual~@[, version ~A~].
 @copying
 @quotation~%")
 
-    (when (copyright-years context)
+    (when (copyright-years extract)
       (mapc (lambda (name)
 	      (format t "Copyright @copyright{} ~A ~A~%"
-		(escape (copyright-years context))
+		(escape (copyright-years extract))
 		(escape name)))
 	;; #### NOTE: we already removed the duplicates in the original
 	;; contact list, but there may still be duplicates in the names, for
 	;; instance if somebody used his name several times, with a different
 	;; email address.
-	(remove-duplicates (remove-if #'null (contact-names context))
+	(remove-duplicates (remove-if #'null (contact-names extract))
 	  :from-end t :test #'string=))
       (terpri))
     (format t "~
@@ -365,19 +365,19 @@ except that this permission notice may be translated as well.
 @titlepage
 @title The ~A Reference Manual
 ~A~%"
-    (escape (library-name context))
-    (if (or (tagline context) (library-version context))
+    (escape (library-name extract))
+    (if (or (tagline extract) (library-version extract))
 	(format nil "@subtitle ~@[~A~]~:[~;, ~]~@[version ~A~]~%"
-	  (escape (tagline context))
-	  (and (tagline context) (library-version context))
-	  (escape (library-version context)))
+	  (escape (tagline extract))
+	  (and (tagline extract) (library-version extract))
+	  (escape (library-version extract)))
 	""))
   (mapc (lambda (name email)
 	  (format t "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	    (escape name) email (escape email)))
-    (contact-names context) (contact-emails context))
+    (contact-names extract) (contact-emails extract))
   (terpri)
-  (when (or declt-notice (license context))
+  (when (or declt-notice (license extract))
     (format t "@page~%"))
 
   (when declt-notice
@@ -388,7 +388,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
     (escape (version declt-notice))
     (when (eq declt-notice :long) (escape current-time-string))))
 
-  (when (license context)
+  (when (license extract)
     (format t "@vskip 0pt plus 1filll~%@insertcopying~%"))
 
   (format t "@end titlepage~4%")
@@ -415,7 +415,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 		   (declt-notice :long)
 
 	      &aux (current-time-string (current-time-string))
-		   (context (apply #'extract system-name keys)))
+		   (extract (apply #'extract system-name keys)))
   "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
 For a description of SYSTEM-NAME, LIBRARY-NAME, TAGLINE, VERSION, CONTACT,
 COPYRIGHT-YEARS, and LICENSE, see `extract'.
@@ -437,8 +437,8 @@ The following keyword parameters are also available.
   (declare
    (ignore library-name tagline version contact copyright-years license))
 
-  ;; #### FIXME: this shouldn't be part of the CONTEXT structure.
-  (setf (hyperlinksp context) hyperlinks)
+  ;; #### FIXME: this shouldn't be part of the EXTRACT structure.
+  (setf (hyperlinksp extract) hyperlinks)
 
   ;; Construct the nodes hierarchy.
   (with-standard-io-syntax
@@ -447,7 +447,7 @@ The following keyword parameters are also available.
 	    (make-node :name "Top"
 		       :section-name
 		       (format nil "The ~A Reference Manual"
-			 (escape (library-name context)))
+			 (escape (library-name extract)))
 		       :section-type :unnumbered
 		       :before-menu-contents
 		       (format nil "~
@@ -455,36 +455,36 @@ The following keyword parameters are also available.
 This is the ~A Reference Manual~@[, version ~A~]~@[,
 generated automatically by Declt version ~A~@[
 on ~A~]~]."
-			 (escape (library-name context))
-			 (escape (library-version context))
+			 (escape (library-name extract))
+			 (escape (library-version extract))
 			 (when declt-notice
 			   (escape
 			    (version declt-notice)))
 			 (when (eq declt-notice :long)
 			   (escape current-time-string)))
 		       :after-menu-contents
-		       (when (license context) "@insertcopying"))))
-      (when (license context)
+		       (when (license extract) "@insertcopying"))))
+      (when (license extract)
 	(add-child top-node
 	  (make-node :name "Copying"
-		     :synopsis (cadr (license context))
+		     :synopsis (cadr (license extract))
 		     :section-type :unnumbered
 		     :before-menu-contents
 		     (format nil "@quotation~@
 				  ~A~@
 				  @end quotation"
-		       (escape (caddr (license context)))))))
+		       (escape (caddr (license extract)))))))
       (when introduction
 	(add-child top-node
 	  (make-node :name "Introduction"
 		     :synopsis (format nil "What ~A is all about"
-				 (escape (library-name context)))
+				 (escape (library-name extract)))
 		     :before-menu-contents introduction)))
-      (add-systems-node     top-node context)
-      (add-modules-node     top-node context)
-      (add-files-node       top-node context)
-      (add-packages-node    top-node context)
-      (add-definitions-node top-node context)
+      (add-systems-node     top-node extract)
+      (add-modules-node     top-node extract)
+      (add-files-node       top-node extract)
+      (add-packages-node    top-node extract)
+      (add-definitions-node top-node extract)
       (when conclusion
 	(add-child top-node
 	  (make-node :name "Conclusion"
@@ -526,7 +526,7 @@ Concepts, functions, variables and data types")
 		       :if-exists :supersede
 		       :if-does-not-exist :create
 		       :external-format :utf8)
-	(render-header context texi-name info-name declt-notice
+	(render-header extract texi-name info-name declt-notice
 		       current-time-string)
 	(render-top-node top-node)
 	(format t "~%@bye~%~%@c ~A.texi ends here~%" texi-name))))

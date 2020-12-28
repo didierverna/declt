@@ -33,8 +33,8 @@
 ;; Documentation Contexts
 ;; ==========================================================================
 
-(defstruct (context (:conc-name))
-  "The documentation context structure."
+(defstruct (extract (:conc-name))
+  "The documentation extract structure."
   library-name
   tagline
   ;; Yuck. To avoid collision with the VERSION function.
@@ -51,9 +51,9 @@
 
 ;; This is used rather often (in fact, not so much! ;-)) so it is worth a
 ;; shortcut.
-(defun location (context)
-  "Return CONTEXT's main system location."
-  (system-directory (car (systems context))))
+(defun location (extract)
+  "Return EXTRACT's main system location."
+  (system-directory (car (systems extract))))
 
 
 
@@ -61,37 +61,37 @@
 ;; Documentation Information Extraction
 ;; ==========================================================================
 
-(defun add-external-definitions (context)
-  "Add all external definitions to CONTEXT."
-  (dolist (symbol (mapcan #'system-external-symbols (systems context)))
-    (add-symbol-definitions symbol (external-definitions context))))
+(defun add-external-definitions (extract)
+  "Add all external definitions to EXTRACT."
+  (dolist (symbol (mapcan #'system-external-symbols (systems extract)))
+    (add-symbol-definitions symbol (external-definitions extract))))
 
-(defun add-internal-definitions (context)
-  "Add all internal definitions to CONTEXT."
-  (dolist (symbol (mapcan #'system-internal-symbols (systems context)))
-    (add-symbol-definitions symbol (internal-definitions context))))
+(defun add-internal-definitions (extract)
+  "Add all internal definitions to EXTRACT."
+  (dolist (symbol (mapcan #'system-internal-symbols (systems extract)))
+    (add-symbol-definitions symbol (internal-definitions extract))))
 
-(defun add-definitions (context)
-  "Add all definitions to CONTEXT."
-  (add-external-definitions context)
-  (add-internal-definitions context)
+(defun add-definitions (extract)
+  "Add all definitions to EXTRACT."
+  (add-external-definitions extract)
+  (add-internal-definitions extract)
   (finalize-definitions
-   (external-definitions context)
-   (internal-definitions context)))
+   (external-definitions extract)
+   (internal-definitions extract)))
 
-(defun add-packages (context)
-  "Add all package definitions to CONTEXT."
-  (setf (packages context)
+(defun add-packages (extract)
+  "Add all package definitions to EXTRACT."
+  (setf (packages extract)
 	;; #### NOTE: several subsystems may share the same packages (because
 	;; they would share files defining them) so we need to filter
 	;; potential duplicates out.
 	(remove-duplicates
-	 (mapcan #'system-packages (systems context)))))
+	 (mapcan #'system-packages (systems extract)))))
 
-(defun add-systems (context system)
-  "Add all system definitions to CONTEXT.
+(defun add-systems (extract system)
+  "Add all system definitions to EXTRACT.
 This includes SYSTEM and its subsystems."
-  (setf (systems context)
+  (setf (systems extract)
 	(cons system
 	      (remove-duplicates
 	       (subsystems system (system-directory system))))))
@@ -109,11 +109,11 @@ This includes SYSTEM and its subsystems."
      &allow-other-keys ;; lazy calling from DECLT
      &aux (system (load-system system-name))
 	  contact-names contact-emails
-	  (context (make-context
+	  (extract (make-extract
 		    :external-definitions (make-definitions-pool)
 		    :internal-definitions (make-definitions-pool))))
   "Extract and return documentation information for ASDF SYSTEM-NAME.
-The documentation information is returned in a CONTEXT structure, which see.
+The documentation information is returned in a EXTRACT structure, which see.
 
 SYSTEM-NAME is an ASDF system designator. The following keyword parameters
 allow to specify or override some bits of information.
@@ -131,7 +131,7 @@ allow to specify or override some bits of information.
   :bsd, :gpl, and :lgpl."
 
   (check-type library-name non-empty-string)
-  (setf (library-name context) library-name)
+  (setf (library-name extract) library-name)
   (unless taglinep
     (setq tagline (or (system-long-name system)
 		      (component-description system))))
@@ -139,12 +139,12 @@ allow to specify or override some bits of information.
     (setq tagline nil))
   (when (and tagline (char= (aref tagline (1- (length tagline))) #\.))
     (setq tagline (subseq tagline 0 (1- (length tagline)))))
-  (setf (tagline context) tagline)
+  (setf (tagline extract) tagline)
   (unless versionp
     (setq version (component-version system)))
   (unless (one-liner-p version)
     (setq version nil))
-  (setf (library-version context) version)
+  (setf (library-version extract) version)
   (unless contactp
     (setq contact (system-author system))
     (when (stringp contact) (setq contact (list contact)))
@@ -160,8 +160,8 @@ allow to specify or override some bits of information.
 	     (null (car contact-emails))
 	     (one-liner-p (system-mailto system)))
     (setq contact-emails (list (system-mailto system))))
-  (setf (contact-names context) contact-names)
-  (setf (contact-emails context) contact-emails)
+  (setf (contact-names extract) contact-names)
+  (setf (contact-emails extract) contact-emails)
   (setq copyright-years
 	(or copyright-years
 	    (multiple-value-bind (second minute hour date month year)
@@ -170,17 +170,17 @@ allow to specify or override some bits of information.
 	      (format nil "~A" year))))
   (unless (one-liner-p copyright-years)
     (setq copyright-years nil))
-  (setf (copyright-years context) copyright-years)
+  (setf (copyright-years extract) copyright-years)
   (when license
     (setq license (assoc license *licenses*))
     (unless license
       (error "License not found.")))
-  (setf (license context) license)
+  (setf (license extract) license)
 
-  (add-systems context system)
-  (add-packages context)
-  (add-definitions context)
+  (add-systems extract system)
+  (add-packages extract)
+  (add-definitions extract)
 
-  context)
+  extract)
 
 ;;; extract.lisp ends here

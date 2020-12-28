@@ -54,8 +54,8 @@
 
 (defgeneric reference (item) (:documentation "Render ITEM's reference."))
 
-(defgeneric document (item context &key &allow-other-keys)
-  (:documentation "Render ITEM's documentation in CONTEXT."))
+(defgeneric document (item extract &key &allow-other-keys)
+  (:documentation "Render ITEM's documentation in EXTRACT."))
 
 
 
@@ -81,12 +81,12 @@
 ;; #### FIXME: not a Declt bug, but currently, SBCL sets the source file of
 ;; COPY-<struct> functions to its own target-defstruct.lisp file.
 (defun render-location
-    (pathname context
+    (pathname extract
      &optional (title "Location")
      &aux (probed-pathname (probe-file pathname))
-	  (relative-to (location context))
-	  (hyperlinkp (and (hyperlinksp context) probed-pathname)))
-  "Render an itemized location line for PATHNAME in CONTEXT.
+	  (relative-to (location extract))
+	  (hyperlinkp (and (hyperlinksp extract) probed-pathname)))
+  "Render an itemized location line for PATHNAME in EXTRACT.
 Rendering is done on *standard-output*."
   (@tableitem title
     (format t "~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
@@ -98,11 +98,11 @@ Rendering is done on *standard-output*."
 			     " (not found)")))
       hyperlinkp)))
 
-(defun render-source (item context)
-  "Render an itemized source line for ITEM in CONTEXT.
+(defun render-source (item extract)
+  "Render an itemized source line for ITEM in EXTRACT.
 Rendering is done on *standard-output*."
   (when-let ((source-pathname (source item)))
-    (let* ((systems (systems context))
+    (let* ((systems (systems extract))
 	   ;; Remember that a source can be a system, although systems are not
 	   ;; actual cl-source-file's.
 	   (source-component
@@ -116,7 +116,7 @@ Rendering is done on *standard-output*."
 	  ;; Otherwise, the source does not belong to the system. This may
 	  ;; happen for automatically generated sources (sb-grovel does this
 	  ;; for instance). So let's just reference the file itself.
-	  (render-location source-pathname context "Source")))))
+	  (render-location source-pathname extract "Source")))))
 
 (defun render-docstring (item)
   "Render ITEM's documentation string.

@@ -63,15 +63,15 @@
   (@ref (anchor-name package) package)
   (terpri))
 
-(defun render-use-list (list title context)
-  "Render a package use/used-by LIST with TITLE in CONTEXT."
+(defun render-use-list (list title extract)
+  "Render a package use/used-by LIST with TITLE in EXTRACT."
   (when list
     ;; #### NOTE: this is not as clean as for definitions. Definitions (in
     ;; fact, classoids currently) have a foreignp slot that helps the
     ;; REFERENCE method handle foreign definitions directly. We cannot do that
     ;; here because we're manipulating packages directly.
     (flet ((renderer (package)
-	     (if (member package (packages context))
+	     (if (member package (packages extract))
 		 (reference package)
 		 (format t "@t{~(~A~)}" (escape package)))))
       (@tableitem title
@@ -79,13 +79,13 @@
 	    (renderer (first list))
 	    (@itemize-list list :renderer #'renderer))))))
 
-(defmethod document ((package package) context &key)
-  "Render PACKAGE's documentation in CONTEXT."
+(defmethod document ((package package) extract &key)
+  "Render PACKAGE's documentation in EXTRACT."
   (anchor package)
   (index package)
   (render-docstring package)
   (@table ()
-    (render-source package context)
+    (render-source package extract)
     (when-let* ((nicknames (package-nicknames package))
 		(length (length nicknames)))
       (@tableitem (format nil "Nickname~p" length)
@@ -94,15 +94,15 @@
 	    (@itemize-list nicknames
 			   :format "@t{~(~A~)}"
 			   :key #'escape))))
-    (render-use-list (package-use-list package) "Use List" context)
-    (render-use-list (package-used-by-list package) "Used By List" context)
+    (render-use-list (package-use-list package) "Use List" extract)
+    (render-use-list (package-used-by-list package) "Used By List" extract)
     (render-external-definitions-references
      (sort
-      (package-definitions package (external-definitions context))
+      (package-definitions package (external-definitions extract))
       #'string-lessp :key #'definition-symbol))
     (render-internal-definitions-references
      (sort
-      (package-definitions package (internal-definitions context))
+      (package-definitions package (internal-definitions extract))
       #'string-lessp :key #'definition-symbol))))
 
 
@@ -112,8 +112,8 @@
 ;; ==========================================================================
 
 (defun add-packages-node
-    (parent context &aux (packages (packages context)))
-  "Add the packages node to PARENT in CONTEXT."
+    (parent extract &aux (packages (packages extract)))
+  "Add the packages node to PARENT in EXTRACT."
   (when packages
     (let ((packages-node
 	    (add-child parent
@@ -126,6 +126,6 @@ Packages are listed by definition order.")))))
 	  (make-node :name (format nil "~@(~A~)" (title package))
 		     :section-name (format nil "@t{~(~A~)}" (escape package))
 		     :before-menu-contents
-		     (render-to-string (document package context))))))))
+		     (render-to-string (document package extract))))))))
 
 ;;; package.lisp ends here

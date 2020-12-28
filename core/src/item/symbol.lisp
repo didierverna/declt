@@ -43,7 +43,7 @@
 ;; Categories
 ;; ----------
 
-;; #### NOTE: when constructing the context lists of external and internal
+;; #### NOTE: when constructing the extract lists of external and internal
 ;; definitions, only the definitions listed in *CATEGORIES* appear. This is
 ;; because these lists follow the structure of the Definitions chapter in the
 ;; generated manual. For instance, methods are listed under the corresponding
