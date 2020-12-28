@@ -108,7 +108,7 @@ for a more human-readable guide to using @declt{}."
 		 :copyright-years +copyright-years+
 		 :license :bsd
 		 :introduction +introduction+
-		 :texi-name "webreference"
+		 :file-name "webreference"
 		 :info-name "declt-webreference") ; but we don't care
     (declt:declt :net.didierverna.declt
 		 :library-name "Declt"
@@ -116,7 +116,7 @@ for a more human-readable guide to using @declt{}."
 		 :copyright-years +copyright-years+
 		 :license :bsd
 		 :introduction +introduction+
-		 :texi-name "reference"
+		 :file-name "reference"
 		 :info-name "declt-reference"
 		 :hyperlinks t))
 

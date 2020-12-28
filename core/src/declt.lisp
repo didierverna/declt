@@ -30,9 +30,9 @@
 
 
 (defun render-header
-    (extract texi-name info-name declt-notice current-time-string)
+    (extract file-name info-name declt-notice current-time-string)
   "Render the header of the Texinfo file."
-  (format t "\\input texinfo~2%@c ~A.texi --- Reference manual~2%" texi-name)
+  (format t "\\input texinfo~2%@c ~A.texi --- Reference manual~2%" file-name)
 
   (when (copyright-years extract)
     (mapc (lambda (name)
@@ -404,25 +404,29 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 	      &key library-name tagline version contact copyright-years
 		   license introduction conclusion
 
-		   (texi-name (if (stringp system-name)
+		   (output-directory #p"./")
+		   (file-name (if (stringp system-name)
 				system-name
 				(string-downcase system-name)))
-		   (texi-directory #p"./")
-		   (info-name texi-name)
+		   (info-name file-name)
 		   hyperlinks
 		   (declt-notice :long)
 
 	      &aux (current-time-string (current-time-string))
 		   (extract (apply #'extract system-name keys)))
-  "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
+  "Generate a reference manual for ASDF SYSTEM-NAME.
+The reference manual is currently generated in Texinfo format.
+
 For a description of SYSTEM-NAME, LIBRARY-NAME, TAGLINE, VERSION, CONTACT,
 COPYRIGHT-YEARS, LICENSE, INTRODUCTION, and CONCLUSION, see `extract'.
 
 The following keyword parameters are also available.
-- TEXI-NAME: Texinfo file basename sans extension. Defaults to the system
-  name.
-- TEXI-DIRECTORY: Texinfo file directory. Defaults to the current directory.
-- INFO-NAME: Info file basename sans extension. Defaults to TEXI-NAME.
+- OUTPUT-DIRECTORY: output directory for the generated reference manual.
+  Defaults to the current directory.
+- FILE-NAME: base name for the generated reference manual, sans extension.
+  Defaults to the system name.
+- INFO-NAME: base name for the subsequent Info file, sans extension (this
+  name appears in the Texinfo file). Defaults to FILE-NAME.
 - HYPERLINKS: create hyperlinks to files or directories. Defaults to NIL.
 - DECLT-NOTICE: small credit paragraph to Declt, or NIL. Defaults to
   :long. Also accepts :short."
@@ -512,17 +516,17 @@ Concepts, functions, variables and data types")
 		     :section-name "Data types"
 		     :before-menu-contents "@printindex tp")))
       (with-open-file (*standard-output*
-		       (merge-pathnames (make-pathname :name texi-name
+		       (merge-pathnames (make-pathname :name file-name
 						       :type "texi")
-					texi-directory)
+					output-directory)
 		       :direction :output
 		       :if-exists :supersede
 		       :if-does-not-exist :create
 		       :external-format :utf8)
-	(render-header extract texi-name info-name declt-notice
+	(render-header extract file-name info-name declt-notice
 		       current-time-string)
 	(render-top-node top-node)
-	(format t "~%@bye~%~%@c ~A.texi ends here~%" texi-name))))
+	(format t "~%@bye~%~%@c ~A.texi ends here~%" file-name))))
   (values))
 
 ;;; declt.lisp ends here
