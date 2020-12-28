@@ -1,4 +1,4 @@
-;;; asdf.lisp --- ASDF Items
+;;; asdf.lisp --- ASDF definitions
 
 ;; Copyright (C) 2010-2013, 2015-2017, 2020 Didier Verna
 
@@ -33,9 +33,9 @@
 ;; Files
 ;; ==========================================================================
 
-;; -------------------
-;; Item protocols
-;; -------------------
+;; --------------------
+;; Extraction protocols
+;; --------------------
 
 (defmethod type-name ((source-file asdf:source-file))
   "Return \"file\""
@@ -107,9 +107,9 @@
 ;; Modules
 ;; ==========================================================================
 
-;; -------------------
-;; Item protocols
-;; -------------------
+;; --------------------
+;; Extraction protocols
+;; --------------------
 
 (defmethod type-name ((module asdf:module))
   "Return \"module\""
@@ -121,9 +121,9 @@
 ;; System
 ;; ==========================================================================
 
-;; -------------------
-;; Item protocols
-;; -------------------
+;; --------------------
+;; Extraction protocols
+;; --------------------
 
 (defmethod type-name ((system asdf:system))
   "Return \"system\""
@@ -183,6 +183,5 @@ named SYSTEM/foobar, regardless of case."
 (defun system-internal-symbols (system)
   "Return the list of ASDF SYSTEM's internal symbols."
   (mapcan #'package-internal-symbols (system-packages system)))
-
 
 ;;; asdf.lisp ends here

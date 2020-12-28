@@ -1,6 +1,6 @@
-;;; item.lisp --- Items subject to documentation
+;;; base.lisp --- Code base for documentation extraction
 
-;; Copyright (C) 2010, 2011, 2013 Didier Verna
+;; Copyright (C) 2010, 2011, 2013, 2020 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -30,7 +30,7 @@
 
 
 ;; ==========================================================================
-;; Item Protocols
+;; Extraction Protocols
 ;; ==========================================================================
 
 ;; ---------------
@@ -56,5 +56,4 @@
 (defgeneric type-name (item)
   (:documentation "Return ITEM's type name."))
 
-
-;;; item.lisp ends here
+;;; base.lisp ends here

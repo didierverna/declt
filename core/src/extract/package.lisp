@@ -1,4 +1,4 @@
-;;; package.lisp --- Package items
+;;; package.lisp --- Package definitions
 
 ;; Copyright (C) 2010-2013, 2017, 2020 Didier Verna
 
@@ -51,7 +51,7 @@
 
 
 ;; ==========================================================================
-;; Item Protocols
+;; Extraction Protocols
 ;; ==========================================================================
 
 ;; ---------------
@@ -146,6 +146,5 @@
   (mapcan-definitions-pool
    (lambda (definition) (definition-package-definitions definition package))
    definitions))
-
 
 ;;; package.lisp ends here

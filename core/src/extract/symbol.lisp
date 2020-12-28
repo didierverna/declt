@@ -1,4 +1,4 @@
-;;; symbol.lisp --- Symbol based items
+;;; symbol.lisp --- Symbol definitions
 
 ;; Copyright (C) 2010-2013, 2017, 2020 Didier Verna
 
@@ -1069,7 +1069,7 @@ Currently, this means resolving:
 
 
 ;; ==========================================================================
-;; Item Protocols
+;; Extraction Protocols
 ;; ==========================================================================
 
 ;; ---------------
@@ -1287,6 +1287,5 @@ Currently, this means resolving:
 (defmethod type-name ((type type-definition))
   "Return \"type\""
   "type")
-
 
 ;;; symbol.lisp ends here
