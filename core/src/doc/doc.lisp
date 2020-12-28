@@ -30,32 +30,6 @@
 
 
 ;; ==========================================================================
-;; Documentation Contexts
-;; ==========================================================================
-
-(defstruct context
-  "The documentation context structure."
-  library-name
-  tagline
-  version
-  contact-names
-  contact-emails
-  copyright-years
-  license
-  systems
-  packages
-  external-definitions
-  internal-definitions
-  hyperlinksp)
-
-;; This is used rather often so it is worth a shortcut
-(defun context-directory (context)
-  "Return CONTEXT's main system directory."
-  (system-directory (car (context-systems context))))
-
-
-
-;; ==========================================================================
 ;; Documentation Protocols
 ;; ==========================================================================
 

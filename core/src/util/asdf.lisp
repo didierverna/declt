@@ -135,4 +135,26 @@ This function recursively descends all found subsystems."
 	:when subsystem
 	  :nconc (cons subsystem (subsystems subsystem relative-to))))
 
+(defun load-system (system-name &aux (system (find-system system-name)))
+  "Load ASDF SYSTEM-NAME in a manner suitable to extract documentation.
+Return the corresponding ASDF system.
+SYSTEM-NAME is an ASDF system designator."
+  ;;  Because of some bootstrapping issues, ASDF and UIOP need some
+  ;; special-casing.
+  (cond ((string= (asdf:coerce-name system-name) "uiop")
+	 (load (merge-pathnames "uiop/uiop.asd"
+				(system-source-directory
+				 (asdf:find-system :asdf))))
+	 (mapc #'load
+	   (asdf:input-files :monolithic-concatenate-source-op
+			     "asdf/driver")))
+	((string= (asdf:coerce-name system-name) "asdf")
+	 (setq system (find-system "asdf/defsystem"))
+	 (mapc #'load
+	   (asdf:input-files :monolithic-concatenate-source-op
+			     "asdf/defsystem")))
+	(t
+	 (asdf:load-system system-name)))
+  system)
+
 ;;; asdf.lisp ends here

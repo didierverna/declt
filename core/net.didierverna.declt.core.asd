@@ -55,10 +55,12 @@ net.didierverna.declt system."
 					   (:file "asdf")))
 			     (:module "item"
 			      :serial t
-			      :components ((:file "item")
+			      :components ((:file "license")
+					   (:file "item")
 					   (:file "symbol")
 					   (:file "package")
-					   (:file "asdf")))
+					   (:file "asdf")
+					   (:file "extract")))
 			     (:module "doc"
 			      :serial t
 			      :components ((:file "texi")
