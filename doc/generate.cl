@@ -1,6 +1,6 @@
 ;;; generate.cl --- Declt reference manual generation script
 
-;; Copyright (C) 2010-2013, 2015-2019 Didier Verna
+;; Copyright (C) 2010-2013, 2015-2020 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -27,7 +27,7 @@
 
 (require "asdf")
 
-(defconstant +copyright-years+ "2010--2013, 2015--2019")
+(defconstant +copyright-years+ "2010--2013, 2015--2020")
 
 (defconstant +introduction+
   "@macro declt
@@ -97,7 +97,7 @@ for a more human-readable guide to using @declt{}."
 (asdf:load-system :net.didierverna.declt)
 (net.didierverna.declt:nickname-package)
 
-;; ASDF doesn't understand my version numnbering scheme. That will change
+;; ASDF doesn't understand my version numbering scheme. That will change
 ;; soon, but in the meantime, I have to provide my version number explicitly
 ;; here.
 (if (and (second sb-ext:*posix-argv*)
