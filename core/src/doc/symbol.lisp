@@ -729,10 +729,10 @@ The standard method combination is not rendered."
 
 (defun add-definitions-node
     (parent context
-     &aux (external-definitions (context-external-definitions context))
+     &aux (external-definitions (external-definitions context))
        (external-definitions-number
 	(definitions-pool-size external-definitions))
-       (internal-definitions (context-internal-definitions context))
+       (internal-definitions (internal-definitions context))
        (internal-definitions-number
 	(definitions-pool-size internal-definitions)))
   "Add the definitions node to PARENT in CONTEXT."

@@ -33,11 +33,12 @@
 ;; Documentation Contexts
 ;; ==========================================================================
 
-(defstruct context
+(defstruct (context (:conc-name))
   "The documentation context structure."
   library-name
   tagline
-  version
+  ;; Yuck. To avoid collision with the VERSION function.
+  library-version
   contact-names
   contact-emails
   copyright-years
@@ -48,10 +49,11 @@
   internal-definitions
   hyperlinksp)
 
-;; This is used rather often so it is worth a shortcut
-(defun context-directory (context)
-  "Return CONTEXT's main system directory."
-  (system-directory (car (context-systems context))))
+;; This is used rather often (in fact, not so much! ;-)) so it is worth a
+;; shortcut.
+(defun location (context)
+  "Return CONTEXT's main system location."
+  (system-directory (car (systems context))))
 
 
 
@@ -61,35 +63,35 @@
 
 (defun add-external-definitions (context)
   "Add all external definitions to CONTEXT."
-  (dolist (symbol (mapcan #'system-external-symbols (context-systems context)))
-    (add-symbol-definitions symbol (context-external-definitions context))))
+  (dolist (symbol (mapcan #'system-external-symbols (systems context)))
+    (add-symbol-definitions symbol (external-definitions context))))
 
 (defun add-internal-definitions (context)
   "Add all internal definitions to CONTEXT."
-  (dolist (symbol (mapcan #'system-internal-symbols (context-systems context)))
-    (add-symbol-definitions symbol (context-internal-definitions context))))
+  (dolist (symbol (mapcan #'system-internal-symbols (systems context)))
+    (add-symbol-definitions symbol (internal-definitions context))))
 
 (defun add-definitions (context)
   "Add all definitions to CONTEXT."
   (add-external-definitions context)
   (add-internal-definitions context)
   (finalize-definitions
-   (context-external-definitions context)
-   (context-internal-definitions context)))
+   (external-definitions context)
+   (internal-definitions context)))
 
 (defun add-packages (context)
   "Add all package definitions to CONTEXT."
-  (setf (context-packages context)
+  (setf (packages context)
 	;; #### NOTE: several subsystems may share the same packages (because
 	;; they would share files defining them) so we need to filter
 	;; potential duplicates out.
 	(remove-duplicates
-	 (mapcan #'system-packages (context-systems context)))))
+	 (mapcan #'system-packages (systems context)))))
 
 (defun add-systems (context system)
   "Add all system definitions to CONTEXT.
 This includes SYSTEM and its subsystems."
-  (setf (context-systems context)
+  (setf (systems context)
 	(cons system
 	      (remove-duplicates
 	       (subsystems system (system-directory system))))))
@@ -129,7 +131,7 @@ allow to specify or override some bits of information.
   :bsd, :gpl, and :lgpl."
 
   (check-type library-name non-empty-string)
-  (setf (context-library-name context) library-name)
+  (setf (library-name context) library-name)
   (unless taglinep
     (setq tagline (or (system-long-name system)
 		      (component-description system))))
@@ -137,12 +139,12 @@ allow to specify or override some bits of information.
     (setq tagline nil))
   (when (and tagline (char= (aref tagline (1- (length tagline))) #\.))
     (setq tagline (subseq tagline 0 (1- (length tagline)))))
-  (setf (context-tagline context) tagline)
+  (setf (tagline context) tagline)
   (unless versionp
     (setq version (component-version system)))
   (unless (one-liner-p version)
     (setq version nil))
-  (setf (context-version context) version)
+  (setf (library-version context) version)
   (unless contactp
     (setq contact (system-author system))
     (when (stringp contact) (setq contact (list contact)))
@@ -158,8 +160,8 @@ allow to specify or override some bits of information.
 	     (null (car contact-emails))
 	     (one-liner-p (system-mailto system)))
     (setq contact-emails (list (system-mailto system))))
-  (setf (context-contact-names context) contact-names)
-  (setf (context-contact-emails context) contact-emails)
+  (setf (contact-names context) contact-names)
+  (setf (contact-emails context) contact-emails)
   (setq copyright-years
 	(or copyright-years
 	    (multiple-value-bind (second minute hour date month year)
@@ -168,12 +170,12 @@ allow to specify or override some bits of information.
 	      (format nil "~A" year))))
   (unless (one-liner-p copyright-years)
     (setq copyright-years nil))
-  (setf (context-copyright-years context) copyright-years)
+  (setf (copyright-years context) copyright-years)
   (when license
     (setq license (assoc license *licenses*))
     (unless license
       (error "License not found.")))
-  (setf (context-license context) license)
+  (setf (license context) license)
 
   (add-systems context system)
   (add-packages context)

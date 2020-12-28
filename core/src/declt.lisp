@@ -34,22 +34,22 @@
   "Render the header of the Texinfo file."
   (format t "\\input texinfo~2%@c ~A.texi --- Reference manual~2%" texi-name)
 
-  (when (context-copyright-years context)
+  (when (copyright-years context)
     (mapc (lambda (name)
 	    (format t "@c Copyright (C) ~A ~A~%"
-	      (context-copyright-years context) name))
+	      (copyright-years context) name))
       ;; #### NOTE: we already removed the duplicates in the original contact
       ;; list, but there may still be duplicates in the names, for instance if
       ;; somebody used his name several times, with a different email
       ;; address.
-      (remove-duplicates (remove-if #'null (context-contact-names context))
+      (remove-duplicates (remove-if #'null (contact-names context))
 	:from-end t :test #'string=))
     (terpri))
 
-  (format t "@c This file is part of ~A.~2%" (context-library-name context))
+  (format t "@c This file is part of ~A.~2%" (library-name context))
 
-  (when (context-license context)
-    (with-input-from-string (str (caddr (context-license context)))
+  (when (license context)
+    (with-input-from-string (str (caddr (license context)))
       (loop :for line := (read-line str nil str)
 	    :until (eq line str)
 	    :do (format t "@c ~A~%" line))))
@@ -72,7 +72,7 @@
 @afourpaper
 @documentencoding UTF-8
 @c %**end of header~4%"
-    (escape info-name) (escape (context-library-name context)))
+    (escape info-name) (escape (library-name context)))
 
   (format t "~
 @c ====================================================================
@@ -141,8 +141,8 @@
 @documentdescription
 The ~A Reference Manual~@[, version ~A~].
 @end documentdescription~4%"
-    (escape (context-library-name context))
-    (escape (context-version context)))
+    (escape (library-name context))
+    (escape (library-version context)))
 
   (format t "~
 @c ====================================================================
@@ -312,11 +312,11 @@ The ~A Reference Manual~@[, version ~A~].
 @direntry
 * ~A Reference: (~A). The ~A Reference Manual.
 @end direntry~4%"
-    (escape (context-library-name context))
+    (escape (library-name context))
     (escape info-name)
-    (escape (context-library-name context)))
+    (escape (library-name context)))
 
-  (when (context-license context)
+  (when (license context)
     (format t "~
 @c ====================================================================
 @c Copying
@@ -324,16 +324,16 @@ The ~A Reference Manual~@[, version ~A~].
 @copying
 @quotation~%")
 
-    (when (context-copyright-years context)
+    (when (copyright-years context)
       (mapc (lambda (name)
 	      (format t "Copyright @copyright{} ~A ~A~%"
-		(escape (context-copyright-years context))
+		(escape (copyright-years context))
 		(escape name)))
 	;; #### NOTE: we already removed the duplicates in the original
 	;; contact list, but there may still be duplicates in the names, for
 	;; instance if somebody used his name several times, with a different
 	;; email address.
-	(remove-duplicates (remove-if #'null (context-contact-names context))
+	(remove-duplicates (remove-if #'null (contact-names context))
 	  :from-end t :test #'string=))
       (terpri))
     (format t "~
@@ -365,19 +365,19 @@ except that this permission notice may be translated as well.
 @titlepage
 @title The ~A Reference Manual
 ~A~%"
-    (escape (context-library-name context))
-    (if (or (context-tagline context) (context-version context))
+    (escape (library-name context))
+    (if (or (tagline context) (library-version context))
 	(format nil "@subtitle ~@[~A~]~:[~;, ~]~@[version ~A~]~%"
-	  (escape (context-tagline context))
-	  (and (context-tagline context) (context-version context))
-	  (escape (context-version context)))
+	  (escape (tagline context))
+	  (and (tagline context) (library-version context))
+	  (escape (library-version context)))
 	""))
   (mapc (lambda (name email)
 	  (format t "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	    (escape name) email (escape email)))
-    (context-contact-names context) (context-contact-emails context))
+    (contact-names context) (contact-emails context))
   (terpri)
-  (when (or declt-notice (context-license context))
+  (when (or declt-notice (license context))
     (format t "@page~%"))
 
   (when declt-notice
@@ -388,7 +388,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
     (escape (version declt-notice))
     (when (eq declt-notice :long) (escape current-time-string))))
 
-  (when (context-license context)
+  (when (license context)
     (format t "@vskip 0pt plus 1filll~%@insertcopying~%"))
 
   (format t "@end titlepage~4%")
@@ -438,7 +438,7 @@ The following keyword parameters are also available.
    (ignore library-name tagline version contact copyright-years license))
 
   ;; #### FIXME: this shouldn't be part of the CONTEXT structure.
-  (setf (context-hyperlinksp context) hyperlinks)
+  (setf (hyperlinksp context) hyperlinks)
 
   ;; Construct the nodes hierarchy.
   (with-standard-io-syntax
@@ -447,7 +447,7 @@ The following keyword parameters are also available.
 	    (make-node :name "Top"
 		       :section-name
 		       (format nil "The ~A Reference Manual"
-			 (escape (context-library-name context)))
+			 (escape (library-name context)))
 		       :section-type :unnumbered
 		       :before-menu-contents
 		       (format nil "~
@@ -455,30 +455,30 @@ The following keyword parameters are also available.
 This is the ~A Reference Manual~@[, version ~A~]~@[,
 generated automatically by Declt version ~A~@[
 on ~A~]~]."
-			 (escape (context-library-name context))
-			 (escape (context-version context))
+			 (escape (library-name context))
+			 (escape (library-version context))
 			 (when declt-notice
 			   (escape
 			    (version declt-notice)))
 			 (when (eq declt-notice :long)
 			   (escape current-time-string)))
 		       :after-menu-contents
-		       (when (context-license context) "@insertcopying"))))
-      (when (context-license context)
+		       (when (license context) "@insertcopying"))))
+      (when (license context)
 	(add-child top-node
 	  (make-node :name "Copying"
-		     :synopsis (cadr (context-license context))
+		     :synopsis (cadr (license context))
 		     :section-type :unnumbered
 		     :before-menu-contents
 		     (format nil "@quotation~@
 				  ~A~@
 				  @end quotation"
-		       (escape (caddr (context-license context)))))))
+		       (escape (caddr (license context)))))))
       (when introduction
 	(add-child top-node
 	  (make-node :name "Introduction"
 		     :synopsis (format nil "What ~A is all about"
-				 (escape (context-library-name context)))
+				 (escape (library-name context)))
 		     :before-menu-contents introduction)))
       (add-systems-node     top-node context)
       (add-modules-node     top-node context)

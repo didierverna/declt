@@ -71,7 +71,7 @@
     ;; REFERENCE method handle foreign definitions directly. We cannot do that
     ;; here because we're manipulating packages directly.
     (flet ((renderer (package)
-	     (if (member package (context-packages context))
+	     (if (member package (packages context))
 		 (reference package)
 		 (format t "@t{~(~A~)}" (escape package)))))
       (@tableitem title
@@ -98,11 +98,11 @@
     (render-use-list (package-used-by-list package) "Used By List" context)
     (render-external-definitions-references
      (sort
-      (package-definitions package (context-external-definitions context))
+      (package-definitions package (external-definitions context))
       #'string-lessp :key #'definition-symbol))
     (render-internal-definitions-references
      (sort
-      (package-definitions package (context-internal-definitions context))
+      (package-definitions package (internal-definitions context))
       #'string-lessp :key #'definition-symbol))))
 
 
@@ -112,7 +112,7 @@
 ;; ==========================================================================
 
 (defun add-packages-node
-    (parent context &aux (packages (context-packages context)))
+    (parent context &aux (packages (packages context)))
   "Add the packages node to PARENT in CONTEXT."
   (when packages
     (let ((packages-node

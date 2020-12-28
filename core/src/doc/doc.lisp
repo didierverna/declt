@@ -84,8 +84,8 @@
     (pathname context
      &optional (title "Location")
      &aux (probed-pathname (probe-file pathname))
-	  (relative-to (context-directory context))
-	  (hyperlinkp (and (context-hyperlinksp context) probed-pathname)))
+	  (relative-to (location context))
+	  (hyperlinkp (and (hyperlinksp context) probed-pathname)))
   "Render an itemized location line for PATHNAME in CONTEXT.
 Rendering is done on *standard-output*."
   (@tableitem title
@@ -102,7 +102,7 @@ Rendering is done on *standard-output*."
   "Render an itemized source line for ITEM in CONTEXT.
 Rendering is done on *standard-output*."
   (when-let ((source-pathname (source item)))
-    (let* ((systems (context-systems context))
+    (let* ((systems (systems context))
 	   ;; Remember that a source can be a system, although systems are not
 	   ;; actual cl-source-file's.
 	   (source-component

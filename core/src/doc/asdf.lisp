@@ -150,7 +150,7 @@ Optionally PREFIX the title."
 
 (defmethod document ((component asdf:component) context
 		     &key
-		     &aux (relative-to (context-directory context)))
+		     &aux (relative-to (location context)))
   "Render COMPONENT's documentation in CONTEXT."
   (when-let ((description (component-description component)))
     (@tableitem "Description"
@@ -183,7 +183,7 @@ Optionally PREFIX the title."
 	       (format t "@ref{go to the ~A file, , @t{~(~A}~)} (file)~%"
 		 (escape-anchor system-base-name)
 		 (escape-label system-base-name)))))
-	 (when (context-hyperlinksp context)
+	 (when (hyperlinksp context)
 	   (let ((system-source-directory
 		   (escape (system-source-directory component))))
 	     (@tableitem "Directory"
@@ -254,11 +254,11 @@ Optionally PREFIX the title."
   (call-next-method)
   (render-packages-references (file-packages pathname))
   (render-external-definitions-references
-   (sort (file-definitions pathname (context-external-definitions context))
+   (sort (file-definitions pathname (external-definitions context))
 	 #'string-lessp
 	 :key #'definition-symbol))
   (render-internal-definitions-references
-   (sort (file-definitions pathname (context-internal-definitions context))
+   (sort (file-definitions pathname (internal-definitions context))
 	 #'string-lessp
 	 :key #'definition-symbol)))
 
@@ -276,7 +276,7 @@ Optionally PREFIX the title."
 	     :before-menu-contents (render-to-string (document file context))))
 
 (defun add-files-node
-    (parent context &aux (systems (context-systems context))
+    (parent context &aux (systems (systems context))
 			 (lisp-files (mapcan #'lisp-components systems))
 			 (other-files
 			  (list
@@ -354,13 +354,13 @@ components trees."))))
 			(file-packages system-source-file))
 		       (render-external-definitions-references
 			(sort (file-definitions system-source-file
-						(context-external-definitions
+						(external-definitions
 						 context))
 			      #'string-lessp
 			      :key #'definition-symbol))
 		       (render-internal-definitions-references
 			(sort (file-definitions system-source-file
-						(context-internal-definitions
+						(internal-definitions
 						 context))
 			      #'string-lessp
 			      :key #'definition-symbol))))))))
@@ -422,7 +422,7 @@ components trees."))))
 
 (defun add-modules-node
     (parent context
-     &aux (modules (mapcan #'module-components (context-systems context))))
+     &aux (modules (mapcan #'module-components (systems context))))
   "Add the modules node to PARENT in CONTEXT."
   (when modules
     (let ((modules-node (add-child parent
@@ -525,7 +525,7 @@ Modules are listed depth-first from the system components tree.")))))
 				     (format nil "~
 The main system appears first, followed by any subsystem dependency.")))))
   "Add the systems node to PARENT in CONTEXT."
-  (dolist (system (context-systems context))
+  (dolist (system (systems context))
     (add-child systems-node (system-node system context))))
 
 
