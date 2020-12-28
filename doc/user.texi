@@ -2,7 +2,7 @@
 
 @c user.texi --- User manual
 
-@c Copyright (C) 2013, 2015-2019 Didier Verna
+@c Copyright (C) 2013, 2015-2020 Didier Verna
 
 @c Author: Didier Verna <didier@didierverna.net>
 
@@ -41,7 +41,7 @@
 @c Settings
 @c ====================================================================
 @set VERSION 3.0 "Montgomery Scott"
-@set COPYRIGHT_DATE 2010--2013, 2015--2019
+@set COPYRIGHT_DATE 2010--2013, 2015--2020
 @setchapternewpage odd
 @documentdescription
 The Declt User Manual for version @value{VERSION}.
@@ -429,19 +429,17 @@ just @t{net.didierverna.declt}.
 A tagline for the library, use in the reference manual subtitle. It
 defaults to the system's long name or description (one-liners only), but
 see @ref{Taglines}.
-@item :version
-@fkindex{declt,version}
-The library's version, used in the reference manual subtitle and at some
-other places. It defaults to the system's version (one-liner only).
+@item :library-version
+@fkindex{declt,library-version}
+The library version, used in the reference manual subtitle and at some
+other places. It defaults to the system version (one-liner only).
 @item :contact
 @fkindex{declt,contact}
 The contact(s) for the library. The default is extracted from the system
 definition (the @code{maintainer} and @code{author} slots, possibly also
-the @code{mailto} one; onle-liners only). At least one contact is needed
-because it is typeset in various places (@eg{} on the title page). If
-the library doesn't provide that information, you need to provide it by
-hand, as an author string or a list of such. An author string contains a
-name, optionally followed by an @code{<email@@ddress>}.
+the @code{mailto} one; one-liners only). You may provide a contact
+string, or a list of such. A contact string is of the form
+@code{"My Name <my@@address>"}, both name and address being optional.
 @end table
 
 @node Output Supplements, Output Control, Output Workarounds, Customization
@@ -485,17 +483,17 @@ The following options let you customize some basic aspects of the
 generated documentation.
 
 @table @code
-@item :texi-name
-@fkindex{declt,texi-name}
-The basename of the Texinfo file, sans extension. It defaults to the
+@item :output-directory
+@fkindex{declt,output-directory}
+The generated file's directory. It defaults to the current directory.
+@item :file-name
+@fkindex{declt,file-name}
+The base name of the generated file, sans extension. It defaults to the
 system name.
-@item :texi-directory
-@fkindex{declt,texi-directory}
-The Texinfo file directory. It defaults to the current directory.
 @item :info-name
 @fkindex{declt,info-name}
 The base name of the Info file, sans extension. It defaults to
-@t{TEXI-NAME}.
+@t{FILE-NAME}.
 @item :hyperlinks
 @fkindex{declt,hyperlinks}
 Whether to create hyperlinks to files or directories in the reference
