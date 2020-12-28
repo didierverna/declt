@@ -43,6 +43,8 @@
   contact-emails
   copyright-years
   license
+  introduction
+  conclusion
   systems
   packages
   external-definitions
@@ -106,6 +108,8 @@ This includes SYSTEM and its subsystems."
 	  (contact nil contactp)
 	  copyright-years
 	  license
+	  introduction
+	  conclusion
      &allow-other-keys ;; lazy calling from DECLT
      &aux (system (load-system system-name))
 	  contact-names contact-emails
@@ -128,7 +132,11 @@ allow to specify or override some bits of information.
 - COPYRIGHT-YEARS: copyright years information or NIL. Defaults to the current
   year.
 - LICENSE: license information. Defaults to NIL. Also accepts :mit, :boost,
-  :bsd, :gpl, and :lgpl."
+  :bsd, :gpl, and :lgpl.
+- INTRODUCTION: introduction chapter contents in Texinfo format.
+  Defaults to NIL.
+- CONCLUSION: conclusion chapter contents in Texinfo format.
+  Defaults to NIL."
 
   (check-type library-name non-empty-string)
   (setf (library-name extract) library-name)
@@ -176,6 +184,8 @@ allow to specify or override some bits of information.
     (unless license
       (error "License not found.")))
   (setf (license extract) license)
+  (setf (introduction extract) introduction)
+  (setf (conclusion extract) conclusion)
 
   (add-systems extract system)
   (add-packages extract)

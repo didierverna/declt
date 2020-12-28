@@ -402,9 +402,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 (defun declt (system-name
 	      &rest keys
 	      &key library-name tagline version contact copyright-years
-		   license
-
-		   introduction conclusion
+		   license introduction conclusion
 
 		   (texi-name (if (stringp system-name)
 				system-name
@@ -418,15 +416,9 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 		   (extract (apply #'extract system-name keys)))
   "Generate a reference manual in Texinfo format for ASDF SYSTEM-NAME.
 For a description of SYSTEM-NAME, LIBRARY-NAME, TAGLINE, VERSION, CONTACT,
-COPYRIGHT-YEARS, and LICENSE, see `extract'.
+COPYRIGHT-YEARS, LICENSE, INTRODUCTION, and CONCLUSION, see `extract'.
 
 The following keyword parameters are also available.
-
-- INTRODUCTION: introduction chapter contents in Texinfo format.
-  Defaults to NIL.
-- CONCLUSION: conclusion chapter contents in Texinfo format.
-  Defaults to NIL.
-
 - TEXI-NAME: Texinfo file basename sans extension. Defaults to the system
   name.
 - TEXI-DIRECTORY: Texinfo file directory. Defaults to the current directory.
@@ -434,8 +426,9 @@ The following keyword parameters are also available.
 - HYPERLINKS: create hyperlinks to files or directories. Defaults to NIL.
 - DECLT-NOTICE: small credit paragraph to Declt, or NIL. Defaults to
   :long. Also accepts :short."
-  (declare
-   (ignore library-name tagline version contact copyright-years license))
+  (declare (ignore library-name tagline version contact
+		   copyright-years license
+		   introduction conclusion))
 
   ;; #### FIXME: this shouldn't be part of the EXTRACT structure.
   (setf (hyperlinksp extract) hyperlinks)
@@ -474,22 +467,22 @@ on ~A~]~]."
 				  ~A~@
 				  @end quotation"
 		       (escape (caddr (license extract)))))))
-      (when introduction
+      (when (introduction extract)
 	(add-child top-node
 	  (make-node :name "Introduction"
 		     :synopsis (format nil "What ~A is all about"
 				 (escape (library-name extract)))
-		     :before-menu-contents introduction)))
+		     :before-menu-contents (introduction extract))))
       (add-systems-node     top-node extract)
       (add-modules-node     top-node extract)
       (add-files-node       top-node extract)
       (add-packages-node    top-node extract)
       (add-definitions-node top-node extract)
-      (when conclusion
+      (when (conclusion extract)
 	(add-child top-node
 	  (make-node :name "Conclusion"
 		     :synopsis "Time to go"
-		     :before-menu-contents conclusion)))
+		     :before-menu-contents (conclusion extract))))
       (let ((indexes-node (add-child top-node
 			    (make-node :name "Indexes"
 				       :synopsis (format nil "~
