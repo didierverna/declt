@@ -37,7 +37,6 @@
   "The documentation extract structure."
   library-name
   tagline
-  ;; Yuck. To avoid collision with the VERSION function.
   library-version
   contact-names
   contact-emails
