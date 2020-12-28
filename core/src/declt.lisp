@@ -401,8 +401,9 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 
 (defun declt (system-name
 	      &rest keys
-	      &key library-name tagline version contact copyright-years
-		   license introduction conclusion
+	      &key library-name tagline library-version contact
+		   copyright-years license
+		   introduction conclusion
 
 		   (output-directory #p"./")
 		   (file-name (if (stringp system-name)
@@ -417,8 +418,9 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
   "Generate a reference manual for ASDF SYSTEM-NAME.
 The reference manual is currently generated in Texinfo format.
 
-For a description of SYSTEM-NAME, LIBRARY-NAME, TAGLINE, VERSION, CONTACT,
-COPYRIGHT-YEARS, LICENSE, INTRODUCTION, and CONCLUSION, see `extract'.
+For a description of SYSTEM-NAME, LIBRARY-NAME, TAGLINE, LIBRARY-VERSION,
+CONTACT, COPYRIGHT-YEARS, LICENSE, INTRODUCTION, and CONCLUSION, see
+`extract'.
 
 The following keyword parameters are also available.
 - OUTPUT-DIRECTORY: output directory for the generated reference manual.
@@ -430,7 +432,7 @@ The following keyword parameters are also available.
 - HYPERLINKS: create hyperlinks to files or directories. Defaults to NIL.
 - DECLT-NOTICE: small credit paragraph to Declt, or NIL. Defaults to
   :long. Also accepts :short."
-  (declare (ignore library-name tagline version contact
+  (declare (ignore library-name tagline library-version contact
 		   copyright-years license
 		   introduction conclusion))
 

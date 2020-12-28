@@ -104,7 +104,7 @@ for a more human-readable guide to using @declt{}."
 	 (string= (second sb-ext:*posix-argv*) "--web"))
     (declt:declt :net.didierverna.declt
 		 :library-name "Declt"
-		 :version (declt:version :long)
+		 :library-version (declt:version :long)
 		 :copyright-years +copyright-years+
 		 :license :bsd
 		 :introduction +introduction+
@@ -112,7 +112,7 @@ for a more human-readable guide to using @declt{}."
 		 :info-name "declt-webreference") ; but we don't care
     (declt:declt :net.didierverna.declt
 		 :library-name "Declt"
-		 :version (declt:version :long)
+		 :library-version (declt:version :long)
 		 :copyright-years +copyright-years+
 		 :license :bsd
 		 :introduction +introduction+

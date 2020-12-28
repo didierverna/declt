@@ -104,7 +104,7 @@ This includes SYSTEM and its subsystems."
 			  system-name
 			  (string-downcase system-name)))
 	  (tagline nil taglinep)
-	  (version nil versionp)
+	  (library-version nil library-version-p)
 	  (contact nil contactp)
 	  copyright-years
 	  license
@@ -125,7 +125,8 @@ allow to specify or override some bits of information.
   name.
 - TAGLINE: small text to be used as the manual's subtitle, or NIL.
   Defaults to the system long name or description.
-- VERSION: version information, or NIL. Defaults to the system version.
+- LIBRARY-VERSION: version information, or NIL.
+  Defaults to the system version.
 - CONTACT: contact information, or NIL. Defaults to the system maintainer(s)
   and author(s). Accepts a contact string, or a list of such. See
   `parse-contact-string' for more information.
@@ -148,11 +149,11 @@ allow to specify or override some bits of information.
   (when (and tagline (char= (aref tagline (1- (length tagline))) #\.))
     (setq tagline (subseq tagline 0 (1- (length tagline)))))
   (setf (tagline extract) tagline)
-  (unless versionp
-    (setq version (component-version system)))
-  (unless (one-liner-p version)
-    (setq version nil))
-  (setf (library-version extract) version)
+  (unless library-version-p
+    (setq library-version (component-version system)))
+  (unless (one-liner-p library-version)
+    (setq library-version nil))
+  (setf (library-version extract) library-version)
   (unless contactp
     (setq contact (system-author system))
     (when (stringp contact) (setq contact (list contact)))
