@@ -51,6 +51,17 @@
 
 
 ;; ==========================================================================
+;; Package Definitions
+;; ==========================================================================
+
+(defstruct package-definition
+  "Structure for package definitions.
+This structure holds the corresponding package."
+  package)
+
+
+
+;; ==========================================================================
 ;; Extraction Protocols
 ;; ==========================================================================
 
@@ -60,25 +71,35 @@
 
 ;; #### PORTME.
 (defmethod source ((package package))
-  "Return PACKAGE's definition source."
+  "Return PACKAGE'source."
   (when-let ((defsrc (sb-introspect:find-definition-source package)))
     (sb-introspect:definition-source-pathname defsrc)))
+
+(defmethod source ((package-definition package-definition))
+  "Return PACKAGE-DEFINITION'source."
+  (source (package-definition-package package-definition)))
 
 
 ;; ------------------
 ;; Docstring protocol
 ;; ------------------
 
-(defmethod docstring ((package package))
-  "Return PACKAGE's docstring."
-  (documentation package t))
+(defmethod docstring ((package-definition package-definition))
+  "Return PACKAGE-DEFINITION's docstring."
+  (documentation (package-definition-package package-definition) t))
 
 
 ;; ------------------
 ;; Type name protocol
 ;; ------------------
 
+;; #### FIXME: this needs to go away at some point, when package definitions
+;; are in complete use.
 (defmethod type-name ((package package))
+  "Return \"package\"."
+  "package")
+
+(defmethod type-name ((package-definition package-definition))
   "Return \"package\"."
   "package")
 
@@ -141,8 +162,10 @@
 	      (generic-accessor-definition-access-expander generic-accessor)
 	      package)))))
 
-(defun package-definitions (package definitions)
-  "Return the subset of DEFINITIONS that belong to PACKAGE."
+(defun package-definition-definitions
+    (package-definition definitions
+     &aux (package (package-definition-package package-definition)))
+  "Return the subset of DEFINITIONS that belong to PACKAGE-DEFINITION."
   (mapcan-definitions-pool
    (lambda (definition) (definition-package-definitions definition package))
    definitions))

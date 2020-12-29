@@ -45,7 +45,7 @@
   introduction
   conclusion
   systems
-  packages
+  package-definitions
   external-definitions
   internal-definitions
   hyperlinksp)
@@ -80,14 +80,14 @@
    (external-definitions extract)
    (internal-definitions extract)))
 
-(defun add-packages (extract)
+(defun add-package-definitions (extract)
   "Add all package definitions to EXTRACT."
-  (setf (packages extract)
+  (setf (package-definitions extract)
 	;; #### NOTE: several subsystems may share the same packages (because
 	;; they would share files defining them) so we need to filter
 	;; potential duplicates out.
-	(remove-duplicates
-	 (mapcan #'system-packages (systems extract)))))
+	(mapcar (lambda (package) (make-package-definition :package package))
+	  (remove-duplicates (mapcan #'system-packages (systems extract))))))
 
 (defun add-systems (extract system)
   "Add all system definitions to EXTRACT.
@@ -188,7 +188,7 @@ allow to specify or override some bits of information.
   (setf (conclusion extract) conclusion)
 
   (add-systems extract system)
-  (add-packages extract)
+  (add-package-definitions extract)
   (add-definitions extract)
 
   extract)
