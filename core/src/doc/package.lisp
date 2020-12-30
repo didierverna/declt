@@ -71,8 +71,7 @@
 
 (defmethod document ((package package) context &key)
   "Render PACKAGE's documentation in CONTEXT."
-  (anchor package)
-  (index package)
+  (anchor-and-index package)
   (render-docstring package)
   (@table ()
     (render-source package context)
@@ -81,9 +80,7 @@
       (@tableitem (format nil "Nickname~p" length)
 	(if (eq length 1)
 	    (format t "@t{~(~A~)}" (escape (first nicknames)))
-	    (@itemize-list nicknames
-			   :format "@t{~(~A~)}"
-			   :key #'escape))))
+	    (@itemize-list nicknames :format "@t{~(~A~)}" :key #'escape))))
     (render-use-list (package-use-list package) "Use List" context)
     (render-use-list (package-used-by-list package) "Used By List" context)
     (render-external-definitions-references
