@@ -87,8 +87,7 @@
 
 (defmethod document ((package-definition package-definition) extract &key)
   "Render PACKAGE-DEFINITION's documentation in EXTRACT."
-  (anchor package-definition)
-  (index package-definition)
+  (anchor-and-index package-definition)
   (render-docstring package-definition)
   (@table ()
     (render-source package-definition extract)
@@ -97,9 +96,7 @@
       (@tableitem (format nil "Nickname~p" length)
 	(if (eq length 1)
 	    (format t "@t{~(~A~)}" (escape (first nicknames)))
-	    (@itemize-list nicknames
-			   :format "@t{~(~A~)}"
-			   :key #'escape))))
+	    (@itemize-list nicknames :format "@t{~(~A~)}" :key #'escape))))
     (render-references
      (package-definition-use-list package-definition) "Use List")
     (render-references
