@@ -79,30 +79,11 @@
 ;; the item is in the documentation.
 (defmethod reference ((package-definition package-definition))
   "Render PACKAGE-DEFINITION's reference."
-  (@ref (anchor-name package-definition) package-definition)
-  (terpri))
-
-(defun render-use-list (list title extract)
-  "Render a package use/used-by LIST with TITLE in EXTRACT."
-  (when list
-    ;; #### FIXME: the comment below is obsolete. We can now add a foreignp
-    ;; slot to package definitions, implement a finalize function for package
-    ;; definitions and sort out all those mutual references there.
-    ;; #### NOTE: this is not as clean as for definitions. Definitions (in
-    ;; fact, classoids currently) have a foreignp slot that helps the
-    ;; REFERENCE method handle foreign definitions directly. We cannot do that
-    ;; here because we're manipulating packages directly.
-    (flet ((renderer (package)
-	     (let ((package-definition
-		     (find package (package-definitions extract)
-			   :key #'package-definition-package)))
-	       (if package-definition
-		 (reference package-definition)
-		 (format t "@t{~(~A~)}" (escape package))))))
-      (@tableitem title
-	(if (eq (length list) 1)
-	    (renderer (first list))
-	    (@itemize-list list :renderer #'renderer))))))
+  (cond ((package-definition-foreignp package-definition)
+	 (format t "@t{~(~A~)}~%" (escape package-definition)))
+	(t
+	 (@ref (anchor-name package-definition) package-definition)
+	 (terpri))))
 
 (defmethod document ((package-definition package-definition) extract &key)
   "Render PACKAGE-DEFINITION's documentation in EXTRACT."
@@ -119,12 +100,10 @@
 	    (@itemize-list nicknames
 			   :format "@t{~(~A~)}"
 			   :key #'escape))))
-    (render-use-list (package-use-list
-		      (package-definition-package package-definition))
-		     "Use List" extract)
-    (render-use-list (package-used-by-list
-		      (package-definition-package package-definition))
-		     "Used By List" extract)
+    (render-references
+     (package-definition-use-list package-definition) "Use List")
+    (render-references
+     (package-definition-used-by-list package-definition) "Used By List")
     (render-external-definitions-references
      (sort
       (package-definition-definitions
@@ -152,7 +131,8 @@
 			 :synopsis "The packages documentation"
 			 :before-menu-contents (format nil "~
 Packages are listed by definition order.")))))
-      (dolist (package-definition package-definitions)
+      (dolist (package-definition
+	       (remove-if #'package-definition-foreignp package-definitions))
 	(add-child packages-node
 	  (make-node :name (format nil "~@(~A~)"
 			     (title package-definition))

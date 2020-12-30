@@ -30,7 +30,7 @@
 
 
 ;; ==========================================================================
-;; Documentation Contexts
+;; Extraction Structure
 ;; ==========================================================================
 
 (defstruct (extract (:conc-name))
@@ -59,8 +59,25 @@
 
 
 ;; ==========================================================================
-;; Documentation Information Extraction
+;; Extract Population
 ;; ==========================================================================
+
+(defun add-systems (extract system)
+  "Add all system definitions to EXTRACT.
+This includes SYSTEM and its subsystems."
+  (setf (systems extract)
+	(cons system
+	      (remove-duplicates
+	       (subsystems system (system-directory system))))))
+
+(defun add-package-definitions (extract)
+  "Add all package definitions to EXTRACT."
+  (setf (package-definitions extract)
+	;; #### NOTE: several subsystems may share the same packages (because
+	;; they would share files defining them) so we need to filter
+	;; potential duplicates out.
+	(mapcar (lambda (package) (make-package-definition :package package))
+	  (remove-duplicates (mapcan #'system-packages (systems extract))))))
 
 (defun add-external-definitions (extract)
   "Add all external definitions to EXTRACT."
@@ -80,22 +97,51 @@
    (external-definitions extract)
    (internal-definitions extract)))
 
-(defun add-package-definitions (extract)
-  "Add all package definitions to EXTRACT."
-  (setf (package-definitions extract)
-	;; #### NOTE: several subsystems may share the same packages (because
-	;; they would share files defining them) so we need to filter
-	;; potential duplicates out.
-	(mapcar (lambda (package) (make-package-definition :package package))
-	  (remove-duplicates (mapcan #'system-packages (systems extract))))))
 
-(defun add-systems (extract system)
-  "Add all system definitions to EXTRACT.
-This includes SYSTEM and its subsystems."
-  (setf (systems extract)
-	(cons system
-	      (remove-duplicates
-	       (subsystems system (system-directory system))))))
+
+;; ==========================================================================
+;; Extract Finalization
+;; ==========================================================================
+
+;; #### NOTE: creating foreign package definitions is not strictly required,
+;; but it makes the code more homogeneous. In particular, the REFERENCE method
+;; can behave exactly as the one for symbol definitions according to the
+;; foreign status.
+(defun finalize-package-definitions (extract &aux foreign-package-definitions)
+  "Finalize EXTRACT's package definitions.
+Currently, this means computing the used and used-by lists of every package
+definition as references to other package definitions (as opposed to mere
+packages). This process may also create a number of foreign package
+definitions, which are added at the end of the package definitions list."
+  (flet ((package-definition (package)
+	   "Return the package definition corresponding to PACKAGE.
+The definition is found in the already existing EXTRACT ones, in the recently
+created foreign ones, or is created as a new foreign one."
+	   (or (find package (package-definitions extract)
+		     :key #'package-definition-package)
+	       (find package foreign-package-definitions
+		     :key #'package-definition-package)
+	       (let ((new-definition
+		       (make-package-definition :package package :foreignp t)))
+		 (push new-definition foreign-package-definitions)
+		 new-definition))))
+    (dolist (package-definition (package-definitions extract))
+      (setf (package-definition-use-list package-definition)
+	    (mapcar #'package-definition
+	      (package-use-list
+	       (package-definition-package package-definition))))
+      (setf (package-definition-used-by-list package-definition)
+	    (mapcar #'package-definition
+	      (package-used-by-list
+	       (package-definition-package package-definition))))))
+  (setf (package-definitions extract)
+	(append (package-definitions extract) foreign-package-definitions)))
+
+
+
+;; ==========================================================================
+;; Documentation Information Extraction
+;; ==========================================================================
 
 (defun extract
     (system-name
@@ -187,9 +233,14 @@ allow to specify or override some bits of information.
   (setf (introduction extract) introduction)
   (setf (conclusion extract) conclusion)
 
+  ;; #### NOTE: because of the way the EXTRACT structure is filled in, the
+  ;; call order below is important. Each addition relies on the previous ones
+  ;; having been performed, and the various finalization steps need to be
+  ;; performed in reverse order.
   (add-systems extract system)
   (add-package-definitions extract)
   (add-definitions extract)
+  (finalize-package-definitions extract)
 
   extract)
 

@@ -56,8 +56,13 @@
 
 (defstruct package-definition
   "Structure for package definitions.
-This structure holds the corresponding package."
-  package)
+This structure holds the corresponding package, the package definitions for
+its used-list and used-by-list, and a slot for marking foreign packages, i.e.
+those which do not pertain to the system being documented."
+  package
+  use-list
+  used-by-list
+  foreignp)
 
 
 ;; ----------------
