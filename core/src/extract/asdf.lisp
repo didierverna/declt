@@ -176,12 +176,4 @@ named SYSTEM/foobar, regardless of case."
   "Return the list of packages defined in ASDF SYSTEM."
   (append (system-located-packages system) (system-unlocated-packages system)))
 
-(defun system-external-symbols (system)
-  "Return the list of ASDF SYSTEM's external symbols."
-  (mapcan #'package-external-symbols (system-packages system)))
-
-(defun system-internal-symbols (system)
-  "Return the list of ASDF SYSTEM's internal symbols."
-  (mapcan #'package-internal-symbols (system-packages system)))
-
 ;;; asdf.lisp ends here

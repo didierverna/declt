@@ -79,20 +79,20 @@ This includes SYSTEM and its subsystems."
 	(mapcar (lambda (package) (make-package-definition :package package))
 	  (remove-duplicates (mapcan #'system-packages (systems extract))))))
 
-(defun add-external-definitions (extract)
-  "Add all external definitions to EXTRACT."
-  (dolist (symbol (mapcan #'system-external-symbols (systems extract)))
-    (add-symbol-definitions symbol (external-definitions extract))))
-
-(defun add-internal-definitions (extract)
-  "Add all internal definitions to EXTRACT."
-  (dolist (symbol (mapcan #'system-internal-symbols (systems extract)))
-    (add-symbol-definitions symbol (internal-definitions extract))))
-
 (defun add-definitions (extract)
   "Add all definitions to EXTRACT."
-  (add-external-definitions extract)
-  (add-internal-definitions extract)
+  (flet ((add-pool-definitions (pool package-symbols-extractor)
+	   (dolist (symbol (mapcan package-symbols-extractor
+			     (mapcar #'package-definition-package
+			       ;; #### NOTE: at that point, we don't have any
+			       ;; foreign package definitions here, so we
+			       ;; don't need to filter them.
+			       (package-definitions extract))))
+	     (add-symbol-definitions symbol pool))))
+    (add-pool-definitions
+     (external-definitions extract) #'package-external-symbols)
+    (add-pool-definitions
+     (internal-definitions extract) #'package-internal-symbols))
   (finalize-definitions
    (external-definitions extract)
    (internal-definitions extract)))
