@@ -893,7 +893,7 @@ Return nil."
 ;;      want to add in the definitions pools) because at that time, we know
 ;;      that if a definition doesn't exist in the pools, then it is foreign.
 ;; #### PORTME.
-(defun finalize-definitions (pool1 pool2)
+(defun finalize-pools-definitions (pool1 pool2)
   "Finalize the definitions in POOL1 and POOL2.
 Currently, this means resolving:
 - classes subclasses,

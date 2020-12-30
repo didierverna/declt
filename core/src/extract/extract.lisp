@@ -92,16 +92,20 @@ This includes SYSTEM and its subsystems."
     (add-pool-definitions
      (external-definitions extract) #'package-external-symbols)
     (add-pool-definitions
-     (internal-definitions extract) #'package-internal-symbols))
-  (finalize-definitions
-   (external-definitions extract)
-   (internal-definitions extract)))
+     (internal-definitions extract) #'package-internal-symbols)))
 
 
 
 ;; ==========================================================================
 ;; Extract Finalization
 ;; ==========================================================================
+
+(defun finalize-definitions (extract)
+  "Finalize EXTRACT's definitions.
+See `finalize-pools-definitions' for more information."
+  (finalize-pools-definitions
+   (external-definitions extract)
+   (internal-definitions extract)))
 
 ;; #### NOTE: creating foreign package definitions is not strictly required,
 ;; but it makes the code more homogeneous. In particular, the REFERENCE method
@@ -259,6 +263,7 @@ allow to specify or override some bits of information.
   (add-systems extract system)
   (add-package-definitions extract)
   (add-definitions extract)
+  (finalize-definitions extract)
   (finalize-package-definitions extract)
 
   extract)
