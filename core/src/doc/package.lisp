@@ -111,8 +111,7 @@
   (render-docstring package-definition)
   (@table ()
     (render-source package-definition extract)
-    (when-let* ((nicknames (package-nicknames
-			    (package-definition-package package-definition)))
+    (when-let* ((nicknames (package-definition-nicknames package-definition))
 		(length (length nicknames)))
       (@tableitem (format nil "Nickname~p" length)
 	(if (eq length 1)

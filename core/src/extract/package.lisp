@@ -60,6 +60,15 @@ This structure holds the corresponding package."
   package)
 
 
+;; ----------------
+;; Pseudo-accessors
+;; ----------------
+
+(defun package-definition-nicknames (package-definition)
+  "Return the list of nicknames for PACKAGE-DEFINITION."
+  (package-nicknames (package-definition-package package-definition)))
+
+
 
 ;; ==========================================================================
 ;; Extraction Protocols
