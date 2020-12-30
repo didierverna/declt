@@ -109,23 +109,29 @@ This includes SYSTEM and its subsystems."
 ;; foreign status.
 (defun finalize-package-definitions (extract &aux foreign-package-definitions)
   "Finalize EXTRACT's package definitions.
-Currently, this means computing the used and used-by lists of every package
-definition as references to other package definitions (as opposed to mere
-packages). This process may also create a number of foreign package
-definitions, which are added at the end of the package definitions list."
-  (flet ((package-definition (package)
-	   "Return the package definition corresponding to PACKAGE.
+More specifically, for each package definition:
+- populate its use and used-by lists with the appropriate package definitions,
+- populate its external and internal definition lists with the appropriate
+  definitions.
+
+Finalizing the use and used-by lists may also entail the creation of several
+foreign package definitions which are added at the end of EXTRACT's package
+definitions list."
+  (dolist (package-definition (package-definitions extract))
+    ;; Populate the use and used-by list.
+    (flet ((package-definition (package)
+	     "Return the package definition corresponding to PACKAGE.
 The definition is found in the already existing EXTRACT ones, in the recently
 created foreign ones, or is created as a new foreign one."
-	   (or (find package (package-definitions extract)
-		     :key #'package-definition-package)
-	       (find package foreign-package-definitions
-		     :key #'package-definition-package)
-	       (let ((new-definition
-		       (make-package-definition :package package :foreignp t)))
-		 (push new-definition foreign-package-definitions)
-		 new-definition))))
-    (dolist (package-definition (package-definitions extract))
+	     (or (find package (package-definitions extract)
+		       :key #'package-definition-package)
+		 (find package foreign-package-definitions
+		       :key #'package-definition-package)
+		 (let ((new-definition
+			 (make-package-definition
+			  :package package :foreignp t)))
+		   (push new-definition foreign-package-definitions)
+		   new-definition))))
       (setf (package-definition-use-list package-definition)
 	    (mapcar #'package-definition
 	      (package-use-list
@@ -133,7 +139,20 @@ created foreign ones, or is created as a new foreign one."
       (setf (package-definition-used-by-list package-definition)
 	    (mapcar #'package-definition
 	      (package-used-by-list
-	       (package-definition-package package-definition))))))
+	       (package-definition-package package-definition)))))
+    ;; Populate the external and internal definitions.
+    (setf (package-definition-external-definitions package-definition)
+	  (sort (definitions-package-definitions
+		 (external-definitions extract)
+		 (package-definition-package package-definition))
+		#'string-lessp :key #'definition-symbol))
+    (setf (package-definition-internal-definitions package-definition)
+	  (sort (definitions-package-definitions
+		 (internal-definitions extract)
+		 (package-definition-package package-definition))
+		#'string-lessp :key #'definition-symbol)))
+  ;; Complete the packages definitions list with the newly created foreign
+  ;; ones.
   (setf (package-definitions extract)
 	(append (package-definitions extract) foreign-package-definitions)))
 

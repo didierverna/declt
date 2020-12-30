@@ -105,15 +105,9 @@
     (render-references
      (package-definition-used-by-list package-definition) "Used By List")
     (render-external-definitions-references
-     (sort
-      (package-definition-definitions
-       package-definition (external-definitions extract))
-      #'string-lessp :key #'definition-symbol))
+     (package-definition-external-definitions package-definition))
     (render-internal-definitions-references
-     (sort
-      (package-definition-definitions
-       package-definition (internal-definitions extract))
-      #'string-lessp :key #'definition-symbol))))
+     (package-definition-internal-definitions package-definition))))
 
 
 

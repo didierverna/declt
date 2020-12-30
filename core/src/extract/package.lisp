@@ -57,11 +57,14 @@
 (defstruct package-definition
   "Structure for package definitions.
 This structure holds the corresponding package, the package definitions for
-its used-list and used-by-list, and a slot for marking foreign packages, i.e.
-those which do not pertain to the system being documented."
+its used-list and used-by-list, its exported and internal definitions, and a
+slot for marking foreign packages, i.e. those which do not pertain to the
+system being documented."
   package
   use-list
   used-by-list
+  external-definitions
+  internal-definitions
   foreignp)
 
 
@@ -118,9 +121,10 @@ those which do not pertain to the system being documented."
   "package")
 
 
-;; ---------------------------------------
-;; Definition package definitions protocol
-;; ---------------------------------------
+
+;; ==========================================================================
+;; Finalization
+;; ==========================================================================
 
 ;; #### NOTE: contrary to DEFINITION-FILE-DEFINITIONS, this function could be
 ;; optimized a bit. For instance, when we figure out that a generic function
@@ -176,10 +180,8 @@ those which do not pertain to the system being documented."
 	      (generic-accessor-definition-access-expander generic-accessor)
 	      package)))))
 
-(defun package-definition-definitions
-    (package-definition definitions
-     &aux (package (package-definition-package package-definition)))
-  "Return the subset of DEFINITIONS that belong to PACKAGE-DEFINITION."
+(defun definitions-package-definitions (definitions package)
+  "Return the subset of DEFINITIONS that belong to PACKAGE."
   (mapcan-definitions-pool
    (lambda (definition) (definition-package-definitions definition package))
    definitions))
