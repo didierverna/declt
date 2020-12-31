@@ -9,7 +9,10 @@ are permitted in any medium without royalty provided the copyright
 notice and this notice are preserved.
 
 ** Packages and symbols
-See what to do about shadowings, imports etc.
+- See what to do about shadowings, imports etc.
+- Some sub-definitions may not pertain to the same package as the parent one
+  (for example, slot names vs. class names). We should check that and document
+  the sub-definition's package, when different.
 
 ** String downcasing
 Abstract it so that we may provide an option for case behavior.
