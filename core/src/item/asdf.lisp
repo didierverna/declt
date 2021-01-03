@@ -76,6 +76,10 @@
 ;; Definition file definitions protocol
 ;; ------------------------------------
 
+;; #### FIXME: similarly to DEFINITION-PACKAGE-DEFINITIONS, this function is
+;; #### likely to be wrong in some corner cases such as slot definitions. I
+;; #### should check that thoroughly.
+
 (defgeneric definition-file-definitions (definition file)
   (:documentation
    "Return the list of definitions from DEFINITION that belong to FILE.")

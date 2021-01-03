@@ -97,6 +97,10 @@
 ;; Definition package definitions protocol
 ;; ---------------------------------------
 
+;; #### FIXME: this is wrong in at least one corner case: for aggregates which
+;; #### names and slot names come from different packages (and this is a
+;; #### consequence of the overly complicated pool structure).
+
 ;; #### NOTE: contrary to DEFINITION-FILE-DEFINITIONS, this function could be
 ;; optimized a bit. For instance, when we figure out that a generic function
 ;; does belong to a package, we know that all methods do to because they share
