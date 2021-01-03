@@ -74,6 +74,29 @@ Each category is of type (:KEYWORD DESCRIPTION-STRING).")
 ;; Definitions
 ;; -----------
 
+;; #### FIXME: many things are wrong in this model. Several slots are called
+;; #### "access expander", which is misleading because they contain setf
+;; #### expander definitions. Some things are called "accessors" but really
+;; #### are readers, with back pointers to the corresponding writer
+;; #### definitions. Finally, the whole thing is too tied up to the way I
+;; #### originally thought a reference manual should be organized. What needs
+;; #### to be done is:
+;; #### - restore balance between readers and writers (i.e., make accessors
+;; ####   orthogonal structures with reader and writer slots, instead of
+;; ####   claiming that accessors "inherit" from readers).
+;; #### - See about making accessors for macros as well as [generic]
+;; ####   functions.
+;; #### - Flatten the whole thing apart maybe from slots which indeed do
+;; ####   belong to their respective condition / structure / class. In any
+;; ####   case, stop having writers belonging to accessors as they are now.
+;; #### - probably also stop using 2 pools, and add an "exported" slot to all
+;; ####   definitions (except that, of course, it should belong to the symbol
+;; ####   ;-)).
+;; #### That way, in the future, people will have the ability to organize
+;; #### their manuals as they wish from the provided extraction, and I can for
+;; #### example update the nodes structure to reflect what I'm currently
+;; #### doing.
+
 ;; #### NOTE: writer structures (either regular or generic) don't store the
 ;; complete function name (setf <name>) but only the original symbol. This, in
 ;; conjunction with the fact that definitions are sorted by symbol-name,
@@ -333,6 +356,7 @@ Name must be that of the reader (not the SETF form)."
 	  (writer-definition
 	   definition)
 	  (accessor-definition
+	   ;; #### FIXME: can this be NIL? Shouldn't we check ERRORP as below?
 	   (accessor-definition-writer definition)))
 	(when errorp
 	  (error "No writer definition found for symbol ~A." name))))
@@ -354,6 +378,7 @@ Name must be that of the reader (not the SETF form)."
 	  (generic-writer-definition
 	   definition)
 	  (generic-accessor-definition
+	   ;; #### FIXME: can this be NIL? Shouldn't we check ERRORP as below?
 	   (generic-accessor-definition-writer definition)))
 	(when errorp
 	  (error "No generic writer definition found for symbol ~A" name)))))
