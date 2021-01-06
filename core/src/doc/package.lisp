@@ -41,7 +41,7 @@
 
 (defmethod name ((package-definition package-definition))
   "Return PACKAGE-DEFINITION's name."
-  (reveal (package-name (package-definition-package package-definition))))
+  (reveal (package-name (definition-package package-definition))))
 
 
 
@@ -79,7 +79,7 @@
 ;; the item is in the documentation.
 (defmethod reference ((package-definition package-definition))
   "Render PACKAGE-DEFINITION's reference."
-  (cond ((package-definition-foreignp package-definition)
+  (cond ((foreignp package-definition)
 	 (format t "@t{~(~A~)}~%" (escape package-definition)))
 	(t
 	 (@ref (anchor-name package-definition) package-definition)
@@ -91,20 +91,20 @@
   (render-docstring package-definition)
   (@table ()
     (render-source package-definition extract)
-    (when-let* ((nicknames (package-definition-nicknames package-definition))
+    (when-let* ((nicknames (nicknames package-definition))
 		(length (length nicknames)))
       (@tableitem (format nil "Nickname~p" length)
 	(if (eq length 1)
 	    (format t "@t{~(~A~)}" (escape (first nicknames)))
 	    (@itemize-list nicknames :format "@t{~(~A~)}" :key #'escape))))
     (render-references
-     (package-definition-use-list package-definition) "Use List")
+     (use-definitions package-definition) "Use List")
     (render-references
-     (package-definition-used-by-list package-definition) "Used By List")
+     (used-by-definitions package-definition) "Used By List")
     (render-external-definitions-references
-     (package-definition-external-definitions package-definition))
+     (external-definitions package-definition))
     (render-internal-definitions-references
-     (package-definition-internal-definitions package-definition))))
+     (internal-definitions package-definition))))
 
 
 
@@ -122,8 +122,7 @@
 			 :synopsis "The packages documentation"
 			 :before-menu-contents (format nil "~
 Packages are listed by definition order.")))))
-      (dolist (package-definition
-	       (remove-if #'package-definition-foreignp package-definitions))
+      (dolist (package-definition (remove-if #'foreignp package-definitions))
 	(add-child packages-node
 	  (make-node :name (format nil "~@(~A~)"
 			     (title package-definition))

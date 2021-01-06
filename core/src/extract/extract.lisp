@@ -46,8 +46,8 @@
   conclusion
   systems
   package-definitions
-  external-definitions
-  internal-definitions
+  extract-external-definitions
+  extract-internal-definitions
   hyperlinksp)
 
 ;; This is used rather often (in fact, not so much! ;-)) so it is worth a
@@ -76,23 +76,23 @@ This includes SYSTEM and its subsystems."
 	;; #### NOTE: several subsystems may share the same packages (because
 	;; they would share files defining them) so we need to filter
 	;; potential duplicates out.
-	(mapcar (lambda (package) (make-package-definition :package package))
+	(mapcar #'make-package-definition
 	  (remove-duplicates (mapcan #'system-packages (systems extract))))))
 
 (defun add-definitions (extract)
   "Add all definitions to EXTRACT."
   (flet ((add-pool-definitions (pool package-symbols-extractor)
 	   (dolist (symbol (mapcan package-symbols-extractor
-			     (mapcar #'package-definition-package
+			     (mapcar #'definition-package
 			       ;; #### NOTE: at that point, we don't have any
 			       ;; foreign package definitions here, so we
 			       ;; don't need to filter them.
 			       (package-definitions extract))))
 	     (add-symbol-definitions symbol pool))))
     (add-pool-definitions
-     (external-definitions extract) #'package-external-symbols)
+     (extract-external-definitions extract) #'package-external-symbols)
     (add-pool-definitions
-     (internal-definitions extract) #'package-internal-symbols)))
+     (extract-internal-definitions extract) #'package-internal-symbols)))
 
 
 
@@ -104,13 +104,9 @@ This includes SYSTEM and its subsystems."
   "Finalize EXTRACT's definitions.
 See `finalize-pools-definitions' for more information."
   (finalize-pools-definitions
-   (external-definitions extract)
-   (internal-definitions extract)))
+   (extract-external-definitions extract)
+   (extract-internal-definitions extract)))
 
-;; #### NOTE: creating foreign package definitions is not strictly required,
-;; but it makes the code more homogeneous. In particular, the REFERENCE method
-;; can behave exactly as the one for symbol definitions according to the
-;; foreign status.
 (defun finalize-package-definitions (extract &aux foreign-package-definitions)
   "Finalize EXTRACT's package definitions.
 More specifically, for each package definition:
@@ -123,37 +119,33 @@ foreign package definitions which are added at the end of EXTRACT's package
 definitions list."
   (dolist (package-definition (package-definitions extract))
     ;; Populate the use and used-by list.
-    (flet ((package-definition (package)
-	     "Return the package definition corresponding to PACKAGE.
+    (flet ((find-package-definition (package)
+	     "Find PACKAGE definition.
 The definition is found in the already existing EXTRACT ones, in the recently
 created foreign ones, or is created as a new foreign one."
 	     (or (find package (package-definitions extract)
-		       :key #'package-definition-package)
+		       :key #'definition-package)
 		 (find package foreign-package-definitions
-		       :key #'package-definition-package)
-		 (let ((new-definition
-			 (make-package-definition
-			  :package package :foreignp t)))
+		       :key #'definition-package)
+		 (let ((new-definition (make-package-definition package t)))
 		   (push new-definition foreign-package-definitions)
 		   new-definition))))
-      (setf (package-definition-use-list package-definition)
-	    (mapcar #'package-definition
-	      (package-use-list
-	       (package-definition-package package-definition))))
-      (setf (package-definition-used-by-list package-definition)
-	    (mapcar #'package-definition
-	      (package-used-by-list
-	       (package-definition-package package-definition)))))
+      (setf (use-definitions package-definition)
+	    (mapcar #'find-package-definition
+	      (package-use-list (definition-package package-definition))))
+      (setf (used-by-definitions package-definition)
+	    (mapcar #'find-package-definition
+	      (package-used-by-list (definition-package package-definition)))))
     ;; Populate the external and internal definitions.
-    (setf (package-definition-external-definitions package-definition)
+    (setf (external-definitions package-definition)
 	  (sort (definitions-package-definitions
-		 (external-definitions extract)
-		 (package-definition-package package-definition))
+		 (extract-external-definitions extract)
+		 (definition-package package-definition))
 		#'string-lessp :key #'definition-symbol))
-    (setf (package-definition-internal-definitions package-definition)
+    (setf (internal-definitions package-definition)
 	  (sort (definitions-package-definitions
-		 (internal-definitions extract)
-		 (package-definition-package package-definition))
+		 (extract-internal-definitions extract)
+		 (definition-package package-definition))
 		#'string-lessp :key #'definition-symbol)))
   ;; Complete the packages definitions list with the newly created foreign
   ;; ones.
@@ -182,8 +174,8 @@ created foreign ones, or is created as a new foreign one."
      &aux (system (load-system system-name))
 	  contact-names contact-emails
 	  (extract (make-extract
-		    :external-definitions (make-definitions-pool)
-		    :internal-definitions (make-definitions-pool))))
+		    :extract-external-definitions (make-definitions-pool)
+		    :extract-internal-definitions (make-definitions-pool))))
   "Extract and return documentation information for ASDF SYSTEM-NAME.
 The documentation information is returned in a EXTRACT structure, which see.
 

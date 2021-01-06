@@ -115,7 +115,7 @@ This is the base class for definitions named by symbols."))
   "Return T if OBJECT is a symbol definition."
   (eq (type-of object) 'symbol-definition))
 
-(defun definition-package (symbol-definition)
+(defmethod definition-package ((symbol-definition symbol-definition))
   "Return SYMBOL-DEFINITION's home package."
   (symbol-package (definition-symbol symbol-definition)))
 

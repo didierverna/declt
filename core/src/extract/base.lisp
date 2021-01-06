@@ -39,8 +39,11 @@
   ;; but who knows which new ones may need to be advertised in the future.
   ((foreign :documentation "Whether this definition is foreign."
 	    :initform nil :initarg :foreign :reader foreignp))
-  (:documentation "The DEFINITION class.
+  (:documentation "The Definition class.
 This is the base class for all definitions."))
+
+(defgeneric definition-package (definition)
+  (:documentation "Return DEFINITION's package."))
 
 
 

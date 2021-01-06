@@ -54,27 +54,37 @@
 ;; Package Definitions
 ;; ==========================================================================
 
-(defstruct package-definition
-  "Structure for package definitions.
-This structure holds the corresponding package, the package definitions for
-its used-list and used-by-list, its exported and internal definitions, and a
-slot for marking foreign packages, i.e. those which do not pertain to the
-system being documented."
-  package
-  use-list
-  used-by-list
-  external-definitions
-  internal-definitions
-  foreignp)
+(defclass package-definition (definition)
+  ((package :documentation "The corresponding package."
+	    :initarg :package :reader definition-package)
+   (use-definitions
+    :documentation "The corresponding use-list, as package definitions."
+    :accessor use-definitions)
+   (used-by-definitions
+    :documentation "The corresponding used-by-list, as package definitions."
+    :accessor used-by-definitions)
+   (external-definitions
+    :documentation
+    "The list of symbol definitions exported from the corresponding package."
+    :accessor external-definitions)
+   (internal-definitions
+    :documentation
+    "The list of symbol definitions internal to the corresponding package."
+    :accessor internal-definitions))
+  (:documentation "The Package Definition class."))
+
+(defun make-package-definition (package &optional foreign)
+  "Make a new PACKAGE definition, possibly FOREIGN."
+  (make-instance 'package-definition :package package :foreign foreign))
 
 
 ;; ----------------
 ;; Pseudo-accessors
 ;; ----------------
 
-(defun package-definition-nicknames (package-definition)
+(defun nicknames (package-definition)
   "Return the list of nicknames for PACKAGE-DEFINITION."
-  (package-nicknames (package-definition-package package-definition)))
+  (package-nicknames (definition-package package-definition)))
 
 
 
@@ -94,7 +104,7 @@ system being documented."
 
 (defmethod source ((package-definition package-definition))
   "Return PACKAGE-DEFINITION'source."
-  (source (package-definition-package package-definition)))
+  (source (definition-package package-definition)))
 
 
 ;; ------------------
@@ -103,7 +113,7 @@ system being documented."
 
 (defmethod docstring ((package-definition package-definition))
   "Return PACKAGE-DEFINITION's docstring."
-  (documentation (package-definition-package package-definition) t))
+  (documentation (definition-package package-definition) t))
 
 
 ;; ------------------
