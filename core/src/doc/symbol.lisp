@@ -32,7 +32,7 @@
 ;; Rendering protocols
 ;; ==========================================================================
 
-(defmethod name ((definition definition))
+(defmethod name ((definition symbol-definition))
   "Return DEFINITION's symbol name."
   (name (definition-symbol definition)))
 
@@ -47,21 +47,21 @@
 ;; argument with braces because of that.
 (defmethod name ((writer writer-definition))
   "Return WRITER's name, that is (setf <name>)."
-  (format nil "(SETF ~A)" (name (writer-definition-symbol writer))))
+  (format nil "(SETF ~A)" (name (definition-symbol writer))))
 
 (defmethod name ((writer-method writer-method-definition))
   "Return WRITER-METHOD's name, that is (setf <name>)."
   (format nil "(SETF ~A)"
-    (name (writer-method-definition-symbol writer-method))))
+    (name (definition-symbol writer-method))))
 
 (defmethod name ((generic-writer generic-writer-definition))
   "Return GENERIC-WRITER's name, that is (setf <name>)."
   (format nil "(SETF ~A)"
-    (name (generic-writer-definition-symbol generic-writer))))
+    (name (definition-symbol generic-writer))))
 
 (defmethod name ((expander setf-expander-definition))
   "Return setf EXPANDER's name, that is (setf <name>)."
-  (format nil "(SETF ~A)" (name (setf-expander-definition-symbol expander))))
+  (format nil "(SETF ~A)" (name (definition-symbol expander))))
 
 
 
@@ -158,7 +158,7 @@ not advertised if they are the same as GENERIC-SOURCE."
 	  &key (renderer (lambda (value)
 			   (format t "@t{~A}~%"
 			     (escape (format nil "~(~S~)" value)))))
-	  &aux (value (slot-property (slot-definition-slot slot) property)))
+	  &aux (value (slot-property (slot slot) property)))
   "Render SLOT definition's PROPERTY value as a table item."
   (when (and value
 	     (not (and (eq value t) (eq property :type)))
@@ -184,12 +184,12 @@ not advertised if they are the same as GENERIC-SOURCE."
 			(first values)
 			(rest values)))))
       (render-slot-property slot :initform)
-      (render-references (slot-definition-readers slot) "Readers")
-      (render-references (slot-definition-writers slot) "Writers"))))
+      (render-references (reader-definitions slot) "Readers")
+      (render-references (writer-definitions slot) "Writers"))))
 
 (defun render-slots (classoid)
   "Render CLASSOID's direct slots documentation."
-  (when-let ((slots (classoid-definition-slots classoid)))
+  (when-let ((slots (slot-definitions classoid)))
     (@tableitem "Direct slots"
       (dolist (slot slots)
 	(render-slot slot)))))
@@ -217,13 +217,13 @@ not advertised if they are the same as GENERIC-SOURCE."
 	 (@table ()
 	   (render-definition-core ,the-classoid ,extract)
 	   (render-references
-	    (classoid-definition-parents ,the-classoid)
+	    (superclassoid-definitions ,the-classoid)
 	    "Direct superclasses")
 	   (render-references
-	    (classoid-definition-children ,the-classoid)
+	    (subclassoid-definitions ,the-classoid)
 	    "Direct subclasses")
 	   (render-references
-	    (classoid-definition-methods ,the-classoid)
+	    (method-definitions ,the-classoid)
 	    "Direct methods")
 	   (render-slots ,the-classoid)
 	   ,@body)))))
@@ -232,7 +232,7 @@ not advertised if they are the same as GENERIC-SOURCE."
 (defun render-initargs (classoid)
   "Render CLASSOID's direct default initargs."
   (when-let ((initargs (sb-mop:class-direct-default-initargs
-			(find-class (classoid-definition-symbol classoid)))))
+			(find-class (definition-symbol classoid)))))
     (@tableitem "Direct Default Initargs"
       ;; #### FIXME: we should rather compute the longest initarg name and use
       ;; that as a template size for the @headitem specification.
@@ -351,9 +351,9 @@ This is the default method for most definitions."
   "Render TYPE's indexing command."
   (format t "@typesubindex{~(~A~)}@c~%" (escape type)))
 
-(defmethod reference ((definition definition))
+(defmethod reference ((definition symbol-definition))
   "Render DEFINITION's reference."
-  (cond ((definition-foreignp definition)
+  (cond ((foreignp definition)
 	 (format t "@t{~(~A}~) (~A)~%"
 	   (escape definition)
 	   (type-name definition)))
@@ -381,11 +381,10 @@ This is the default method for most definitions."
 (defmethod document
     ((macro macro-definition) extract
      &key
-     &aux (access-expander (macro-definition-access-expander macro))
-	  (update-expander (macro-definition-update-expander macro))
+     &aux (access-expander (access-expander-definition macro))
+	  (update-expander (update-expander-definition macro))
 	  (merge (and access-expander
-		      (functionp
-		       (setf-expander-definition-update access-expander))
+		      (functionp (update access-expander))
 		      (equal (source macro) (source access-expander))
 		      (equal (docstring macro) (docstring access-expander)))))
   "Render MACRO's documentation in EXTRACT."
@@ -412,26 +411,26 @@ This is the default method for most definitions."
 (defmethod document ((function function-definition) extract &key)
   "Render FUNCTION's documentation in EXTRACT."
   (render-funcoid :un function extract
-    (when-let ((expander (function-definition-update-expander function)))
+    (when-let ((expander (update-expander-definition function)))
       (@tableitem "Setf Expander"
 	(reference expander)))))
 
 (defmethod document ((writer writer-definition) extract &key)
   "Render WRITER's documentation in EXTRACT."
   (render-funcoid :un writer extract
-    (when-let ((reader (writer-definition-reader writer)))
+    (when-let ((reader (reader-definition writer)))
       (@tableitem "Reader"
 	(reference reader)))))
 
 (defmethod document
     ((accessor accessor-definition) extract
      &key
-     &aux (access-expander (accessor-definition-access-expander accessor))
-	  (update-expander (accessor-definition-update-expander accessor))
-	  (writer (accessor-definition-writer accessor))
+     &aux (access-expander (access-expander-definition accessor))
+	  (update-expander (update-expander-definition accessor))
+	  (writer (writer-definition accessor))
 	  (merge-expander
 	   (and access-expander
-		(functionp (setf-expander-definition-update access-expander))
+		(functionp (update access-expander))
 		(equal (source accessor) (source access-expander))
 		(equal (docstring accessor) (docstring access-expander))))
 	  (merge-writer
@@ -440,7 +439,7 @@ This is the default method for most definitions."
 		(equal (docstring accessor) (docstring writer))))
 	  (merge-setters
 	   (and access-expander
-		(functionp (setf-expander-definition-update access-expander))
+		(functionp (update access-expander))
 		(writer-definition-p writer)
 		(equal (source access-expander) (source writer))
 		(equal (docstring access-expander) (docstring writer)))))
@@ -459,7 +458,7 @@ This is the default method for most definitions."
 	   (@tableitem "Writer" (reference writer)))
 	 (render-funcoid :setf (access-expander writer) extract
 	   (@tableitem "Reader"
-	     (reference (setf-expander-definition-access access-expander)))))
+	     (reference (access-definition access-expander)))))
 	(merge-expander
 	 (render-funcoid :un (accessor access-expander) extract
 	   (when update-expander
@@ -505,11 +504,11 @@ GENERIC-SOURCE is the source of METHOD's generic function."
 		     &key (document-writers t) generic-source)
   "Render accessor METHOD's documentation in EXTRACT."
   (cond ((and (equal (source method)
-		     (source (accessor-method-definition-writer method)))
+		     (source (writer-definition method)))
 	      (equal (docstring method)
-		     (docstring (accessor-method-definition-writer method)))
+		     (docstring (writer-definition method)))
 	      document-writers)
-	 (render-method (method (accessor-method-definition-writer method))
+	 (render-method (method (writer-definition method))
 			extract
 			generic-source))
 	(t
@@ -518,12 +517,12 @@ GENERIC-SOURCE is the source of METHOD's generic function."
 	   ;; #### NOTE: if DOCUMENT-WRITERS, it means that we're merging the
 	   ;; defintions for the reader and the writer, and hence the generic
 	   ;; sources are the same. It's thus ok to use GENERIC-SOURCE here.
-	   (document (accessor-method-definition-writer method) extract
+	   (document (writer-definition method) extract
 		     :generic-source generic-source)))))
 
 ;; #### PORTME.
 (defun render-method-combination
-    (generic &aux (combination (generic-definition-combination generic)))
+    (generic &aux (combination (combination-definition generic)))
   "Render GENERIC definition's method combination documentation.
 The standard method combination is not rendered."
   (unless (eq (definition-symbol combination) 'standard)
@@ -534,7 +533,7 @@ The standard method combination is not rendered."
 				    (escape (format nil "~(~S~)" option)))
 				  (sb-pcl::method-combination-options
 				   (sb-mop:generic-function-method-combination
-				    (generic-definition-function generic))))))
+				    (generic generic))))))
 	(format t "@b{Options:} @t{~A}~{, @t{~A}~}"
 	  (first options)
 	  (rest options))))))
@@ -542,11 +541,11 @@ The standard method combination is not rendered."
 (defmethod document ((generic generic-definition) extract &key)
   "Render GENERIC's documentation in EXTRACT."
   (render-funcoid :generic generic extract
-    (when-let ((expander (generic-definition-update-expander generic)))
+    (when-let ((expander (update-expander-definition generic)))
       (@tableitem "Setf Expander"
 	(reference expander)))
     (render-method-combination generic)
-    (when-let ((methods (generic-definition-methods generic)))
+    (when-let ((methods (method-definitions generic)))
       (@tableitem "Methods"
 	(dolist (method methods)
 	  (document method extract :generic-source (source generic)))))))
@@ -555,12 +554,12 @@ The standard method combination is not rendered."
     ((writer generic-writer-definition) extract &key additional-methods)
   "Render generic WRITER's documentation in EXTRACT."
   (render-funcoid :generic writer extract
-    (when-let ((reader (generic-writer-definition-reader writer)))
+    (when-let ((reader (reader-definition writer)))
       (@tableitem "Reader"
 	(reference reader)))
     (render-method-combination writer)
     (when-let ((methods (append additional-methods
-				(generic-writer-definition-methods writer))))
+				(method-definitions writer))))
       (@tableitem "Methods"
 	(dolist (method methods)
 	  (document method extract :generic-source (source writer)))))))
@@ -568,11 +567,9 @@ The standard method combination is not rendered."
 (defmethod document
     ((accessor generic-accessor-definition) extract
      &key
-     &aux (access-expander
-	   (generic-accessor-definition-access-expander accessor))
-	  (update-expander
-	   (generic-accessor-definition-update-expander accessor))
-	  (writer (generic-accessor-definition-writer accessor)))
+     &aux (access-expander (access-expander-definition accessor))
+	  (update-expander (update-expander-definition accessor))
+	  (writer (writer-definition accessor)))
   "Render generic ACCESSOR's documentation in EXTRACT."
   ;; #### NOTE: contrary to the case of ordinary functions, setf expanders can
   ;; never be merged with generic definitions. The reason is that even if a
@@ -586,16 +583,14 @@ The standard method combination is not rendered."
   (cond ((and (generic-writer-definition-p writer)
 	      (equal (source accessor) (source writer))
 		(equal (docstring accessor) (docstring writer))
-		(eq (definition-symbol
-		     (generic-definition-combination accessor))
-		    (definition-symbol
-		     (generic-definition-combination writer)))
+		(eq (definition-symbol (combination-definition accessor))
+		    (definition-symbol (combination-definition writer)))
 		(equal (sb-pcl::method-combination-options
 			(sb-mop:generic-function-method-combination
-			 (generic-definition-function accessor)))
+			 (generic accessor)))
 		       (sb-pcl::method-combination-options
 			(sb-mop:generic-function-method-combination
-			 (generic-definition-function writer)))))
+			 (generic writer)))))
 	 (render-funcoid :generic (accessor writer) extract
 	   (when update-expander
 	     (@tableitem "Setf Expander"
@@ -604,10 +599,8 @@ The standard method combination is not rendered."
 	     (@tableitem "Setf Expander"
 	       (reference access-expander)))
 	   (render-method-combination accessor)
-	   (let ((accessor-and-reader-methods
-		   (generic-accessor-definition-methods accessor))
-		 (writer-methods
-		   (generic-writer-definition-methods writer)))
+	   (let ((accessor-and-reader-methods (method-definitions accessor))
+		 (writer-methods (method-definitions writer)))
 	     (when (or accessor-and-reader-methods writer-methods)
 	       (@tableitem "Methods"
 		 (dolist (method accessor-and-reader-methods)
@@ -630,7 +623,7 @@ The standard method combination is not rendered."
 	     (@tableitem "Writer"
 	       (reference writer)))
 	   (render-method-combination accessor)
-	   (when-let ((methods (generic-definition-methods accessor)))
+	   (when-let ((methods (method-definitions accessor)))
 	     (@tableitem "Methods"
 		(dolist (method methods)
 		  (document method extract
@@ -641,19 +634,19 @@ The standard method combination is not rendered."
 	 (when (generic-writer-definition-p writer)
 	   (document writer extract
 		     :additional-methods
-		     (mapcar #'accessor-method-definition-writer
+		     (mapcar #'writer-definition
 			     (remove-if-not
 			      #'accessor-method-definition-p
-			      (generic-definition-methods accessor))))))))
+			      (method-definitions accessor))))))))
 
 (defmethod document ((expander setf-expander-definition) extract &key)
   "Render setf EXPANDER's documentation in EXTRACT."
   (render-funcoid :setf expander extract
     (@tableitem "Reader"
-      (reference (setf-expander-definition-access expander)))
-    (when (definition-p (setf-expander-definition-update expander))
+      (reference (access-definition expander)))
+    (when (symbol-definition-p (update expander))
       (@tableitem "Writer"
-	(reference (setf-expander-definition-update expander))))))
+	(reference (update expander))))))
 
 ;; #### NOTE: no DOCUMENT method for SLOT-DEFINITION
 
@@ -662,17 +655,17 @@ The standard method combination is not rendered."
   "Render short method COMBINATION's documentation in EXTRACT."
   (render-combination :short combination extract
     (@tableitem "Operator"
-      (reference (short-combination-definition-operator combination)))
+      (reference (operator-definition combination)))
     (@tableitem "Indentity with one argument"
       (format t "@t{~(~A~)}"
 	(sb-pcl::short-combination-identity-with-one-argument
-	 (combination-definition-combination combination))))
-    (render-references (combination-definition-users combination) "Users")))
+	 (combination combination))))
+    (render-references (users combination) "Users")))
 
 (defmethod document ((combination long-combination-definition) extract &key)
   "Render long method COMBINATION's documentation in EXTRACT."
   (render-combination :long combination extract
-    (render-references (combination-definition-users combination) "Users")))
+    (render-references (users combination) "Users")))
 
 (defmethod document ((condition condition-definition) extract &key)
   "Render CONDITION's documentation in EXTRACT."

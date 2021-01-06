@@ -145,43 +145,43 @@ system being documented."
   (:method ((macro macro-definition) package)
     "Handle MACRO and its setf expander."
     (nconc (call-next-method)
-	   (when (macro-definition-access-expander macro)
+	   (when (access-expander-definition macro)
 	     (definition-package-definitions
-	      (macro-definition-access-expander macro)
+	      (access-expander-definition macro)
 	      package))))
   (:method ((accessor accessor-definition) package)
     "Handle ACCESSOR, its writer and its setf expander."
     (nconc (call-next-method)
-	   (when (accessor-definition-writer accessor)
+	   (when (writer-definition accessor)
 	     (definition-package-definitions
-	      (accessor-definition-writer accessor)
+	      (writer-definition accessor)
 	      package))
-	   (when (accessor-definition-access-expander accessor)
+	   (when (access-expander-definition accessor)
 	     (definition-package-definitions
-	      (accessor-definition-access-expander accessor)
+	      (access-expander-definition accessor)
 	      package))))
   (:method ((accessor-method accessor-method-definition) package)
     "Handle ACCESSOR-METHOD and its writer method."
     (nconc (call-next-method)
 	   (definition-package-definitions
-	    (accessor-method-definition-writer accessor-method)
+	    (writer-definition accessor-method)
 	    package)))
   (:method ((generic generic-definition) package)
     "Handle GENERIC function and its methods."
     (nconc (call-next-method)
 	   (mapcan (lambda (method)
 		     (definition-package-definitions method package))
-		   (generic-definition-methods generic))))
+		   (method-definitions generic))))
   (:method ((generic-accessor generic-accessor-definition) package)
     "Handle GENERIC-ACCESSOR, its generic writer and its setf expander."
     (nconc (call-next-method)
-	   (when (generic-accessor-definition-writer generic-accessor)
+	   (when (writer-definition generic-accessor)
 	     (definition-package-definitions
-	      (generic-accessor-definition-writer generic-accessor)
+	      (writer-definition generic-accessor)
 	      package))
-	   (when (generic-accessor-definition-access-expander generic-accessor)
+	   (when (access-expander-definition generic-accessor)
 	     (definition-package-definitions
-	      (generic-accessor-definition-access-expander generic-accessor)
+	      (access-expander-definition generic-accessor)
 	      package)))))
 
 (defun definitions-package-definitions (definitions package)

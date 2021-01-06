@@ -60,43 +60,43 @@
   (:method ((macro macro-definition) file)
     "Handle MACRO and its setf expander."
     (nconc (call-next-method)
-	   (when (macro-definition-access-expander macro)
+	   (when (access-expander-definition macro)
 	     (definition-file-definitions
-	      (macro-definition-access-expander macro)
+	      (access-expander-definition macro)
 	      file))))
   (:method ((accessor accessor-definition) file)
     "Handle ACCESSOR, its writer and its setf expander."
     (nconc (call-next-method)
-	   (when (accessor-definition-writer accessor)
+	   (when (writer-definition accessor)
 	     (definition-file-definitions
-	      (accessor-definition-writer accessor)
+	      (writer-definition accessor)
 	      file))
-	   (when (accessor-definition-access-expander accessor)
+	   (when (access-expander-definition accessor)
 	     (definition-file-definitions
-	      (accessor-definition-access-expander accessor)
+	      (access-expander-definition accessor)
 	      file))))
   (:method ((accessor-method accessor-method-definition) file)
     "Handle ACCESSOR-METHOD and its writer method."
     (nconc (call-next-method)
 	   (definition-file-definitions
-	    (accessor-method-definition-writer accessor-method)
+	    (writer-definition accessor-method)
 	    file)))
   (:method ((generic generic-definition) file)
     "Handle GENERIC function and its methods."
     (nconc (call-next-method)
 	   (mapcan (lambda (method)
 		     (definition-file-definitions method file))
-		   (generic-definition-methods generic))))
+		   (method-definitions generic))))
   (:method ((generic-accessor generic-accessor-definition) file)
     "Handle GENERIC-ACCESSOR, its generic writer and its setf expander."
     (nconc (call-next-method)
-	   (when (generic-accessor-definition-writer generic-accessor)
+	   (when (writer-definition generic-accessor)
 	     (definition-file-definitions
-	      (generic-accessor-definition-writer generic-accessor)
+	      (writer-definition generic-accessor)
 	      file))
-	   (when (generic-accessor-definition-access-expander generic-accessor)
+	   (when (access-expander-definition generic-accessor)
 	     (definition-file-definitions
-	      (generic-accessor-definition-access-expander generic-accessor)
+	      (access-expander-definition generic-accessor)
 	      file)))))
 
 (defun file-definitions (file definitions)
