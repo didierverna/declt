@@ -105,20 +105,11 @@ Each category is of type (:KEYWORD DESCRIPTION-STRING).")
 ;; (although that part still appears in the documentation).
 
 ;; #### FIXME: abstract.
-(defclass symbol-definition ()
+(defclass symbol-definition (definition)
   ((symbol :documentation "The symbol naming this definition."
-	   :initarg :symbol :reader definition-symbol)
-   ;; #### NOTE: currently, the only definitions making use of the FOREIGNP
-   ;; slot are (generic) functions, methods, method combinations and
-   ;; classoids, because foreign definitions of these kinds may be advertised
-   ;; as part as other, local ones. There are two reasons for defining this
-   ;; slot here however: 1/ who knows which new foreign definitions may need
-   ;; to be advertised in the future, and 2/ this avoid a lot of code
-   ;; duplication, e.g. for the REFERENCE methods.
-   (foreignp :documentation "Whether this definition is foreign.
-Foreign definitions do not pertain to the system being documented."
-	     :initform nil :initarg :foreignp :reader foreignp))
-  (:documentation "Base class for definitions named by symbols."))
+	   :initarg :symbol :reader definition-symbol))
+  (:documentation "The SYMBOL-DEFINITION class.
+This is the base class for definitions named by symbols."))
 
 (defun symbol-definition-p (object)
   "Return T if OBJECT is a symbol definition."
@@ -209,10 +200,10 @@ function."
     :initform nil :accessor update-expander-definition))
   (:documentation "The class for ordinary function definitions."))
 
-(defun make-function-definition (symbol function &optional foreignp)
-  "Make a new FUNCTION definition for SYMBOL, optionally FOREIGNP."
+(defun make-function-definition (symbol function &optional foreign)
+  "Make a new FUNCTION definition for SYMBOL, optionally FOREIGN."
   (make-instance 'function-definition
-    :symbol symbol :function function :foreignp foreignp))
+    :symbol symbol :function function :foreign foreign))
 
 
 ;; #### FIXME: writer definitions can't have an associated update expander so
@@ -230,11 +221,11 @@ function."
   (eq (type-of object) 'writer-definition))
 
 (defun make-writer-definition
-    (symbol &rest keys &key function reader-definition foreignp)
+    (symbol &rest keys &key function reader-definition foreign)
   "Make a new writer definition for SYMBOL.
-Unless FOREIGNP, this definition is for FUNCTION and may have a corresponding
+Unless FOREIGN, this definition is for FUNCTION and may have a corresponding
 READER-DEFINITION."
-  (declare (ignore function reader-definition foreignp))
+  (declare (ignore function reader-definition foreign))
   (apply #'make-instance 'writer-definition :symbol symbol keys))
 
 
@@ -273,9 +264,9 @@ READER-DEFINITION."
     :initarg :method :reader definition-method))
   (:documentation "Base class for method definitions."))
 
-(defun make-method-definition (symbol &rest keys &key method foreignp)
-  "Make a new METHOD definition for SYMBOL, optionally FOREIGNP."
-  (declare (ignore method foreignp))
+(defun make-method-definition (symbol &rest keys &key method foreign)
+  "Make a new METHOD definition for SYMBOL, optionally FOREIGN."
+  (declare (ignore method foreign))
   (apply #'make-instance 'method-definition :symbol symbol keys))
 
 
@@ -320,10 +311,10 @@ This definition has an corresponding WRITER-DEFINITION."
   (:documentation "Class for generic function definitions."))
 
 (defun make-generic-definition
-    (symbol &rest keys &key generic method-definitions foreignp)
-  (declare (ignore generic method-definitions foreignp))
+    (symbol &rest keys &key generic method-definitions foreign)
+  (declare (ignore generic method-definitions foreign))
   "Make a new generic function definition for SYMBOL.
-Unless FOREIGNP, this definition is for GENERIC function, and has the
+Unless FOREIGN, this definition is for GENERIC function, and has the
 corresponding METHOD-DEFINITIONS."
   (apply #'make-instance 'generic-definition :symbol symbol keys))
 
@@ -342,10 +333,10 @@ corresponding METHOD-DEFINITIONS."
 
 (defun make-generic-writer-definition
     (symbol
-     &rest keys &key generic method-definitions reader-definition foreignp)
-  (declare (ignore generic method-definitions reader-definition foreignp))
+     &rest keys &key generic method-definitions reader-definition foreign)
+  (declare (ignore generic method-definitions reader-definition foreign))
   "Make a new generic writer function definition for SYMBOL.
-Unless FOREIGNP, this definition is for GENERIC function, and has the
+Unless FOREIGN, this definition is for GENERIC function, and has the
 corresponding METHOD-DEFINITIONS."
   (apply #'make-instance 'generic-writer-definition :symbol symbol keys))
 
@@ -429,11 +420,11 @@ forms, it's a function."
   (eq (type-of object) 'short-combination-definition))
 
 (defun make-short-combination-definition
-    (symbol &rest keys &key combination operator-definition foreignp)
+    (symbol &rest keys &key combination operator-definition foreign)
   "Make a new short method combination definition.
-Unless FOREIGNP, this definition has a corresponding COMBINATION object,
+Unless FOREIGN, this definition has a corresponding COMBINATION object,
 and an OPERATOR-DEFINITION."
-  (declare (ignore combination operator-definition foreignp))
+  (declare (ignore combination operator-definition foreign))
   (apply #'make-instance 'short-combination-definition :symbol symbol keys))
 
 
@@ -446,10 +437,10 @@ and an OPERATOR-DEFINITION."
   (eq (type-of object) 'long-combination-definition))
 
 (defun make-long-combination-definition
-    (symbol &rest keys &key combination foreignp)
+    (symbol &rest keys &key combination foreign)
   "Make a new long method combination definition for SYMBOL.
-Unless FOREIGNP, this definition has a corresponding COMBINATION object."
-  (declare (ignore combination foreignp))
+Unless FOREIGN, this definition has a corresponding COMBINATION object."
+  (declare (ignore combination foreign))
   (apply #'make-instance 'long-combination-definition :symbol symbol keys))
 
 
@@ -481,10 +472,10 @@ Conditions, structures, and classes are classoids."))
   (:documentation "The class for condition definitions."))
 
 (defun make-condition-definition
-    (symbol &rest keys &key slot-definitions foreignp)
+    (symbol &rest keys &key slot-definitions foreign)
   "Make a new condition definition for SYMBOL.
-Unless FOREIGNP, this definition has a list of SLOT-DEFINTIIONS."
-  (declare (ignore slot-definitions foreignp))
+Unless FOREIGN, this definition has a list of SLOT-DEFINTIIONS."
+  (declare (ignore slot-definitions foreign))
   (apply #'make-instance 'condition-definition :symbol symbol keys))
 
 
@@ -496,10 +487,10 @@ Unless FOREIGNP, this definition has a list of SLOT-DEFINTIIONS."
   (:documentation "The class for structure definitions."))
 
 (defun make-structure-definition
-    (symbol &rest keys &key slot-definitions foreignp)
+    (symbol &rest keys &key slot-definitions foreign)
   "Make a new structure definition for SYMBOL.
-Unless FOREIGNP, this definition has a list of SLOT-DEFINTIIONS."
-  (declare (ignore slot-definitions foreignp))
+Unless FOREIGN, this definition has a list of SLOT-DEFINTIIONS."
+  (declare (ignore slot-definitions foreign))
   (apply #'make-instance 'structure-definition :symbol symbol keys))
 
 
@@ -511,10 +502,10 @@ Unless FOREIGNP, this definition has a list of SLOT-DEFINTIIONS."
   (:documentation "The class for class definitions."))
 
 (defun make-class-definition
-    (symbol &rest keys &key slot-definitions foreignp)
+    (symbol &rest keys &key slot-definitions foreign)
   "Make a new class definition for SYMBOL.
-Unless FOREIGNP, this definition has a list of SLOT-DEFINTIIONS."
-  (declare (ignore slot-definitions foreignp))
+Unless FOREIGN, this definition has a list of SLOT-DEFINTIIONS."
+  (declare (ignore slot-definitions foreign))
   (apply #'make-instance 'class-definition :symbol symbol keys))
 
 
@@ -1066,7 +1057,7 @@ Note that this only returns standalone (toplevel) generic writers."
      (lambda (reader-name)
        (or (find-definition reader-name :generic pool1)
 	   (find-definition reader-name :generic pool2)
-	   (make-generic-definition reader-name :foreignp t)))
+	   (make-generic-definition reader-name :foreign t)))
      (slot-property slot :readers)))
   ;; #### PORTME.
   (:method ((slot sb-pcl::structure-direct-slot-definition) pool1 pool2)
@@ -1076,7 +1067,7 @@ Note that this only returns standalone (toplevel) generic writers."
 	     (sb-pcl::slot-definition-defstruct-accessor-symbol slot)))
        (or (find-definition reader-name :function pool1)
 	   (find-definition reader-name :function pool2)
-	   (make-generic-definition reader-name :foreignp t))))))
+	   (make-generic-definition reader-name :foreign t))))))
 
 (defgeneric slot-writer-definitions (slot pool1 pool2)
   (:documentation "Return a list of writer definitions for SLOT.")
@@ -1091,7 +1082,7 @@ Note that this only returns standalone (toplevel) generic writers."
 	      (setq writer-name (second writer-name))
 	      (or (find-definition writer-name :generic-writer pool1)
 		  (find-definition writer-name :generic-writer pool2)
-		  (make-generic-writer-definition writer-name :foreignp t)))
+		  (make-generic-writer-definition writer-name :foreign t)))
 	     (t
 	      ;; A non SETF form is stored in one of the pools, as a plain
 	      ;; generic definition (neither a generic writer, nor a generic
@@ -1099,7 +1090,7 @@ Note that this only returns standalone (toplevel) generic writers."
 	      ;; actually a writer (until now).
 	      (or (find-definition writer-name :generic pool1)
 		  (find-definition writer-name :generic pool2)
-		  (make-generic-definition writer-name :foreignp t)))))
+		  (make-generic-definition writer-name :foreign t)))))
      (slot-property slot :writers)))
   ;; #### PORTME.
   (:method ((slot sb-pcl::structure-direct-slot-definition) pool1 pool2)
@@ -1109,7 +1100,7 @@ Note that this only returns standalone (toplevel) generic writers."
 	     (sb-pcl::slot-definition-defstruct-accessor-symbol slot)))
        (or (find-definition writer-name :writer pool1)
 	   (find-definition writer-name :writer pool2)
-	   (make-writer-definition writer-name :foreignp t))))))
+	   (make-writer-definition writer-name :foreign t))))))
 
 ;; #### PORTME.
 (defgeneric definition-combination-users (definition combination)
@@ -1169,18 +1160,18 @@ Currently, this means resolving:
 		     (find-definition name category pool2)
 		     (ecase category
 		       (:class
-			(make-class-definition name :foreignp t))
+			(make-class-definition name :foreign t))
 		       (:structure
-			(make-structure-definition name :foreignp t))
+			(make-structure-definition name :foreign t))
 		       (:condition
-			(make-condition-definition name :foreignp t)))))
+			(make-condition-definition name :foreign t)))))
 	      (reverse (mapcar #'class-name classoids))))
 	   (methods-definitions (methods)
 	     (mapcar
 	      (lambda (method)
 		(or  (find-method-definition method pool1)
 		     (find-method-definition method pool2)
-		     (make-method-definition (method-name method) :foreignp t)))
+		     (make-method-definition (method-name method) :foreign t)))
 	      methods))
 	   (compute-combination (generic-definition)
 	     (let* ((combination (sb-mop:generic-function-method-combination
@@ -1191,9 +1182,9 @@ Currently, this means resolving:
 			 (find-definition name :combination pool2)
 			 (if (sb-pcl::short-method-combination-p combination)
 			   (make-short-combination-definition name
-			     :foreignp t)
+			     :foreign t)
 			   (make-long-combination-definition name
-			     :foreignp t))))))
+			     :foreign t))))))
 	   (finalize (pool)
 	     (dolist (category '(:class :structure :condition))
 	       (dolist (definition (category-definitions category pool))

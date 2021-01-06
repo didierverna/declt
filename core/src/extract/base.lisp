@@ -30,6 +30,21 @@
 
 
 ;; ==========================================================================
+;; Definitions
+;; ==========================================================================
+
+;; #### FIXME: abstact.
+(defclass definition ()
+  ;; #### NOTE: not all definitions make use of the FOREIGN slot currently,
+  ;; but who knows which new ones may need to be advertised in the future.
+  ((foreign :documentation "Whether this definition is foreign."
+	    :initform nil :initarg :foreign :reader foreignp))
+  (:documentation "The DEFINITION class.
+This is the base class for all definitions."))
+
+
+
+;; ==========================================================================
 ;; Extraction Protocols
 ;; ==========================================================================
 
