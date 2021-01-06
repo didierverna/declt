@@ -17,6 +17,17 @@ notice and this notice are preserved.
 ** String downcasing
 Abstract it so that we may provide an option for case behavior.
 
+** Slots
+Document not only direct slots, but also overloads (additional initargs etc).
+
+** modify macros
+Is there anything specific to do?
+
+** Default values
+Some standard values are not documented, e.g, standard method combination,
+instance allocation, etc. We could provide a rendering option to make those
+apparent.
+
 ** Backend
 Clean up the code so that Texinfo becomes a backend with a clean
 interface. This way, we could envision adding other backends.
@@ -66,6 +77,12 @@ definitions.
 Other definitions potentially concerned:
 -  setf expanders for which the access-fn is foreign, but the
 update-fn is ours. I currently don't know how to retrieve those.
+
+Finally, I need to check again what I'm doing with definitions found in a
+package of ours, but defined elsewhere (i.e. no source, or outside the
+system). Do I tag them as foreign? Do I make a difference between no source,
+and foreign /source/ ?  I can't remember.
+
 
 ** Floating setf expanders
 Setf expanders are documented when the access-fn is a (generic) function or
