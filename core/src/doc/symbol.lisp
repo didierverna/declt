@@ -722,10 +722,10 @@ The standard method combination is not rendered."
 
 (defun add-definitions-node
     (parent extract
-     &aux (external-definitions (extract-external-definitions extract))
+     &aux (external-definitions (external-definitions extract))
        (external-definitions-number
 	(definitions-pool-size external-definitions))
-       (internal-definitions (extract-internal-definitions extract))
+       (internal-definitions (internal-definitions extract))
        (internal-definitions-number
 	(definitions-pool-size internal-definitions)))
   "Add the definitions node to PARENT in EXTRACT."

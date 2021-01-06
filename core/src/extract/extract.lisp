@@ -30,25 +30,46 @@
 
 
 ;; ==========================================================================
-;; Extraction Structure
+;; Extraction Class
 ;; ==========================================================================
 
-(defstruct (extract (:conc-name))
-  "The documentation extract structure."
-  library-name
-  tagline
-  library-version
-  contact-names
-  contact-emails
-  copyright-years
-  license
-  introduction
-  conclusion
-  systems
-  package-definitions
-  extract-external-definitions
-  extract-internal-definitions
-  hyperlinksp)
+(defclass extract ()
+  ((library-name :documentation "The library's name."
+		 :accessor library-name)
+   (tagline :documentation "The reference manual's tagline."
+	    :accessor tagline)
+   (library-version :documentation "The library's version."
+		    :accessor library-version)
+   (contact-names :documentation "The list of contact names for the library."
+		  :accessor contact-names)
+   (contact-emails :documentation "The list of contact emails for the library."
+		   :accessor contact-emails)
+   (copyright-years :documentation "A copyright years string."
+		    :accessor copyright-years)
+   (license :documentation "The library's license."
+	    :accessor license)
+   (introduction :documentation "Contents for an introduction chapter."
+		 :accessor introduction)
+   (conclusion :documentation "Contents for a conclusion chapter."
+	       :accessor conclusion)
+   (systems :documentation "The list of systems to document."
+	    :accessor systems)
+   (package-definitions :documentation "The list of package definitions."
+			:accessor package-definitions)
+   (external-definitions :documentation "The pool of external definitions."
+			 :initform (make-definitions-pool)
+			 :accessor external-definitions)
+   (internal-definitions :documentation "The pool of internal definitions."
+			 :initform (make-definitions-pool)
+			 :accessor internal-definitions)
+   (hyperlinksp :documentation "Whether to produce hyperlinks."
+		:accessor hyperlinksp))
+  (:documentation "The Extract class.
+This is the class holding all extracted documentation information."))
+
+(defun make-extract ()
+  "Make a new extract."
+  (make-instance 'extract))
 
 ;; This is used rather often (in fact, not so much! ;-)) so it is worth a
 ;; shortcut.
@@ -90,9 +111,9 @@ This includes SYSTEM and its subsystems."
 			       (package-definitions extract))))
 	     (add-symbol-definitions symbol pool))))
     (add-pool-definitions
-     (extract-external-definitions extract) #'package-external-symbols)
+     (external-definitions extract) #'package-external-symbols)
     (add-pool-definitions
-     (extract-internal-definitions extract) #'package-internal-symbols)))
+     (internal-definitions extract) #'package-internal-symbols)))
 
 
 
@@ -104,8 +125,8 @@ This includes SYSTEM and its subsystems."
   "Finalize EXTRACT's definitions.
 See `finalize-pools-definitions' for more information."
   (finalize-pools-definitions
-   (extract-external-definitions extract)
-   (extract-internal-definitions extract)))
+   (external-definitions extract)
+   (internal-definitions extract)))
 
 (defun finalize-package-definitions (extract &aux foreign-package-definitions)
   "Finalize EXTRACT's package definitions.
@@ -139,12 +160,12 @@ created foreign ones, or is created as a new foreign one."
     ;; Populate the external and internal definitions.
     (setf (external-definitions package-definition)
 	  (sort (definitions-package-definitions
-		 (extract-external-definitions extract)
+		 (external-definitions extract)
 		 (definition-package package-definition))
 		#'string-lessp :key #'definition-symbol))
     (setf (internal-definitions package-definition)
 	  (sort (definitions-package-definitions
-		 (extract-internal-definitions extract)
+		 (internal-definitions extract)
 		 (definition-package package-definition))
 		#'string-lessp :key #'definition-symbol)))
   ;; Complete the packages definitions list with the newly created foreign
@@ -173,9 +194,7 @@ created foreign ones, or is created as a new foreign one."
      &allow-other-keys ;; lazy calling from DECLT
      &aux (system (load-system system-name))
 	  contact-names contact-emails
-	  (extract (make-extract
-		    :extract-external-definitions (make-definitions-pool)
-		    :extract-internal-definitions (make-definitions-pool))))
+	  (extract (make-extract)))
   "Extract and return documentation information for ASDF SYSTEM-NAME.
 The documentation information is returned in a EXTRACT structure, which see.
 

@@ -254,11 +254,11 @@ Optionally PREFIX the title."
   (call-next-method)
   (render-packages-references (file-packages pathname))
   (render-external-definitions-references
-   (sort (file-definitions pathname (extract-external-definitions extract))
+   (sort (file-definitions pathname (external-definitions extract))
 	 #'string-lessp
 	 :key #'definition-symbol))
   (render-internal-definitions-references
-   (sort (file-definitions pathname (extract-internal-definitions extract))
+   (sort (file-definitions pathname (internal-definitions extract))
 	 #'string-lessp
 	 :key #'definition-symbol)))
 
@@ -354,13 +354,13 @@ components trees."))))
 			(file-packages system-source-file))
 		       (render-external-definitions-references
 			(sort (file-definitions system-source-file
-						(extract-external-definitions
+						(external-definitions
 						 extract))
 			      #'string-lessp
 			      :key #'definition-symbol))
 		       (render-internal-definitions-references
 			(sort (file-definitions system-source-file
-						(extract-internal-definitions
+						(internal-definitions
 						 extract))
 			      #'string-lessp
 			      :key #'definition-symbol))))))))
