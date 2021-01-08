@@ -48,6 +48,12 @@
 	       (eq (symbol-package symbol) package))
       (push symbol internal-symbols))))
 
+(defun package-symbols (package &aux symbols)
+  "Return the list of symbols from home PACKAGE."
+  (do-symbols (symbol package symbols)
+    (when (eq (symbol-package symbol) package)
+      (push symbol symbols))))
+
 
 
 ;; ==========================================================================
@@ -63,14 +69,9 @@
    (used-by-definitions
     :documentation "The corresponding used-by-list, as package definitions."
     :accessor used-by-definitions)
-   (external-definitions
-    :documentation
-    "The list of symbol definitions exported from the corresponding package."
-    :accessor external-definitions)
-   (internal-definitions
-    :documentation
-    "The list of symbol definitions internal to the corresponding package."
-    :accessor internal-definitions))
+   (symbol-definitions
+    :documentation "The corresponding symbol definitions."
+    :accessor symbol-definitions))
   (:documentation "The Package Definition class."))
 
 (defun make-package-definition (package &optional foreign)
@@ -85,6 +86,24 @@
 (defun nicknames (package-definition)
   "Return the list of nicknames for PACKAGE-DEFINITION."
   (package-nicknames (definition-package package-definition)))
+
+(defmethod external-definitions
+  ((package-definition package-definition)
+   &aux (external-symbols
+	 (package-external-symbols (definition-package package-definition))))
+  "Return PACKAGE-DEFINITION's external definitions."
+  (remove-if-not (lambda (symbol) (member symbol external-symbols))
+      (symbol-definitions package-definition)
+    :key #'definition-symbol))
+
+(defmethod internal-definitions
+  ((package-definition package-definition)
+   &aux (internal-symbols
+	 (package-internal-symbols (definition-package package-definition))))
+  "Return PACKAGE-DEFINITION's internal definitions."
+  (remove-if-not (lambda (symbol) (member symbol internal-symbols))
+      (symbol-definitions package-definition)
+    :key #'definition-symbol))
 
 
 
@@ -137,8 +156,7 @@
 ;; ==========================================================================
 
 ;; #### FIXME: this is wrong in at least one corner case: for aggregates which
-;; #### names and slot names come from different packages (and this is a
-;; #### consequence of the overly complicated pool structure).
+;; #### names and slot names come from different packages.
 
 ;; #### NOTE: contrary to DEFINITION-FILE-DEFINITIONS, this function could be
 ;; optimized a bit. For instance, when we figure out that a generic function
@@ -196,8 +214,8 @@
 
 (defun definitions-package-definitions (definitions package)
   "Return the subset of DEFINITIONS that belong to PACKAGE."
-  (mapcan-definitions-pool
-   (lambda (definition) (definition-package-definitions definition package))
-   definitions))
+  (mapcan (lambda (definition)
+	    (definition-package-definitions definition package))
+    definitions))
 
 ;;; package.lisp ends here

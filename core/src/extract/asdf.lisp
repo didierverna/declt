@@ -101,9 +101,8 @@
 
 (defun file-definitions (file definitions)
   "Return the subset of DEFINITIONS that belong to FILE."
-  (mapcan-definitions-pool
-   (lambda (definition) (definition-file-definitions definition file))
-   definitions))
+  (mapcan (lambda (definition) (definition-file-definitions definition file))
+    definitions))
 
 
 

@@ -56,12 +56,8 @@
 	    :accessor systems)
    (package-definitions :documentation "The list of package definitions."
 			:accessor package-definitions)
-   (external-definitions :documentation "The pool of external definitions."
-			 :initform (make-definitions-pool)
-			 :accessor external-definitions)
-   (internal-definitions :documentation "The pool of internal definitions."
-			 :initform (make-definitions-pool)
-			 :accessor internal-definitions)
+   (symbol-definitions :documentation "The list of symbol definitions."
+		       :accessor symbol-definitions)
    (hyperlinksp :documentation "Whether to produce hyperlinks."
 		:accessor hyperlinksp))
   (:documentation "The Extract class.
@@ -76,6 +72,37 @@ This is the class holding all extracted documentation information."))
 (defun location (extract)
   "Return EXTRACT's main system location."
   (system-directory (car (systems extract))))
+
+;; #### NOTE: there are currently two equivalent ways to compute the values of
+;; the two functions below. Namely, by filtering on:
+;; 1. extract -> symbol definitions (as it is done below),
+;; 2. extract -> packages -> symbol definitions.
+;; The reason we use solution #1 is that later on, when/if we add some kind of
+;; foreign definitions (like, those pertaining to one of our files, but not to
+;; one of our packages), there will be a difference in the results. On top of
+;; that, I will surely add an EXPORTED slot to the definition class, which
+;; will make things even easier.
+(defmethod external-definitions
+    ((extract extract)
+     &aux (external-symbols
+	   (mapcan #'package-external-symbols
+	     (mapcar #'definition-package
+	       (remove-if #'foreignp (package-definitions extract))))))
+  "Return EXTRACT's external definitions."
+  (remove-if-not (lambda (symbol) (member symbol external-symbols))
+      (symbol-definitions extract)
+    :key #'definition-symbol))
+
+(defmethod internal-definitions
+    ((extract extract)
+     &aux (internal-symbols
+	   (mapcan #'package-internal-symbols
+	     (mapcar #'definition-package
+	       (remove-if #'foreignp (package-definitions extract))))))
+  "Return EXTRACT's internal definitions."
+  (remove-if-not (lambda (symbol) (member symbol internal-symbols))
+      (symbol-definitions extract)
+    :key #'definition-symbol))
 
 
 
@@ -100,20 +127,16 @@ This includes SYSTEM and its subsystems."
 	(mapcar #'make-package-definition
 	  (remove-duplicates (mapcan #'system-packages (systems extract))))))
 
-(defun add-definitions (extract)
-  "Add all definitions to EXTRACT."
-  (flet ((add-pool-definitions (pool package-symbols-extractor)
-	   (dolist (symbol (mapcan package-symbols-extractor
-			     (mapcar #'definition-package
-			       ;; #### NOTE: at that point, we don't have any
-			       ;; foreign package definitions here, so we
-			       ;; don't need to filter them.
-			       (package-definitions extract))))
-	     (add-symbol-definitions symbol pool))))
-    (add-pool-definitions
-     (external-definitions extract) #'package-external-symbols)
-    (add-pool-definitions
-     (internal-definitions extract) #'package-internal-symbols)))
+(defun add-symbol-definitions (extract)
+  "Add all symbol definitions to EXTRACT."
+  (setf (symbol-definitions extract)
+	(mapcan #'make-symbol-definitions
+	  (mapcan #'package-symbols
+	    (mapcar #'definition-package
+	      ;; #### NOTE: at that point, we don't have any foreign
+	      ;; package definitions here, so we don't need to filter
+	      ;; them.
+	      (package-definitions extract))))))
 
 
 
@@ -121,19 +144,16 @@ This includes SYSTEM and its subsystems."
 ;; Extract Finalization
 ;; ==========================================================================
 
-(defun finalize-definitions (extract)
-  "Finalize EXTRACT's definitions.
-See `finalize-pools-definitions' for more information."
-  (finalize-pools-definitions
-   (external-definitions extract)
-   (internal-definitions extract)))
+(defun finalize-symbol-definitions (extract)
+  "Finalize EXTRACT's symbol definitions.
+See `finalize-definitions' for more information."
+  (finalize-definitions (symbol-definitions extract)))
 
 (defun finalize-package-definitions (extract &aux foreign-package-definitions)
   "Finalize EXTRACT's package definitions.
 More specifically, for each package definition:
 - populate its use and used-by lists with the appropriate package definitions,
-- populate its external and internal definition lists with the appropriate
-  definitions.
+- populate its symbol definitions list.
 
 Finalizing the use and used-by lists may also entail the creation of several
 foreign package definitions which are added at the end of EXTRACT's package
@@ -157,15 +177,10 @@ created foreign ones, or is created as a new foreign one."
       (setf (used-by-definitions package-definition)
 	    (mapcar #'find-package-definition
 	      (package-used-by-list (definition-package package-definition)))))
-    ;; Populate the external and internal definitions.
-    (setf (external-definitions package-definition)
+    ;; Populate the symbol definitions list.
+    (setf (symbol-definitions package-definition)
 	  (sort (definitions-package-definitions
-		 (external-definitions extract)
-		 (definition-package package-definition))
-		#'string-lessp :key #'definition-symbol))
-    (setf (internal-definitions package-definition)
-	  (sort (definitions-package-definitions
-		 (internal-definitions extract)
+		 (symbol-definitions extract)
 		 (definition-package package-definition))
 		#'string-lessp :key #'definition-symbol)))
   ;; Complete the packages definitions list with the newly created foreign
@@ -273,8 +288,8 @@ allow to specify or override some bits of information.
   ;; performed in reverse order.
   (add-systems extract system)
   (add-package-definitions extract)
-  (add-definitions extract)
-  (finalize-definitions extract)
+  (add-symbol-definitions extract)
+  (finalize-symbol-definitions extract)
   (finalize-package-definitions extract)
 
   extract)

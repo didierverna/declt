@@ -45,6 +45,12 @@ This is the base class for all definitions."))
 (defgeneric definition-package (definition)
   (:documentation "Return DEFINITION's package."))
 
+(defgeneric external-definitions (object)
+  (:documentation "Return OBJECT's external definitions."))
+
+(defgeneric internal-definitions (object)
+  (:documentation "Return OBJECT's internal definitions."))
+
 
 
 ;; ==========================================================================

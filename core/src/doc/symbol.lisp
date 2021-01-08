@@ -709,10 +709,10 @@ The standard method combination is not rendered."
 (defun add-categories-node (parent extract status definitions)
   "Add the STATUS DEFINITIONS categories nodes to PARENT in EXTRACT."
   (dolist (category *categories*)
-    (when-let ((category-definitions
-		(category-definitions (first category) definitions)))
+    (when-let ((type-definitions
+		(type-definitions (first category) definitions)))
       (add-category-node parent extract status (second category)
-			 category-definitions))))
+			 type-definitions))))
 
 (defun add-status-definitions-node (parent extract status definitions)
   "Add the STATUS DEFINITIONS node to PARENT in EXTRACT."
@@ -723,11 +723,9 @@ The standard method combination is not rendered."
 (defun add-definitions-node
     (parent extract
      &aux (external-definitions (external-definitions extract))
-       (external-definitions-number
-	(definitions-pool-size external-definitions))
-       (internal-definitions (internal-definitions extract))
-       (internal-definitions-number
-	(definitions-pool-size internal-definitions)))
+	  (external-definitions-number (length external-definitions))
+	  (internal-definitions (internal-definitions extract))
+	  (internal-definitions-number (length internal-definitions)))
   "Add the definitions node to PARENT in EXTRACT."
   (unless (zerop (+ external-definitions-number internal-definitions-number))
     (let ((definitions-node
