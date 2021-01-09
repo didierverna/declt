@@ -1,6 +1,6 @@
 ;;; asdf.lisp --- ASDF Utilities
 
-;; Copyright (C) 2010, 2011, 2013, 2016-2017, 2020 Didier Verna
+;; Copyright (C) 2010, 2011, 2013, 2016-2017, 202, 2021 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -102,36 +102,36 @@ This includes both :defsystem-depends-on and :depends-on."
   "Return the type part of ASDF SYSTEM's definition file."
   (when file (pathname-type file)))
 
-;; #### FIXME: there is redundant with RENDER-DEPENDENCIES. I should write a
+;; #### FIXME: there is redundancy with RENDER-DEPENDENCIES. I should write a
 ;; more abstract dependency walker.
 (defgeneric system-dependency-subsystem (dependency-def system relative-to)
   (:documentation "Return SYSTEM's subsystem from DEPENDENCY-DEF or nil.")
-  (:method (simple-component-name system relative-to
-	    &aux (dependency
-		  (resolve-dependency-name system simple-component-name)))
+  (:method
+      (simple-component-name system relative-to
+       &aux (dependency (resolve-dependency-name system simple-component-name)))
     "Return SYSTEM's subsystem named SIMPLE-COMPONENT-NAME or nil."
     (when (sub-component-p dependency relative-to)
       dependency))
-  ;; #### NOTE: this is where I'd like more advanced pattern matching
-  ;; capabilities.
+  ;; Regular Type Expressions to the rescue, please!
   (:method ((dependency-def list) system relative-to)
     "Return SYSTEM's subsystem from DEPENDENCY-DEF or nil."
-    (cond ((eq (car dependency-def) :feature)
-	   (system-dependency-subsystem
-	    (caddr dependency-def) system relative-to))
-	  ((eq (car dependency-def) :version)
-	   (system-dependency-subsystem
-	    (cadr dependency-def) system relative-to))
-	  ((eq (car dependency-def) :require) nil)
-	  (t (warn "Invalid ASDF dependency.")))))
+    (case (car dependency-def)
+      (:feature
+       (system-dependency-subsystem (caddr dependency-def) system relative-to))
+      (:version
+       (system-dependency-subsystem (cadr dependency-def) system relative-to))
+      (:require
+       nil)
+      ;; #### FIXME: can this happen? Would the system actually be loaded?
+      (otherwise (warn "Invalid ASDF dependency.")))))
 
 (defun subsystems (system relative-to)
   "Return the list of SYSTEM subsystems RELATIVE-TO.
 This function recursively descends all found subsystems."
   (loop :with subsystem
 	:for dependency :in (system-dependencies system)
-	:do (setq subsystem (system-dependency-subsystem
-			     dependency system relative-to))
+	:do (setq subsystem
+		  (system-dependency-subsystem dependency system relative-to))
 	:when subsystem
 	  :nconc (cons subsystem (subsystems subsystem relative-to))))
 
