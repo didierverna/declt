@@ -124,8 +124,7 @@
 Packages are listed by definition order.")))))
       (dolist (package-definition (remove-if #'foreignp package-definitions))
 	(add-child packages-node
-	  (make-node :name (format nil "~@(~A~)"
-			     (title package-definition))
+	  (make-node :name (format nil "~@(~A~)" (title package-definition))
 		     :section-name (format nil "@t{~(~A~)}"
 				     (escape package-definition))
 		     :before-menu-contents

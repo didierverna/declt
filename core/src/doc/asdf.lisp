@@ -74,22 +74,37 @@ extension at the end.")
 ;; Rendering protocols
 ;; -------------------
 
+;; #### FIXME: remove when we have all definitions.
 (defmethod name ((component asdf:component))
   "Return COMPONENT's name."
   (reveal (component-name component)))
+
+(defmethod name ((component-definition component-definition))
+  "Return COMPONENT-DEFINITION's name."
+  (reveal (component-name (component component-definition))))
 
 
 ;; -----------------------
 ;; Documentation protocols
 ;; -----------------------
 
+;; #### FIXME: remove when we have all definitions.
 (defmethod title ((component asdf:component))
   "Return COMPONENT's title."
   (virtual-path component))
 
+(defmethod title ((component-definition component-definition))
+  "Return COMPONENT-DEFINITION's title."
+  (virtual-path (component component-definition)))
+
+;; #### FIXME: remove when we have all definitions.
 (defmethod anchor-name ((component asdf:component))
   "Return COMPONENT's anchor name."
   (virtual-path component))
+
+(defmethod anchor-name ((component-definition component-definition))
+  "Return COMPONENT-DEFINITION's anchor name."
+  (virtual-path (component component-definition)))
 
 ;; #### NOTE: this method is needed as a default method for potential ASDF
 ;; extensions. I'm not willing to hard-code all possible such extensions, past
@@ -98,11 +113,6 @@ extension at the end.")
 (defmethod reference ((component asdf:component))
   "Render unreferenced COMPONENT."
   (format t "@t{~(~A}~) (other component)~%" (escape component)))
-
-(defmethod document :around ((component asdf:component) extract &key)
-  "Anchor and index COMPONENT in EXTRACT. Document it in a @table environment."
-  (anchor-and-index component)
-  (@table () (call-next-method)))
 
 (defgeneric render-dependency (dependency-def component relative-to)
   (:documentation "Render COMPONENT's DEPENDENCY-DEF RELATIVE-TO.
@@ -147,6 +157,23 @@ Optionally PREFIX the title."
 	  :renderer (lambda (dependency)
 		      (render-dependency dependency component
 					 relative-to))))))
+
+(defmethod document :around ((component asdf:component) extract &key)
+  "Anchor and index COMPONENT in EXTRACT. Document it in a @table environment."
+  ;; #### FIXME: temporary hack to avoid doubling the effect of the method
+  ;; below.
+  (cond ((typep component 'asdf:system)
+	 (call-next-method))
+	(t
+	 (anchor-and-index component)
+	 (@table () (call-next-method)))))
+
+(defmethod document :around
+    ((component-definition component-definition) extract &key)
+  "Anchor, index and document EXTRACT's COMPONENT-DEFINITION.
+Documentation is done in a @table environment."
+  (anchor-and-index component-definition)
+  (@table () (call-next-method)))
 
 (defmethod document ((component asdf:component) extract
 		     &key
@@ -276,7 +303,10 @@ Optionally PREFIX the title."
 	     :before-menu-contents (render-to-string (document file extract))))
 
 (defun add-files-node
-    (parent extract &aux (systems (systems extract))
+    (parent extract &aux (systems
+			  ;; #### FIXME: move this away when we have
+			  ;; file-definitions.
+			  (mapcar #'system (system-definitions extract)))
 			 (lisp-files (mapcan #'lisp-components systems))
 			 (other-files
 			  (list
@@ -422,7 +452,11 @@ components trees."))))
 
 (defun add-modules-node
     (parent extract
-     &aux (modules (mapcan #'module-components (systems extract))))
+     &aux (modules (mapcan #'module-components
+		     ;; #### FIXME: move this away when we have module
+		     ;; #### definitions
+		     (mapcar #'system
+		       (system-definitions extract)))))
   "Add the modules node to PARENT in EXTRACT."
   (when modules
     (let ((modules-node (add-child parent
@@ -444,16 +478,23 @@ Modules are listed depth-first from the system components tree.")))))
 ;; Documentation protocols
 ;; -----------------------
 
+;; #### FIXME: remove when we have all definitions.
 (defmethod index ((system asdf:system))
   "Render SYSTEM's indexing command."
   (format t "@systemindex{~A}@c~%" (escape system)))
+
+(defmethod index ((system-definition system-definition))
+  "Render SYSTEM-DEFINITION's indexing command."
+  (format t "@systemindex{~A}@c~%" (escape system-definition)))
 
 (defmethod reference ((system asdf:system))
   "Render SYSTEM's reference."
   (reference-component system))
 
-(defmethod document ((system asdf:system) extract &key)
-  "Render SYSTEM's documentation in EXTRACT."
+(defmethod document ((system-definition system-definition) extract
+		     &key
+		     &aux (system (system system-definition)))
+  "Render SYSTEM-DEFINITION's documentation in EXTRACT."
   (when-let ((long-name (system-long-name system)))
     (@tableitem "Long Name"
       (format t "~A~%" (escape long-name))))
@@ -502,19 +543,14 @@ Modules are listed depth-first from the system components tree.")))))
       (format t "@uref{~A}~%" (escape bug-tracker))))
   (format t "~@[@item License~%~
 	     ~A~%~]" (escape (system-license system)))
-  (call-next-method))
+  ;; #### FIXME: temporary hack to invoke the COMPONENT method.
+  (document system extract)
+  #+()(call-next-method))
 
 
 ;; -----
 ;; Nodes
 ;; -----
-
-(defun system-node (system extract)
-  "Create and return a SYSTEM node in EXTRACT."
-  (make-node :name (format nil "~@(~A~)" (title system))
-	     :section-name (format nil "@t{~(~A~)}" (escape system))
-	     :before-menu-contents
-	     (render-to-string (document system extract))))
 
 (defun add-systems-node
     (parent extract
@@ -525,8 +561,12 @@ Modules are listed depth-first from the system components tree.")))))
 				     (format nil "~
 The main system appears first, followed by any subsystem dependency.")))))
   "Add the systems node to PARENT in EXTRACT."
-  (dolist (system (systems extract))
-    (add-child systems-node (system-node system extract))))
-
+  (dolist (system-definition (system-definitions extract))
+    (add-child systems-node
+      (make-node :name (format nil "~@(~A~)" (title system-definition))
+		 :section-name (format nil "@t{~(~A~)}"
+				 (escape system-definition))
+		 :before-menu-contents
+		 (render-to-string (document system-definition extract))))))
 
 ;;; asdf.lisp ends here

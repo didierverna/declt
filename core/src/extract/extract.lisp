@@ -52,8 +52,8 @@
 		 :accessor introduction)
    (conclusion :documentation "Contents for a conclusion chapter."
 	       :accessor conclusion)
-   (systems :documentation "The list of systems to document."
-	    :accessor systems)
+   (system-definitions :documentation "The list of system definitions."
+		       :accessor system-definitions)
    (package-definitions :documentation "The list of package definitions."
 			:accessor package-definitions)
    (symbol-definitions :documentation "The list of symbol definitions."
@@ -67,11 +67,12 @@ This is the class holding all extracted documentation information."))
   "Make a new extract."
   (make-instance 'extract))
 
+;; #### FIXME: should this become a general definition protocol?
 ;; This is used rather often (in fact, not so much! ;-)) so it is worth a
 ;; shortcut.
 (defun location (extract)
   "Return EXTRACT's main system location."
-  (system-directory (car (systems extract))))
+  (system-directory (system (car (system-definitions extract)))))
 
 ;; #### NOTE: there are currently two equivalent ways to compute the values of
 ;; the two functions below. Namely, by filtering on:
@@ -110,13 +111,13 @@ This is the class holding all extracted documentation information."))
 ;; Extract Population
 ;; ==========================================================================
 
-(defun add-systems (extract system)
-  "Add all system definitions to EXTRACT.
-This includes SYSTEM and its subsystems."
-  (setf (systems extract)
-	(cons system
-	      (remove-duplicates
-	       (subsystems system (system-directory system))))))
+(defun add-system-definitions (extract system)
+  "Add all (sub)system definitions to EXTRACT."
+  (setf (system-definitions extract)
+	(mapcar #'make-system-definition
+	  (cons system
+		(remove-duplicates
+		 (subsystems system (system-directory system)))))))
 
 (defun add-package-definitions (extract)
   "Add all package definitions to EXTRACT."
@@ -125,7 +126,10 @@ This includes SYSTEM and its subsystems."
 	;; they would share files defining them) so we need to filter
 	;; potential duplicates out.
 	(mapcar #'make-package-definition
-	  (remove-duplicates (mapcan #'system-packages (systems extract))))))
+	  (remove-duplicates
+	   (mapcan #'system-packages
+	     (mapcar #'system
+	       (system-definitions extract)))))))
 
 (defun add-symbol-definitions (extract)
   "Add all symbol definitions to EXTRACT."
@@ -286,7 +290,7 @@ allow to specify or override some bits of information.
   ;; call order below is important. Each addition relies on the previous ones
   ;; having been performed, and the various finalization steps need to be
   ;; performed in reverse order.
-  (add-systems extract system)
+  (add-system-definitions extract system)
   (add-package-definitions extract)
   (add-symbol-definitions extract)
   (finalize-symbol-definitions extract)

@@ -102,7 +102,7 @@ Rendering is done on *standard-output*."
   "Render an itemized source line for ITEM in EXTRACT.
 Rendering is done on *standard-output*."
   (when-let ((source-pathname (source item)))
-    (let* ((systems (systems extract))
+    (let* ((systems (mapcar #'system (system-definitions extract)))
 	   ;; Remember that a source can be a system, although systems are not
 	   ;; actual cl-source-file's.
 	   (source-component

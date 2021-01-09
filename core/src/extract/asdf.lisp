@@ -29,6 +29,15 @@
 (in-readtable :net.didierverna.declt)
 
 
+;; #### FIXME: abstract.
+(defclass component-definition (definition)
+  ((component :documentation "The corresponding ASDF component."
+	      :reader component))
+  (:documentation "The COMPONENT-DEFINITION class.
+This is the base class for ASDF definitions."))
+
+
+
 ;; ==========================================================================
 ;; Files
 ;; ==========================================================================
@@ -124,11 +133,27 @@
 ;; System
 ;; ==========================================================================
 
+(defclass system-definition (component-definition)
+  ((component ;; slot overload
+    :initarg :system :reader system))
+  (:documentation "The System Definition class."))
+
+;; #### NOTE: we currently don't create foreign systems.
+(defun make-system-definition (system &optional foreign)
+  "Make a new SYSTEM definition, possibly FOREIGN."
+  (make-instance 'system-definition :system system :foreign foreign))
+
+
 ;; --------------------
 ;; Extraction protocols
 ;; --------------------
 
+;; #### FIXME: remove when we have all definitions.
 (defmethod type-name ((system asdf:system))
+  "Return \"system\""
+  "system")
+
+(defmethod type-name ((system-definition system-definition))
   "Return \"system\""
   "system")
 
@@ -175,6 +200,7 @@ named SYSTEM/foobar, regardless of case."
 	       (string-equal prefix (subseq package-name 0 length)))))
       (list-all-packages)))
 
+;; #### FIXME: this should become a PACKAGES protocol.
 (defun system-packages (system)
   "Return the list of packages defined in ASDF SYSTEM."
   (append (system-located-packages system) (system-unlocated-packages system)))
