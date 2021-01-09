@@ -1,6 +1,6 @@
 ;;; asdf.lisp --- ASDF definitions
 
-;; Copyright (C) 2010-2013, 2015-2017, 2020 Didier Verna
+;; Copyright (C) 2010-2013, 2015-2017, 2020, 2021 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -149,9 +149,8 @@ The list includes the system definition file."
 
 (defun file-packages (file)
   "Return the list of all packages defined in FILE."
-  (loop :for package :in (list-all-packages)
-	:when (equal (source package) file)
-	  :collect package))
+  (remove-if-not (lambda (source) (equal source file)) (list-all-packages)
+    :key #'source))
 
 (defun system-located-packages (system)
   "Return the list of located packages defined in ASDF SYSTEM.
@@ -168,12 +167,13 @@ to SYSTEM."
 These are the packages for which source location is unavailable via
 introspection. We thus need to guess. The current heuristic considers packages
 named SYSTEM/foobar, regardless of case."
-  (loop :for package :in (list-all-packages)
-	:for package-name := (package-name package)
-	:when (and (not (source package))
-		   (> (length package-name) length)
-		   (string-equal prefix (subseq package-name 0 length)))
-	  :collect package))
+  (remove-if-not
+      (lambda (package)
+	(let ((package-name (package-name package)))
+	  (and (not (source package))
+	       (> (length package-name) length)
+	       (string-equal prefix (subseq package-name 0 length)))))
+      (list-all-packages)))
 
 (defun system-packages (system)
   "Return the list of packages defined in ASDF SYSTEM."
