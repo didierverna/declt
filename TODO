@@ -86,7 +86,10 @@ and foreign /source/ ?  I can't remember.
 ** Refine the definitions hierarchy
 In particular, it would be nice to have an object-mixin for definitions
 holding references to a corresponding Lisp object. It would make it easier to
-post-process extracts for, say, serialization / dumping to a file.
+post-process extracts for, say, serialization / dumping to a file, in which
+case the actual object needs to be removed. On the other hand, if we ever do
+this, all pseudo-accessors (to the object in question) would need to be
+replaced with actual slots in the definition structures.
 
 ** Floating setf expanders
 Setf expanders are documented when the access-fn is a (generic) function or
