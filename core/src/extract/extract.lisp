@@ -1,4 +1,4 @@
-;;; extract.lisp --- Documentation information extraction
+;; extract.lisp --- Documentation information extraction
 
 ;; Copyright (C) 2020 Didier Verna
 
@@ -54,6 +54,8 @@
 	       :accessor conclusion)
    (system-definitions :documentation "The list of system definitions."
 		       :accessor system-definitions)
+   (module-definitions :documentation "The list of module definitions."
+		       :accessor module-definitions)
    (package-definitions :documentation "The list of package definitions."
 			:accessor package-definitions)
    (symbol-definitions :documentation "The list of symbol definitions."
@@ -111,6 +113,14 @@ This is the class holding all extracted documentation information."))
 ;; Extract Population
 ;; ==========================================================================
 
+;; #### NOTE: there are more clever ways to populate the extract, notably by
+;; #### avoiding traversing the same lists several times. In particular,
+;; #### modules belong to a single system, and files belong to a single
+;; #### module, so we could created those at the same time. On the other hand,
+;; #### the way it's done below is simpler, and unlikely to affect performance
+;; #### that much. The number of ASDF definitions is probably much smaller
+;; #### than the number of symbol definitions.
+
 (defun add-system-definitions (extract system)
   "Add all (sub)system definitions to EXTRACT."
   (setf (system-definitions extract)
@@ -118,6 +128,14 @@ This is the class holding all extracted documentation information."))
 	  (cons system
 		(remove-duplicates
 		 (subsystems system (system-directory system)))))))
+
+(defun add-module-definitions (extract)
+  "Add all module definitions to EXTRACT."
+  (setf (module-definitions extract)
+	(mapcar #'make-module-definition
+	  (mapcan #'module-components
+	    (mapcar #'system
+	      (system-definitions extract))))))
 
 (defun add-package-definitions (extract)
   "Add all package definitions to EXTRACT."
@@ -291,6 +309,7 @@ allow to specify or override some bits of information.
   ;; having been performed, and the various finalization steps need to be
   ;; performed in reverse order.
   (add-system-definitions extract system)
+  (add-module-definitions extract)
   (add-package-definitions extract)
   (add-symbol-definitions extract)
   (finalize-symbol-definitions extract)

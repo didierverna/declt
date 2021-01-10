@@ -162,7 +162,7 @@ Optionally PREFIX the title."
   "Anchor and index COMPONENT in EXTRACT. Document it in a @table environment."
   ;; #### FIXME: temporary hack to avoid doubling the effect of the method
   ;; below.
-  (cond ((typep component 'asdf:system)
+  (cond ((or (typep component 'asdf:system) (typep component 'asdf:module))
 	 (call-next-method))
 	(t
 	 (anchor-and-index component)
@@ -420,18 +420,26 @@ components trees."))))
 ;; Documentation protocols
 ;; -----------------------
 
+;; #### FIXME: remove when we have all definitions.
 (defmethod index ((module asdf:module))
   "Render MODULE's indexing command."
   (format t "@moduleindex{~A}@c~%" (escape (virtual-path module))))
+
+(defmethod index ((module-definition module-definition))
+  "Render MODULE-DEFINITION's indexing command."
+  (format t "@moduleindex{~A}@c~%"
+    (escape (virtual-path (module module-definition)))))
 
 (defmethod reference ((module asdf:module))
   "Render MODULE's reference."
   (reference-component module))
 
-(defmethod document ((module asdf:module) extract &key)
-  "Render MODULE's documentation in EXTRACT."
-  (call-next-method)
-  (when-let* ((components (asdf:module-components module))
+(defmethod document ((definition module-definition) extract &key)
+  "Render module DEFINITION's documentation in EXTRACT."
+  ;;(call-next-method)
+  ;; #### FIXME: temporary hack until we have a complete hierarchy.
+  (document (module definition) extract)
+  (when-let* ((components (asdf:module-components (module definition)))
 	      (length (length components)))
     (@tableitem (format nil "Component~p" length)
       (if (eq length 1)
@@ -443,30 +451,29 @@ components trees."))))
 ;; Nodes
 ;; -----
 
-(defun module-node (module extract)
-  "Create and return a MODULE node in EXTRACT."
-  (make-node :name (format nil "~@(~A~)" (title module))
-	     :section-name (format nil "@t{~A}" (escape (virtual-path module)))
-	     :before-menu-contents
-	     (render-to-string (document module extract))))
-
 (defun add-modules-node
     (parent extract
-     &aux (modules (mapcan #'module-components
-		     ;; #### FIXME: move this away when we have module
-		     ;; #### definitions
-		     (mapcar #'system
-		       (system-definitions extract)))))
+     &aux (module-definitions (module-definitions extract)))
   "Add the modules node to PARENT in EXTRACT."
-  (when modules
+  (when module-definitions
     (let ((modules-node (add-child parent
 			  (make-node :name "Modules"
 				     :synopsis "The modules documentation"
 				     :before-menu-contents
 				     (format nil "~
 Modules are listed depth-first from the system components tree.")))))
-      (dolist (module modules)
-	(add-child modules-node (module-node module extract))))))
+      (dolist (module-definition module-definitions)
+	(add-child modules-node
+	  (make-node :name (format nil "~@(~A~)" (title module-definition))
+		     :section-name (format nil "@t{~A}"
+				     (escape
+				      ;; #### FIXME: this is unclean and it
+				      ;; seems to be the same as title.
+				      (virtual-path
+				       (module module-definition))))
+		     :before-menu-contents
+		     (render-to-string
+		       (document module-definition extract))))))))
 
 
 
@@ -491,8 +498,7 @@ Modules are listed depth-first from the system components tree.")))))
   "Render SYSTEM's reference."
   (reference-component system))
 
-(defmethod document ((definition system-definition) extract
-		     &key &aux (system (system definition)))
+(defmethod document ((definition system-definition) extract &key)
   "Render system DEFINITION's documentation in EXTRACT."
   (when-let (long-name (long-name definition))
     (@tableitem "Long Name"
@@ -536,9 +542,7 @@ Modules are listed depth-first from the system components tree.")))))
       (format t "@uref{~A}~%" (escape bug-tracker))))
   (format t "~@[@item License~%~
 	     ~A~%~]" (escape (license definition)))
-  ;; #### FIXME: temporary hack to invoke the MODULE method.
-  (document system extract)
-  #+()(call-next-method))
+  (call-next-method))
 
 
 ;; -----

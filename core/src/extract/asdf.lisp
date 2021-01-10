@@ -119,11 +119,26 @@ This is the base class for ASDF definitions."))
 ;; Modules
 ;; ==========================================================================
 
+(defclass module-definition (component-definition)
+  ((component :initarg :module :reader module)) ;; slot overload
+  (:documentation "The Module Definition class."))
+
+;; #### NOTE: we currently don't create foreign modules.
+(defun make-module-definition (module &optional foreign)
+  "Make a new MODULE definition, possibly FOREIGN."
+  (make-instance 'module-definition :module module :foreign foreign))
+
+
 ;; --------------------
 ;; Extraction protocols
 ;; --------------------
 
+;; #### FIXME: remove when we have all definitions.
 (defmethod type-name ((module asdf:module))
+  "Return \"module\""
+  "module")
+
+(defmethod type-name ((module-definition module-definition))
   "Return \"module\""
   "module")
 
@@ -133,7 +148,7 @@ This is the base class for ASDF definitions."))
 ;; System
 ;; ==========================================================================
 
-(defclass system-definition (component-definition)
+(defclass system-definition (module-definition)
   ((component :initarg :system :reader system) ;; slot overload
    (maintainer-names :documentation "The list of maintainer names."
 		     :initform nil :accessor maintainer-names)
