@@ -643,7 +643,7 @@ Return a second value of T if METHOD is a writer method."
   "Find a method definition for METHOD in DEFINITIONS.
 Return NIL if not found."
   (multiple-value-bind (name writerp) (method-name method)
-    (when-let ((generic (find-definition name 'generic-definition definitions)))
+    (when-let (generic (find-definition name 'generic-definition definitions))
       (if writerp
 	(etypecase generic
 	  (generic-writer-definition
@@ -722,7 +722,7 @@ Return NIL if not found."
     (macro-definition
      (when-let* ((function (macro-function symbol))
 		 (macro-definition (make-macro-definition symbol function)))
-       (when-let ((expander (setf-expander-p symbol)))
+       (when-let (expander (setf-expander-p symbol))
 	 (let ((expander-definition
 		 (make-setf-expander-definition
 		  symbol macro-definition expander)))
@@ -730,7 +730,7 @@ Return NIL if not found."
 		 expander-definition)))
        macro-definition))
     (compiler-macro-definition
-     (when-let ((function (compiler-macro-function symbol)))
+     (when-let (function (compiler-macro-function symbol))
        (make-compiler-macro-definition symbol function)))
     ;; #### NOTE: As mentionned earlier, the WRITER slot in (generic)
     ;; functions helps to attempt concatenation of the reader and writer
@@ -1199,14 +1199,14 @@ Currently, this means resolving:
 (defun definition-source-by-name
     (definition type &key (name (definition-symbol definition)))
   "Return DEFINITION's source for TYPE."
-  (when-let ((defsrc (car (sb-introspect:find-definition-sources-by-name
-			   name type))))
+  (when-let (defsrc (car (sb-introspect:find-definition-sources-by-name
+			  name type)))
     (sb-introspect:definition-source-pathname defsrc)))
 
 ;; #### PORTME.
 (defun definition-source (object)
   "Return OBJECT's definition source."
-  (when-let ((defsrc (sb-introspect:find-definition-source object)))
+  (when-let (defsrc (sb-introspect:find-definition-source object))
     (sb-introspect:definition-source-pathname defsrc)))
 
 (defmethod source ((constant constant-definition))

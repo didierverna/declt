@@ -101,7 +101,7 @@ Rendering is done on *standard-output*."
 (defun render-source (item extract)
   "Render an itemized source line for ITEM in EXTRACT.
 Rendering is done on *standard-output*."
-  (when-let ((source-pathname (source item)))
+  (when-let (source-pathname (source item))
     (let* ((systems (mapcar #'system (system-definitions extract)))
 	   ;; Remember that a source can be a system, although systems are not
 	   ;; actual cl-source-file's.
@@ -121,7 +121,7 @@ Rendering is done on *standard-output*."
 (defun render-docstring (item)
   "Render ITEM's documentation string.
 Rendering is done on *standard-output*."
-  (when-let ((docstring (docstring item)))
+  (when-let (docstring (docstring item))
     (render-text docstring)))
 
 (defun render-references (list title &aux (length (length list)))

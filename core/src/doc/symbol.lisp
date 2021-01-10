@@ -189,7 +189,7 @@ not advertised if they are the same as GENERIC-SOURCE."
 
 (defun render-slots (classoid)
   "Render CLASSOID's direct slots documentation."
-  (when-let ((slots (slot-definitions classoid)))
+  (when-let (slots (slot-definitions classoid))
     (@tableitem "Direct slots"
       (dolist (slot slots)
 	(render-slot slot)))))
@@ -231,8 +231,8 @@ not advertised if they are the same as GENERIC-SOURCE."
 ;; #### PORTME.
 (defun render-initargs (classoid)
   "Render CLASSOID's direct default initargs."
-  (when-let ((initargs (sb-mop:class-direct-default-initargs
-			(find-class (definition-symbol classoid)))))
+  (when-let (initargs (sb-mop:class-direct-default-initargs
+		       (find-class (definition-symbol classoid))))
     (@tableitem "Direct Default Initargs"
       ;; #### FIXME: we should rather compute the longest initarg name and use
       ;; that as a template size for the @headitem specification.
@@ -411,14 +411,14 @@ This is the default method for most definitions."
 (defmethod document ((function function-definition) extract &key)
   "Render FUNCTION's documentation in EXTRACT."
   (render-funcoid :un function extract
-    (when-let ((expander (update-expander-definition function)))
+    (when-let (expander (update-expander-definition function))
       (@tableitem "Setf Expander"
 	(reference expander)))))
 
 (defmethod document ((writer writer-definition) extract &key)
   "Render WRITER's documentation in EXTRACT."
   (render-funcoid :un writer extract
-    (when-let ((reader (reader-definition writer)))
+    (when-let (reader (reader-definition writer))
       (@tableitem "Reader"
 	(reference reader)))))
 
@@ -529,11 +529,11 @@ The standard method combination is not rendered."
     (@tableitem "Method Combination"
       (reference combination)
       (terpri)
-      (when-let ((options (mapcar (lambda (option)
-				    (escape (format nil "~(~S~)" option)))
-				  (sb-pcl::method-combination-options
-				   (sb-mop:generic-function-method-combination
-				    (generic generic))))))
+      (when-let (options (mapcar (lambda (option)
+				   (escape (format nil "~(~S~)" option)))
+			   (sb-pcl::method-combination-options
+			    (sb-mop:generic-function-method-combination
+			     (generic generic)))))
 	(format t "@b{Options:} @t{~A}~{, @t{~A}~}"
 	  (first options)
 	  (rest options))))))
@@ -541,7 +541,7 @@ The standard method combination is not rendered."
 (defmethod document ((generic generic-definition) extract &key)
   "Render GENERIC's documentation in EXTRACT."
   (render-funcoid :generic generic extract
-    (when-let ((expander (update-expander-definition generic)))
+    (when-let (expander (update-expander-definition generic))
       (@tableitem "Setf Expander"
 	(reference expander)))
     (render-method-combination generic)
@@ -554,12 +554,12 @@ The standard method combination is not rendered."
     ((writer generic-writer-definition) extract &key additional-methods)
   "Render generic WRITER's documentation in EXTRACT."
   (render-funcoid :generic writer extract
-    (when-let ((reader (reader-definition writer)))
+    (when-let (reader (reader-definition writer))
       (@tableitem "Reader"
 	(reference reader)))
     (render-method-combination writer)
-    (when-let ((methods (append additional-methods
-				(method-definitions writer))))
+    (when-let (methods (append additional-methods
+			       (method-definitions writer)))
       (@tableitem "Methods"
 	(dolist (method methods)
 	  (document method extract :generic-source (source writer)))))))
@@ -623,7 +623,7 @@ The standard method combination is not rendered."
 	     (@tableitem "Writer"
 	       (reference writer)))
 	   (render-method-combination accessor)
-	   (when-let ((methods (method-definitions accessor)))
+	   (when-let (methods (method-definitions accessor))
 	     (@tableitem "Methods"
 		(dolist (method methods)
 		  (document method extract
@@ -709,8 +709,7 @@ The standard method combination is not rendered."
 (defun add-categories-node (parent extract status definitions)
   "Add the STATUS DEFINITIONS categories nodes to PARENT in EXTRACT."
   (dolist (category *categories*)
-    (when-let ((type-definitions
-		(type-definitions (first category) definitions)))
+    (when-let (type-definitions (type-definitions (first category) definitions))
       (add-category-node parent extract status (second category)
 			 type-definitions))))
 
