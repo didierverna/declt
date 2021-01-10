@@ -134,14 +134,67 @@ This is the base class for ASDF definitions."))
 ;; ==========================================================================
 
 (defclass system-definition (component-definition)
-  ((component ;; slot overload
-    :initarg :system :reader system))
+  ((component :initarg :system :reader system) ;; slot overload
+   (maintainer-names :documentation "The list of maintainer names."
+		     :initform nil :accessor maintainer-names)
+   (maintainer-emails :documentation "The list of maintainer emails."
+		      :initform nil :accessor maintainer-emails)
+   (author-names :documentation "The list of author names."
+		 :initform nil :accessor author-names)
+   (author-emails :documentation "The list of maintainer emails."
+		  :initform nil :accessor author-emails))
   (:documentation "The System Definition class."))
+
+(defmethod initialize-instance :after
+    ((definition system-definition) &key &aux (system (system definition)))
+  "Perform post-initialization of system DEFINITION.
+- Extract names and emails for authors and maintainers."
+  (multiple-value-bind (maintainers emails)
+      (|parse-contact(s)| (system-maintainer system))
+    (when maintainers
+      (setf (maintainer-names definition) maintainers)
+      (setf (maintainer-emails definition) emails)))
+  (multiple-value-bind (authors emails)
+      (|parse-contact(s)| (system-author system))
+    (when authors
+      (setf (author-names definition) authors)
+      (setf (author-emails definition) emails))))
 
 ;; #### NOTE: we currently don't create foreign systems.
 (defun make-system-definition (system &optional foreign)
   "Make a new SYSTEM definition, possibly FOREIGN."
   (make-instance 'system-definition :system system :foreign foreign))
+
+
+;; ----------------
+;; Pseudo-accessors
+;; ----------------
+
+(defun long-name (definition)
+  "Return system DEFINITION's long name, if any."
+  (system-long-name (system definition)))
+
+(defun mailto (definition)
+  "Return system DEFINITION's mailto, if any."
+  (system-mailto (system definition)))
+
+(defun homepage (definition)
+  "Return system DEFINITION's homepage, if any."
+  (system-homepage (system definition)))
+
+(defun source-control (definition)
+    "Return system DEFINITION's source control, if any."
+  (system-source-control (system definition)))
+
+(defun bug-tracker (definition)
+  "Return system DEFINITION's bug tracker, if any."
+  (system-bug-tracker (system definition)))
+
+;; #### NOTE: there's a LICENSE accessor on extracts, so this needs to be a
+;; #### method.
+(defmethod license ((definition system-definition))
+  "Return system DEFINITION's license, if any."
+  (system-license (system definition)))
 
 
 ;; --------------------

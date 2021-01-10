@@ -491,44 +491,37 @@ Modules are listed depth-first from the system components tree.")))))
   "Render SYSTEM's reference."
   (reference-component system))
 
-(defmethod document ((system-definition system-definition) extract
-		     &key
-		     &aux (system (system system-definition)))
-  "Render SYSTEM-DEFINITION's documentation in EXTRACT."
-  (when-let ((long-name (system-long-name system)))
+(defmethod document ((definition system-definition) extract
+		     &key &aux (system (system definition)))
+  "Render system DEFINITION's documentation in EXTRACT."
+  (when-let ((long-name (long-name definition)))
     (@tableitem "Long Name"
       (format t "~A~%" (escape long-name))))
-  (multiple-value-bind (maintainers emails)
-      (|parse-contact(s)| (system-maintainer system))
-    (when maintainers
-      (@tableitem (format nil "Maintainer~P" (length maintainers))
-	;; #### FIXME: @* and map ugliness. I'm sure FORMAT can do all this.
-	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
-	  (escape (car maintainers)) (car emails) (escape (car emails)))
-	(mapc (lambda (maintainer email)
-		(format t "@*~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
-		  (escape maintainer) email (escape email)))
-	  (cdr maintainers) (cdr emails)))
-      (terpri)))
-  (multiple-value-bind (authors emails)
-      (|parse-contact(s)| (system-author system))
-    (when authors
-      (@tableitem (format nil "Author~P" (length authors))
-	;; #### FIXME: @* and map ugliness. I'm sure FORMAT can do all this.
-	(format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
-	  (escape (car authors)) (car emails) (escape (car emails)))
-	(mapc (lambda (author email)
-		(format t "@*~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
-		  (escape author) email (escape email)))
-	  (cdr authors) (cdr emails)))
-      (terpri)))
-  (when-let ((mailto (system-mailto system)))
+  (flet ((render-contacts (names emails category)
+	   "Render a CATEGORY contact list of NAMES and EMAILS."
+	   (when (and names emails) ;; both are null or not at the same time.
+	     (@tableitem (format nil (concatenate 'string category "~P")
+			   (length names))
+	       ;; #### FIXME: @* and map ugliness. I'm sure FORMAT can do all
+	       ;; #### this.
+	       (format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
+		 (escape (car names)) (car emails) (escape (car emails)))
+	       (mapc (lambda (name email)
+		       (format t "@*~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
+			 (escape name) email (escape email)))
+		 (cdr names) (cdr emails)))
+	     (terpri))))
+    (render-contacts
+     (maintainer-names definition) (maintainer-emails definition) "Maintainer")
+    (render-contacts
+     (author-names definition) (author-emails definition) "Author"))
+  (when-let ((mailto (mailto definition)))
     (@tableitem "Contact"
       (format t "@email{~A}~%" (escape mailto))))
-  (when-let ((homepage (system-homepage system)))
+  (when-let ((homepage (homepage definition)))
     (@tableitem "Home Page"
       (format t "@uref{~A}~%" (escape homepage))))
-  (when-let ((source-control (system-source-control system)))
+  (when-let ((source-control (source-control definition)))
     (@tableitem "Source Control"
       (etypecase source-control
 	(string
@@ -538,12 +531,12 @@ Modules are listed depth-first from the system components tree.")))))
 	(t
 	 (format t "@t{~A}~%"
 		 (escape (format nil "~(~S~)" source-control)))))))
-  (when-let ((bug-tracker (system-bug-tracker system)))
+  (when-let ((bug-tracker (bug-tracker definition)))
     (@tableitem "Bug Tracker"
       (format t "@uref{~A}~%" (escape bug-tracker))))
   (format t "~@[@item License~%~
-	     ~A~%~]" (escape (system-license system)))
-  ;; #### FIXME: temporary hack to invoke the COMPONENT method.
+	     ~A~%~]" (escape (license definition)))
+  ;; #### FIXME: temporary hack to invoke the MODULE method.
   (document system extract)
   #+()(call-next-method))
 
