@@ -148,7 +148,7 @@ not advertised if they are the same as GENERIC-SOURCE."
 
 (defun render-slots (classoid)
   "Render CLASSOID's direct slots documentation."
-  (when-let ((slots (classoid-definition-slots classoid)))
+  (when-let (slots (classoid-definition-slots classoid))
     (@tableitem "Direct slots"
       (dolist (slot slots)
 	(render-slot slot)))))
@@ -190,8 +190,8 @@ not advertised if they are the same as GENERIC-SOURCE."
 ;; #### PORTME.
 (defun render-initargs (classoid)
   "Render CLASSOID's direct default initargs."
-  (when-let ((initargs (sb-mop:class-direct-default-initargs
-			(find-class (classoid-definition-symbol classoid)))))
+  (when-let (initargs (sb-mop:class-direct-default-initargs
+		       (find-class (classoid-definition-symbol classoid))))
     (@tableitem "Direct Default Initargs"
       ;; #### FIXME: we should rather compute the longest initarg name and use
       ;; that as a template size for the @headitem specification.
@@ -371,14 +371,14 @@ This is the default method for most definitions."
 (defmethod document ((function function-definition) context &key)
   "Render FUNCTION's documentation in CONTEXT."
   (render-funcoid :un function context
-    (when-let ((expander (function-definition-update-expander function)))
+    (when-let (expander (function-definition-update-expander function))
       (@tableitem "Setf Expander"
 	(reference expander)))))
 
 (defmethod document ((writer writer-definition) context &key)
   "Render WRITER's documentation in CONTEXT."
   (render-funcoid :un writer context
-    (when-let ((reader (writer-definition-reader writer)))
+    (when-let (reader (writer-definition-reader writer))
       (@tableitem "Reader"
 	(reference reader)))))
 
@@ -489,11 +489,11 @@ The standard method combination is not rendered."
     (@tableitem "Method Combination"
       (reference combination)
       (terpri)
-      (when-let ((options (mapcar (lambda (option)
-				    (escape (format nil "~(~S~)" option)))
-				  (sb-pcl::method-combination-options
-				   (sb-mop:generic-function-method-combination
-				    (generic-definition-function generic))))))
+      (when-let (options (mapcar (lambda (option)
+				   (escape (format nil "~(~S~)" option)))
+			   (sb-pcl::method-combination-options
+			    (sb-mop:generic-function-method-combination
+			     (generic-definition-function generic)))))
 	(format t "@b{Options:} @t{~A}~{, @t{~A}~}"
 	  (first options)
 	  (rest options))))))
@@ -501,11 +501,11 @@ The standard method combination is not rendered."
 (defmethod document ((generic generic-definition) context &key)
   "Render GENERIC's documentation in CONTEXT."
   (render-funcoid :generic generic context
-    (when-let ((expander (generic-definition-update-expander generic)))
+    (when-let (expander (generic-definition-update-expander generic))
       (@tableitem "Setf Expander"
 	(reference expander)))
     (render-method-combination generic)
-    (when-let ((methods (generic-definition-methods generic)))
+    (when-let (methods (generic-definition-methods generic))
       (@tableitem "Methods"
 	(dolist (method methods)
 	  (document method context :generic-source (source generic)))))))
@@ -514,12 +514,12 @@ The standard method combination is not rendered."
     ((writer generic-writer-definition) context &key additional-methods)
   "Render generic WRITER's documentation in CONTEXT."
   (render-funcoid :generic writer context
-    (when-let ((reader (generic-writer-definition-reader writer)))
+    (when-let (reader (generic-writer-definition-reader writer))
       (@tableitem "Reader"
 	(reference reader)))
     (render-method-combination writer)
-    (when-let ((methods (append additional-methods
-				(generic-writer-definition-methods writer))))
+    (when-let (methods (append additional-methods
+			       (generic-writer-definition-methods writer)))
       (@tableitem "Methods"
 	(dolist (method methods)
 	  (document method context :generic-source (source writer)))))))
@@ -589,7 +589,7 @@ The standard method combination is not rendered."
 	     (@tableitem "Writer"
 	       (reference writer)))
 	   (render-method-combination accessor)
-	   (when-let ((methods (generic-definition-methods accessor)))
+	   (when-let (methods (generic-definition-methods accessor))
 	     (@tableitem "Methods"
 		(dolist (method methods)
 		  (document method context
@@ -675,8 +675,8 @@ The standard method combination is not rendered."
 (defun add-categories-node (parent context status definitions)
   "Add the STATUS DEFINITIONS categories nodes to PARENT in CONTEXT."
   (dolist (category *categories*)
-    (when-let ((category-definitions
-		(category-definitions (first category) definitions)))
+    (when-let (category-definitions
+	       (category-definitions (first category) definitions))
       (add-category-node parent context status (second category)
 			 category-definitions))))
 

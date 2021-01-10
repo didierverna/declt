@@ -376,7 +376,7 @@ Return a second value of T if METHOD is a writer method."
   "Find a method definition for METHOD in POOL.
 Return NIL if not found."
   (multiple-value-bind (name writerp) (method-name method)
-    (when-let ((generic (find-definition name :generic pool)))
+    (when-let (generic (find-definition name :generic pool))
       (cond (writerp
 	     (etypecase generic
 	       (generic-writer-definition
@@ -516,7 +516,7 @@ Note that this only returns standalone (toplevel) generic writers."
 	 (when-let* ((macro (macro-function symbol))
 		     (macro-definition
 		      (make-macro-definition :symbol symbol :function macro)))
-	   (when-let ((expander (setf-expander-p symbol)))
+	   (when-let (expander (setf-expander-p symbol))
 	     (let ((expander-definition
 		     (make-setf-expander-definition
 		      :symbol symbol
@@ -526,7 +526,7 @@ Note that this only returns standalone (toplevel) generic writers."
 		     expander-definition)))
 	   (add-definition symbol category macro-definition pool)))
 	(:compiler-macro
-	 (when-let ((compiler-macro (compiler-macro-function symbol)))
+	 (when-let (compiler-macro (compiler-macro-function symbol))
 	   (add-definition
 	    symbol
 	    category
@@ -1125,14 +1125,14 @@ Currently, this means resolving:
 (defun definition-source-by-name
     (definition type &key (name (definition-symbol definition)))
   "Return DEFINITION's source for TYPE."
-  (when-let ((defsrc (car (sb-introspect:find-definition-sources-by-name
-			   name type))))
+  (when-let (defsrc (car (sb-introspect:find-definition-sources-by-name
+			  name type)))
     (sb-introspect:definition-source-pathname defsrc)))
 
 ;; #### PORTME.
 (defun definition-source (object)
   "Return OBJECT's definition source."
-  (when-let ((defsrc (sb-introspect:find-definition-source object)))
+  (when-let (defsrc (sb-introspect:find-definition-source object))
     (sb-introspect:definition-source-pathname defsrc)))
 
 (defmethod source ((constant constant-definition))

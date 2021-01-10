@@ -71,7 +71,7 @@
 ;; #### PORTME.
 (defmethod source ((package package))
   "Return PACKAGE's definition source."
-  (when-let ((defsrc (sb-introspect:find-definition-source package)))
+  (when-let (defsrc (sb-introspect:find-definition-source package))
     (sb-introspect:definition-source-pathname defsrc)))
 
 

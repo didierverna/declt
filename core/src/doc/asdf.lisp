@@ -142,26 +142,26 @@ Optionally PREFIX the title."
 		     &key
 		     &aux (relative-to (context-directory context)))
   "Render COMPONENT's documentation in CONTEXT."
-  (when-let ((description (component-description component)))
+  (when-let (description (component-description component))
     (@tableitem "Description"
       (render-text description)
       (fresh-line)))
-  (when-let ((long-description (component-long-description component)))
+  (when-let (long-description (component-long-description component))
     (@tableitem "Long Description"
       (render-text long-description)
       (fresh-line)))
   (format t "~@[@item Version~%~
 		  ~A~%~]"
 	  (escape (component-version component)))
-  (when-let ((if-feature (component-if-feature component)))
+  (when-let (if-feature (component-if-feature component))
     (@tableitem "If Feature"
       (format t "@t{~(~A}~)" (escape if-feature))))
-  (when-let ((dependencies (when (typep component 'asdf:system)
-			     (defsystem-dependencies component))))
+  (when-let (dependencies (when (typep component 'asdf:system)
+			    (defsystem-dependencies component)))
     (render-dependencies dependencies component relative-to "Defsystem "))
-  (when-let ((dependencies (component-sideway-dependencies component)))
+  (when-let (dependencies (component-sideway-dependencies component))
     (render-dependencies dependencies component relative-to))
-  (when-let ((parent (component-parent component)))
+  (when-let (parent (component-parent component))
     (@tableitem "Parent" (reference parent)))
   (cond ((typep component 'asdf:system) ;; Yuck!
 	 ;; #### WARNING: the system file is not an ASDF component per-se, so
@@ -432,7 +432,7 @@ Modules are listed depth-first from the system components tree.")))))
 
 (defmethod document ((system asdf:system) context &key)
   "Render SYSTEM's documentation in CONTEXT."
-  (when-let ((long-name (system-long-name system)))
+  (when-let (long-name (system-long-name system))
     (@tableitem "Long Name"
       (format t "~A~%" (escape long-name))))
   (multiple-value-bind (maintainers emails)
@@ -459,13 +459,13 @@ Modules are listed depth-first from the system components tree.")))))
 		  (escape author) email (escape email)))
 	  (cdr authors) (cdr emails)))
       (terpri)))
-  (when-let ((mailto (system-mailto system)))
+  (when-let (mailto (system-mailto system))
     (@tableitem "Contact"
       (format t "@email{~A}~%" (escape mailto))))
-  (when-let ((homepage (system-homepage system)))
+  (when-let (homepage (system-homepage system))
     (@tableitem "Home Page"
       (format t "@uref{~A}~%" (escape homepage))))
-  (when-let ((source-control (system-source-control system)))
+  (when-let (source-control (system-source-control system))
     (@tableitem "Source Control"
       (etypecase source-control
 	(string
@@ -475,7 +475,7 @@ Modules are listed depth-first from the system components tree.")))))
 	(t
 	 (format t "@t{~A}~%"
 		 (escape (format nil "~(~S~)" source-control)))))))
-  (when-let ((bug-tracker (system-bug-tracker system)))
+  (when-let (bug-tracker (system-bug-tracker system))
     (@tableitem "Bug Tracker"
       (format t "@uref{~A}~%" (escape bug-tracker))))
   (format t "~@[@item License~%~
