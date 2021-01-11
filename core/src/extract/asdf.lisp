@@ -29,10 +29,24 @@
 (in-readtable :net.didierverna.declt)
 
 
+;; ==========================================================================
+;; Components
+;; ==========================================================================
+
+;; #### NOTE: we more or less need to follow the ASDF hierarchy, which is not
+;; always correct. For example, the COMPONENT class has a PARENT slot, so we
+;; do the same here. It's technically wrong, however, because systems are
+;; components, but they never have a parent (the slot is always NIL). Maybe
+;; ASDF does this for simplicity. It surely makes our life simpler as well,
+;; especially since we have a peculiar order for calling the DOCUMENT methods,
+;; not following the hierarchy (SYSTEM -> COMPONENT -> MODULE). It would be
+;; more difficult to advertise the PARENT slot at the right place if it didn't
+;; belong here.
 ;; #### FIXME: abstract.
 (defclass component-definition (definition)
   ((component :documentation "The corresponding ASDF component."
-	      :reader component))
+	      :reader component)
+   (parent :documentation "The parent definition." :accessor parent))
   (:documentation "The COMPONENT-DEFINITION class.
 This is the base class for ASDF definitions."))
 
@@ -145,11 +159,12 @@ This is the base class for ASDF definitions."))
 
 
 ;; ==========================================================================
-;; System
+;; Systems
 ;; ==========================================================================
 
 (defclass system-definition (module-definition)
   ((component :initarg :system :reader system) ;; slot overload
+   (parent :initform nil) ;; slot -overload
    (maintainer-names :documentation "The list of maintainer names."
 		     :initform nil :accessor maintainer-names)
    (maintainer-emails :documentation "The list of maintainer emails."

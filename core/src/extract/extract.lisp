@@ -113,13 +113,13 @@ This is the class holding all extracted documentation information."))
 ;; Extract Population
 ;; ==========================================================================
 
-;; #### NOTE: there are more clever ways to populate the extract, notably by
-;; #### avoiding traversing the same lists several times. In particular,
-;; #### modules belong to a single system, and files belong to a single
-;; #### module, so we could created those at the same time. On the other hand,
-;; #### the way it's done below is simpler, and unlikely to affect performance
-;; #### that much. The number of ASDF definitions is probably much smaller
-;; #### than the number of symbol definitions.
+;; #### NOTE: there are more clever ways to populate the extract and finalize
+;; it, notably by avoiding traversing the same lists several times. In
+;; particular, modules belong to a single system, and files belong to a single
+;; module, so we could created those at the same time. On the other hand, the
+;; way it's done below is simpler, and unlikely to affect performance that
+;; much. The number of ASDF definitions is probably much smaller than the
+;; number of symbol definitions.
 
 (defun add-system-definitions (extract system)
   "Add all (sub)system definitions to EXTRACT."
@@ -209,6 +209,16 @@ created foreign ones, or is created as a new foreign one."
   ;; ones.
   (setf (package-definitions extract)
 	(append (package-definitions extract) foreign-package-definitions)))
+
+(defun finalize-module-definitions (extract)
+  "Finalize EXTRACT's module definitions.
+More specifically, for each module definition:
+- find its parent."
+  (dolist (definition (module-definitions extract))
+    (setf (parent definition)
+	  (let ((parent (component-parent (module definition))))
+	    (or (find parent (module-definitions extract) :key #'module)
+		(find parent (system-definitions extract) :key #'system))))))
 
 
 
@@ -314,6 +324,7 @@ allow to specify or override some bits of information.
   (add-symbol-definitions extract)
   (finalize-symbol-definitions extract)
   (finalize-package-definitions extract)
+  (finalize-module-definitions extract)
 
   extract)
 
