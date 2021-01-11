@@ -281,11 +281,11 @@ Documentation is done in a @table environment."
   (call-next-method)
   (render-packages-references (file-packages pathname))
   (render-external-definitions-references
-   (sort (file-definitions pathname (external-definitions extract))
+   (sort (definitions-from-file pathname (external-definitions extract))
 	 #'string-lessp
 	 :key #'definition-symbol))
   (render-internal-definitions-references
-   (sort (file-definitions pathname (internal-definitions extract))
+   (sort (definitions-from-file pathname (internal-definitions extract))
 	 #'string-lessp
 	 :key #'definition-symbol)))
 
@@ -383,15 +383,15 @@ components trees."))))
 		       (render-packages-references
 			(file-packages system-source-file))
 		       (render-external-definitions-references
-			(sort (file-definitions system-source-file
-						(external-definitions
-						 extract))
+			(sort (definitions-from-file system-source-file
+						     (external-definitions
+						      extract))
 			      #'string-lessp
 			      :key #'definition-symbol))
 		       (render-internal-definitions-references
-			(sort (file-definitions system-source-file
-						(internal-definitions
-						 extract))
+			(sort (definitions-from-file system-source-file
+						     (internal-definitions
+						      extract))
 			      #'string-lessp
 			      :key #'definition-symbol))))))))
   (dolist (file lisp-files)

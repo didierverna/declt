@@ -56,6 +56,8 @@
 		       :accessor system-definitions)
    (module-definitions :documentation "The list of module definitions."
 		       :accessor module-definitions)
+   (file-definitions :documentation "The list of file definitions."
+		     :accessor file-definitions)
    (package-definitions :documentation "The list of package definitions."
 			:accessor package-definitions)
    (symbol-definitions :documentation "The list of symbol definitions."
@@ -137,6 +139,23 @@ This is the class holding all extracted documentation information."))
 	    (mapcar #'system
 	      (system-definitions extract))))))
 
+(defun add-file-definitions (extract)
+  "Add all file definitions to EXTRACT."
+  (setf (file-definitions extract)
+	(mapcar (lambda (file)
+		  (etypecase file
+		    ;; #### WARNING: the order is important!
+		    (asdf:cl-source-file (make-lisp-file-definition file))
+		    (asdf:c-source-file (make-c-file-definition file))
+		    (asdf:java-source-file (make-java-file-definition file))
+		    (asdf:html-file (make-html-file-definition file))
+		    (asdf:doc-file (make-doc-file-definition file))
+		    (asdf:static-file (make-static-file-definition file))
+		    (asdf:source-file (make-source-file-definition file))
+		    (asdf:file-component (make-file-definition file))))
+	  (mapcan (lambda (definition) (file-components (system definition)))
+	    (system-definitions extract)))))
+
 (defun add-package-definitions (extract)
   "Add all package definitions to EXTRACT."
   (setf (package-definitions extract)
@@ -217,6 +236,16 @@ More specifically, for each module definition:
   (dolist (definition (module-definitions extract))
     (setf (parent definition)
 	  (let ((parent (component-parent (module definition))))
+	    (or (find parent (module-definitions extract) :key #'module)
+		(find parent (system-definitions extract) :key #'system))))))
+
+(defun finalize-file-definitions (extract)
+  "Finalize EXTRACT's file definitions.
+More specifically, for each file definition:
+- find its parent."
+  (dolist (definition (file-definitions extract))
+    (setf (parent definition)
+	  (let ((parent (component-parent (file definition))))
 	    (or (find parent (module-definitions extract) :key #'module)
 		(find parent (system-definitions extract) :key #'system))))))
 
@@ -320,11 +349,13 @@ allow to specify or override some bits of information.
   ;; performed in reverse order.
   (add-system-definitions extract system)
   (add-module-definitions extract)
+  (add-file-definitions extract)
   (add-package-definitions extract)
   (add-symbol-definitions extract)
   (finalize-symbol-definitions extract)
   (finalize-package-definitions extract)
   (finalize-module-definitions extract)
+  (finalize-file-definitions extract)
 
   extract)
 

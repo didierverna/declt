@@ -64,6 +64,15 @@
 	:if (typep component 'asdf:module)
 	  :nconc (components component type)))
 
+;; #### WARNING: do not confuse this function with asdf:module-components!
+(defun module-components (module)
+  "Return the list of all module components from ASDF MODULE."
+  (components module 'asdf:module))
+
+(defun file-components (module)
+  "Return the list of all file components from ASDF MODULE."
+  (components module 'asdf:file-component))
+
 (defun lisp-components (module)
   "Return the list of all Lisp source file components from ASDF MODULE."
   (components module 'asdf:cl-source-file))
@@ -78,11 +87,6 @@
 This includes both :defsystem-depends-on and :depends-on."
   (append (defsystem-dependencies system)
 	  (component-sideway-dependencies system)))
-
-;; #### WARNING: do not confuse this function with asdf:module-components!
-(defun module-components (module)
-  "Return the list of all module components from ASDF MODULE."
-  (components module 'asdf:module))
 
 (defun system-directory (system)
   "Return ASDF SYSTEM's directory."

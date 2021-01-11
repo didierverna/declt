@@ -56,6 +56,83 @@ This is the base class for ASDF definitions."))
 ;; Files
 ;; ==========================================================================
 
+;; The hierarchy below mimics that of ASDF (apart from the 3 kinds of Lisp
+;; files), which is probably overkill, but we never know.
+;; #### NOTE: we currently don't create foreign files.
+
+(defclass file-definition (component-definition)
+  ((component :initarg :file :reader file)) ;; slot overload
+  (:documentation "The FILE-DEFINITION class.
+This is the base class for ASDF file definitions."))
+
+(defun make-file-definition (file &optional foreign)
+  "Make a new FILE definition, possibly FOREIGN."
+  (make-instance 'file-definition :file file :foreign foreign))
+
+
+(defclass source-file-definition (file-definition)
+  ()
+  (:documentation "The SOURCE-FILE-DEFINITION class."))
+
+(defun make-source-file-definition (file &optional foreign)
+  "Make a new source FILE definition, possibly FOREIGN."
+  (make-instance 'source-file-definition :file file :foreign foreign))
+
+
+(defclass lisp-file-definition (source-file-definition)
+  ()
+  (:documentation "The LISP-FILE-DEFINITION class."))
+
+(defun make-lisp-file-definition (file &optional foreign)
+  "Make a new Lisp FILE definition, possibly FOREIGN."
+  (make-instance 'lisp-file-definition :file file :foreign foreign))
+
+
+(defclass c-file-definition (source-file-definition)
+  ()
+  (:documentation "The C-FILE-DEFINITION class."))
+
+(defun make-c-file-definition (file &optional foreign)
+  "Make a new C FILE definition, possibly FOREIGN."
+  (make-instance 'c-file-definition :file file :foreign foreign))
+
+
+(defclass java-file-definition (source-file-definition)
+  ()
+  (:documentation "The JAVA-FILE-DEFINITION class."))
+
+(defun make-java-file-definition (file &optional foreign)
+  "Make a new Java FILE definition, possibly FOREIGN."
+  (make-instance 'java-file-definition :file file :foreign foreign))
+
+
+(defclass static-file-definition (source-file-definition)
+  ()
+  (:documentation "The STATIC-FILE-DEFINITION class."))
+
+(defun make-static-file-definition (file &optional foreign)
+  "Make a new static FILE definition, possibly FOREIGN."
+  (make-instance 'static-file-definition :file file :foreign foreign))
+
+
+(defclass doc-file-definition (static-file-definition)
+  ()
+  (:documentation "The DOC-FILE-DEFINITION class."))
+
+(defun make-doc-file-definition (file &optional foreign)
+  "Make a new doc FILE definition, possibly FOREIGN."
+  (make-instance 'doc-file-definition :file file :foreign foreign))
+
+
+(defclass html-file-definition (doc-file-definition)
+  ()
+  (:documentation "The HTML-FILE-DEFINITION class."))
+
+(defun make-html-file-definition (file &optional foreign)
+  "Make a new HTML FILE definition, possibly FOREIGN."
+  (make-instance 'html-file-definition :file file :foreign foreign))
+
+
 ;; --------------------
 ;; Extraction protocols
 ;; --------------------
@@ -122,7 +199,8 @@ This is the base class for ASDF definitions."))
 	      (access-expander-definition generic-accessor)
 	      file)))))
 
-(defun file-definitions (file definitions)
+;; #### FIXME: tmp hack
+(defun definitions-from-file (file definitions)
   "Return the subset of DEFINITIONS that belong to FILE."
   (mapcan (lambda (definition) (definition-file-definitions definition file))
     definitions))
