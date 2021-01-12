@@ -229,16 +229,6 @@ created foreign ones, or is created as a new foreign one."
   (setf (package-definitions extract)
 	(append (package-definitions extract) foreign-package-definitions)))
 
-(defun finalize-module-definitions (extract)
-  "Finalize EXTRACT's module definitions.
-More specifically, for each module definition:
-- find its parent."
-  (dolist (definition (module-definitions extract))
-    (setf (parent definition)
-	  (let ((parent (component-parent (module definition))))
-	    (or (find parent (module-definitions extract) :key #'module)
-		(find parent (system-definitions extract) :key #'system))))))
-
 (defun finalize-file-definitions (extract)
   "Finalize EXTRACT's file definitions.
 More specifically, for each file definition:
@@ -248,6 +238,38 @@ More specifically, for each file definition:
 	  (let ((parent (component-parent (file definition))))
 	    (or (find parent (module-definitions extract) :key #'module)
 		(find parent (system-definitions extract) :key #'system))))))
+
+(defun finalize-module-definitions (extract)
+  "Finalize EXTRACT's module definitions.
+More specifically, for each module definition:
+- find its parent,
+- find its children."
+  (dolist (definition (module-definitions extract))
+    (setf (parent definition)
+	  (let ((parent (component-parent (module definition))))
+	    (or (find parent (module-definitions extract) :key #'module)
+		(find parent (system-definitions extract) :key #'system)))))
+  ;; At that point, all files and module definitions have their PARENT slot
+  ;; properly set.
+  (let ((children
+	  (append (module-definitions extract) (file-definitions extract))))
+    (dolist (definition (module-definitions extract))
+      (setf (children definition)
+	    (remove-if-not (lambda (child) (eq (parent child) definition))
+		children)))))
+
+(defun finalize-system-definitions (extract)
+  "Finalize EXTRACT's system definitions.
+More specifically, for each system definition:
+- find its children."
+  ;; At that point, all files and module definitions have their PARENT slot
+  ;; properly set already.
+  (let ((children
+	  (append (module-definitions extract) (file-definitions extract))))
+    (dolist (definition (system-definitions extract))
+      (setf (children definition)
+	    (remove-if-not (lambda (child) (eq (parent child) definition))
+		children)))))
 
 
 
@@ -354,8 +376,9 @@ allow to specify or override some bits of information.
   (add-symbol-definitions extract)
   (finalize-symbol-definitions extract)
   (finalize-package-definitions extract)
-  (finalize-module-definitions extract)
   (finalize-file-definitions extract)
+  (finalize-module-definitions extract)
+  (finalize-system-definitions extract)
 
   extract)
 

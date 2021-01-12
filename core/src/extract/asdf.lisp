@@ -212,7 +212,8 @@ This is the base class for ASDF file definitions."))
 ;; ==========================================================================
 
 (defclass module-definition (component-definition)
-  ((component :initarg :module :reader module)) ;; slot overload
+  ((component :initarg :module :reader module) ;; slot overload
+   (children :documentation "The module's children." :accessor children))
   (:documentation "The Module Definition class."))
 
 ;; #### NOTE: we currently don't create foreign modules.
