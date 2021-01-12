@@ -40,6 +40,7 @@
     :component-description
     :component-long-description
     :component-parent
+    :component-children
     :component-pathname
     :component-relative-pathname
     :component-if-feature

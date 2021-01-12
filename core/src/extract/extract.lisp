@@ -124,7 +124,8 @@ This is the class holding all extracted documentation information."))
 ;; number of symbol definitions.
 
 (defun add-system-definitions (extract system)
-  "Add all (sub)system definitions to EXTRACT."
+  "Add all (sub)system definitions to EXTRACT.
+The main system is always first."
   (setf (system-definitions extract)
 	(mapcar #'make-system-definition
 	  (cons system
@@ -185,6 +186,8 @@ This is the class holding all extracted documentation information."))
 ;; Extract Finalization
 ;; ==========================================================================
 
+;; #### FIXME: we probably need a FINALIZE-DEFINITION generic function.
+
 (defun finalize-symbol-definitions (extract)
   "Finalize EXTRACT's symbol definitions.
 See `finalize-definitions' for more information."
@@ -232,7 +235,7 @@ created foreign ones, or is created as a new foreign one."
 (defun finalize-file-definitions (extract)
   "Finalize EXTRACT's file definitions.
 More specifically, for each file definition:
-- find its parent."
+- fill in its parent."
   (dolist (definition (file-definitions extract))
     (setf (parent definition)
 	  (let ((parent (component-parent (file definition))))
@@ -242,34 +245,37 @@ More specifically, for each file definition:
 (defun finalize-module-definitions (extract)
   "Finalize EXTRACT's module definitions.
 More specifically, for each module definition:
-- find its parent,
-- find its children."
+- fill in its parent,
+- fill in its children, in the module's order."
   (dolist (definition (module-definitions extract))
     (setf (parent definition)
 	  (let ((parent (component-parent (module definition))))
 	    (or (find parent (module-definitions extract) :key #'module)
 		(find parent (system-definitions extract) :key #'system)))))
-  ;; At that point, all files and module definitions have their PARENT slot
+  ;; At that point, all file and module definitions have their PARENT slot
   ;; properly set.
   (let ((children
 	  (append (module-definitions extract) (file-definitions extract))))
     (dolist (definition (module-definitions extract))
       (setf (children definition)
-	    (remove-if-not (lambda (child) (eq (parent child) definition))
-		children)))))
+	    (mapcar (lambda (child) (find child children :key #'component))
+	      (component-children (module definition)))))))
 
+;; #### NOTE: there's some duplication from the above here. Creating the
+;; children list is exactly the same thing in systems and modules because
+;; systems /are/ modules. Not a big deal though.
 (defun finalize-system-definitions (extract)
   "Finalize EXTRACT's system definitions.
 More specifically, for each system definition:
-- find its children."
+- fill in its children, in the system's order."
   ;; At that point, all files and module definitions have their PARENT slot
   ;; properly set already.
   (let ((children
 	  (append (module-definitions extract) (file-definitions extract))))
     (dolist (definition (system-definitions extract))
       (setf (children definition)
-	    (remove-if-not (lambda (child) (eq (parent child) definition))
-		children)))))
+	    (mapcar (lambda (child) (find child children :key #'component))
+	      (component-children (system definition)))))))
 
 
 

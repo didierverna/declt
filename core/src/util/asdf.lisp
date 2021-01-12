@@ -53,29 +53,30 @@
 				     (append (pathname-directory relative-to)
 					     '(:wild-inferiors))))))
 
-(defun components (module type)
-  "Return the list of all components of (sub)TYPE from ASDF MODULE."
+(defun components (parent type)
+  "Return the list of all components of (sub)TYPE from ASDF PARENT."
   ;; #### NOTE: we accept subtypes of TYPE because ASDF components might be
   ;; subclassed. An example of this is SBCL's grovel facility which subclasses
   ;; asdf:cl-source-file.
-  (loop :for component :in (asdf:module-components module)
+  (loop :for component :in (component-children parent)
 	:if (typep component type)
 	  :collect component
 	:if (typep component 'asdf:module)
 	  :nconc (components component type)))
 
-;; #### WARNING: do not confuse this function with asdf:module-components!
-(defun module-components (module)
-  "Return the list of all module components from ASDF MODULE."
-  (components module 'asdf:module))
+;; #### WARNING: do not confuse this function with ASDF's MODULE-COMPONENTS
+;; (which, BTW, is deprecated in favor of COMPONENT-CHILDREN).
+(defun module-components (parent)
+  "Return the list of all module components from ASDF PARENT."
+  (components parent 'asdf:module))
 
-(defun file-components (module)
-  "Return the list of all file components from ASDF MODULE."
-  (components module 'asdf:file-component))
+(defun file-components (parent)
+  "Return the list of all file components from ASDF PARENT."
+  (components parent 'asdf:file-component))
 
-(defun lisp-components (module)
-  "Return the list of all Lisp source file components from ASDF MODULE."
-  (components module 'asdf:cl-source-file))
+(defun lisp-components (parent)
+  "Return the list of all Lisp source file components from ASDF PARENT."
+  (components parent 'asdf:cl-source-file))
 
 (defun defsystem-dependencies (system)
   "Return ASDF SYSTEM's defsystem dependencies."
