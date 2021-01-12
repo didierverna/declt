@@ -48,6 +48,11 @@
   (@ref (anchor-name component) component)
   (format t " (~A)~%" (type-name component)))
 
+(defun reference-asdf-definition (definition)
+  "Render ASDF DEFINITION's reference."
+  (@ref (anchor-name definition) definition)
+  (format t " (~A)~%" (type-name definition)))
+
 (defgeneric virtual-path (component)
   (:documentation "Return CONMPONENT's virtual path.
 This is the string of successive component names to access COMPONENT from the
@@ -230,12 +235,23 @@ Documentation is done in a @table environment."
 ;; Rendering protocols
 ;; -------------------
 
+;; #### FIXME: remove in the end.
 (defmethod name ((source-file asdf:source-file)
 		 &aux (name (component-name source-file))
 		      (extension (asdf:file-type source-file)))
   "Return SOURCE-FILE's name, possibly adding its extension."
   (when extension (setq name (concatenate 'string name "." extension)))
   (reveal name))
+
+;; #### FIXME: reveal mess. Reveal should be in an around method as far
+;; outside as possible.
+(defmethod name :around
+    ((definition file-definition)
+     &aux (name (call-next-method))
+	  (extension (reveal (asdf:file-type (component definition)))))
+  "Return file DEFINITION's name, possibly adding its extension."
+  (when extension (setq name (concatenate 'string name "." extension)))
+  name)
 
 
 ;; -----------------------
@@ -270,9 +286,14 @@ Documentation is done in a @table environment."
   "Render HTML-FILE's indexing command."
   (format t "@htmlfileindex{~A}@c~%" (escape (virtual-path html-file))))
 
+;; #### FIXME: remove this afterwards.
 (defmethod reference ((source-file asdf:source-file))
   "Render SOURCE-FILE's reference."
   (reference-component source-file))
+
+(defmethod reference ((definition source-file-definition))
+  "Render source file DEFINITION's reference."
+  (reference-asdf-definition definition))
 
 (defmethod document ((file asdf:cl-source-file) extract
 		     &key
@@ -430,21 +451,26 @@ components trees."))))
   (format t "@moduleindex{~A}@c~%"
     (escape (virtual-path (module module-definition)))))
 
+;; #### FIXME: remove when we have all definitions.
 (defmethod reference ((module asdf:module))
   "Render MODULE's reference."
   (reference-component module))
+
+(defmethod reference ((definition module-definition))
+  "Render module DEFINITION's reference."
+  (reference-asdf-definition definition))
 
 (defmethod document ((definition module-definition) extract &key)
   "Render module DEFINITION's documentation in EXTRACT."
   ;;(call-next-method)
   ;; #### FIXME: temporary hack until we have a complete hierarchy.
   (document (module definition) extract)
-  (when-let* ((components (asdf:module-components (module definition)))
-	      (length (length components)))
+  (when-let* ((children (children definition))
+	      (length (length children)))
     (@tableitem (format nil "Component~p" length)
       (if (eq length 1)
-	(reference (first components))
-	(@itemize-list components :renderer #'reference)))))
+	(reference (first children))
+	(@itemize-list children :renderer #'reference)))))
 
 
 ;; -----
@@ -494,9 +520,14 @@ Modules are listed depth-first from the system components tree.")))))
   "Render SYSTEM-DEFINITION's indexing command."
   (format t "@systemindex{~A}@c~%" (escape system-definition)))
 
+;; #### FIXME: remove when we have all definitions.
 (defmethod reference ((system asdf:system))
   "Render SYSTEM's reference."
   (reference-component system))
+
+(defmethod reference ((definition system-definition))
+  "Render system DEFINITION's reference."
+  (reference-asdf-definition definition))
 
 (defmethod document ((definition system-definition) extract &key)
   "Render system DEFINITION's documentation in EXTRACT."

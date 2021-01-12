@@ -137,7 +137,12 @@ This is the base class for ASDF file definitions."))
 ;; Extraction protocols
 ;; --------------------
 
+;; #### FIXME: remove when we have all definitions.
 (defmethod type-name ((source-file asdf:source-file))
+  "Return \"file\""
+  "file")
+
+(defmethod type-name ((definition file-definition))
   "Return \"file\""
   "file")
 
