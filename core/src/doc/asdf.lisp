@@ -163,16 +163,6 @@ Optionally PREFIX the title."
 		      (render-dependency dependency component
 					 relative-to))))))
 
-(defmethod document :around ((component asdf:component) extract &key)
-  "Anchor and index COMPONENT in EXTRACT. Document it in a @table environment."
-  ;; #### FIXME: temporary hack to avoid doubling the effect of the method
-  ;; below.
-  (cond ((or (typep component 'asdf:system) (typep component 'asdf:module))
-	 (call-next-method))
-	(t
-	 (anchor-and-index component)
-	 (@table () (call-next-method)))))
-
 (defmethod document :around
     ((component-definition component-definition) extract &key)
   "Anchor, index and document EXTRACT's COMPONENT-DEFINITION.
@@ -199,7 +189,7 @@ Documentation is done in a @table environment."
     (@tableitem "If Feature"
       (format t "@t{~(~A}~)" (escape if-feature))))
   (when-let (dependencies (when (typep component 'asdf:system)
-			    (defsystem-dependencies component)))
+			    (system-defsystem-depends-on component)))
     (render-dependencies dependencies component relative-to "Defsystem "))
   (when-let (dependencies (component-sideway-dependencies component))
     (render-dependencies dependencies component relative-to))
@@ -258,33 +248,46 @@ Documentation is done in a @table environment."
 ;; Documentation protocols
 ;; -----------------------
 
-(defmethod index ((other-file asdf:source-file))
-  "Render OTHER-FILE's indexing command."
-  (format t "@otherfileindex{~A}@c~%" (escape (virtual-path other-file))))
+;; #### FIXME: need more factoring.
+(defmethod index ((definition lisp-file-definition))
+  "Render Lisp file DEFINITION's indexing command."
+  (format t "@lispfileindex{~A}@c~%"
+    (escape (virtual-path (file definition)))))
 
-(defmethod index ((lisp-file asdf:cl-source-file))
-  "Render LISP-FILE's indexing command."
-  (format t "@lispfileindex{~A}@c~%" (escape (virtual-path lisp-file))))
+(defmethod index ((definition c-file-definition))
+  "Render C file DEFINITION's indexing command."
+  (format t "@cfileindex{~A}@c~%"
+    (escape (virtual-path (file definition)))))
 
-(defmethod index ((c-file asdf:c-source-file))
-  "Render C-FILE's indexing command."
-  (format t "@cfileindex{~A}@c~%" (escape (virtual-path c-file))))
+(defmethod index ((definition java-file-definition))
+  "Render Java file DEFINITION's indexing command."
+  (format t "@javafileindex{~A}@c~%"
+    (escape (virtual-path (file definition)))))
 
-(defmethod index ((java-file asdf:java-source-file))
-  "Render JAVA-FILE's indexing command."
-  (format t "@javafileindex{~A}@c~%" (escape (virtual-path java-file))))
+(defmethod index ((definition html-file-definition))
+  "Render HTML file DEFINITION's indexing command."
+  (format t "@htmlfileindex{~A}@c~%"
+    (escape (virtual-path (file definition)))))
 
-(defmethod index ((static-file asdf:static-file))
-  "Render STATIC-FILE's indexing command."
-  (format t "@staticfileindex{~A}@c~%" (escape (virtual-path static-file))))
+(defmethod index ((definition doc-file-definition))
+  "Render doc file DEFINITION's indexing command."
+  (format t "@docfileindex{~A}@c~%"
+    (escape (virtual-path (file definition)))))
 
-(defmethod index ((doc-file asdf:doc-file))
-  "Render DOC-FILE's indexing command."
-  (format t "@docfileindex{~A}@c~%" (escape (virtual-path doc-file))))
+(defmethod index ((definition static-file-definition))
+  "Render static file DEFINITION's indexing command."
+  (format t "@staticfileindex{~A}@c~%"
+    (escape (virtual-path (file definition)))))
 
-(defmethod index ((html-file asdf:html-file))
-  "Render HTML-FILE's indexing command."
-  (format t "@htmlfileindex{~A}@c~%" (escape (virtual-path html-file))))
+(defmethod index ((definition source-file-definition))
+  "Render source file DEFINITION's indexing command."
+  (format t "@sourcefileindex{~A}@c~%"
+    (escape (virtual-path (file definition)))))
+
+(defmethod index ((definition file-definition))
+  "Render other file DEFINITION's indexing command."
+  (format t "@otherfileindex{~A}@c~%"
+    (escape (virtual-path (file definition)))))
 
 ;; #### FIXME: remove this afterwards.
 (defmethod reference ((source-file asdf:source-file))
@@ -295,20 +298,15 @@ Documentation is done in a @table environment."
   "Render source file DEFINITION's reference."
   (reference-asdf-definition definition))
 
-(defmethod document ((file asdf:cl-source-file) extract
-		     &key
-		     &aux (pathname (component-pathname file)))
-  "Render lisp FILE's documentation in EXTRACT."
-  (call-next-method)
-  (render-packages-references (file-packages pathname))
-  (render-external-definitions-references
-   (sort (definitions-from-file pathname (external-definitions extract))
-	 #'string-lessp
-	 :key #'definition-symbol))
-  (render-internal-definitions-references
-   (sort (definitions-from-file pathname (internal-definitions extract))
-	 #'string-lessp
-	 :key #'definition-symbol)))
+;; #### NOTE: other kinds of files are only documented as simple components.
+(defmethod document ((definition lisp-file-definition) extract &key)
+  "Render lisp file DEFINITION's documentation in EXTRACT."
+  ;; #### FIXME: temp hack until we have a method on components.
+  (document (file definition) extract)
+  ;;  (call-next-method)
+  (render-packages-references (package-definitions definition))
+  (render-external-definitions-references (external-definitions definition))
+  (render-internal-definitions-references (internal-definitions definition)))
 
 
 ;; -----
@@ -317,63 +315,41 @@ Documentation is done in a @table environment."
 
 ;; #### FIXME: one of the casing problem is here. We shouldn't downcase file
 ;; names!
-(defun file-node (file extract)
-  "Create and return a FILE node in EXTRACT."
-  (make-node :name (format nil "~@(~A~)" (title file))
-	     :section-name (format nil "@t{~A}" (escape (virtual-path file)))
-	     :before-menu-contents (render-to-string (document file extract))))
+(defun file-node (definition extract)
+  "Create and return a file DEFINITION node in EXTRACT."
+  (make-node :name (format nil "~@(~A~)" (title definition))
+	     :section-name
+	     (format nil "@t{~A}" (escape (virtual-path (file definition))))
+	     :before-menu-contents
+	     (render-to-string (document definition extract))))
 
 (defun add-files-node
-    (parent extract &aux (systems
-			  ;; #### FIXME: move this away when we have
-			  ;; file-definitions.
-			  (mapcar #'system (system-definitions extract)))
-			 (lisp-files (mapcan #'lisp-components systems))
-			 (other-files
-			  (list
-			   (mapcan (lambda (system)
-				     (components system 'asdf:c-source-file))
-				   systems)
-			   (mapcan (lambda (system)
-				     (components system 'asdf:java-source-file))
-				   systems)
-			   (mapcan (lambda (system)
-				     (components system 'asdf:html-file))
-				   systems)
-			   (remove-if
-			    (lambda (component)
-			      (typep component 'asdf:html-file))
-			    (mapcan (lambda (system)
-				      (components system 'asdf:doc-file))
-				    systems))
-			   (remove-if
-			    (lambda (component)
-			      (typep component 'asdf:doc-file))
-			    (mapcan (lambda (system)
-				      (components system 'asdf:static-file))
-				    systems))
-			   (remove-if
-			    (lambda (component)
-			      (or (typep component 'asdf:cl-source-file)
-				  (typep component 'asdf:c-source-file)
-				  (typep component 'asdf:java-source-file)
-				  (typep component 'asdf:static-file)))
-			    (mapcan (lambda (system)
-				      (components system 'asdf:source-file))
-				    systems))))
-			 (files-node
-			  (add-child parent
-			    (make-node
-			     :name "Files"
-			     :synopsis "The files documentation"
-			     :before-menu-contents (format nil "~
+    (parent extract
+     &aux lisp-file-definitions c-file-definitions java-file-definitions
+	  html-file-definitions doc-file-definitions
+	  static-file-definitions source-file-definitions file-definitions
+	  (files-node (add-child parent
+			(make-node
+			 :name "Files"
+			 :synopsis "The files documentation"
+			 :before-menu-contents (format nil "~
 Files are sorted by type and then listed depth-first from the systems
 components trees."))))
-			 (lisp-files-node
-			  (add-child files-node
-			    (make-node :name "Lisp files"
-				       :section-name "Lisp"))))
+	  (lisp-files-node (add-child files-node
+			     (make-node :name "Lisp files"
+					:section-name "Lisp"))))
   "Add the files node to PARENT in EXTRACT."
+  (dolist (definition (file-definitions extract))
+    (etypecase definition
+      ;; #### WARNING: the order is important!
+      (lisp-file-definition (push definition lisp-file-definitions))
+      (c-file-definition (push definition c-file-definitions))
+      (java-file-definition (push definition java-file-definitions))
+      (html-file-definition (push definition html-file-definitions))
+      (doc-file-definition (push definition doc-file-definitions))
+      (static-file-definition (push definition static-file-definitions))
+      (source-file-definition (push definition source-file-definitions))
+      (file-definition (push definition file-definitions))))
   ;; #### NOTE: the .asd are Lisp files, but not components. I still want them
   ;; to be listed here (and first) so I need to duplicate some of what the
   ;; DOCUMENT method on lisp files does.
@@ -381,7 +357,10 @@ components trees."))))
   ;; #### FIXME: Arnesi lists the asd file as a static-file, so it appears
   ;; twice.
   (dolist (system (remove-duplicates
-		   (remove-if #'null systems :key #'system-source-file)
+		   ;; #### FIXME: when can a system source file be null?
+		   (remove-if #'null
+		       (mapcar #'system (system-definitions extract))
+		     :key #'system-source-file)
 		   :test #'equal :key #'system-source-file))
     (let ((system-base-name (escape (system-base-name system)))
 	  (system-source-file (system-source-file system)))
@@ -396,7 +375,8 @@ components trees."))))
 		     (@table ()
 		       (render-location system-source-file extract)
 		       (render-references
-			(loop :for system :in systems
+			(loop :for system :in (mapcar #'system
+						(system-definitions extract))
 			      :when (equal (system-source-file system)
 					   system-source-file)
 				:collect system)
@@ -415,21 +395,27 @@ components trees."))))
 						      extract))
 			      #'string-lessp
 			      :key #'definition-symbol))))))))
-  (dolist (file lisp-files)
-    (add-child lisp-files-node (file-node file extract)))
+  (dolist (definition (nreverse lisp-file-definitions))
+    (add-child lisp-files-node (file-node definition extract)))
   (loop :with other-files-node
-	:for files :in other-files
+	:for definitions
+	  :in (mapcar #'nreverse
+		(list c-file-definitions java-file-definitions
+		      html-file-definitions doc-file-definitions
+		      static-file-definitions source-file-definitions
+		      file-definitions))
 	:for name
 	  :in '("C files" "Java files" "HTML files" "Doc files"
-		"Static files" "Other files")
-	:for section-name :in '("C" "Java" "HTML" "Doc" "Static" "Other")
-	:when files
+		"Static files" "Source files" "Other files")
+	:for section-name
+	  :in '("C" "Java" "HTML" "Doc" "Static" "Source" "Other")
+	:when definitions
 	  :do (setq other-files-node
 		    (add-child files-node
-		      (make-node :name name
-				 :section-name section-name)))
-	:and :do (dolist (file files)
-		   (add-child other-files-node (file-node file extract)))))
+		      (make-node :name name :section-name section-name)))
+	  :and :do (dolist (definition definitions)
+		     (add-child other-files-node
+		       (file-node definition extract)))))
 
 
 

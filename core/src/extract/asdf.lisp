@@ -51,6 +51,33 @@
 This is the base class for ASDF definitions."))
 
 
+;; ----------------
+;; Pseudo-accessors
+;; ----------------
+
+(defun description (definition)
+  "Return component DEFINITION's description."
+  (component-description (component definition)))
+
+(defun long-description (definition)
+  "Return component DEFINITION's long description."
+  (component-long-description (component definition)))
+
+;; #### NOTE: this is not very satisfactory, but Declt has a VERSION regular
+;; function for its own version information.
+(defun version-string (definition)
+  "Return component DEFINITION's version string."
+  (component-version (component definition)))
+
+(defun if-feature (definition)
+  "Return component DEFINITION's if-feature."
+  (component-if-feature (component definition)))
+
+(defun dependencies (definition)
+  "Return component DEFINITION's dependencies."
+  (component-sideway-dependencies (component definition)))
+
+
 
 ;; ==========================================================================
 ;; Files
@@ -80,12 +107,35 @@ This is the base class for ASDF file definitions."))
 
 
 (defclass lisp-file-definition (source-file-definition)
-  ()
+  ((package-definitions
+    :documentation "The corresponding package definitions."
+    :accessor package-definitions)
+   (symbol-definitions
+    :documentation "The corresponding symbol definitions."
+    :accessor symbol-definitions))
   (:documentation "The LISP-FILE-DEFINITION class."))
 
 (defun make-lisp-file-definition (file &optional foreign)
   "Make a new Lisp FILE definition, possibly FOREIGN."
   (make-instance 'lisp-file-definition :file file :foreign foreign))
+
+;; #### FIXME: those two functions have to be utterly inefficient. Hopefully,
+;; this will go away with the addition of an EXPORTED slot.
+(defmethod external-definitions ((definition lisp-file-definition))
+  "Return Lisp file DEFINITION's external definitions."
+  (remove-if-not
+      (lambda (symbol)
+	(member symbol (package-external-symbols (symbol-package symbol))))
+      (symbol-definitions definition)
+    :key #'definition-symbol))
+
+(defmethod internal-definitions ((definition lisp-file-definition))
+  "Return Lisp file DEFINITION's internal definitions."
+  (remove-if
+      (lambda (symbol)
+	(member symbol (package-external-symbols (symbol-package symbol))))
+      (symbol-definitions definition)
+    :key #'definition-symbol))
 
 
 (defclass c-file-definition (source-file-definition)
@@ -262,7 +312,8 @@ This is the base class for ASDF file definitions."))
 (defmethod initialize-instance :after
     ((definition system-definition) &key &aux (system (system definition)))
   "Perform post-initialization of system DEFINITION.
-- Extract names and emails for authors and maintainers."
+More specifically:
+- extract names and emails for authors and maintainers."
   (multiple-value-bind (maintainers emails)
       (|parse-contact(s)| (system-maintainer system))
     (when maintainers
@@ -309,6 +360,11 @@ This is the base class for ASDF file definitions."))
 (defmethod license ((definition system-definition))
   "Return system DEFINITION's license, if any."
   (system-license (system definition)))
+
+(defun defsystem-dependencies (definition)
+  "Return system DEFINITION's defsystem dependencies."
+  (system-defsystem-depends-on (system definition)))
+
 
 
 ;; --------------------

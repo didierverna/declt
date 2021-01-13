@@ -171,13 +171,6 @@ The ~A Reference Manual~@[, version ~A~].
 @cindex Module, @t{\\name\\}
 @end macro
 
-@c Other files
-@macro otherfileindex{name}
-@cindex @t{\\name\\}
-@cindex Other File, @t{\\name\\}
-@cindex File, other, @t{\\name\\}
-@end macro
-
 @c Lisp files
 @macro lispfileindex{name}
 @cindex @t{\\name\\}
@@ -199,11 +192,11 @@ The ~A Reference Manual~@[, version ~A~].
 @cindex File, Java, @t{\\name\\}
 @end macro
 
-@c Static files
-@macro staticfileindex{name}
+@c HTML files
+@macro htmlfileindex{name}
 @cindex @t{\\name\\}
-@cindex Static File, @t{\\name\\}
-@cindex File, static, @t{\\name\\}
+@cindex HTML File, @t{\\name\\}
+@cindex File, html, @t{\\name\\}
 @end macro
 
 @c Doc files
@@ -213,11 +206,25 @@ The ~A Reference Manual~@[, version ~A~].
 @cindex File, doc, @t{\\name\\}
 @end macro
 
-@c HTML files
-@macro htmlfileindex{name}
+@c Static files
+@macro staticfileindex{name}
 @cindex @t{\\name\\}
-@cindex HTML File, @t{\\name\\}
-@cindex File, html, @t{\\name\\}
+@cindex Static File, @t{\\name\\}
+@cindex File, static, @t{\\name\\}
+@end macro
+
+@c Source files
+@macro sourcefileindex{name}
+@cindex @t{\\name\\}
+@cindex Source File, @t{\\name\\}
+@cindex File, source, @t{\\name\\}
+@end macro
+
+@c Other files
+@macro otherfileindex{name}
+@cindex @t{\\name\\}
+@cindex Other File, @t{\\name\\}
+@cindex File, other, @t{\\name\\}
 @end macro
 
 @c The following macros are meant to be used within @defxxx environments.

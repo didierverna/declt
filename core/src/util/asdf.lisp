@@ -78,15 +78,10 @@
   "Return the list of all Lisp source file components from ASDF PARENT."
   (components parent 'asdf:cl-source-file))
 
-(defun defsystem-dependencies (system)
-  "Return ASDF SYSTEM's defsystem dependencies."
-  (when (slot-boundp system 'asdf::defsystem-depends-on)
-    (asdf::system-defsystem-depends-on system)))
-
 (defun system-dependencies (system)
   "Return all SYSTEM dependencies.
 This includes both :defsystem-depends-on and :depends-on."
-  (append (defsystem-dependencies system)
+  (append (system-defsystem-depends-on system)
 	  (component-sideway-dependencies system)))
 
 (defun system-directory (system)

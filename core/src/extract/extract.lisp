@@ -196,14 +196,14 @@ See `finalize-definitions' for more information."
 (defun finalize-package-definitions (extract &aux foreign-package-definitions)
   "Finalize EXTRACT's package definitions.
 More specifically, for each package definition:
-- populate its use and used-by lists with the appropriate package definitions,
+- populate its use and used-by lists,
 - populate its symbol definitions list.
 
 Finalizing the use and used-by lists may also entail the creation of several
 foreign package definitions which are added at the end of EXTRACT's package
 definitions list."
   (dolist (package-definition (package-definitions extract))
-    ;; Populate the use and used-by list.
+    ;; 1. Use and used-by lists.
     (flet ((find-package-definition (package)
 	     "Find PACKAGE definition.
 The definition is found in the already existing EXTRACT ones, in the recently
@@ -221,26 +221,43 @@ created foreign ones, or is created as a new foreign one."
       (setf (used-by-definitions package-definition)
 	    (mapcar #'find-package-definition
 	      (package-used-by-list (definition-package package-definition)))))
-    ;; Populate the symbol definitions list.
+    ;; 2. Symbol definitions list.
     (setf (symbol-definitions package-definition)
 	  (sort (definitions-package-definitions
 		 (symbol-definitions extract)
 		 (definition-package package-definition))
 		#'string-lessp :key #'definition-symbol)))
-  ;; Complete the packages definitions list with the newly created foreign
-  ;; ones.
+  ;; 3. Foreign packages addition.
   (setf (package-definitions extract)
 	(append (package-definitions extract) foreign-package-definitions)))
 
 (defun finalize-file-definitions (extract)
   "Finalize EXTRACT's file definitions.
 More specifically, for each file definition:
-- fill in its parent."
+- fill in its parent,
+- populate its package definitions list (Lisp files only),
+- populate its symbol definitions list (Lisp files only)."
   (dolist (definition (file-definitions extract))
+    ;; 1. Parent.
     (setf (parent definition)
 	  (let ((parent (component-parent (file definition))))
 	    (or (find parent (module-definitions extract) :key #'module)
-		(find parent (system-definitions extract) :key #'system))))))
+		(find parent (system-definitions extract) :key #'system))))
+    ;; Lisp files specific.
+    (when (typep definition 'lisp-file-definition)
+      ;; 2. Package definitions list.
+      (setf (package-definitions definition)
+	    (remove-if-not (lambda (package)
+			     (equal (source package)
+				    (component-pathname (file definition))))
+		(package-definitions extract)
+	      :key #'definition-package))
+      ;; 3. Symbol definitions list.
+      (setf (symbol-definitions definition)
+	    (sort (definitions-from-file
+		   (component-pathname (file definition))
+		   (symbol-definitions extract))
+		  #'string-lessp :key #'definition-symbol)))))
 
 (defun finalize-module-definitions (extract)
   "Finalize EXTRACT's module definitions.

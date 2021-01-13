@@ -48,6 +48,7 @@
     :component-find-path
     :find-system
     :resolve-dependency-name
+    :system-defsystem-depends-on
     :system-long-name
     :system-author
     :system-maintainer

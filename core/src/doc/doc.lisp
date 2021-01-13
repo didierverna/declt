@@ -124,6 +124,7 @@ Rendering is done on *standard-output*."
   (when-let (docstring (docstring item))
     (render-text docstring)))
 
+;; #### FIXME: concatenate TITLE with ~p and format it to handle length = 1.
 (defun render-references (list title &aux (length (length list)))
   "Render references to a LIST of items.
 References are rendered in a table item named TITLE as a list, unless there is

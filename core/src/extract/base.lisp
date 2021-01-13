@@ -61,6 +61,9 @@ This is the base class for all definitions."))
 ;; Source protocol
 ;; ---------------
 
+;; #### FIXME: I have defined methods for definitions, but I think this is
+;; wrong. We rather need a LOCATION protocol with source information
+;; /relative/ to the extract's location instead.
 (defgeneric source (item)
   (:documentation "Return ITEM's definition source pathname."))
 
