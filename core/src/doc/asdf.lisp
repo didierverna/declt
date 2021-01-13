@@ -119,6 +119,8 @@ extension at the end.")
   "Render unreferenced COMPONENT."
   (format t "@t{~(~A}~) (other component)~%" (escape component)))
 
+;; #### FIXME: dependencies should be represented as potentially foreign
+;; definitions.
 (defgeneric render-dependency (dependency-def component relative-to)
   (:documentation "Render COMPONENT's DEPENDENCY-DEF RELATIVE-TO.
 Dependencies are referenced only if they are RELATIVE-TO the system being
@@ -168,52 +170,59 @@ Optionally PREFIX the title."
   "Anchor, index and document EXTRACT's COMPONENT-DEFINITION.
 Documentation is done in a @table environment."
   (anchor-and-index component-definition)
-  (@table () (call-next-method)))
+  (@table ()
+    (call-next-method)))
 
-(defmethod document ((component asdf:component) extract
+(defmethod document ((definition component-definition) extract
 		     &key
 		     &aux (relative-to (location extract)))
-  "Render COMPONENT's documentation in EXTRACT."
-  (when-let (description (component-description component))
+  "Render ASDF component DEFINITION's documentation in EXTRACT."
+  (when-let (description (description definition))
     (@tableitem "Description"
       (render-text description)
       (fresh-line)))
-  (when-let (long-description (component-long-description component))
+  (when-let (long-description (long-description definition))
     (@tableitem "Long Description"
       (render-text long-description)
       (fresh-line)))
+  ;; #### FIXME: why is it not a @tableitem? Or the other way around?
   (format t "~@[@item Version~%~
 		  ~A~%~]"
-	  (escape (component-version component)))
-  (when-let (if-feature (component-if-feature component))
+	  (escape (version-string definition)))
+  (when-let (if-feature (if-feature definition))
     (@tableitem "If Feature"
       (format t "@t{~(~A}~)" (escape if-feature))))
-  (when-let (dependencies (when (typep component 'asdf:system)
-			    (system-defsystem-depends-on component)))
-    (render-dependencies dependencies component relative-to "Defsystem "))
-  (when-let (dependencies (component-sideway-dependencies component))
-    (render-dependencies dependencies component relative-to))
-  (when-let (parent (component-parent component))
+  (when-let (dependencies
+	     (when (typep definition 'system-definition) ;; Yuck!
+	       (system-defsystem-depends-on (system definition))))
+    (render-dependencies
+     dependencies (component definition) relative-to "Defsystem "))
+  (when-let
+      (dependencies (component-sideway-dependencies (component definition)))
+    (render-dependencies dependencies (component definition) relative-to))
+  (when-let (parent (parent definition))
     (@tableitem "Parent" (reference parent)))
-  (cond ((typep component 'asdf:system) ;; Yuck!
+  (cond ((typep definition 'system-definition) ;; Yuck!
 	 ;; #### WARNING: the system file is not an ASDF component per-se, so
 	 ;; I need to fake a reference to a CL-SOURCE-FILE. This is done by
 	 ;; reproducing the effect of REFERENCE-COMPONENT.
-	 (when (system-source-file component)
-	   (@tableitem "Source"
-	     (let ((system-base-name (escape (system-base-name component))))
-	       (format t "@ref{go to the ~A file, , @t{~(~A}~)} (file)~%"
-		 (escape-anchor system-base-name)
-		 (escape-label system-base-name)))))
-	 (when (hyperlinksp extract)
-	   (let ((system-source-directory
-		   (escape (system-source-directory component))))
-	     (@tableitem "Directory"
-	       (format t "@url{file://~A, ignore, @t{~A}}~%"
-		 system-source-directory
-		 system-source-directory)))))
+	 (let ((system (system definition)))
+	   (when (system-source-file system)
+	     (@tableitem "Source"
+	       (let ((system-base-name (escape (system-base-name system))))
+		 (format t "@ref{go to the ~A file, , @t{~(~A}~)} (file)~%"
+		   (escape-anchor system-base-name)
+		   (escape-label system-base-name)))))
+	   (when (hyperlinksp extract)
+	     (let ((system-source-directory
+		     (escape (system-source-directory system))))
+	       (@tableitem "Directory"
+		 (format t "@url{file://~A, ignore, @t{~A}}~%"
+		   system-source-directory
+		   system-source-directory))))))
 	(t
-	 (render-location (component-pathname component) extract))))
+	 (render-location (component-pathname (component definition))
+			  extract))))
 
 
 
@@ -301,9 +310,7 @@ Documentation is done in a @table environment."
 ;; #### NOTE: other kinds of files are only documented as simple components.
 (defmethod document ((definition lisp-file-definition) extract &key)
   "Render lisp file DEFINITION's documentation in EXTRACT."
-  ;; #### FIXME: temp hack until we have a method on components.
-  (document (file definition) extract)
-  ;;  (call-next-method)
+  (call-next-method)
   (render-packages-references (package-definitions definition))
   (render-external-definitions-references (external-definitions definition))
   (render-internal-definitions-references (internal-definitions definition)))
@@ -448,9 +455,7 @@ components trees."))))
 
 (defmethod document ((definition module-definition) extract &key)
   "Render module DEFINITION's documentation in EXTRACT."
-  ;;(call-next-method)
-  ;; #### FIXME: temporary hack until we have a complete hierarchy.
-  (document (module definition) extract)
+  (call-next-method)
   (when-let* ((children (children definition))
 	      (length (length children)))
     (@tableitem (format nil "Component~p" length)
