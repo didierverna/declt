@@ -80,11 +80,11 @@ extension at the end.")
 ;; -------------------
 
 ;; #### FIXME: remove when we have all definitions.
-(defmethod name ((component asdf:component))
+(defmethod pretty-name ((component asdf:component))
   "Return COMPONENT's name."
   (reveal (component-name component)))
 
-(defmethod name ((component-definition component-definition))
+(defmethod pretty-name ((component-definition component-definition))
   "Return COMPONENT-DEFINITION's name."
   (reveal (component-name (component component-definition))))
 
@@ -244,7 +244,7 @@ Documentation is done in a @table environment."
   "file")
 
 ;; #### FIXME: remove in the end.
-(defmethod name ((source-file asdf:source-file)
+(defmethod pretty-name ((source-file asdf:source-file)
 		 &aux (name (component-name source-file))
 		      (extension (asdf:file-type source-file)))
   "Return SOURCE-FILE's name, possibly adding its extension."
@@ -253,7 +253,7 @@ Documentation is done in a @table environment."
 
 ;; #### FIXME: reveal mess. Reveal should be in an around method as far
 ;; outside as possible.
-(defmethod name :around
+(defmethod pretty-name :around
     ((definition file-definition)
      &aux (name (call-next-method))
 	  (extension (reveal (asdf:file-type (component definition)))))

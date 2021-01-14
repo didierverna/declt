@@ -54,11 +54,11 @@
 
 ;; #### FIXME: this needs to go away at some point, when package definitions
 ;; are in complete use. Or not?
-(defmethod name ((package package))
+(defmethod pretty-name ((package package))
   "Return PACKAGE's name."
   (reveal (package-name package)))
 
-(defmethod name ((package-definition package-definition))
+(defmethod pretty-name ((package-definition package-definition))
   "Return PACKAGE-DEFINITION's name."
   (reveal (package-name (definition-package package-definition))))
 
@@ -70,17 +70,17 @@
 
 (defmethod title ((package-definition package-definition))
   "Return PACKAGE's title."
-  (format nil "~(~A~)" (name package-definition)))
+  (format nil "~(~A~)" (pretty-name package-definition)))
 
 ;; #### FIXME: this needs to go away at some point, when package definitions
 ;; are in complete use.
 (defmethod anchor-name ((package package))
   "Return PACKAGE's anchor name."
-  (name package))
+  (pretty-name package))
 
 (defmethod anchor-name ((package-definition package-definition))
   "Return PACKAGE-DEFINITION's anchor name."
-  (name package-definition))
+  (pretty-name package-definition))
 
 (defmethod index ((package-definition package-definition))
   "Render PACKAGE-DEFINITION's indexing command."

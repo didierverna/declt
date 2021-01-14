@@ -49,8 +49,12 @@ Empty strings are represented by the empty set symbol. "
       (coerce (loop :for char :across string :collect (reveal char))
 	      'string))))
 
-(defgeneric name (object)
-  (:documentation "Return OBJECT's name as a string.")
+;; #### FIXME: reveal mess here. Isn't it systematic? I'm not sure I should
+;; keep this function around. See also about using my named readtables.
+(defgeneric pretty-name (object)
+  (:documentation "Return OBJECT's pretty name.
+A prettified name is suitable for printing, notably by revealing potentially
+problematic characters. See `reveal' for more information.")
   (:method (object)
     "Princ object to a string."
     (princ-to-string object))
@@ -88,6 +92,11 @@ Empty strings are represented by the empty set symbol. "
 Elements are the form (CHAR . COMMAND) where CHAR is the special character and
 COMMAND is the name of the corresponding Texinfo alphabetic command.")
 
+;; #### FIXME: I'm not so sure anymore about ESCAPE, ESCAPE-ANCHOR and
+;; #### ESCAPE-LABEL taking objects. The code would be more readable if I
+;; #### simply used (escape (pretty-name ...))... See also about using my own
+;; #### named readtables.
+
 ;; #### NOTE: Texinfo has different contexts in which the set of characters to
 ;; escape varies. Since the escaping commands can be used (nearly?) anywhere,
 ;; even when it's not actually needed, it's simpler for us to use them all the
@@ -96,7 +105,7 @@ COMMAND is the name of the corresponding Texinfo alphabetic command.")
   "When OBJECT, escape its name for Texinfo."
   (when object
     (apply #'concatenate 'string
-	   (loop :for char :across (name object)
+	   (loop :for char :across (pretty-name object)
 		 :for special := (assoc char *special-characters*)
 		 :if special
 		   :collect (concatenate 'string "@" (cdr special) "{}")
@@ -125,7 +134,7 @@ In addition to regular escaping, periods, commas, colons, and parenthesis are
 replaced with alternative Unicode characters."
   (when object
     (escape (apply #'concatenate 'string
-		   (loop :for char :across (name object)
+		   (loop :for char :across (pretty-name object)
 			 :for fragile := (assoc char *fragile-characters*)
 			 :if fragile
 			   :collect (string (cdr fragile))
@@ -141,7 +150,7 @@ In addition to regular escaping, colons are replaced with alternative Unicode
   (when object
     (escape
      (apply #'concatenate 'string
-	    (loop :for char :across (name object)
+	    (loop :for char :across (pretty-name object)
 		  :if (member char '(#\:))
 		    :collect (string (cdr (assoc char *fragile-characters*)))
 		  :else
@@ -314,9 +323,9 @@ If QUALIFY, also qualify the symbols.")
 			   specializer)))
       (if (and qualify (symbolp specializer))
 	  (format nil "~A::~A"
-	    (name (symbol-package specializer))
-	    (name specializer))
-	(name specializer))))
+	    (pretty-name (symbol-package specializer))
+	    (pretty-name specializer))
+	(pretty-name specializer))))
   ;; #### PORTME.
   (:method ((specializer sb-mop:eql-specializer) &optional qualify)
     "Return the (eql object) list corresponding to SPECIALIZER in a string."
@@ -325,9 +334,9 @@ If QUALIFY, also qualify the symbols.")
       ;; form so in theory we would need to qualify every symbol inside.
       (if (and qualify (symbolp specializer-object))
 	  (format nil "(eql ~A::~A)"
-	    (name (symbol-package specializer-object))
-	    (name specializer-object))
-	(format nil "(eql ~A)" (name specializer-object))))))
+	    (pretty-name (symbol-package specializer-object))
+	    (pretty-name specializer-object))
+	(format nil "(eql ~A)" (pretty-name specializer-object))))))
 
 ;; Based on Edi Weitz's write-lambda-list* from documentation-template.
 (defun render-lambda-list (lambda-list &optional specializers

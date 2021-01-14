@@ -103,9 +103,9 @@
 ;; Name protocol
 ;; -------------
 
-(defmethod name ((definition symbol-definition))
-  "Return DEFINITION's symbol name."
-  (name (definition-symbol definition)))
+(defmethod pretty-name ((definition symbol-definition))
+  "Return DEFINITION's symbol pretty name."
+  (pretty-name (definition-symbol definition)))
 
 ;; #### NOTE: all of these methods are in fact equivalent. That's the drawback
 ;; of using structures instead of classes, which limits the inheritance
@@ -116,23 +116,23 @@
 ;; output. Consequently, Declt must expect to get names with unescaped
 ;; spaces. @DEFFN, @DEFFNX, AND @DEFTP take care of protecting their NAME
 ;; argument with braces because of that.
-(defmethod name ((writer writer-definition))
-  "Return WRITER's name, that is (setf <name>)."
-  (format nil "(SETF ~A)" (name (definition-symbol writer))))
+(defmethod pretty-name ((writer writer-definition))
+  "Return WRITER's pretty name, that is (setf <pretty name>)."
+  (format nil "(SETF ~A)" (pretty-name (definition-symbol writer))))
 
-(defmethod name ((writer-method writer-method-definition))
-  "Return WRITER-METHOD's name, that is (setf <name>)."
+(defmethod pretty-name ((writer-method writer-method-definition))
+  "Return WRITER-METHOD's pretty name, that is (setf <pretty name>)."
   (format nil "(SETF ~A)"
-    (name (definition-symbol writer-method))))
+    (pretty-name (definition-symbol writer-method))))
 
-(defmethod name ((generic-writer generic-writer-definition))
-  "Return GENERIC-WRITER's name, that is (setf <name>)."
+(defmethod pretty-name ((generic-writer generic-writer-definition))
+  "Return GENERIC-WRITER's pretty name, that is (setf <pretty name>)."
   (format nil "(SETF ~A)"
-    (name (definition-symbol generic-writer))))
+    (pretty-name (definition-symbol generic-writer))))
 
-(defmethod name ((expander setf-expander-definition))
-  "Return setf EXPANDER's name, that is (setf <name>)."
-  (format nil "(SETF ~A)" (name (definition-symbol expander))))
+(defmethod pretty-name ((expander setf-expander-definition))
+  "Return setf EXPANDER's pretty name, that is (setf <pretty name>)."
+  (format nil "(SETF ~A)" (pretty-name (definition-symbol expander))))
 
 
 
@@ -142,7 +142,7 @@
 
 (defun definition-package-name (definition)
   "Return DEFINITION's symbol home package name."
-  (name (definition-package definition)))
+  (pretty-name (definition-package definition)))
 
 (defun render-internal-definitions-references (definitions)
   "Render references to a list of internal DEFINITIONS."
@@ -170,7 +170,7 @@ Each element is rendered as a table item."
 			  :net.didierverna.declt)))
   "Render VAROID definition of KIND in EXTRACT."
   `(let ((,the-varoid ,varoid))
-     (,defcmd (string-downcase (name ,the-varoid))
+     (,defcmd (string-downcase (pretty-name ,the-varoid))
        (anchor-and-index ,the-varoid)
        (render-docstring ,the-varoid)
        (@table ()
@@ -186,7 +186,7 @@ Each element is rendered as a table item."
   `(let ((,the-funcoid ,(if (consp |funcoid(s)|)
 			    (car |funcoid(s)|)
 			    |funcoid(s)|)))
-     (,defcmd (string-downcase (name ,the-funcoid)) (lambda-list ,the-funcoid)
+     (,defcmd (string-downcase (pretty-name ,the-funcoid)) (lambda-list ,the-funcoid)
        (anchor-and-index ,the-funcoid)
        ,@(mapcar (lambda (funcoid)
 		   `(render-headline ,funcoid))
@@ -204,7 +204,7 @@ not advertised if they are the same as GENERIC-SOURCE."
   `(let ((,the-method ,(if (consp |method(s)|)
 			   (car |method(s)|)
 			   |method(s)|)))
-     (@defmethod (string-downcase (name ,the-method))
+     (@defmethod (string-downcase (pretty-name ,the-method))
 	 (lambda-list ,the-method)
 	 (specializers ,the-method)
 	 (qualifiers ,the-method)
@@ -213,7 +213,7 @@ not advertised if they are the same as GENERIC-SOURCE."
 		   (let ((the-method (gensym "method")))
 		     `(let ((,the-method ,method))
 			(@defmethodx
-			    (string-downcase (name ,the-method))
+			    (string-downcase (pretty-name ,the-method))
 			    (lambda-list ,the-method)
 			    (specializers ,the-method)
 			    (qualifiers ,the-method))
@@ -239,7 +239,7 @@ not advertised if they are the same as GENERIC-SOURCE."
 
 (defun render-slot (slot)
   "Render SLOT's documentation."
-  (@defslot (string-downcase (name slot))
+  (@defslot (string-downcase (pretty-name slot))
     (index slot)
     (render-docstring slot)
     (@table ()
@@ -269,7 +269,7 @@ not advertised if they are the same as GENERIC-SOURCE."
   "Render method COMBINATION's definition of KIND in EXTRACT."
   (let ((the-combination (gensym "combination")))
     `(let ((,the-combination ,combination))
-       (@defcombination (string-downcase (name ,the-combination)) ,kind
+       (@defcombination (string-downcase (pretty-name ,the-combination)) ,kind
 	 (anchor-and-index ,the-combination)
 	 (render-docstring ,the-combination)
 	 (@table ()
@@ -282,7 +282,7 @@ not advertised if they are the same as GENERIC-SOURCE."
 			    :net.didierverna.declt))
 	(the-classoid (gensym "classoid")))
     `(let ((,the-classoid ,classoid))
-       (,|@defform| (string-downcase (name ,the-classoid))
+       (,|@defform| (string-downcase (pretty-name ,the-classoid))
 	 (anchor-and-index ,the-classoid)
 	 (render-docstring ,the-classoid)
 	 (@table ()
@@ -329,7 +329,7 @@ not advertised if they are the same as GENERIC-SOURCE."
 (defun render-headline (definition)
   "Render a headline for DEFINITION. Also anchor and index it."
   (funcall (headline-function definition)
-	   (string-downcase (name definition)) (lambda-list definition))
+	   (string-downcase (pretty-name definition)) (lambda-list definition))
   (anchor-and-index definition))
 
 
@@ -343,13 +343,13 @@ not advertised if they are the same as GENERIC-SOURCE."
 This is the default method for most definitions."
   (format nil "~A::~A"
     (definition-package-name definition)
-    (name definition)))
+    (pretty-name definition)))
 
 (defmethod anchor-name ((method method-definition))
   "Return METHOD's qualified symbol name, specializers and qualifiers ."
   (format nil "~A::~A~{ ~A~^~}~{ ~A~^~}"
     (definition-package-name method)
-    (name method)
+    (pretty-name method)
     (mapcar (lambda (specializer) (pretty-specializer specializer t))
 	    (specializers method))
     (qualifiers method)))
@@ -754,7 +754,7 @@ The standard method combination is not rendered."
 
 (defmethod document ((type type-definition) extract &key)
   "Render TYPE's documentation in EXTRACT."
-  (@deftype ((string-downcase (name type)) (lambda-list type))
+  (@deftype ((string-downcase (pretty-name type)) (lambda-list type))
     (anchor-and-index type)
     (render-docstring type)
     (@table ()
