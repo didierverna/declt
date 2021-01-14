@@ -120,4 +120,45 @@ one."
 	    :collect name :into names :and :collect email :into emails
 	  :finally (return (values names emails)))))
 
+
+
+;; ==========================================================================
+;; CLOS Utility Routines
+;; ==========================================================================
+
+;; --------------------
+;; Portability wrappers
+;; --------------------
+
+(defmacro declare-valid-superclass (class superclass)
+  "Validate SUPERCLASS classes for CLASS classes."
+  ;; #### PORTME.
+  `(defmethod validate-superclass ((class ,class) (superclass ,superclass))
+     #+ecl (declare (ignore class superclass))
+     t))
+
+
+;; ----------------
+;; Abstract classes
+;; ----------------
+
+(defclass abstract-class (standard-class)
+  ()
+  (:documentation "The Abstract Class meta-class."))
+
+(defmacro defabstract (class super-classes slots &rest options)
+  "Like DEFCLASS, but define an abstract class."
+  (when (assoc :metaclass options)
+    (error "Defining abstract class ~S: explicit meta-class option." class))
+  `(defclass ,class ,super-classes ,slots ,@options
+     (:metaclass abstract-class)))
+
+(defmethod make-instance ((class abstract-class) &rest initargs)
+  (declare (ignore initargs))
+  (error "Instanciating class ~S: is abstract." (class-name class)))
+
+(declare-valid-superclass abstract-class standard-class)
+(declare-valid-superclass standard-class abstract-class)
+
+
 ;;; misc.lisp ends here

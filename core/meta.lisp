@@ -32,6 +32,8 @@
    "The Documentation Extractor from Common Lisp to Texinfo package.")
   (:use :cl :net.didierverna.declt.setup)
   (:shadow :*readtable*)
+  ;; #### PORTME.
+  (:import-from #+sbcl :sb-mop :validate-superclass)
   (:import-from :quickutil
     :when-let :when-let*)
   (:import-from :asdf

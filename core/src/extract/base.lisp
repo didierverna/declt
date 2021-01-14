@@ -30,11 +30,10 @@
 
 
 ;; ==========================================================================
-;; Definitions
+;; Definition Basics
 ;; ==========================================================================
 
-;; #### FIXME: abstact.
-(defclass definition ()
+(defabstract definition ()
   ;; #### NOTE: not all definitions make use of the FOREIGN slot currently,
   ;; but who knows which new ones may need to be advertised in the future.
   ((foreign :documentation "Whether this definition is foreign."

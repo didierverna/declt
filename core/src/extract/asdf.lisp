@@ -42,8 +42,7 @@
 ;; not following the hierarchy (SYSTEM -> COMPONENT -> MODULE). It would be
 ;; more difficult to advertise the PARENT slot at the right place if it didn't
 ;; belong here.
-;; #### FIXME: abstract.
-(defclass component-definition (definition)
+(defabstract component-definition (definition)
   ((component :documentation "The corresponding ASDF component."
 	      :reader component)
    (parent :documentation "The parent definition." :accessor parent))

@@ -101,8 +101,7 @@ Each category is of type (TYPE DESCRIPTION-STRING).")
 ;; proper lexicographic order regardless of the SETF part of their name
 ;; (although that part still appears in the documentation).
 
-;; #### FIXME: abstract.
-(defclass symbol-definition (definition)
+(defabstract symbol-definition (definition)
   ((symbol :documentation "The symbol naming this definition."
 	   :initarg :symbol :reader definition-symbol))
   (:documentation "The SYMBOL-DEFINITION class.
@@ -144,8 +143,7 @@ This is the base class for definitions named by symbols."))
   (make-instance 'symbol-macro-definition :symbol symbol))
 
 
-;; #### FIXME: abstract.
-(defclass funcoid-definition (symbol-definition)
+(defabstract funcoid-definition (symbol-definition)
   ((funcoid :documentation "The corresponding functional object.
 Depending on the exact class, this may be a generic, ordinary, or macro
 function."
@@ -394,8 +392,7 @@ forms, it's a function."
   (make-instance 'slot-definition :symbol symbol :slot slot))
 
 
-;; #### FIXME: abstract.
-(defclass combination-definition (symbol-definition)
+(defabstract combination-definition (symbol-definition)
   ;; #### NOTE: slots not filled in for foreign definitions.
   ((combination :documentation "The corresponding combination object."
 		:initarg :combination :reader combination)
@@ -441,8 +438,7 @@ Unless FOREIGN, this definition has a corresponding COMBINATION object."
   (apply #'make-instance 'long-combination-definition :symbol symbol keys))
 
 
-;; #### FIXME: abstract.
-(defclass classoid-definition (symbol-definition)
+(defabstract classoid-definition (symbol-definition)
   ((slot-definitions :documentation "The classoid's direct slot definitions."
 		     :initarg :slot-definitions :reader slot-definitions)
    (method-definitions
