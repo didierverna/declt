@@ -101,6 +101,9 @@ Each category is of type (TYPE DESCRIPTION-STRING).")
 ;; proper lexicographic order regardless of the SETF part of their name
 ;; (although that part still appears in the documentation).
 
+;; #### NOTE: there are situations in which the definition symbol can be
+;; retrieved from the Lisp object (e.g., class-name, etc.). But for
+;; simplicity, we'll just add a slot here.
 (defabstract symbol-definition (definition)
   ((symbol :documentation "The symbol naming this definition."
 	   :initarg :symbol :reader definition-symbol))
@@ -144,11 +147,9 @@ This is the base class for definitions named by symbols."))
 
 
 (defabstract funcoid-definition (symbol-definition)
-  ((funcoid :documentation "The corresponding functional object.
-Depending on the exact class, this may be a generic, ordinary, or macro
-function."
-	    :reader funcoid))
-  (:documentation "Base class for functional value definitions."))
+  ((object :reader funcoid)) ;; slot overload
+  (:documentation "Base class for functional value definitions.
+These are regular, generic, or macro functions."))
 
 
 (defclass macro-definition (funcoid-definition)
@@ -162,7 +163,7 @@ function."
   ;; into a single documentation item when possible. It makes the reference
   ;; manual more readable IMO, but that's assuming that FOO and (SETF FOO) are
   ;; indeed a no-nonsense reader/writer pair of macros...
-  ((funcoid :initarg :macro :reader macro) ;; slot overload
+  ((object :initarg :macro :reader macro) ;; slot overload
    (access-expander-definition
     :documentation "Definition for a setf expander that expands this macro."
     :initform nil :accessor access-expander-definition)
@@ -177,7 +178,7 @@ function."
 
 
 (defclass compiler-macro-definition (funcoid-definition)
-  ((funcoid ;; slot overload
+  ((object ;; slot overload
     :initarg :compiler-macro :reader definition-compiler-macro))
   (:documentation "The class for compiler macro definitions."))
 
@@ -188,7 +189,7 @@ function."
 
 
 (defclass function-definition (funcoid-definition)
-  ((funcoid :initarg :function :reader definition-function) ;; slot overload
+  ((object :initarg :function :reader definition-function) ;; slot overload
    (update-expander-definition
     :documentation
     "Definition for a setf expander that expands to this function."
@@ -253,25 +254,38 @@ READER-DEFINITION."
 ;; PACKAGE::SYMBOL, etc.
 ;; #### FIXME: in the same spirit, I need to add a back pointer to the
 ;; corresponding generic function definition.
+;; #### FIXME: shouldn't this be a funcoid?
 (defclass method-definition (symbol-definition)
-  ((method ;; #### NOTE: not filled in for foreign definitions.
-    :documentation "The corresponding method object."
-    :initarg :method :reader definition-method))
+  ((object :initarg :method :reader definition-method)) ;; slot overload
   (:documentation "Base class for method definitions."))
 
-(defun make-method-definition (symbol &rest keys &key method foreign)
-  "Make a new METHOD definition for SYMBOL, optionally FOREIGN."
-  (declare (ignore method foreign))
-  (apply #'make-instance 'method-definition :symbol symbol keys))
+;; #### PORTME.
+(defun method-name (method
+		    &aux (name (sb-mop:generic-function-name
+				(sb-mop:method-generic-function method))))
+  "Return METHOD's name.
+Return a second value of T if METHOD is a writer method."
+  (if (listp name)
+    (values (second name) t)
+    name))
+
+(defmethod initialize-instance :after ((definition method-definition) &key)
+  "Set DEFINITION's symbol to its method canonical name."
+  (setf (slot-value definition 'symbol)
+	(method-name (definition-method definition))))
+
+(defun make-method-definition (method &optional foreign)
+  "Make a new METHOD definition, optionally FOREIGN."
+  (make-instance 'method-definition :method method :foreign foreign))
 
 
 (defclass writer-method-definition (method-definition)
   ()
   (:documentation "The class  for writer method definitions."))
 
-(defun make-writer-method-definition (symbol method)
+(defun make-writer-method-definition (method)
   "Make a new writer method definition for SYMBOL with METHOD."
-  (make-instance 'writer-method-definition :symbol symbol :method method))
+  (make-instance 'writer-method-definition :method method))
 
 
 (defclass accessor-method-definition (method-definition)
@@ -283,15 +297,15 @@ READER-DEFINITION."
   "Return T if OBJECT is an accessor method definition."
   (eq (type-of object) 'accessor-method-definition))
 
-(defun make-accessor-method-definition (symbol method writer-definition)
+(defun make-accessor-method-definition (method writer-definition)
   "Make a new accessor METHOD definition for SYMBOL.
 This definition has an corresponding WRITER-DEFINITION."
   (make-instance 'accessor-method-definition
-    :symbol symbol :method method :writer-definition writer-definition))
+    :method method :writer-definition writer-definition))
 
 
 (defclass generic-definition (funcoid-definition)
-  ((funcoid :initarg :generic :reader generic) ;; slot overload
+  ((object :initarg :generic :reader generic) ;; slot overload
    ;; #### NOTE: slots not filled in for foreign definitions.
    (method-definitions
     :documentation "The list of corresponding method definitions."
@@ -305,6 +319,8 @@ This definition has an corresponding WRITER-DEFINITION."
 			   :accessor combination-definition))
   (:documentation "Class for generic function definitions."))
 
+;; #### FIXME: unless the function slot is always provided, I can't get rid of
+;; the SYMBOL argument here, and do as for methods.
 (defun make-generic-definition
     (symbol &rest keys &key generic method-definitions foreign)
   (declare (ignore generic method-definitions foreign))
@@ -326,6 +342,8 @@ corresponding METHOD-DEFINITIONS."
   "Return T if OBJECT is a generic writer definition."
   (eq (type-of object) 'generic-writer-definition))
 
+;; #### FIXME: unless the function slot is always provided, I can't get rid of
+;; the SYMBOL argument here, and do as for methods.
 (defun make-generic-writer-definition
     (symbol
      &rest keys &key generic method-definitions reader-definition foreign)
@@ -351,18 +369,26 @@ corresponding METHOD-DEFINITIONS."
     :accessor access-expander-definition))
   (:documentation "Class for generic accessor function definitions."))
 
+;; #### PORTME.
+(defmethod initialize-instance :after
+    ((definition generic-accessor-definition) &key)
+  "Set DEFINITION's symbol to its generic function canonical name."
+  (setf (slot-value definition 'symbol)
+	(sb-mop:generic-function-name (generic definition))))
+
 (defun generic-accessor-definition-p (object)
   "Return T if OBJECT is a generic accessor definition."
   (eq (type-of object) 'generic-accessor-definition))
 
-(defun make-generic-accessor-definition (symbol generic method-definitions)
-  "Make a new GENERIC accessor definition for SYMBOL, with METHOD-DEFINITIONS."
+(defun make-generic-accessor-definition (generic method-definitions)
+  "Make a new GENERIC accessor definition with METHOD-DEFINITIONS."
   (make-instance 'generic-accessor-definition
-    :symbol symbol :generic generic :method-definitions method-definitions))
+    :generic generic :method-definitions method-definitions))
 
 
 ;; #### FIXME: so no. The UPDATE slot has two different kinds of value, so
-;; make two subclasses.
+;; make two subclasses. Also, review for deciding how to use the OBJECT
+;; indirect slot.
 (defclass setf-expander-definition (symbol-definition)
   ((access-definition :documentation "The access functional definition."
 		      :initarg :access-definition :accessor access-definition)
@@ -377,25 +403,27 @@ forms, it's a function."
   (make-instance 'setf-expander-definition
     :symbol symbol :access-definition access-definition :update update))
 
-
 (defclass slot-definition (symbol-definition)
-  ((slot :documentation "The corresponding slot object."
-	 :initarg :slot :reader slot)
+  ((object :initarg :slot :reader slot) ;; slot overload
    (reader-definitions :documentation "The slot's reader definitions."
 		       :accessor reader-definitions)
    (writer-definitions :documentation "The slot's writer definitions."
 		       :accessor writer-definitions))
   (:documentation "The class for slot definitions."))
 
-(defun make-slot-definition (symbol slot)
-  "Make a new SLOT definition for SYMBOL."
-  (make-instance 'slot-definition :symbol symbol :slot slot))
+;; #### PORTME.
+(defmethod initialize-instance :after ((definition slot-definition) &key)
+  "Set DEFINITION's symbol to its slot name."
+  (setf (slot-value definition 'symbol)
+	(sb-mop:slot-definition-name (slot definition))))
+
+(defun make-slot-definition (slot)
+  "Make a new SLOT definition."
+  (make-instance 'slot-definition :slot slot))
 
 
 (defabstract combination-definition (symbol-definition)
-  ;; #### NOTE: slots not filled in for foreign definitions.
-  ((combination :documentation "The corresponding combination object."
-		:initarg :combination :reader combination)
+  ((object :initarg :combination :reader combination) ;; slot overload
    (users :documentation
 	  "The list of definitions of generic functions using this combination."
 	  :accessor users))
@@ -406,20 +434,18 @@ forms, it's a function."
   ;; #### NOTE: slot not filled in for foreign combinations.
   ((operator-definition
     :documentation "The corresponding operator definition."
-    :initarg :operator-definition :accessor operator-definition))
+    :accessor operator-definition))
   (:documentation "The class for short method combination definitions."))
 
 (defun short-combination-definition-p (object)
   "Return T if OBJECT is a short combination definition."
   (eq (type-of object) 'short-combination-definition))
 
-(defun make-short-combination-definition
-    (symbol &rest keys &key combination operator-definition foreign)
-  "Make a new short method combination definition.
-Unless FOREIGN, this definition has a corresponding COMBINATION object,
-and an OPERATOR-DEFINITION."
-  (declare (ignore combination operator-definition foreign))
-  (apply #'make-instance 'short-combination-definition :symbol symbol keys))
+(defun make-short-combination-definition (symbol combination &optional foreign)
+  "Make a new short method combination definition for SYMBOL.
+Unless FOREIGN, this definition has an OPERATOR-DEFINITION."
+  (make-instance 'short-combination-definition
+    :symbol symbol :combination combination :foreign foreign))
 
 
 (defclass long-combination-definition (combination-definition)
@@ -430,16 +456,16 @@ and an OPERATOR-DEFINITION."
   "Return T if OBJECT is a long combination definition."
   (eq (type-of object) 'long-combination-definition))
 
-(defun make-long-combination-definition
-    (symbol &rest keys &key combination foreign)
-  "Make a new long method combination definition for SYMBOL.
-Unless FOREIGN, this definition has a corresponding COMBINATION object."
-  (declare (ignore combination foreign))
-  (apply #'make-instance 'long-combination-definition :symbol symbol keys))
+(defun make-long-combination-definition (symbol combination &optional foreign)
+  "Make a new long method combination definition for SYMBOL, possibly FOREIGN.
+This definition has a corresponding COMBINATION object."
+  (make-instance 'long-combination-definition
+    :symbol symbol :combination combination :foreign foreign))
 
 
 (defabstract classoid-definition (symbol-definition)
-  ((slot-definitions :documentation "The classoid's direct slot definitions."
+  ((object :reader classoid) ;; slot overload
+   (slot-definitions :documentation "The classoid's direct slot definitions."
 		     :initarg :slot-definitions :reader slot-definitions)
    (method-definitions
     :documentation
@@ -458,47 +484,56 @@ Conditions, structures, and classes are classoids."))
 
 
 (defclass condition-definition (classoid-definition)
-  ((superclassoid-definitions ;; slot overload
+  ((object :initarg :condition :reader definition-condition) ;; slot overload
+   (superclassoid-definitions ;; slot overload
     :accessor supercondition-definitions)
    (subclassoid-definitions ;; slot overload
     :accessor subcondition-definitions))
   (:documentation "The class for condition definitions."))
 
+;; #### FIXME: unless the function slot is always provided, I can't get rid of
+;; the SYMBOL argument here, and do as for methods.
 (defun make-condition-definition
-    (symbol &rest keys &key slot-definitions foreign)
+    (symbol &rest keys &key condition slot-definitions foreign)
   "Make a new condition definition for SYMBOL.
 Unless FOREIGN, this definition has a list of SLOT-DEFINTIIONS."
-  (declare (ignore slot-definitions foreign))
+  (declare (ignore condition slot-definitions foreign))
   (apply #'make-instance 'condition-definition :symbol symbol keys))
 
 
 (defclass structure-definition (classoid-definition)
-  ((superclassoid-definitions ;; slot overload
+  ((object :initarg :structure :reader definition-structure) ;; slot overload
+   (superclassoid-definitions ;; slot overload
     :accessor superstructure-definitions)
    (subclassoid-definitions ;; slot overload
     :accessor substructure-definitions))
   (:documentation "The class for structure definitions."))
 
+;; #### FIXME: unless the function slot is always provided, I can't get rid of
+;; the SYMBOL argument here, and do as for methods.
 (defun make-structure-definition
-    (symbol &rest keys &key slot-definitions foreign)
+    (symbol &rest keys &key structure slot-definitions foreign)
   "Make a new structure definition for SYMBOL.
 Unless FOREIGN, this definition has a list of SLOT-DEFINTIIONS."
-  (declare (ignore slot-definitions foreign))
+  (declare (ignore structure slot-definitions foreign))
   (apply #'make-instance 'structure-definition :symbol symbol keys))
 
 
 (defclass class-definition (classoid-definition)
-  ((superclassoid-definitions ;; slot overload
+  ((object :initarg :class :reader definition-class) ;; slot overload
+   (superclassoid-definitions ;; slot overload
     :accessor superclass-definitions)
    (subclassoid-definitions ;; slot overload
     :accessor subclass-definitions))
   (:documentation "The class for class definitions."))
 
+;; #### FIXME: unless the function slot is always provided, I can't get rid of
+;; the SYMBOL argument here, and do as for methods.
 (defun make-class-definition
-    (symbol &rest keys &key slot-definitions foreign)
+    (symbol &rest keys &key class slot-definitions foreign)
   "Make a new class definition for SYMBOL.
 Unless FOREIGN, this definition has a list of SLOT-DEFINTIIONS."
-  (declare (ignore slot-definitions foreign))
+  (declare (ignore class slot-definitions foreign))
   (apply #'make-instance 'class-definition :symbol symbol keys))
 
 
@@ -622,16 +657,6 @@ Name must be that of the reader (not the SETF form)."
 	(when errorp
 	  (error "No generic writer definition found for symbol ~A" name)))))
 
-;; #### PORTME.
-(defun method-name (method
-		    &aux (name (sb-mop:generic-function-name
-				(sb-mop:method-generic-function method))))
-  "Return METHOD's name.
-Return a second value of T if METHOD is a writer method."
-  (if (listp name)
-      (values (second name) t)
-    name))
-
 ;; #### NOTE: this function is used only for finding methods specialized on
 ;; classoids in the finalization process, so it may encounter a foreign
 ;; generic function.
@@ -675,9 +700,7 @@ Return NIL if not found."
 
 (defun make-slot-definitions (class)
   "Return a list of direct slot definitions for CLASS."
-  (mapcar (lambda (slot)
-	    (make-slot-definition (sb-mop:slot-definition-name slot) slot))
-    (sb-mop:class-direct-slots class)))
+  (mapcar #'make-slot-definition (sb-mop:class-direct-slots class)))
 
 
 ;; 3 functions stolen/adapted from Slime:
@@ -793,7 +816,6 @@ Return NIL if not found."
        (cond ((and function (or writer expander))
 	      (let ((generic-definition
 		      (make-generic-accessor-definition
-		       symbol
 		       function
 		       ;; #### NOTE: for a generic accessor function, we store
 		       ;; accessor methods in the generic accessor function
@@ -818,12 +840,9 @@ Return NIL if not found."
 					   nil))))
 			       (if writer-method
 				 (make-accessor-method-definition
-				  symbol
 				  method
-				  (make-writer-method-definition
-				   symbol writer-method))
-				 (make-method-definition symbol
-							 :method method))))
+				  (make-writer-method-definition writer-method))
+				 (make-method-definition method))))
 			 (sb-mop:generic-function-methods function)))))
 		(when generic-writer-p
 		  (let ((writer-definition
@@ -845,8 +864,8 @@ Return NIL if not found."
 					(cdr (sb-mop:method-specializers
 					      method))
 					nil))
-				    (list (make-writer-method-definition
-					   symbol method))))
+				    (list
+				     (make-writer-method-definition method))))
 			      (sb-mop:generic-function-methods writer))
 			    :reader-definition generic-definition)))
 		    (setf (writer-definition generic-definition)
@@ -862,17 +881,14 @@ Return NIL if not found."
 	      (make-generic-definition symbol
 		:generic function
 		:method-definitions
-		(mapcar (lambda (method)
-			  (make-method-definition symbol :method method))
+		(mapcar #'make-method-definition
 		  (sb-mop:generic-function-methods function))))
 	     (generic-writer-p
 	      (make-generic-writer-definition symbol
 		:generic writer
 		:method-definitions
-		(mapcar (lambda (method)
-			  (make-writer-method-definition symbol method))
-		  (sb-mop:generic-function-methods
-		   writer)))))))
+		(mapcar #'make-writer-method-definition
+		  (sb-mop:generic-function-methods writer)))))))
     ;; #### WARNING: method combinations in CL don't have a real namespace
     ;; (Cf. this blog:
     ;; http://www.didierverna.net/blog/index.php?post/2013/08/16/Lisp-Corner-Cases%3A-Method-Combinations).
@@ -903,28 +919,26 @@ Return NIL if not found."
        (when combination
 	 (etypecase combination
 	   (sb-pcl::short-method-combination
-	    (make-short-combination-definition symbol
-	      :combination combination))
+	    (make-short-combination-definition symbol combination))
 	   (sb-pcl::long-method-combination
-	    (make-long-combination-definition symbol
-	      :combination combination))))))
+	    (make-long-combination-definition symbol combination))))))
     (condition-definition
      (let ((class (find-class symbol nil)))
        (when (and class (typep class 'sb-pcl::condition-class))
 	 (make-condition-definition symbol
-	   :slot-definitions (make-slot-definitions class)))))
+	   :condition class :slot-definitions (make-slot-definitions class)))))
     (structure-definition
      (let ((class (find-class symbol nil)))
        (when (and class (typep class 'sb-pcl::structure-class))
 	 (make-structure-definition symbol
-	   :slot-definitions (make-slot-definitions class)))))
+	   :structure class :slot-definitions (make-slot-definitions class)))))
     (class-definition
      (let ((class (find-class symbol nil)))
        (when (and class
 		  (not (typep class 'sb-pcl::condition-class))
 		  (not (typep class 'sb-pcl::structure-class)))
 	 (make-class-definition symbol
-	   :slot-definitions (make-slot-definitions class)))))
+	   :class class :slot-definitions (make-slot-definitions class)))))
     (type-definition
      (when (eql (sb-int:info :type :kind symbol) :defined)
        (make-type-definition symbol)))))
@@ -1065,8 +1079,7 @@ Currently, this means resolving:
 	     (mapcar
 		 (lambda (method)
 		   (or  (find-method-definition method definitions)
-			(make-method-definition (method-name method)
-						:foreign t)))
+			(make-method-definition method t)))
 	       methods))
 	   (compute-combination (generic-definition)
 	     (let* ((combination (sb-mop:generic-function-method-combination
@@ -1076,10 +1089,10 @@ Currently, this means resolving:
 		     (or (find-definition name 'combination-definition
 					  definitions)
 			 (if (sb-pcl::short-method-combination-p combination)
-			   (make-short-combination-definition name
-			     :foreign t)
-			   (make-long-combination-definition name
-			     :foreign t)))))))
+			   (make-short-combination-definition
+			    name combination t)
+			   (make-long-combination-definition
+			    name combination t)))))))
     (dolist (type '(class-definition structure-definition condition-definition))
       (dolist (definition (type-definitions type definitions))
 	(let ((class (find-class (definition-symbol definition))))

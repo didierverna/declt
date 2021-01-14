@@ -34,10 +34,22 @@
 ;; ==========================================================================
 
 (defabstract definition ()
-  ;; #### NOTE: not all definitions make use of the FOREIGN slot currently,
-  ;; but who knows which new ones may need to be advertised in the future.
-  ((foreign :documentation "Whether this definition is foreign."
-	    :initform nil :initarg :foreign :reader foreignp))
+  ((object
+    ;; #### NOTE: it is unclear to me why symbol macros don't provide access
+    ;; to the corresponding expansion function in a way similar to regular
+    ;; macros do. In other words, I'm not sure why there's no
+    ;; SYMBOL-MACRO-FUNCTION in the standard. Probably for the same reason
+    ;; they don't have docstrings (late addition notably, according to Kent;
+    ;; Cf. the Twitter exchange).
+    ;; #### FIXME: review the case of setf expanders to clarify.
+    :documentation "The corresponding Lisp object.
+All definitions have an associated Lisp object, except for constants, special
+variables, symbol macros, setf expanders, and types. In such cases, this slot
+is unbound."
+    :initarg :object :reader object)
+   (foreign
+    :documentation "Whether this definition is foreign."
+    :initform nil :initarg :foreign :reader foreignp))
   (:documentation "The Definition class.
 This is the base class for all definitions."))
 

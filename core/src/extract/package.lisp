@@ -61,8 +61,7 @@
 ;; ==========================================================================
 
 (defclass package-definition (definition)
-  ((package :documentation "The corresponding package."
-	    :initarg :package :reader definition-package)
+  ((object :initarg :package :reader definition-package) ;; slot overload
    (use-definitions
     :documentation "The corresponding use-list, as package definitions."
     :accessor use-definitions)

@@ -43,8 +43,7 @@
 ;; more difficult to advertise the PARENT slot at the right place if it didn't
 ;; belong here.
 (defabstract component-definition (definition)
-  ((component :documentation "The corresponding ASDF component."
-	      :reader component)
+  ((object :reader component) ;; slot overload
    (parent :documentation "The parent definition." :accessor parent))
   (:documentation "The COMPONENT-DEFINITION class.
 This is the base class for ASDF definitions."))
@@ -87,7 +86,7 @@ This is the base class for ASDF definitions."))
 ;; #### NOTE: we currently don't create foreign files.
 
 (defclass file-definition (component-definition)
-  ((component :initarg :file :reader file)) ;; slot overload
+  ((object :initarg :file :reader file)) ;; slot overload
   (:documentation "The FILE-DEFINITION class.
 This is the base class for ASDF file definitions."))
 
@@ -252,7 +251,7 @@ This is the base class for ASDF file definitions."))
 ;; ==========================================================================
 
 (defclass module-definition (component-definition)
-  ((component :initarg :module :reader module) ;; slot overload
+  ((object :initarg :module :reader module) ;; slot overload
    (children :documentation "The module's children." :accessor children))
   (:documentation "The Module Definition class."))
 
@@ -268,7 +267,7 @@ This is the base class for ASDF file definitions."))
 ;; ==========================================================================
 
 (defclass system-definition (module-definition)
-  ((component :initarg :system :reader system) ;; slot overload
+  ((object :initarg :system :reader system) ;; slot overload
    (parent :initform nil) ;; slot -overload
    (maintainer-names :documentation "The list of maintainer names."
 		     :initform nil :accessor maintainer-names)
