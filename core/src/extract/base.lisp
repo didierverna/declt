@@ -74,12 +74,4 @@ This is the base class for all definitions."))
 (defgeneric docstring (item)
   (:documentation "Return ITEM's docstring (Lisp documentation)."))
 
-
-;; ------------------
-;; Type name protocol
-;; ------------------
-
-(defgeneric type-name (item)
-  (:documentation "Return ITEM's type name."))
-
 ;;; base.lisp ends here

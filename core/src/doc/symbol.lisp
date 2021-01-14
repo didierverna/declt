@@ -32,6 +32,77 @@
 ;; Rendering protocols
 ;; ==========================================================================
 
+;; ------------------
+;; Type name protocol
+;; ------------------
+
+(defmethod type-name ((constant constant-definition))
+  "Return \"constant\""
+  "constant")
+
+(defmethod type-name ((special special-definition))
+  "Return \"special variable\""
+  "special variable")
+
+(defmethod type-name ((symbol-macro symbol-macro-definition))
+  "Return \"symbol macro\""
+  "symbol macro")
+
+(defmethod type-name ((macro macro-definition))
+  "Return \"macro\""
+  "macro")
+
+(defmethod type-name ((compiler-macro compiler-macro-definition))
+  "Return \"compiler macro\""
+  "compiler macro")
+
+(defmethod type-name ((function function-definition))
+  "Return \"function\""
+  "function")
+
+(defmethod type-name ((generic generic-definition))
+  "Return \"generic function\""
+  "generic function")
+
+(defmethod type-name ((method method-definition))
+  "Return \"method\""
+  "method")
+
+(defmethod type-name ((expander setf-expander-definition))
+  "Return \"setf expander\""
+  "setf expander")
+
+;; #### NOTE: no TYPE-NAME method for SLOT-DEFINITION
+
+(defmethod type-name ((combination short-combination-definition))
+  "Return \"short method combination\"."
+  "short method combination")
+
+(defmethod type-name ((combination long-combination-definition))
+  "Return \"long method combination\"."
+  "long method combination")
+
+(defmethod type-name ((condition condition-definition))
+  "Return \"condition\""
+  "condition")
+
+(defmethod type-name ((structure structure-definition))
+  "Return \"structure\""
+  "structure")
+
+(defmethod type-name ((class class-definition))
+  "Return \"class\""
+  "class")
+
+(defmethod type-name ((type type-definition))
+  "Return \"type\""
+  "type")
+
+
+;; -------------
+;; Name protocol
+;; -------------
+
 (defmethod name ((definition symbol-definition))
   "Return DEFINITION's symbol name."
   (name (definition-symbol definition)))

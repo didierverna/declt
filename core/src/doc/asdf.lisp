@@ -234,6 +234,15 @@ Documentation is done in a @table environment."
 ;; Rendering protocols
 ;; -------------------
 
+;; #### FIXME: remove when we have all definitions.
+(defmethod type-name ((source-file asdf:source-file))
+  "Return \"file\""
+  "file")
+
+(defmethod type-name ((definition file-definition))
+  "Return \"file\""
+  "file")
+
 ;; #### FIXME: remove in the end.
 (defmethod name ((source-file asdf:source-file)
 		 &aux (name (component-name source-file))
@@ -430,6 +439,16 @@ components trees."))))
 ;; Modules
 ;; ==========================================================================
 
+;; #### FIXME: remove when we have all definitions.
+(defmethod type-name ((module asdf:module))
+  "Return \"module\""
+  "module")
+
+(defmethod type-name ((module-definition module-definition))
+  "Return \"module\""
+  "module")
+
+
 ;; -----------------------
 ;; Documentation protocols
 ;; -----------------------
@@ -497,6 +516,15 @@ Modules are listed depth-first from the system components tree.")))))
 ;; ==========================================================================
 ;; System
 ;; ==========================================================================
+
+;; #### FIXME: remove when we have all definitions.
+(defmethod type-name ((system asdf:system))
+  "Return \"system\""
+  "system")
+
+(defmethod type-name ((system-definition system-definition))
+  "Return \"system\""
+  "system")
 
 ;; -----------------------
 ;; Documentation protocols

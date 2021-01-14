@@ -33,6 +33,9 @@
 ;; Documentation Protocols
 ;; ==========================================================================
 
+(defgeneric type-name (definition)
+  (:documentation "Return DEFINITION's type name."))
+
 (defgeneric title (item)
   (:documentation "Return ITEM's title.")
   (:method :around (item)

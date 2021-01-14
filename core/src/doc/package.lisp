@@ -33,6 +33,25 @@
 ;; Rendering Protocols
 ;; ==========================================================================
 
+;; ------------------
+;; Type name protocol
+;; ------------------
+
+;; #### FIXME: this needs to go away at some point, when package definitions
+;; are in complete use.
+(defmethod type-name ((package package))
+  "Return \"package\"."
+  "package")
+
+(defmethod type-name ((package-definition package-definition))
+  "Return \"package\"."
+  "package")
+
+
+;; -------------
+;; Name protocol
+;; -------------
+
 ;; #### FIXME: this needs to go away at some point, when package definitions
 ;; are in complete use. Or not?
 (defmethod name ((package package))

@@ -182,20 +182,6 @@ This is the base class for ASDF file definitions."))
   (make-instance 'html-file-definition :file file :foreign foreign))
 
 
-;; --------------------
-;; Extraction protocols
-;; --------------------
-
-;; #### FIXME: remove when we have all definitions.
-(defmethod type-name ((source-file asdf:source-file))
-  "Return \"file\""
-  "file")
-
-(defmethod type-name ((definition file-definition))
-  "Return \"file\""
-  "file")
-
-
 ;; ------------------------------------
 ;; Definition file definitions protocol
 ;; ------------------------------------
@@ -276,20 +262,6 @@ This is the base class for ASDF file definitions."))
   (make-instance 'module-definition :module module :foreign foreign))
 
 
-;; --------------------
-;; Extraction protocols
-;; --------------------
-
-;; #### FIXME: remove when we have all definitions.
-(defmethod type-name ((module asdf:module))
-  "Return \"module\""
-  "module")
-
-(defmethod type-name ((module-definition module-definition))
-  "Return \"module\""
-  "module")
-
-
 
 ;; ==========================================================================
 ;; Systems
@@ -363,21 +335,6 @@ More specifically:
 (defun defsystem-dependencies (definition)
   "Return system DEFINITION's defsystem dependencies."
   (system-defsystem-depends-on (system definition)))
-
-
-
-;; --------------------
-;; Extraction protocols
-;; --------------------
-
-;; #### FIXME: remove when we have all definitions.
-(defmethod type-name ((system asdf:system))
-  "Return \"system\""
-  "system")
-
-(defmethod type-name ((system-definition system-definition))
-  "Return \"system\""
-  "system")
 
 
 ;; ---------
