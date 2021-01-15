@@ -256,7 +256,7 @@ Documentation is done in a @table environment."
 (defmethod pretty-name :around
     ((definition file-definition)
      &aux (name (call-next-method))
-	  (extension (reveal (asdf:file-type (component definition)))))
+	  (extension (reveal (asdf:file-type (file definition)))))
   "Return file DEFINITION's name, possibly adding its extension."
   (when extension (setq name (concatenate 'string name "." extension)))
   name)
