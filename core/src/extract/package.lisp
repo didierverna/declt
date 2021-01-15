@@ -82,6 +82,10 @@
 ;; Pseudo-accessors
 ;; ----------------
 
+(defmethod name ((definition package-definition))
+  "Return package DEFINITION's package name."
+  (package-name (definition-package definition)))
+
 (defun nicknames (package-definition)
   "Return the list of nicknames for PACKAGE-DEFINITION."
   (package-nicknames (definition-package package-definition)))

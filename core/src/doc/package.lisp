@@ -58,9 +58,9 @@
   "Return PACKAGE's name."
   (reveal (package-name package)))
 
-(defmethod pretty-name ((package-definition package-definition))
-  "Return PACKAGE-DEFINITION's name."
-  (reveal (package-name (definition-package package-definition))))
+(defmethod pretty-name ((definition package-definition))
+  "Return package DEFINITION's pretty name."
+  (reveal (name definition)))
 
 
 

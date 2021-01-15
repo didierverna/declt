@@ -53,6 +53,10 @@ This is the base class for ASDF definitions."))
 ;; Pseudo-accessors
 ;; ----------------
 
+(defmethod name ((definition component-definition))
+  "Return component DEFINITION's component name."
+  (component-name (component definition)))
+
 (defun description (definition)
   "Return component DEFINITION's description."
   (component-description (component definition)))

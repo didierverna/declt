@@ -84,9 +84,9 @@ extension at the end.")
   "Return COMPONENT's name."
   (reveal (component-name component)))
 
-(defmethod pretty-name ((component-definition component-definition))
-  "Return COMPONENT-DEFINITION's name."
-  (reveal (component-name (component component-definition))))
+(defmethod pretty-name ((definition component-definition))
+  "Return component DEFINITION's pretty name."
+  (reveal (name definition)))
 
 
 ;; -----------------------

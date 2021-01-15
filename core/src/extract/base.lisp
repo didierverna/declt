@@ -53,6 +53,17 @@ is unbound."
   (:documentation "The Definition class.
 This is the base class for all definitions."))
 
+
+;; ----------------
+;; Pseudo-accessors
+;; ----------------
+
+(defgeneric name (definition)
+  (:documentation "The definition's name.
+This is the native Lisp name for the definition's corresponding object.
+It's either a string (for ASDF components and packages) or a symbol."))
+
+
 (defgeneric definition-package (definition)
   (:documentation "Return DEFINITION's package."))
 
