@@ -121,6 +121,7 @@ This is the base class for ASDF file definitions."))
   "Make a new Lisp FILE definition, possibly FOREIGN."
   (make-instance 'lisp-file-definition :file file :foreign foreign))
 
+
 ;; #### FIXME: those two functions have to be utterly inefficient. Hopefully,
 ;; this will go away with the addition of an EXPORTED slot.
 (defmethod external-definitions ((definition lisp-file-definition))
@@ -138,6 +139,53 @@ This is the base class for ASDF file definitions."))
 	(member symbol (package-external-symbols (symbol-package symbol))))
       (symbol-definitions definition)
     :key #'definition-symbol))
+
+;; #### WARNING: gross hack going on below. ASDF system files are technically
+;; Lisp files because what they contain is Lisp, but they are not ASDF
+;; components. We still want to document them as other Lisp files, without
+;; replicating too much of the infrastructure. The solution is to use a fake
+;; subclass of ASDF's CL-SOURCE-FILE class, and create fake ASDF components
+;; corresponding to system files.
+
+(defclass cl-source-file.asd (asdf:cl-source-file)
+  ((type :initform "asd"))
+  (:documentation "A fake ASDF Lisp file component class for system files."))
+
+(defclass system-file-definition (lisp-file-definition)
+  ((system-definitions :documentation "The corresponding system definitions."
+		       :accessor system-definitions))
+  (:documentation "The System File Definition class.
+This class represents ASDF system files as Lisp files. Because system files
+are not components, we use an ad-hoc fake component class for them,
+`cl-source-file.asd', which see."))
+
+(defmethod initialize-instance :after
+    ((definition system-file-definition)
+     &key pathname
+     &aux (component (make-instance 'cl-source-file.asd
+		       :name (pathname-name pathname))))
+  "Create and store a fake ASDF comoponent representing the system file."
+  ;; #### NOTE: this slot is internal, and has no initarg in ASDF.
+  (setf (slot-value component 'asdf::absolute-pathname) pathname)
+  (setf (slot-value definition 'object) component))
+
+(defun make-system-file-definition (pathname)
+  "Make a new system file definition for system PATHNAME."
+  (make-instance 'system-file-definition :pathname pathname))
+
+(defun make-system-file-definitions (system-definitions &aux definitions)
+  "Make a list of system file definitions for SYSTEM-DEFINITIONS.
+Multiple systems may be defined in the same file. There is however only one
+definition for each file."
+  (dolist (system (mapcar #'system system-definitions))
+    ;; #### FIXME: remind me why/when the system source file can be be null?
+    (when-let (source-file (system-source-file system))
+      (unless (find source-file definitions
+		:key (lambda (definition)
+		       (component-pathname (file definition)))
+		:test #'equal)
+	(push (make-system-file-definition source-file) definitions))))
+  (nreverse definitions))
 
 
 (defclass c-file-definition (source-file-definition)

@@ -320,6 +320,12 @@ Documentation is done in a @table environment."
 (defmethod document ((definition lisp-file-definition) extract &key)
   "Render lisp file DEFINITION's documentation in EXTRACT."
   (call-next-method)
+  ;; #### FIXME: this whole business of type introspection is not
+  ;; satisfactory. The order in which we want to document things is very
+  ;; different from the hierarchy, so we need helper functions and simple
+  ;; methods calling them, without all this CALL-NEXT-METHOD mess.
+  (when (typep definition 'system-file-definition)
+    (render-references (system-definitions definition) "Systems"))
   (render-packages-references (package-definitions definition))
   (render-external-definitions-references (external-definitions definition))
   (render-internal-definitions-references (internal-definitions definition)))
@@ -350,10 +356,7 @@ Documentation is done in a @table environment."
 			 :synopsis "The files documentation"
 			 :before-menu-contents (format nil "~
 Files are sorted by type and then listed depth-first from the systems
-components trees."))))
-	  (lisp-files-node (add-child files-node
-			     (make-node :name "Lisp files"
-					:section-name "Lisp"))))
+components trees.")))))
   "Add the files node to PARENT in EXTRACT."
   (dolist (definition (file-definitions extract))
     (etypecase definition
@@ -366,72 +369,27 @@ components trees."))))
       (static-file-definition (push definition static-file-definitions))
       (source-file-definition (push definition source-file-definitions))
       (file-definition (push definition file-definitions))))
-  ;; #### NOTE: the .asd are Lisp files, but not components. I still want them
-  ;; to be listed here (and first) so I need to duplicate some of what the
-  ;; DOCUMENT method on lisp files does.
-  ;; #### WARNING: multiple systems may be defined in the same .asd file.
   ;; #### FIXME: Arnesi lists the asd file as a static-file, so it appears
   ;; twice.
-  (dolist (system (remove-duplicates
-		   ;; #### FIXME: when can a system source file be null?
-		   (remove-if #'null
-		       (mapcar #'system (system-definitions extract))
-		     :key #'system-source-file)
-		   :test #'equal :key #'system-source-file))
-    (let ((system-base-name (escape (system-base-name system)))
-	  (system-source-file (system-source-file system)))
-      (add-child lisp-files-node
-	(make-node :name (format nil "The ~A file" system-base-name)
-		   :section-name (format nil "@t{~A}" system-base-name)
-		   :before-menu-contents
-		   (render-to-string
-		     (@anchor
-		      (format nil "go to the ~A file" system-base-name))
-		     (format t "@lispfileindex{~A}@c~%" system-base-name)
-		     (@table ()
-		       (render-location system-source-file extract)
-		       (render-references
-			(loop :for system :in (mapcar #'system
-						(system-definitions extract))
-			      :when (equal (system-source-file system)
-					   system-source-file)
-				:collect system)
-			"Systems")
-		       (render-packages-references
-			(file-packages system-source-file))
-		       (render-external-definitions-references
-			(sort (definitions-from-file system-source-file
-						     (external-definitions
-						      extract))
-			      #'string-lessp
-			      :key #'definition-symbol))
-		       (render-internal-definitions-references
-			(sort (definitions-from-file system-source-file
-						     (internal-definitions
-						      extract))
-			      #'string-lessp
-			      :key #'definition-symbol))))))))
-  (dolist (definition (nreverse lisp-file-definitions))
-    (add-child lisp-files-node (file-node definition extract)))
-  (loop :with other-files-node
+  (loop :with node
 	:for definitions
 	  :in (mapcar #'nreverse
-		(list c-file-definitions java-file-definitions
+		(list lisp-file-definitions
+		      c-file-definitions java-file-definitions
 		      html-file-definitions doc-file-definitions
 		      static-file-definitions source-file-definitions
 		      file-definitions))
 	:for name
-	  :in '("C files" "Java files" "HTML files" "Doc files"
+	  :in '("Lisp files" "C files" "Java files" "HTML files" "Doc files"
 		"Static files" "Source files" "Other files")
 	:for section-name
-	  :in '("C" "Java" "HTML" "Doc" "Static" "Source" "Other")
+	  :in '("Lisp" "C" "Java" "HTML" "Doc" "Static" "Source" "Other")
 	:when definitions
-	  :do (setq other-files-node
+	  :do (setq node
 		    (add-child files-node
 		      (make-node :name name :section-name section-name)))
 	  :and :do (dolist (definition definitions)
-		     (add-child other-files-node
-		       (file-node definition extract)))))
+		     (add-child node (file-node definition extract)))))
 
 
 

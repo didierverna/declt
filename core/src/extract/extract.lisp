@@ -130,7 +130,8 @@ The main system is always first."
 	(mapcar #'make-system-definition
 	  (cons system
 		(remove-duplicates
-		 (subsystems system (system-directory system)))))))
+		 (subsystems system (system-directory system))
+		 :from-end t)))))
 
 (defun add-module-definitions (extract)
   "Add all module definitions to EXTRACT."
@@ -143,19 +144,21 @@ The main system is always first."
 (defun add-file-definitions (extract)
   "Add all file definitions to EXTRACT."
   (setf (file-definitions extract)
-	(mapcar (lambda (file)
-		  (etypecase file
-		    ;; #### WARNING: the order is important!
-		    (asdf:cl-source-file (make-lisp-file-definition file))
-		    (asdf:c-source-file (make-c-file-definition file))
-		    (asdf:java-source-file (make-java-file-definition file))
-		    (asdf:html-file (make-html-file-definition file))
-		    (asdf:doc-file (make-doc-file-definition file))
-		    (asdf:static-file (make-static-file-definition file))
-		    (asdf:source-file (make-source-file-definition file))
-		    (asdf:file-component (make-file-definition file))))
-	  (mapcan (lambda (definition) (file-components (system definition)))
-	    (system-definitions extract)))))
+	(append
+	 (make-system-file-definitions (system-definitions extract))
+	 (mapcar (lambda (file)
+		   (etypecase file
+		     ;; #### WARNING: the order is important!
+		     (asdf:cl-source-file (make-lisp-file-definition file))
+		     (asdf:c-source-file (make-c-file-definition file))
+		     (asdf:java-source-file (make-java-file-definition file))
+		     (asdf:html-file (make-html-file-definition file))
+		     (asdf:doc-file (make-doc-file-definition file))
+		     (asdf:static-file (make-static-file-definition file))
+		     (asdf:source-file (make-source-file-definition file))
+		     (asdf:file-component (make-file-definition file))))
+	   (mapcan (lambda (definition) (file-components (system definition)))
+	     (system-definitions extract))))))
 
 (defun add-package-definitions (extract)
   "Add all package definitions to EXTRACT."
@@ -235,24 +238,33 @@ created foreign ones, or is created as a new foreign one."
   "Finalize EXTRACT's file definitions.
 More specifically, for each file definition:
 - fill in its parent,
-- populate its package definitions list (Lisp files only),
-- populate its symbol definitions list (Lisp files only)."
+- populate a system file's system definitions list,
+- populate a Lisp file's package definitions list,
+- populate a Lisp file's symbol definitions list."
   (dolist (definition (file-definitions extract))
     ;; 1. Parent.
     (setf (parent definition)
 	  (let ((parent (component-parent (file definition))))
 	    (or (find parent (module-definitions extract) :key #'module)
 		(find parent (system-definitions extract) :key #'system))))
-    ;; Lisp files specific.
+    ;; Lisp-specific
+    ;; 2. System definitions list.
+    (when (typep definition 'system-file-definition)
+      (setf (system-definitions definition)
+	    (remove-if-not (lambda (system)
+			     (equal (system-source-file system)
+				    (component-pathname (file definition))))
+		(system-definitions extract)
+	      :key #'system)))
     (when (typep definition 'lisp-file-definition)
-      ;; 2. Package definitions list.
+      ;; 3. Package definitions list.
       (setf (package-definitions definition)
 	    (remove-if-not (lambda (package)
 			     (equal (source package)
 				    (component-pathname (file definition))))
 		(package-definitions extract)
 	      :key #'definition-package))
-      ;; 3. Symbol definitions list.
+      ;; 4. Symbol definitions list.
       (setf (symbol-definitions definition)
 	    (sort (definitions-from-file
 		   (component-pathname (file definition))
