@@ -64,6 +64,8 @@ This is the native Lisp name for the definition's corresponding object.
 It's either a string (for ASDF components and packages) or a symbol."))
 
 
+;; #### FIXME: this should not exist. It's a generic function that does
+;; different things (an accessor and an a computation).
 (defgeneric definition-package (definition)
   (:documentation "Return DEFINITION's package."))
 
@@ -94,6 +96,10 @@ It's either a string (for ASDF components and packages) or a symbol."))
 ;; Docstring protocol
 ;; ------------------
 
+;; #### FIXME: this protocol could be extended to ASDF components, by deciding
++;; that the docstring is, say, the (short) description (nothing prevents us
++;; from keeping the DESCRIPTION accessor as well). In the future, the
++;; docstring could then become a slot directly in the DEFINITION base class.
 (defgeneric docstring (item)
   (:documentation "Return ITEM's docstring (Lisp documentation)."))
 
