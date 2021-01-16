@@ -706,29 +706,6 @@ Return NIL if not found."
   "Return a list of direct slot definitions for CLASS."
   (mapcar #'make-slot-definition (sb-mop:class-direct-slots class)))
 
-
-;; 3 functions stolen/adapted from Slime:
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defun boolean-to-feature-expression (value)
-    "Convert boolean VALUE to a form suitable for feature testing."
-    (if value '(:and) '(:or)))
-  ;; #### PORTME.
-  (defun sbcl-has-setf-inverse-meta-info ()
-    (boolean-to-feature-expression
-     ;; going through FIND-SYMBOL since META-INFO was renamed from
-     ;; TYPE-INFO in 1.2.10.
-     (let ((sym (find-symbol "META-INFO" "SB-C")))
-       (and sym
-	    (fboundp sym)
-	    (funcall sym :setf :inverse ()))))))
-;; #### PORTME.
-(defun setf-expander-p (symbol)
-  "Return whether SYMBOL defines a setf-expander."
-  (or
-   #+#.(net.didierverna.declt::sbcl-has-setf-inverse-meta-info)
-   (sb-int:info :setf :inverse symbol)
-   (sb-int:info :setf :expander symbol)))
-
 ;; #### PORTME.
 (defun make-symbol-definition (symbol type)
   "Make a definition of TYPE for SYMBOL, if any."
@@ -745,7 +722,7 @@ Return NIL if not found."
     (macro-definition
      (when-let* ((function (macro-function symbol))
 		 (macro-definition (make-macro-definition symbol function)))
-       (when-let (expander (setf-expander-p symbol))
+       (when-let (expander (sb-int:info :setf :expander symbol))
 	 (let ((expander-definition
 		 (make-setf-expander-definition
 		  symbol macro-definition expander)))
@@ -779,7 +756,7 @@ Return NIL if not found."
 			(fdefinition writer-name))))
 	    (ordinary-writer-p
 	      (and writer (not (typep writer 'generic-function))))
-	    (expander (setf-expander-p symbol)))
+	    (expander (sb-int:info :setf :expander symbol)))
        (cond ((and function (or writer expander))
 	      (let ((accessor-definition
 		      (make-accessor-definition symbol function)))
@@ -816,7 +793,7 @@ Return NIL if not found."
 		(when (fboundp writer-name)
 		  (fdefinition writer-name))))
 	    (generic-writer-p (typep writer 'generic-function))
-	    (expander (setf-expander-p symbol)))
+	    (expander (sb-int:info :setf :expander symbol)))
        (cond ((and function (or writer expander))
 	      (let ((generic-definition
 		      (make-generic-accessor-definition
