@@ -151,7 +151,7 @@
 ;; does belong to a package, we know that all methods do to because they share
 ;; the same name. This means that we could save some package name comparison
 ;; tests.
-(defgeneric definition-package-definitions (definition package)
+#+()(defgeneric definition-package-definitions (definition package)
   (:documentation
    "Return the list of definitions from DEFINITION that belong to PACKAGE.")
   (:method (definition package)

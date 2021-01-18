@@ -61,7 +61,7 @@ net.didierverna.declt system."
 					   (:file "package")
 					   (:file "asdf")
 					   (:file "extract")))
-			     (:module "doc"
+			     #+()(:module "doc"
 			      :serial t
 			      :components ((:file "texi")
 					   (:file "doc")

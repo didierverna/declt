@@ -409,11 +409,11 @@ allow to specify or override some bits of information.
   (add-file-definitions extract)
   (add-package-definitions extract)
   (add-symbol-definitions extract)
-  (finalize-symbol-definitions extract)
-  (finalize-package-definitions extract)
-  (finalize-file-definitions extract)
-  (finalize-module-definitions extract)
-  (finalize-system-definitions extract)
+;;  (finalize-symbol-definitions extract)
+;;  (finalize-package-definitions extract)
+;;  (finalize-file-definitions extract)
+;;  (finalize-module-definitions extract)
+;;  (finalize-system-definitions extract)
 
   extract)
 

@@ -41,17 +41,14 @@
     ;; SYMBOL-MACRO-FUNCTION in the standard. Probably for the same reason
     ;; they don't have docstrings (late addition notably, according to Kent;
     ;; Cf. the Twitter exchange).
-    ;; #### FIXME: review the case of setf expanders to clarify.
     :documentation "The corresponding Lisp object.
 All definitions have an associated Lisp object, except for constants, special
-variables, symbol macros, setf expanders, and types. In such cases, this slot
-is unbound."
+variables, symbol macros, and types. In such cases, this slot is unbound."
     :initarg :object :reader object)
    (foreign
     :documentation "Whether this definition is foreign."
     :initform nil :initarg :foreign :reader foreignp))
-  (:documentation "The Definition class.
-This is the base class for all definitions."))
+  (:documentation "Abstract root class for all definitions."))
 
 
 ;; ----------------

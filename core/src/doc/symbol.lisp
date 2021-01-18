@@ -28,6 +28,31 @@
 (in-readtable :net.didierverna.declt)
 
 
+;; ----------
+;; Categories
+;; ----------
+
+;; #### NOTE: the order in *CATEGORIES* is important (see
+;; ADD-CATEGORIES-NODE). It conditions the order of appearance of the
+;; definitions in the generated manual.
+
+(defparameter *categories*
+  '((constant-definition       "constants")
+    (special-definition        "special variables")
+    (symbol-macro-definition   "symbol macros")
+    (macro-definition          "macros")
+    (compiler-macro-definition "compiler macros")
+    (function-definition       "functions")
+    (generic-definition        "generic functions")
+    (combination-definition    "method combinations")
+    (condition-definition      "conditions")
+    (structure-definition      "structures")
+    (class-definition          "classes")
+    (type-definition           "types"))
+  "The list of definition categories.
+Each category is of type (TYPE DESCRIPTION-STRING).")
+
+
 ;; ==========================================================================
 ;; Rendering protocols
 ;; ==========================================================================
@@ -440,6 +465,8 @@ This is the default method for most definitions."
   "Render SPECIAL variable's documentation in EXTRACT."
   (render-varoid :special special extract))
 
+;; #### FIXME: there's no reason to show the expansion of a symbol macro, and
+;; not, say, that of a regular macro, or even a functional value.
 (defmethod document ((symbol-macro symbol-macro-definition) extract &key)
   "Render SYMBOL-MACRO's documentation in EXTRACT."
     (render-varoid :symbolmacro symbol-macro extract

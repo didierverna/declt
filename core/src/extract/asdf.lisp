@@ -241,7 +241,7 @@ definition for each file."
 ;; #### likely to be wrong in some corner cases such as slot definitions. I
 ;; #### should check that thoroughly.
 
-(defgeneric definition-file-definitions (definition file)
+#+()(defgeneric definition-file-definitions (definition file)
   (:documentation
    "Return the list of definitions from DEFINITION that belong to FILE.")
   (:method (definition file)
