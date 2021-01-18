@@ -94,19 +94,9 @@ This is the base class for ASDF definitions."))
   (:documentation "The FILE-DEFINITION class.
 This is the base class for ASDF file definitions."))
 
-(defun make-file-definition (file &optional foreign)
-  "Make a new FILE definition, possibly FOREIGN."
-  (make-instance 'file-definition :file file :foreign foreign))
-
-
 (defclass source-file-definition (file-definition)
   ()
   (:documentation "The SOURCE-FILE-DEFINITION class."))
-
-(defun make-source-file-definition (file &optional foreign)
-  "Make a new source FILE definition, possibly FOREIGN."
-  (make-instance 'source-file-definition :file file :foreign foreign))
-
 
 (defclass lisp-file-definition (source-file-definition)
   ((package-definitions
@@ -116,11 +106,6 @@ This is the base class for ASDF file definitions."))
     :documentation "The corresponding symbol definitions."
     :accessor symbol-definitions))
   (:documentation "The LISP-FILE-DEFINITION class."))
-
-(defun make-lisp-file-definition (file &optional foreign)
-  "Make a new Lisp FILE definition, possibly FOREIGN."
-  (make-instance 'lisp-file-definition :file file :foreign foreign))
-
 
 ;; #### FIXME: those two functions have to be utterly inefficient. Hopefully,
 ;; this will go away with the addition of an EXPORTED slot.
@@ -173,11 +158,11 @@ are not components, we use an ad-hoc fake component class for them,
   "Make a new system file definition for system PATHNAME."
   (make-instance 'system-file-definition :pathname pathname))
 
-(defun make-system-file-definitions (system-definitions &aux definitions)
-  "Make a list of system file definitions for SYSTEM-DEFINITIONS.
+(defun make-system-file-definitions (systems &aux definitions)
+  "Make a list of system file definitions for SYSTEMS.
 Multiple systems may be defined in the same file. There is however only one
 definition for each file."
-  (dolist (system (mapcar #'system system-definitions))
+  (dolist (system systems)
     ;; #### FIXME: remind me why/when the system source file can be be null?
     (when-let (source-file (system-source-file system))
       (unless (find source-file definitions
@@ -187,42 +172,21 @@ definition for each file."
 	(push (make-system-file-definition source-file) definitions))))
   (nreverse definitions))
 
-
 (defclass c-file-definition (source-file-definition)
   ()
   (:documentation "The C-FILE-DEFINITION class."))
-
-(defun make-c-file-definition (file &optional foreign)
-  "Make a new C FILE definition, possibly FOREIGN."
-  (make-instance 'c-file-definition :file file :foreign foreign))
-
 
 (defclass java-file-definition (source-file-definition)
   ()
   (:documentation "The JAVA-FILE-DEFINITION class."))
 
-(defun make-java-file-definition (file &optional foreign)
-  "Make a new Java FILE definition, possibly FOREIGN."
-  (make-instance 'java-file-definition :file file :foreign foreign))
-
-
 (defclass static-file-definition (source-file-definition)
   ()
   (:documentation "The STATIC-FILE-DEFINITION class."))
 
-(defun make-static-file-definition (file &optional foreign)
-  "Make a new static FILE definition, possibly FOREIGN."
-  (make-instance 'static-file-definition :file file :foreign foreign))
-
-
 (defclass doc-file-definition (static-file-definition)
   ()
   (:documentation "The DOC-FILE-DEFINITION class."))
-
-(defun make-doc-file-definition (file &optional foreign)
-  "Make a new doc FILE definition, possibly FOREIGN."
-  (make-instance 'doc-file-definition :file file :foreign foreign))
-
 
 (defclass html-file-definition (doc-file-definition)
   ()
@@ -231,6 +195,22 @@ definition for each file."
 (defun make-html-file-definition (file &optional foreign)
   "Make a new HTML FILE definition, possibly FOREIGN."
   (make-instance 'html-file-definition :file file :foreign foreign))
+
+(defun make-file-definition (file)
+  "Make a new FILE definition.
+The concrete class of the new definition depends on the kind of FILE."
+  (make-instance
+      (etypecase file
+	;; #### WARNING: the order is important!
+	(asdf:cl-source-file 'lisp-file-definition)
+	(asdf:c-source-file 'c-file-definition)
+	(asdf:java-source-file 'java-file-definition)
+	(asdf:html-file 'html-file-definition)
+	(asdf:doc-file 'doc-file-definition)
+	(asdf:static-file 'static-file-definition)
+	(asdf:source-file 'source-file-definition)
+	(asdf:file-component 'file-definition))
+    :file file))
 
 
 ;; ------------------------------------

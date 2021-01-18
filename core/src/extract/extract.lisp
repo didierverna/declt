@@ -141,24 +141,20 @@ The main system is always first."
 	    (mapcar #'system
 	      (system-definitions extract))))))
 
-(defun add-file-definitions (extract)
+;; #### WARNING: in the unlikely but possible case that physical files would
+;; be shared by different systems being documented at the same time, we would
+;; end up with duplicate file documentation. The problem is that these files
+;; would still be logically different, because they would belong to different
+;; modules. We cannot really merge their definitions because they would have
+;; different logical names (hence anchors etc.). So in the end, it's better to
+;; leave it like that.
+(defun add-file-definitions
+    (extract &aux (systems (mapcar #'system (system-definitions extract))))
   "Add all file definitions to EXTRACT."
   (setf (file-definitions extract)
-	(append
-	 (make-system-file-definitions (system-definitions extract))
-	 (mapcar (lambda (file)
-		   (etypecase file
-		     ;; #### WARNING: the order is important!
-		     (asdf:cl-source-file (make-lisp-file-definition file))
-		     (asdf:c-source-file (make-c-file-definition file))
-		     (asdf:java-source-file (make-java-file-definition file))
-		     (asdf:html-file (make-html-file-definition file))
-		     (asdf:doc-file (make-doc-file-definition file))
-		     (asdf:static-file (make-static-file-definition file))
-		     (asdf:source-file (make-source-file-definition file))
-		     (asdf:file-component (make-file-definition file))))
-	   (mapcan (lambda (definition) (file-components (system definition)))
-	     (system-definitions extract))))))
+	(append (make-system-file-definitions systems)
+		(mapcar #'make-file-definition
+		  (mapcan #'file-components systems)))))
 
 (defun add-package-definitions (extract)
   "Add all package definitions to EXTRACT."
