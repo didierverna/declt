@@ -30,7 +30,7 @@
 
 
 ;; ==========================================================================
-;; Extraction Class
+;; Extract Class
 ;; ==========================================================================
 
 (defclass extract ()
@@ -111,6 +111,7 @@ This is the class holding all extracted documentation information."))
 
 
 
+
 ;; ==========================================================================
 ;; Extract Population
 ;; ==========================================================================
@@ -123,6 +124,43 @@ This is the class holding all extracted documentation information."))
 ;; much. The number of ASDF definitions is probably much smaller than the
 ;; number of symbol definitions.
 
+;; ------------------
+;; System definitions
+;; ------------------
+
+(defun dependency-def-system (dependency-def)
+  "Extract a system name from ASDF DEPENDENCY-DEF specification."
+  (typecase dependency-def ;; RTE to the rescue!
+    (list (ecase (car dependency-def)
+	    (:feature (dependency-def-system (third dependency-def)))
+	    (:version (second dependency-def))
+	    (:require nil)))
+    (otherwise dependency-def)))
+
+;; #### FIXME: there is redundancy with RENDER-DEPENDENCIES. I should write a
+;; more abstract dependency walker.
+(defun system-dependency-subsystem (dependency-def system directory)
+  "Return SYSTEM's DEPENDENCY-DEF subsystem if found under DIRECTORY, or nil."
+  (when-let* ((name (dependency-def-system dependency-def))
+	      (dependency (resolve-dependency-name system name)))
+    (when (sub-component-p dependency directory)
+      dependency)))
+
+(defun subsystems (system directory)
+  "Return the list of SYSTEM and all its dependencies found under DIRECTORY.
+All dependencies are descended recursively. Both :defsystem-depends-on and
+:depends-on are included. Potential duplicates are removed."
+  (cons
+   system
+   (remove-duplicates
+    (mapcan (lambda (subsystem) (subsystems subsystem directory))
+      (remove-if #'null
+	  (mapcar
+	      (lambda (dependency)
+		(system-dependency-subsystem dependency system directory))
+	    (system-dependencies system))))
+    :from-end t)))
+
 (defun add-system-definitions (extract system)
   "Add all (sub)system definitions to EXTRACT.
 The considered systems are those found recursively in SYSTEM's dependencies,
@@ -130,6 +168,18 @@ and located under SYSTEM's directory. The main system appears first."
   (setf (system-definitions extract)
 	(mapcar #'make-system-definition
 	  (subsystems system (system-directory system)))))
+
+
+
+;; ------------------
+;; Module definitions
+;; ------------------
+
+;; #### WARNING: do not confuse this function with ASDF's MODULE-COMPONENTS
+;; (which, BTW, is deprecated in favor of COMPONENT-CHILDREN).
+(defun module-components (parent)
+  "Return the list of all module components from ASDF PARENT."
+  (components parent 'asdf:module))
 
 (defun add-module-definitions (extract)
   "Add all module definitions to EXTRACT."
@@ -139,6 +189,12 @@ and located under SYSTEM's directory. The main system appears first."
 	    (mapcar #'system
 	      (system-definitions extract))))))
 
+
+
+;; ----------------
+;; File definitions
+;; ----------------
+
 ;; #### WARNING: in the unlikely but possible case that physical files would
 ;; be shared by different systems being documented at the same time, we would
 ;; end up with duplicate file documentation. The problem is that these files
@@ -146,6 +202,11 @@ and located under SYSTEM's directory. The main system appears first."
 ;; modules. We cannot really merge their definitions because they would have
 ;; different logical names (hence anchors etc.). So in the end, it's better to
 ;; leave it like that.
+
+(defun file-components (parent)
+  "Return the list of all file components from ASDF PARENT."
+  (components parent 'asdf:file-component))
+
 (defun add-file-definitions
     (extract &aux (systems (mapcar #'system (system-definitions extract))))
   "Add all file definitions to EXTRACT."
@@ -154,18 +215,57 @@ and located under SYSTEM's directory. The main system appears first."
 		(mapcar #'make-file-definition
 		  (mapcan #'file-components systems)))))
 
+
+
+;; -------------------
+;; Package definitions
+;; -------------------
+
+(defun file-packages (file)
+  "Return the list of all packages defined in FILE."
+  (remove-if-not (lambda (source) (equal source file)) (list-all-packages)
+    :key #'source))
+
+;; #### WARNING: shaky heuristic, bound to fail one day or another.
+(defun system-unlocated-packages
+    (system &aux (prefix (concatenate 'string (component-name system) "/"))
+		 (length (length prefix)))
+  "Return the list of unlocated packages defined in ASDF SYSTEM.
+These are the packages for which source location is unavailable via
+introspection. We thus need to guess. The current heuristic considers packages
+named SYSTEM/foobar, regardless of case."
+  (remove-if-not
+      (lambda (package)
+	(let ((package-name (package-name package)))
+	  (and (not (source package))
+	       (> (length package-name) length)
+	       (string-equal prefix (subseq package-name 0 length)))))
+      (list-all-packages)))
+
 (defun add-package-definitions (extract)
   "Add all package definitions to EXTRACT."
   (setf (package-definitions extract)
-	;; #### NOTE: several subsystems may share the same packages (because
-	;; they would share files defining them) so we need to filter
-	;; potential duplicates out.
 	(mapcar #'make-package-definition
-	  (remove-duplicates
-	   (mapcan #'system-packages
-	     (mapcar #'system
-	       (system-definitions extract)))
-	   :from-end t))))
+	  (append (mapcan #'file-packages
+		    (mapcar #'component-pathname
+		      (mapcar #'file
+			(remove-if-not #'lisp-file-definition-p
+			    (file-definitions extract)))))
+		  (mapcan #'system-unlocated-packages
+		    (mapcar #'system
+		      (system-definitions extract)))))))
+
+
+
+;; ------------------
+;; Symbol definitions
+;; ------------------
+
+(defun package-symbols (package &aux symbols)
+  "Return the list of symbols from home PACKAGE."
+  (do-symbols (symbol package symbols)
+    (when (eq (symbol-package symbol) package)
+      (push symbol symbols))))
 
 (defun add-symbol-definitions (extract)
   "Add all symbol definitions to EXTRACT."
@@ -173,13 +273,13 @@ and located under SYSTEM's directory. The main system appears first."
 	(mapcan #'make-symbol-definitions
 	  (mapcan #'package-symbols
 	    (mapcar #'definition-package
-	      ;; #### NOTE: at that point, we don't have any foreign
-	      ;; package definitions here, so we don't need to filter
-	      ;; them.
+	      ;; #### NOTE: at that point, we don't have any foreign package
+	      ;; definitions here, so we don't need to filter them.
 	      (package-definitions extract))))))
 
 
 
+
 ;; ==========================================================================
 ;; Extract Finalization
 ;; ==========================================================================
@@ -301,9 +401,32 @@ More specifically, for each system definition:
 
 
 
+
 ;; ==========================================================================
 ;; Documentation Information Extraction
 ;; ==========================================================================
+
+(defun load-system (system-name &aux (system (find-system system-name)))
+  "Load ASDF SYSTEM-NAME in a manner suitable to extract documentation.
+Return the corresponding ASDF system.
+SYSTEM-NAME is an ASDF system designator."
+  ;;  Because of some bootstrapping issues, ASDF and UIOP need some
+  ;; special-casing.
+  (cond ((string= (asdf:coerce-name system-name) "uiop")
+	 (load (merge-pathnames "uiop/uiop.asd"
+				(system-source-directory
+				 (asdf:find-system :asdf))))
+	 (mapc #'load
+	   (asdf:input-files :monolithic-concatenate-source-op
+			     "asdf/driver")))
+	((string= (asdf:coerce-name system-name) "asdf")
+	 (setq system (find-system "asdf/defsystem"))
+	 (mapc #'load
+	   (asdf:input-files :monolithic-concatenate-source-op
+			     "asdf/defsystem")))
+	(t
+	 (asdf:load-system system-name)))
+  system)
 
 (defun extract
     (system-name

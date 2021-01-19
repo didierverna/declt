@@ -48,16 +48,6 @@
 	:if (typep component 'asdf:module)
 	  :nconc (components component type)))
 
-;; #### WARNING: do not confuse this function with ASDF's MODULE-COMPONENTS
-;; (which, BTW, is deprecated in favor of COMPONENT-CHILDREN).
-(defun module-components (parent)
-  "Return the list of all module components from ASDF PARENT."
-  (components parent 'asdf:module))
-
-(defun file-components (parent)
-  "Return the list of all file components from ASDF PARENT."
-  (components parent 'asdf:file-component))
-
 (defun lisp-components (parent)
   "Return the list of all Lisp source file components from ASDF PARENT."
   (components parent 'asdf:cl-source-file))
@@ -86,15 +76,6 @@ This includes both :defsystem-depends-on and :depends-on."
   "Return the type part of ASDF SYSTEM's definition file."
   (when file (pathname-type file)))
 
-(defun dependency-def-system (dependency-def)
-  "Extract a system name from ASDF DEPENDENCY-DEF specification."
-  (typecase dependency-def ;; RTE to the rescue!
-    (list (ecase (car dependency-def)
-	    (:feature (dependency-def-system (third dependency-def)))
-	    (:version (second dependency-def))
-	    (:require nil)))
-    (otherwise dependency-def)))
-
 (defun sub-component-p
     (component directory
      ;; #### FIXME: not sure this is still valid, as we now have a specific
@@ -112,51 +93,5 @@ This includes both :defsystem-depends-on and :depends-on."
 				     :directory
 				     (append (pathname-directory directory)
 					     '(:wild-inferiors))))))
-
-;; #### FIXME: there is redundancy with RENDER-DEPENDENCIES. I should write a
-;; more abstract dependency walker.
-(defun system-dependency-subsystem (dependency-def system directory)
-  "Return SYSTEM's DEPENDENCY-DEF subsystem if found under DIRECTORY, or nil."
-  (when-let* ((name (dependency-def-system dependency-def))
-	      (dependency (resolve-dependency-name system name)))
-    (when (sub-component-p dependency directory)
-      dependency)))
-
-(defun subsystems (system directory)
-  "Return the list of SYSTEM and all its dependencies found under DIRECTORY.
-All dependencies are descended recursively. Both :defsystem-depends-on and
-:depends-on are included. Potential duplicates are removed."
-  (cons
-   system
-   (remove-duplicates
-    (mapcan (lambda (subsystem) (subsystems subsystem directory))
-      (remove-if #'null
-	  (mapcar
-	      (lambda (dependency)
-		(system-dependency-subsystem dependency system directory))
-	    (system-dependencies system))))
-    :from-end t)))
-
-(defun load-system (system-name &aux (system (find-system system-name)))
-  "Load ASDF SYSTEM-NAME in a manner suitable to extract documentation.
-Return the corresponding ASDF system.
-SYSTEM-NAME is an ASDF system designator."
-  ;;  Because of some bootstrapping issues, ASDF and UIOP need some
-  ;; special-casing.
-  (cond ((string= (asdf:coerce-name system-name) "uiop")
-	 (load (merge-pathnames "uiop/uiop.asd"
-				(system-source-directory
-				 (asdf:find-system :asdf))))
-	 (mapc #'load
-	   (asdf:input-files :monolithic-concatenate-source-op
-			     "asdf/driver")))
-	((string= (asdf:coerce-name system-name) "asdf")
-	 (setq system (find-system "asdf/defsystem"))
-	 (mapc #'load
-	   (asdf:input-files :monolithic-concatenate-source-op
-			     "asdf/defsystem")))
-	(t
-	 (asdf:load-system system-name)))
-  system)
 
 ;;; asdf.lisp ends here

@@ -48,12 +48,6 @@
 	       (eq (symbol-package symbol) package))
       (push symbol internal-symbols))))
 
-(defun package-symbols (package &aux symbols)
-  "Return the list of symbols from home PACKAGE."
-  (do-symbols (symbol package symbols)
-    (when (eq (symbol-package symbol) package)
-      (push symbol symbols))))
-
 
 
 ;; ==========================================================================

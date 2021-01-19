@@ -107,6 +107,11 @@ This is the base class for ASDF file definitions."))
     :accessor symbol-definitions))
   (:documentation "The LISP-FILE-DEFINITION class."))
 
+(defun lisp-file-definition-p (definition)
+  "Return T if DEFINITION is for a Lisp file.
+Note that ASDF system files are considered as Lisp files."
+  (typep definition 'lisp-file-definition))
+
 ;; #### FIXME: those two functions have to be utterly inefficient. Hopefully,
 ;; this will go away with the addition of an EXPORTED slot.
 (defmethod external-definitions ((definition lisp-file-definition))
@@ -367,50 +372,5 @@ More specifically:
 ;; ---------
 ;; Utilities
 ;; ---------
-
-(defun lisp-pathnames
-    (system &aux (file (system-source-file system))
-		 (lisp-pathnames
-		  (mapcar #'component-pathname (lisp-components system))))
-  "Return the list of all ASDF SYSTEM's Lisp source file pathnames.
-The list includes the system definition file."
-  ;; #### FIXME: is it possible that FILE be null, but we still have other
-  ;; #### pathnames?
-  (if file
-    (cons file lisp-pathnames)
-    lisp-pathnames))
-
-(defun file-packages (file)
-  "Return the list of all packages defined in FILE."
-  (remove-if-not (lambda (source) (equal source file)) (list-all-packages)
-    :key #'source))
-
-(defun system-located-packages (system)
-  "Return the list of located packages defined in ASDF SYSTEM.
-These are the packages for which source location is available via
-introspection. We can hence verify that the file defining them indeed belongs
-to SYSTEM."
-  (mapcan #'file-packages (lisp-pathnames system)))
-
-;; #### WARNING: shaky heuristic, bound to fail one day or another.
-(defun system-unlocated-packages
-    (system &aux (prefix (concatenate 'string (component-name system) "/"))
-		 (length (length prefix)))
-  "Return the list of unlocated packages defined in ASDF SYSTEM.
-These are the packages for which source location is unavailable via
-introspection. We thus need to guess. The current heuristic considers packages
-named SYSTEM/foobar, regardless of case."
-  (remove-if-not
-      (lambda (package)
-	(let ((package-name (package-name package)))
-	  (and (not (source package))
-	       (> (length package-name) length)
-	       (string-equal prefix (subseq package-name 0 length)))))
-      (list-all-packages)))
-
-;; #### FIXME: this should become a PACKAGES protocol.
-(defun system-packages (system)
-  "Return the list of packages defined in ASDF SYSTEM."
-  (append (system-located-packages system) (system-unlocated-packages system)))
 
 ;;; asdf.lisp ends here
