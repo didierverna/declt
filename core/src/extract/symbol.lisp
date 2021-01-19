@@ -43,7 +43,9 @@
 
 (defabstract symbol-definition (definition)
   ((symbol :documentation "The symbol naming this definition."
-	   :initarg :symbol :reader definition-symbol))
+	   :initarg :symbol :reader definition-symbol)
+   (package-definition :documentation "The corresponding package definition."
+		       :accessor package-definition))
   (:documentation "Abstract root class for all definitions named by symbols."))
 
 (defun symbol-definition-p (object)

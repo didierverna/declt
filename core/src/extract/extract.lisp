@@ -284,12 +284,40 @@ named SYSTEM/foobar, regardless of case."
 ;; Extract Finalization
 ;; ==========================================================================
 
+(defgeneric finalize (definition extract)
+  (:documentation "Finalize DEFINITION in EXTRACT.")
+  (:method-combination progn))
+
+
+;; ------------------
+;; Symbol definitions
+;; ------------------
+
+(defmethod finalize progn
+    ((definition symbol-definition) extract
+     &aux (package (symbol-package (definition-symbol definition)))
+	  (package-definition (find package (package-definitions extract)
+				:key #'definition-package)))
+  "Fill in DEFINITION's package definition.
+If no package definition is found, create and add a foreign one."
+  (unless package-definition
+    (endpush
+     (setq package-definition (make-package-definition package t))
+     (package-definitions extract)))
+  (setf (package-definition definition) package-definition))
+
 ;; #### FIXME: we probably need a FINALIZE-DEFINITION generic function.
 
 (defun finalize-symbol-definitions (extract)
-  "Finalize EXTRACT's symbol definitions.
-See `finalize-definitions' for more information."
-  (finalize-definitions (symbol-definitions extract)))
+  "Finalize EXTRACT's symbol definitions."
+  (dolist (definition (symbol-definitions extract))
+    (finalize definition extract)))
+
+
+
+;; ------------------
+;; Symbol definitions
+;; ------------------
 
 (defun finalize-package-definitions (extract &aux foreign-package-definitions)
   "Finalize EXTRACT's package definitions.
@@ -329,6 +357,12 @@ created foreign ones, or is created as a new foreign one."
   (setf (package-definitions extract)
 	(append (package-definitions extract) foreign-package-definitions)))
 
+
+
+;; ----------------
+;; File definitions
+;; ----------------
+
 (defun finalize-file-definitions (extract)
   "Finalize EXTRACT's file definitions.
 More specifically, for each file definition:
@@ -366,6 +400,12 @@ More specifically, for each file definition:
 		   (symbol-definitions extract))
 		  #'string-lessp :key #'definition-symbol)))))
 
+
+
+;; ------------------
+;; Module definitions
+;; ------------------
+
 (defun finalize-module-definitions (extract)
   "Finalize EXTRACT's module definitions.
 More specifically, for each module definition:
@@ -382,6 +422,12 @@ More specifically, for each module definition:
       (setf (children definition)
 	    (mapcar (lambda (child) (find child children :key #'component))
 	      (component-children (module definition)))))))
+
+
+
+;; ------------------
+;; System definitions
+;; ------------------
 
 ;; #### NOTE: there's some duplication from the above here. Creating the
 ;; children list is exactly the same thing in systems and modules because
@@ -525,7 +571,7 @@ allow to specify or override some bits of information.
   (add-file-definitions extract)
   (add-package-definitions extract)
   (add-symbol-definitions extract)
-;;  (finalize-symbol-definitions extract)
+  (finalize-symbol-definitions extract)
 ;;  (finalize-package-definitions extract)
 ;;  (finalize-file-definitions extract)
   (finalize-module-definitions extract)
