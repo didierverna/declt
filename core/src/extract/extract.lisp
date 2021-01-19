@@ -164,7 +164,8 @@ and located under SYSTEM's directory. The main system appears first."
 	  (remove-duplicates
 	   (mapcan #'system-packages
 	     (mapcar #'system
-	       (system-definitions extract)))))))
+	       (system-definitions extract)))
+	   :from-end t))))
 
 (defun add-symbol-definitions (extract)
   "Add all symbol definitions to EXTRACT."
