@@ -374,6 +374,8 @@ More specifically:
 		  (mapcar #'component-pathname (lisp-components system))))
   "Return the list of all ASDF SYSTEM's Lisp source file pathnames.
 The list includes the system definition file."
+  ;; #### FIXME: is it possible that FILE be null, but we still have other
+  ;; #### pathnames?
   (if file
     (cons file lisp-pathnames)
     lisp-pathnames))
