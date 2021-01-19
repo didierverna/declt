@@ -125,13 +125,11 @@ This is the class holding all extracted documentation information."))
 
 (defun add-system-definitions (extract system)
   "Add all (sub)system definitions to EXTRACT.
-The main system is always first."
+The considered systems are those found recursively in SYSTEM's dependencies,
+and located under SYSTEM's directory. The main system appears first."
   (setf (system-definitions extract)
 	(mapcar #'make-system-definition
-	  (cons system
-		(remove-duplicates
-		 (subsystems system (system-directory system))
-		 :from-end t)))))
+	  (subsystems system (system-directory system)))))
 
 (defun add-module-definitions (extract)
   "Add all module definitions to EXTRACT."

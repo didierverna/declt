@@ -37,22 +37,6 @@
   "Return COMPONENT's location RELATIVE-TO."
   (enough-namestring (component-pathname component) relative-to))
 
-(defun sub-component-p
-    (component relative-to
-     ;; #### NOTE: COMPONENT-PATHNAME can return nil when it's impossible to
-     ;; locate the component's source. This happens for example with UIOP when
-     ;; ASDF is embedded in a Lisp implementation like SBCL. Sabra Crolleton
-     ;; fell on this issue when trying to document CL-PROJECT, which
-     ;; explicitly depends on UIOP.
-     &aux (component-pathname (component-pathname component)))
-  "Return T if COMPONENT can be found under RELATIVE-TO."
-  (when component-pathname
-    (pathname-match-p component-pathname
-		      (make-pathname :name :wild
-				     :directory
-				     (append (pathname-directory relative-to)
-					     '(:wild-inferiors))))))
-
 (defun components (parent type)
   "Return the list of all components of (sub)TYPE from ASDF PARENT."
   ;; #### NOTE: we accept subtypes of TYPE because ASDF components might be
@@ -102,38 +86,56 @@ This includes both :defsystem-depends-on and :depends-on."
   "Return the type part of ASDF SYSTEM's definition file."
   (when file (pathname-type file)))
 
+(defun dependency-def-system (dependency-def)
+  "Extract a system name from ASDF DEPENDENCY-DEF specification."
+  (typecase dependency-def ;; RTE to the rescue!
+    (list (ecase (car dependency-def)
+	    (:feature (dependency-def-system (third dependency-def)))
+	    (:version (second dependency-def))
+	    (:require nil)))
+    (otherwise dependency-def)))
+
+(defun sub-component-p
+    (component directory
+     ;; #### FIXME: not sure this is still valid, as we now have a specific
+     ;; way of loading UIOP and ASDF.
+     ;; #### NOTE: COMPONENT-PATHNAME can return nil when it's impossible to
+     ;; locate the component's source. This happens for example with UIOP when
+     ;; ASDF is embedded in a Lisp implementation like SBCL. Sabra Crolleton
+     ;; fell on this issue when trying to document CL-PROJECT, which
+     ;; explicitly depends on UIOP.
+     &aux (component-pathname (component-pathname component)))
+  "Return T if COMPONENT can be found under DIRECTORY."
+  (when component-pathname
+    (pathname-match-p component-pathname
+		      (make-pathname :name :wild
+				     :directory
+				     (append (pathname-directory directory)
+					     '(:wild-inferiors))))))
+
 ;; #### FIXME: there is redundancy with RENDER-DEPENDENCIES. I should write a
 ;; more abstract dependency walker.
-(defgeneric system-dependency-subsystem (dependency-def system relative-to)
-  (:documentation "Return SYSTEM's subsystem from DEPENDENCY-DEF or nil.")
-  (:method
-      (simple-component-name system relative-to
-       &aux (dependency (resolve-dependency-name system simple-component-name)))
-    "Return SYSTEM's subsystem named SIMPLE-COMPONENT-NAME or nil."
-    (when (sub-component-p dependency relative-to)
-      dependency))
-  ;; Regular Type Expressions to the rescue, please!
-  (:method ((dependency-def list) system relative-to)
-    "Return SYSTEM's subsystem from DEPENDENCY-DEF or nil."
-    (case (car dependency-def)
-      (:feature
-       (system-dependency-subsystem (caddr dependency-def) system relative-to))
-      (:version
-       (system-dependency-subsystem (cadr dependency-def) system relative-to))
-      (:require
-       nil)
-      ;; #### FIXME: can this happen? Would the system actually be loaded?
-      (otherwise (warn "Invalid ASDF dependency.")))))
+(defun system-dependency-subsystem (dependency-def system directory)
+  "Return SYSTEM's DEPENDENCY-DEF subsystem if found under DIRECTORY, or nil."
+  (when-let* ((name (dependency-def-system dependency-def))
+	      (dependency (resolve-dependency-name system name)))
+    (when (sub-component-p dependency directory)
+      dependency)))
 
-(defun subsystems (system relative-to)
-  "Return the list of SYSTEM subsystems RELATIVE-TO.
-This function recursively descends all found subsystems."
-  (loop :with subsystem
-	:for dependency :in (system-dependencies system)
-	:do (setq subsystem
-		  (system-dependency-subsystem dependency system relative-to))
-	:when subsystem
-	  :nconc (cons subsystem (subsystems subsystem relative-to))))
+(defun subsystems (system directory)
+  "Return the list of SYSTEM and all its dependencies found under DIRECTORY.
+All dependencies are descended recursively. Both :defsystem-depends-on and
+:depends-on are included. Potential duplicates are removed."
+  (cons
+   system
+   (remove-duplicates
+    (mapcan (lambda (subsystem) (subsystems subsystem directory))
+      (remove-if #'null
+	  (mapcar
+	      (lambda (dependency)
+		(system-dependency-subsystem dependency system directory))
+	    (system-dependencies system))))
+    :from-end t)))
 
 (defun load-system (system-name &aux (system (find-system system-name)))
   "Load ASDF SYSTEM-NAME in a manner suitable to extract documentation.
