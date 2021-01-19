@@ -275,8 +275,6 @@ More specifically, for each module definition:
 	  (let ((parent (component-parent (module definition))))
 	    (or (find parent (module-definitions extract) :key #'module)
 		(find parent (system-definitions extract) :key #'system)))))
-  ;; At that point, all file and module definitions have their PARENT slot
-  ;; properly set.
   (let ((children
 	  (append (module-definitions extract) (file-definitions extract))))
     (dolist (definition (module-definitions extract))
@@ -406,8 +404,8 @@ allow to specify or override some bits of information.
 ;;  (finalize-symbol-definitions extract)
 ;;  (finalize-package-definitions extract)
 ;;  (finalize-file-definitions extract)
-;;  (finalize-module-definitions extract)
-;;  (finalize-system-definitions extract)
+  (finalize-module-definitions extract)
+  (finalize-system-definitions extract)
 
   extract)
 
