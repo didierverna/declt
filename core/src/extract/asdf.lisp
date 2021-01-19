@@ -158,19 +158,15 @@ are not components, we use an ad-hoc fake component class for them,
   "Make a new system file definition for system PATHNAME."
   (make-instance 'system-file-definition :pathname pathname))
 
-(defun make-system-file-definitions (systems &aux definitions)
+(defun make-system-file-definitions (systems)
   "Make a list of system file definitions for SYSTEMS.
 Multiple systems may be defined in the same file. There is however only one
 definition for each file."
-  (dolist (system systems)
-    ;; #### FIXME: remind me why/when the system source file can be be null?
-    (when-let (source-file (system-source-file system))
-      (unless (find source-file definitions
-		:key (lambda (definition)
-		       (component-pathname (file definition)))
-		:test #'equal)
-	(push (make-system-file-definition source-file) definitions))))
-  (nreverse definitions))
+  (mapcar #'make-system-file-definition
+    (remove-duplicates
+     ;; #### FIXME: remind me why/when the system source file can be be null?
+     (remove-if #'null (mapcar #'system-source-file systems))
+     :test #'equal :from-end t)))
 
 (defclass c-file-definition (source-file-definition)
   ()
