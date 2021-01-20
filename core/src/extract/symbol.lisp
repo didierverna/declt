@@ -62,10 +62,6 @@ lexicographic order, related accessors end up being located next to each
 other."
   (definition-symbol definition))
 
-(defmethod definition-package ((symbol-definition symbol-definition))
-  "Return SYMBOL-DEFINITION's home package."
-  (symbol-package (definition-symbol symbol-definition)))
-
 
 
 

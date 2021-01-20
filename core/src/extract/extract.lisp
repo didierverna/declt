@@ -338,7 +338,9 @@ DEFINITIONS in the process."
 	;; order of TEST and KEY arguments.
 	(remove-if-not (lambda (definition)
 			 (and (typep definition 'symbol-definition)
-			      (eq (definition-package definition) package)))
+			      (eq (symbol-package
+				   (definition-symbol definition))
+				  package)))
 	    definitions)))
 
 
