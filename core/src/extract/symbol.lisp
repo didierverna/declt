@@ -558,6 +558,8 @@ depends on the kind of CLASSOID."
   ;; will provide a cross-reference to it, also advertising the options in
   ;; use.
   (when-let*
+      ;; #### FIXME: I think this is not needed anymore, after Christophe's
+      ;; modifications following my ELS paper.
       ((method
 	(find-method #'sb-mop:find-method-combination
 		     nil
@@ -771,7 +773,7 @@ Return NIL if not found."
 	   :sb-mop)
    slot))
 
-(defgeneric slot-reader-definitions (slot definitions)
+#+()(defgeneric slot-reader-definitions (slot definitions)
   (:documentation "Return a list of reader definitions for SLOT.")
   (:method (slot definitions)
     "Defaut method for class and condition slots."
@@ -789,7 +791,7 @@ Return NIL if not found."
        (or (find-definition reader-name 'function-definition definitions)
 	   (make-generic-definition reader-name :foreign t))))))
 
-(defgeneric slot-writer-definitions (slot definitions)
+#+()(defgeneric slot-writer-definitions (slot definitions)
   (:documentation "Return a list of writer definitions for SLOT.")
   (:method (slot definitions)
     "Default method for class and condition slots."
@@ -1014,21 +1016,14 @@ Currently, this means resolving:
 
 ;; #### NOTE: SB-INTROSPECT:FIND-DEFINITION-SOURCES-BY-NAME may return
 ;; multiple sources (e.g. if we were to ask it for methods) so we take the
-;; first one. That is okay because we actually use it only when there can be
+;; first one. This is okay because we actually use it only when there can be
 ;; only one definition source.
 ;; #### PORTME.
 (defun definition-source-by-name
-    (definition type &key (name (definition-symbol definition)))
+    (definition type &key (name (name definition)))
   "Return DEFINITION's source for TYPE."
-  (when-let (defsrc (car (sb-introspect:find-definition-sources-by-name
-			  name type)))
-    (sb-introspect:definition-source-pathname defsrc)))
-
-;; #### PORTME.
-(defun definition-source (object)
-  "Return OBJECT's definition source."
-  (when-let (defsrc (sb-introspect:find-definition-source object))
-    (sb-introspect:definition-source-pathname defsrc)))
+  (when-let (sources (sb-introspect:find-definition-sources-by-name name type))
+    (sb-introspect:definition-source-pathname (first sources))))
 
 (defmethod source ((constant constant-definition))
   "Return CONSTANT's definition source."
@@ -1042,12 +1037,8 @@ Currently, this means resolving:
   "Return SYMBOL-MACRO's definition source."
   (definition-source-by-name symbol-macro :symbol-macro))
 
-(defmethod source ((funcoid funcoid-definition))
-  "Return FUNCOID's definition source."
-  (definition-source (funcoid funcoid)))
-
 (defmethod source
-    ((definition %expander-definition)  &aux (expander (expander definition)))
+    ((definition %expander-definition) &aux (expander (expander definition)))
   ;; #### NOTE: looking at how sb-introspect does it, it seems that the
   ;; "source" of a setf expander is the source of the function object. For
   ;; long forms, this should be OK. For short forms however, what we get is
@@ -1061,32 +1052,17 @@ Currently, this means resolving:
   ;; bug in a previous version (with the package cl-stdutils, which uses
   ;; RPLACA as an update function for the stdutils.gds::vknode-value
   ;; expander).
-  (etypecase expander
-    (symbol (definition-source (fdefinition expander)))
-    (list (definition-source (second expander)))
-    (function (definition-source expander))))
+  (object-source-pathname
+   (etypecase expander
+     (symbol (fdefinition expander))
+     (list (second expander))
+     (function expander))))
 
-(defmethod source ((method method-definition))
-  "Return METHOD's definition source."
-  (definition-source (definition-method method)))
-
-;; #### NOTE: no SOURCE method for SLOT-DEFINITION.
-
-(defmethod source ((combination combination-definition))
-  "Return method COMBINATION's definition source."
-  (definition-source-by-name combination :method-combination))
-
-(defmethod source ((condition condition-definition))
-  "Return CONDITION's definition source."
-  (definition-source-by-name condition :condition))
-
-(defmethod source ((structure structure-definition))
-  "Return STRUCTURE's definition source."
-  (definition-source-by-name structure :structure))
-
-(defmethod source ((class class-definition))
-  "Return CLASS's definition source."
-  (definition-source-by-name class :class))
+;; #### NOTE: sb-introspect does funny stuff for typed structures, so it's
+;; better to use it.
+(defmethod source ((definition structure-definition))
+  "Return structure DEFINITION's source."
+  (definition-source-by-name definition :structure))
 
 (defmethod source ((type type-definition))
   "Return TYPE's definition source."

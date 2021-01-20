@@ -116,20 +116,6 @@ If not found, create a new foreign one and add it at the end of DEFINITIONS."
 ;; Extraction Protocols
 ;; ==========================================================================
 
-;; ---------------
-;; Source protocol
-;; ---------------
-
-;; #### PORTME.
-(defmethod source ((package package))
-  "Return PACKAGE'source."
-  (when-let (defsrc (sb-introspect:find-definition-source package))
-    (sb-introspect:definition-source-pathname defsrc)))
-
-(defmethod source ((package-definition package-definition))
-  "Return PACKAGE-DEFINITION'source."
-  (source (definition-package package-definition)))
-
 
 ;; ------------------
 ;; Docstring protocol

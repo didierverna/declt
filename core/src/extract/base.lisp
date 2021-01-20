@@ -41,10 +41,12 @@
     ;; macros do. In other words, I'm not sure why there's no
     ;; SYMBOL-MACRO-FUNCTION in the standard. Probably for the same reason
     ;; they don't have docstrings (late addition notably, according to Kent;
-    ;; Cf. the Twitter exchange).
+    ;; Cf. the Twitter exchange). Also, it is probably possible to get an
+    ;; object for types (look into sb-introspec), and why not symbol macro
+    ;; expanders after all.
     :documentation "The corresponding Lisp object, or NIL.
 Only constants, special variables, symbol macros, and types do not have an
-  associated Lisp object"
+associated Lisp object"
     :initform nil :initarg :object :reader object)
    (foreign
     :documentation "Whether this definition is foreign."
@@ -97,11 +99,22 @@ It's either a string (for ASDF components and packages) or a symbol."))
 ;; Source protocol
 ;; ---------------
 
-;; #### FIXME: I have defined methods for definitions, but I think this is
-;; wrong. We rather need a LOCATION protocol with source information
-;; /relative/ to the extract's location instead.
-(defgeneric source (item)
-  (:documentation "Return ITEM's definition source pathname."))
+;; #### PORTME.
+(defun object-source-pathname (object)
+  "Return OBJECT's source pathname."
+  (when-let (source (sb-introspect:find-definition-source object))
+    (sb-introspect:definition-source-pathname source)))
+
+;; #### NOTE: we're trying to be clever here, bypassing
+;; FIND-DEFINITION-SOURCES-BY-NAME when possible, because it performs some
+;; checks that we know we don't need. I'm not sure it's worth the trouble
+;; anymore.
+(defgeneric source (definition)
+  (:documentation "Return DEFINITION's source pathname.")
+  ;; #### PORTME.
+  (:method (definition)
+    "Return DEFINITION's object source pathname (this is the default method)."
+    (object-source-pathname (object definition))))
 
 
 ;; ------------------

@@ -205,8 +205,7 @@ directory."
     (definitions &aux (systems (mapcar #'system definitions)))
   "Return a list of all file definitions for system DEFINITIONS."
   (append (make-system-file-definitions systems)
-	  (mapcar #'make-file-definition
-	    (mapcan #'file-components systems))))
+	  (mapcar #'make-file-definition (mapcan #'file-components systems))))
 
 
 
@@ -315,8 +314,7 @@ DEFINITIONS in the process."
 (defmethod finalize progn
     ((definition package-definition) definitions
      &aux (package (definition-package definition)))
-  "Finalize package DEFINITION in DEFINITIONS.
-This means populating its use, used-by, and symbol definitions lists.
+  "Fill in package DEFINITION's use, used-by, and symbol definitions lists.
 New foreign package definitions may be created and added at the end of
 DEFINITIONS in the process."
   ;; 1. Use list.
@@ -369,36 +367,16 @@ DEFINITIONS in the process."
 ;; File definitions
 ;; ----------------
 
-(defun finalize-file-definitions (extract)
-  "Finalize EXTRACT's file definitions.
-More specifically, for each file definition:
-- populate a system file's system definitions list,
-- populate a Lisp file's package definitions list,
-- populate a Lisp file's symbol definitions list."
-  (dolist (definition (file-definitions extract))
-    ;; Lisp-specific
-    ;; 1. System definitions list.
-    (when (typep definition 'system-file-definition)
-      (setf (system-definitions definition)
-	    (remove-if-not (lambda (system)
-			     (equal (system-source-file system)
-				    (component-pathname (file definition))))
-		(system-definitions extract)
-	      :key #'system)))
-    (when (typep definition 'lisp-file-definition)
-      ;; 2. Package definitions list.
-      (setf (package-definitions definition)
-	    (remove-if-not (lambda (package)
-			     (equal (source package)
-				    (component-pathname (file definition))))
-		(package-definitions extract)
-	      :key #'definition-package))
-      ;; 3. Symbol definitions list.
-      (setf (symbol-definitions definition)
-	    (sort (definitions-from-file
-		   (component-pathname (file definition))
-		   (symbol-definitions extract))
-		  #'string-lessp :key #'definition-symbol)))))
+(defmethod finalize progn
+    ((definition lisp-file-definition) definitions
+     &aux (pathname (component-pathname (file definition))))
+  "Fill in Lisp file DEFINITION's definitions list."
+  (setf (definitions definition)
+	;; #### FIXME: write a RETAIN or KEEP function, also inverting the
+	;; order of TEST and KEY arguments.
+	(remove-if-not (lambda (definition)
+			 (equal (source definition) pathname))
+	    definitions)))
 
 
 

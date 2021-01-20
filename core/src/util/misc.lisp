@@ -33,6 +33,10 @@
 ;; General
 ;; ==========================================================================
 
+(defmacro while (test &body body)
+  "Execute BODY while TEST."
+  `(do () ((not ,test)) ,@body))
+
 (defmacro endpush (object place)
   "Push OBJECT at the end of PLACE."
   `(setf ,place (nconc ,place (list ,object))))
