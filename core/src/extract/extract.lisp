@@ -384,22 +384,18 @@ DEFINITIONS in the process."
 ;; Module definitions
 ;; ------------------
 
-(defun finalize-module-definitions (extract)
-  "Finalize EXTRACT's module definitions.
-More specifically, for each module definition:
-- fill in its parent,
-- fill in its children, in the module's order."
-  (dolist (definition (module-definitions extract))
-    (setf (parent definition)
-	  (let ((parent (component-parent (module definition))))
-	    (or (find parent (module-definitions extract) :key #'module)
-		(find parent (system-definitions extract) :key #'system)))))
-  (let ((children
-	  (append (module-definitions extract) (file-definitions extract))))
-    (dolist (definition (module-definitions extract))
-      (setf (children definition)
-	    (mapcar (lambda (child) (find child children :key #'component))
-	      (component-children (module definition)))))))
+(defmethod finalize progn
+    ((definition module-definition) definitions
+     &aux (module (module definition)))
+  "Fill in module DEFINITION's child definitions."
+  (setf (child-definitions definition)
+	;; #### FIXME: write a RETAIN or KEEP function, also inverting the
+	;; order of TEST and KEY arguments.
+	(remove-if-not (lambda (definition)
+			 (and (typep definition 'component-definition)
+			      (eq (component-parent (component definition))
+				  module)))
+	    definitions)))
 
 
 

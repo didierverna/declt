@@ -304,7 +304,8 @@ The concrete class of the new definition depends on the kind of FILE."
 
 (defclass module-definition (component-definition)
   ((object :initarg :module :reader module) ;; slot overload
-   (children :documentation "The module's children." :accessor children))
+   (child-definitions :documentation "The module's child definitions."
+		      :accessor child-definitions))
   (:documentation "The Module Definition class."))
 
 ;; #### NOTE: we currently don't create foreign modules.
