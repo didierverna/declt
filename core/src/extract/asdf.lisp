@@ -43,6 +43,7 @@
 ;; not following the hierarchy (SYSTEM -> COMPONENT -> MODULE). It would be
 ;; more difficult to advertise the PARENT slot at the right place if it didn't
 ;; belong here.
+
 (defabstract component-definition (definition)
   ((object :reader component) ;; slot overload
    (parent-definition :documentation "The corresponding parent definition."
@@ -50,15 +51,8 @@
   (:documentation "The COMPONENT-DEFINITION class.
 This is the base class for ASDF definitions."))
 
-(defmethod source
-    ((definition component-definition) &aux (component (component definition)))
-  "Return component DEFINITION's source pathname.
-This actually is the corresponding system's source file."
-  (while (component-parent component)
-    (setq component (component-parent component)))
-  (system-source-file component))
 
-
+
 ;; ----------------
 ;; Pseudo-accessors
 ;; ----------------
@@ -89,6 +83,13 @@ This actually is the corresponding system's source file."
   "Return component DEFINITION's dependencies."
   (component-sideway-dependencies (component definition)))
 
+(defmethod source
+    ((definition component-definition) &aux (component (component definition)))
+  "Return component DEFINITION's source pathname.
+This actually is the corresponding system's source file."
+  (while (component-parent component)
+    (setq component (component-parent component)))
+  (system-source-file component))
 
 
 ;; ==========================================================================
@@ -334,9 +335,7 @@ The concrete class of the new definition depends on the kind of FILE."
 
 (defmethod initialize-instance :after
     ((definition system-definition) &key &aux (system (system definition)))
-  "Perform post-initialization of system DEFINITION.
-More specifically:
-- extract names and emails for authors and maintainers."
+  "Extract names and emails for authors and maintainers."
   (multiple-value-bind (maintainers emails)
       (|parse-contact(s)| (system-maintainer system))
     (when maintainers

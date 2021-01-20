@@ -216,7 +216,7 @@ directory."
 (defun file-packages (file)
   "Return the list of all packages defined in FILE."
   (remove-if-not (lambda (source) (equal source file)) (list-all-packages)
-    :key #'source))
+    :key #'object-source-pathname))
 
 ;; #### FIXME: remind me why we need that stuff?
 ;; #### WARNING: shaky heuristic, bound to fail one day or another.
@@ -230,7 +230,7 @@ named SYSTEM/foobar, regardless of case."
   (remove-if-not
       (lambda (package)
 	(let ((package-name (package-name package)))
-	  (and (not (source package))
+	  (and (not (object-source-pathname package))
 	       (> (length package-name) length)
 	       (string-equal prefix (subseq package-name 0 length)))))
       (list-all-packages)))
@@ -396,29 +396,6 @@ DEFINITIONS in the process."
 			      (eq (component-parent (component definition))
 				  module)))
 	    definitions)))
-
-
-
-;; ------------------
-;; System definitions
-;; ------------------
-
-;; #### NOTE: there's some duplication from the above here. Creating the
-;; children list is exactly the same thing in systems and modules because
-;; systems /are/ modules. Not a big deal though.
-(defun finalize-system-definitions (extract)
-  "Finalize EXTRACT's system definitions.
-More specifically, for each system definition:
-- fill in its children, in the system's order."
-  ;; At that point, all files and module definitions have their PARENT slot
-  ;; properly set already.
-  (let ((children
-	  (append (module-definitions extract) (file-definitions extract))))
-    (dolist (definition (system-definitions extract))
-      (setf (children definition)
-	    (mapcar (lambda (child) (find child children :key #'component))
-	      (component-children (system definition)))))))
-
 
 
 

@@ -54,56 +54,16 @@ associated Lisp object"
   (:documentation "Abstract root class for all definitions."))
 
 
+
 
-;; ----------------
-;; Pseudo-accessors
-;; ----------------
+;; ==========================================================================
+;; Extraction Protocols
+;; ==========================================================================
 
 (defgeneric name (definition)
   (:documentation "The definition's name.
 This is the native Lisp name for the definition's corresponding object.
 It's either a string (for ASDF components and packages) or a symbol."))
-
-
-
-;; ---------
-;; Utilities
-;; ---------
-
-(defun find-definition (object definitions)
-  "Find a definition for OBJECT in DEFINITIONS."
-  ;; #### WARNING: we need an EQUAL test because some objects are compound
-  ;; (e.g. medium form setf expanders).
-  (find object definitions :key #'object :test #'equal))
-
-
-
-;; #### FIXME: this should not exist. It's a generic function that does
-;; different things (an accessor and an a computation).
-(defgeneric definition-package (definition)
-  (:documentation "Return DEFINITION's package."))
-
-(defgeneric external-definitions (object)
-  (:documentation "Return OBJECT's external definitions."))
-
-(defgeneric internal-definitions (object)
-  (:documentation "Return OBJECT's internal definitions."))
-
-
-
-;; ==========================================================================
-;; Extraction Protocols
-;; ==========================================================================
-
-;; ---------------
-;; Source protocol
-;; ---------------
-
-;; #### PORTME.
-(defun object-source-pathname (object)
-  "Return OBJECT's source pathname."
-  (when-let (source (sb-introspect:find-definition-source object))
-    (sb-introspect:definition-source-pathname source)))
 
 ;; #### NOTE: we're trying to be clever here, bypassing
 ;; FIND-DEFINITION-SOURCES-BY-NAME when possible, because it performs some
@@ -116,16 +76,30 @@ It's either a string (for ASDF components and packages) or a symbol."))
     "Return DEFINITION's object source pathname (this is the default method)."
     (object-source-pathname (object definition))))
 
-
-;; ------------------
-;; Docstring protocol
-;; ------------------
-
 ;; #### FIXME: this protocol could be extended to ASDF components, by deciding
 +;; that the docstring is, say, the (short) description (nothing prevents us
 +;; from keeping the DESCRIPTION accessor as well). In the future, the
 +;; docstring could then become a slot directly in the DEFINITION base class.
 (defgeneric docstring (item)
   (:documentation "Return ITEM's docstring (Lisp documentation)."))
+
+
+
+
+;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
+(defun find-definition (object definitions)
+  "Find a definition for OBJECT in DEFINITIONS."
+  ;; #### WARNING: we need an EQUAL test because some objects are compound
+  ;; (e.g. medium form setf expanders).
+  (find object definitions :key #'object :test #'equal))
+
+(defgeneric external-definitions (object)
+  (:documentation "Return OBJECT's external definitions."))
+
+(defgeneric internal-definitions (object)
+  (:documentation "Return OBJECT's internal definitions."))
 
 ;;; base.lisp ends here

@@ -124,6 +124,12 @@ one."
 	    :collect name :into names :and :collect email :into emails
 	  :finally (return (values names emails)))))
 
+;; #### PORTME.
+(defun object-source-pathname (object)
+  "Return OBJECT's source pathname."
+  (when-let (source (sb-introspect:find-definition-source object))
+    (sb-introspect:definition-source-pathname source)))
+
 
 
 ;; ==========================================================================
