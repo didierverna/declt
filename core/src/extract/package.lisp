@@ -71,19 +71,10 @@
   "Make a new PACKAGE definition, possibly FOREIGN."
   (make-instance 'package-definition :package package :foreign foreign))
 
-(defun find-package-definition (package definitions)
-  "Find a definition for PACKAGE in DEFINITIONS."
-  ;; #### FIXME: write a find* function which filters on TEST first, and then
-  ;; uses KEY.
-  (find-if (lambda (definition)
-	     (and (typep definition 'package-definition)
-		  (eq (definition-package definition) package)))
-	   definitions))
-
 (defun get-package-definition (package definitions)
   "Get a definition for PACKAGE from DEFINITIONS.
 If not found, create a new foreign one and add it at the end of DEFINITIONS."
-  (or (find-package-definition package definitions)
+  (or (find-definition package definitions)
       (let ((definition (make-package-definition package t)))
 	(endpush definition definitions)
 	definition)))

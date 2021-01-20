@@ -29,6 +29,7 @@
 (in-readtable :net.didierverna.declt)
 
 
+
 ;; ==========================================================================
 ;; Definition Basics
 ;; ==========================================================================
@@ -41,16 +42,17 @@
     ;; SYMBOL-MACRO-FUNCTION in the standard. Probably for the same reason
     ;; they don't have docstrings (late addition notably, according to Kent;
     ;; Cf. the Twitter exchange).
-    :documentation "The corresponding Lisp object.
-All definitions have an associated Lisp object, except for constants, special
-variables, symbol macros, and types. In such cases, this slot is unbound."
-    :initarg :object :reader object)
+    :documentation "The corresponding Lisp object, or NIL.
+Only constants, special variables, symbol macros, and types do not have an
+  associated Lisp object"
+    :initform nil :initarg :object :reader object)
    (foreign
     :documentation "Whether this definition is foreign."
     :initform nil :initarg :foreign :reader foreignp))
   (:documentation "Abstract root class for all definitions."))
 
 
+
 ;; ----------------
 ;; Pseudo-accessors
 ;; ----------------
@@ -59,6 +61,19 @@ variables, symbol macros, and types. In such cases, this slot is unbound."
   (:documentation "The definition's name.
 This is the native Lisp name for the definition's corresponding object.
 It's either a string (for ASDF components and packages) or a symbol."))
+
+
+
+;; ---------
+;; Utilities
+;; ---------
+
+(defun find-definition (object definitions)
+  "Find a definition for OBJECT in DEFINITIONS."
+  ;; #### WARNING: we need an EQUAL test because some objects are compound
+  ;; (e.g. medium form setf expanders).
+  (find object definitions :key #'object :test #'equal))
+
 
 
 ;; #### FIXME: this should not exist. It's a generic function that does
