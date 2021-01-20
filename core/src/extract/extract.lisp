@@ -330,6 +330,11 @@ DEFINITIONS in the process."
 		  (get-package-definition package definitions))
 	  (package-used-by-list package)))
   ;; 3. Symbol definitions list.
+  ;; #### FIXME: this will break in corner cases because it's in contradiction
+  ;; with the general rule of thumb mentioned above: if new symbol definitions
+  ;; are added later on, we may miss them here. We probably need a two-phase
+  ;; finalization: one for adding new definitions, and one when we're sure
+  ;; it's not gonna happen again.
   (setf (symbol-definitions definition)
 	;; #### FIXME: write a RETAIN or KEEP function, also inverting the
 	;; order of TEST and KEY arguments.
