@@ -52,16 +52,8 @@
 		 :accessor introduction)
    (conclusion :documentation "Contents for a conclusion chapter."
 	       :accessor conclusion)
-   (system-definitions :documentation "The list of system definitions."
-		       :accessor system-definitions)
-   (module-definitions :documentation "The list of module definitions."
-		       :accessor module-definitions)
-   (file-definitions :documentation "The list of file definitions."
-		     :accessor file-definitions)
-   (package-definitions :documentation "The list of package definitions."
-			:accessor package-definitions)
-   (symbol-definitions :documentation "The list of symbol definitions."
-		       :accessor symbol-definitions)
+   (definitions :documentation "The list of definitions."
+		:accessor definitions)
    (hyperlinksp :documentation "Whether to produce hyperlinks."
 		:accessor hyperlinksp))
   (:documentation "The Extract class.
@@ -87,7 +79,9 @@ This is the class holding all extracted documentation information."))
 ;; one of our packages), there will be a difference in the results. On top of
 ;; that, I will surely add an EXPORTED slot to the definition class, which
 ;; will make things even easier.
-(defmethod external-definitions
+
+;; #### FIXME: rewrite later.
+#+()(defmethod external-definitions
     ((extract extract)
      &aux (external-symbols
 	   (mapcan #'package-external-symbols
@@ -98,7 +92,7 @@ This is the class holding all extracted documentation information."))
       (symbol-definitions extract)
     :key #'definition-symbol))
 
-(defmethod internal-definitions
+#+()(defmethod internal-definitions
     ((extract extract)
      &aux (internal-symbols
 	   (mapcan #'package-internal-symbols
@@ -113,16 +107,18 @@ This is the class holding all extracted documentation information."))
 
 
 ;; ==========================================================================
-;; Extract Population
+;; Definitions Creation
 ;; ==========================================================================
 
-;; #### NOTE: there are more clever ways to populate the extract and finalize
-;; it, notably by avoiding traversing the same lists several times. In
-;; particular, modules belong to a single system, and files belong to a single
-;; module, so we could created those at the same time. On the other hand, the
-;; way it's done below is simpler, and unlikely to affect performance that
-;; much. The number of ASDF definitions is probably much smaller than the
-;; number of symbol definitions.
+;; #### NOTE: there are more clever ways to populate the extract with the
+;; relevant definitions, notably by avoiding traversing the same structures
+;; several times. For example, modules belong to a single system, and files
+;; belong to a single module, etc. On the other hand, there are corner cases
+;; which would make it tricky to be clever (e.g. complex systems which belong
+;; to the same file as the corresponding simple system). So the way it's done
+;; below is much simpler and less error-prone: create everything first, and
+;; resolve the cross-references later, even those which were known right from
+;; the start.
 
 ;; ------------------
 ;; System definitions
@@ -161,13 +157,13 @@ All dependencies are descended recursively. Both :defsystem-depends-on and
 	    (system-dependencies system))))
     :from-end t)))
 
-(defun add-system-definitions (extract system)
-  "Add all (sub)system definitions to EXTRACT.
-The considered systems are those found recursively in SYSTEM's dependencies,
-and located under SYSTEM's directory. The main system appears first."
-  (setf (system-definitions extract)
-	(mapcar #'make-system-definition
-	  (subsystems system (system-directory system)))))
+(defun make-all-system-definitions (system)
+  "Return a list of all system definitions for SYSTEM.
+The definition for SYSTEM is first. The other considered systems are those
+found recursively in SYSTEM's dependencies, and located under SYSTEM's
+directory."
+  (mapcar #'make-system-definition
+    (subsystems system (system-directory system))))
 
 
 
@@ -181,13 +177,11 @@ and located under SYSTEM's directory. The main system appears first."
   "Return the list of all module components from ASDF PARENT."
   (components parent 'asdf:module))
 
-(defun add-module-definitions (extract)
-  "Add all module definitions to EXTRACT."
-  (setf (module-definitions extract)
-	(mapcar #'make-module-definition
-	  (mapcan #'module-components
-	    (mapcar #'system
-	      (system-definitions extract))))))
+(defun make-all-module-definitions (definitions)
+  "Return a list of all module definitions for system DEFINITIONS."
+  (mapcar #'make-module-definition
+    (mapcan #'module-components
+      (mapcar #'system definitions))))
 
 
 
@@ -207,13 +201,12 @@ and located under SYSTEM's directory. The main system appears first."
   "Return the list of all file components from ASDF PARENT."
   (components parent 'asdf:file-component))
 
-(defun add-file-definitions
-    (extract &aux (systems (mapcar #'system (system-definitions extract))))
-  "Add all file definitions to EXTRACT."
-  (setf (file-definitions extract)
-	(append (make-system-file-definitions systems)
-		(mapcar #'make-file-definition
-		  (mapcan #'file-components systems)))))
+(defun make-all-file-definitions
+    (definitions &aux (systems (mapcar #'system definitions)))
+  "Return a list of all file definitions for system DEFINITIONS."
+  (append (make-system-file-definitions systems)
+	  (mapcar #'make-file-definition
+	    (mapcan #'file-components systems))))
 
 
 
@@ -226,8 +219,9 @@ and located under SYSTEM's directory. The main system appears first."
   (remove-if-not (lambda (source) (equal source file)) (list-all-packages)
     :key #'source))
 
+;; #### FIXME: remind me why we need that stuff?
 ;; #### WARNING: shaky heuristic, bound to fail one day or another.
-(defun system-unlocated-packages
+(defun unfiled-packages
     (system &aux (prefix (concatenate 'string (component-name system) "/"))
 		 (length (length prefix)))
   "Return the list of unlocated packages defined in ASDF SYSTEM.
@@ -242,18 +236,15 @@ named SYSTEM/foobar, regardless of case."
 	       (string-equal prefix (subseq package-name 0 length)))))
       (list-all-packages)))
 
-(defun add-package-definitions (extract)
-  "Add all package definitions to EXTRACT."
-  (setf (package-definitions extract)
-	(mapcar #'make-package-definition
-	  (append (mapcan #'file-packages
-		    (mapcar #'component-pathname
-		      (mapcar #'file
-			(remove-if-not #'lisp-file-definition-p
-			    (file-definitions extract)))))
-		  (mapcan #'system-unlocated-packages
-		    (mapcar #'system
-		      (system-definitions extract)))))))
+(defun make-all-package-definitions (files systems)
+  "Return a list of all package definitions for FILES and SYSTEMS definitions."
+  (mapcar #'make-package-definition
+    (append (mapcan #'file-packages
+	      (mapcar #'component-pathname
+		(mapcar #'file
+		  (remove-if-not #'lisp-file-definition-p files))))
+	    (mapcan #'unfiled-packages
+	      (mapcar #'system systems)))))
 
 
 
@@ -267,15 +258,13 @@ named SYSTEM/foobar, regardless of case."
     (when (eq (symbol-package symbol) package)
       (push symbol symbols))))
 
-(defun add-symbol-definitions (extract)
-  "Add all symbol definitions to EXTRACT."
-  (setf (symbol-definitions extract)
-	(mapcan #'make-symbol-definitions
-	  (mapcan #'package-symbols
-	    (mapcar #'definition-package
-	      ;; #### NOTE: at that point, we don't have any foreign package
-	      ;; definitions here, so we don't need to filter them.
-	      (package-definitions extract))))))
+(defun make-all-symbol-definitions (packages)
+  "Return a list of all symbol definitions for PACKAGES definitions."
+  (mapcan #'make-symbol-definitions
+    (mapcan #'package-symbols
+      ;; #### NOTE: at that point, we don't have any foreign package
+      ;; definitions here, so we don't need to filter them.
+      (mapcar #'definition-package packages))))
 
 
 
@@ -571,20 +560,21 @@ allow to specify or override some bits of information.
   (setf (introduction extract) introduction)
   (setf (conclusion extract) conclusion)
 
-  ;; #### NOTE: because of the way the EXTRACT structure is filled in, the
-  ;; call order below is important. Each addition relies on the previous ones
-  ;; having been performed, and the various finalization steps need to be
-  ;; performed in reverse order.
-  (add-system-definitions extract system)
-  (add-module-definitions extract)
-  (add-file-definitions extract)
-  (add-package-definitions extract)
-  (add-symbol-definitions extract)
-  (finalize-symbol-definitions extract)
-  (finalize-package-definitions extract)
-;;  (finalize-file-definitions extract)
-  (finalize-module-definitions extract)
-  (finalize-system-definitions extract)
+  (let* ((system-definitions (make-all-system-definitions system))
+	 (module-definitions (make-all-module-definitions system-definitions))
+	 (file-definitions (make-all-file-definitions system-definitions))
+	 (package-definitions
+	   (make-all-package-definitions file-definitions system-definitions))
+	 (symbol-definitions (make-all-symbol-definitions package-definitions)))
+    (setf (definitions extract)
+	  (append system-definitions module-definitions file-definitions
+		  package-definitions symbol-definitions)))
+
+  ;;(finalize-symbol-definitions extract)
+  ;;(finalize-package-definitions extract)
+  ;;  (finalize-file-definitions extract)
+  ;;(finalize-module-definitions extract)
+  ;;(finalize-system-definitions extract)
 
   extract)
 
