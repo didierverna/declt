@@ -270,35 +270,37 @@ named SYSTEM/foobar, regardless of case."
 
 
 ;; ==========================================================================
-;; Extract Finalization
+;; Definitions Finalization
 ;; ==========================================================================
 
-(defgeneric finalize (definition extract)
-  (:documentation "Finalize DEFINITION in EXTRACT.")
-  (:method-combination progn))
+;; #### WARNING: as a general rule of thumb, never assume anything about the
+;; finalization state of the other definitions you access when finalizing a
+;; definition. There are many small methods here and there that are executed
+;; and it's too error-prone to even try to rely on their execution order
+;; (scattered behavior, that's the drawback of OO).
+;; For example, this is guaranteed to work all the time:
+;; (symbol-package (definition-symbol definition)
+;; whereas this might fail if the definition has not been finalized yet:
+;; (definition-package (package-definition definition)).
+
+(defgeneric finalize (definition definitions)
+  (:documentation "Finalize DEFINITION in DEFINITIONS.")
+  (:method-combination progn)
+  ;; #### FIXME: REMOVE EVENTUALLY!
+  (:method progn (a b)))
 
 
 ;; ------------------
 ;; Symbol definitions
 ;; ------------------
 
-(defmethod finalize progn
-    ((definition symbol-definition) extract
-     &aux (package (symbol-package (definition-symbol definition)))
-	  (package-definition (find package (package-definitions extract)
-				:key #'definition-package)))
+(defmethod finalize progn ((definition symbol-definition) definitions)
   "Fill in DEFINITION's package definition.
-If no package definition is found, create and add a foreign one."
-  (unless package-definition
-    (endpush
-     (setq package-definition (make-package-definition package t))
-     (package-definitions extract)))
-  (setf (package-definition definition) package-definition))
-
-(defun finalize-symbol-definitions (extract)
-  "Finalize EXTRACT's symbol definitions."
-  (dolist (definition (symbol-definitions extract))
-    (finalize definition extract)))
+New foreign package definitions may be created and added at the end of
+DEFINITIONS in the process."
+  (setf (package-definition definition)
+	(get-package-definition (symbol-package (definition-symbol definition))
+				definitions)))
 
 
 
@@ -310,50 +312,31 @@ If no package definition is found, create and add a foreign one."
 ;; as there's only one package definition class. But it's more coherent like
 ;; that, and who knows what's gonna happen in the future.
 
-(defmethod finalize progn ((definition package-definition) extract)
-  "Finalize package DEFINITION in EXTRACT.
+(defmethod finalize progn
+    ((definition package-definition) definitions
+     &aux (package (definition-package definition)))
+  "Finalize package DEFINITION in DEFINITIONS.
 This means populating its use, used-by, and symbol definitions lists.
 New foreign package definitions may be created and added at the end of
-EXTRACT's package definitions in the process."
-  ;; 1. Use and used-by lists.
-  (flet ((find-package-definition (package)
-	   "Find PACKAGE definition in EXTRACT.
-If not found, create and add a foreign one."
-	   (or (find package (package-definitions extract)
-		 :key #'definition-package)
-	       (let ((definition (make-package-definition package t)))
-		 (endpush definition (package-definitions extract))
-		 definition))))
-    (let ((package (definition-package definition)))
-      (setf (use-definitions definition)
-	    (mapcar #'find-package-definition
-	      (package-use-list package)))
-      (setf (used-by-definitions definition)
-	    (mapcar #'find-package-definition
-	      (package-used-by-list package)))))
-  ;; 2. Symbol definitions list.
+DEFINITIONS in the process."
+  ;; 1. Use list.
+  (setf (use-definitions definition)
+	(mapcar (lambda (package)
+		  (get-package-definition package definitions))
+	  (package-use-list package)))
+  ;; 2. Used-by list.
+  (setf (used-by-definitions definition)
+	(mapcar (lambda (package)
+		  (get-package-definition package definitions))
+	  (package-used-by-list package)))
+  ;; 3. Symbol definitions list.
   (setf (symbol-definitions definition)
-	;; #### FIXME: write a RETAIN or KEEP function.
-	(remove-if-not (lambda (package-definition)
-			 (eq package-definition definition))
-	    (symbol-definitions extract)
-	  :key #'package-definition)))
-
-(defun finalize-package-definitions (extract)
-  "Finalize EXTRACT's package definitions."
-  ;; #### NOTE: the Common Lisp standard doesn't specify what happens when an
-  ;; object being traversed is modified (see Section 3.6 of the CLHS). So I
-  ;; can't reliably use DOLIST here, even though I'm only pushing new package
-  ;; definitions at the end of the list. I believe however that the code below
-  ;; is reliable. Also, note that the finalization process traverses ALL
-  ;; package definitions, including the foreign ones. This means that we end
-  ;; up with a potentially large number of packages (because of the use and
-  ;; used-by list) that will probably not be documented. But again, you never
-  ;; know what people will want to do with that.
-  (do ((definitions (package-definitions extract) (cdr definitions)))
-      ((endp definitions))
-    (finalize (first definitions) extract)))
-
+	;; #### FIXME: write a RETAIN or KEEP function, also inverting the
+	;; order of TEST and KEY arguments.
+	(remove-if-not (lambda (definition)
+			 (and (typep definition 'symbol-definition)
+			      (eq (definition-package definition) package)))
+	    definitions)))
 
 
 
@@ -570,11 +553,18 @@ allow to specify or override some bits of information.
 	  (append system-definitions module-definitions file-definitions
 		  package-definitions symbol-definitions)))
 
-  ;;(finalize-symbol-definitions extract)
-  ;;(finalize-package-definitions extract)
-  ;;  (finalize-file-definitions extract)
-  ;;(finalize-module-definitions extract)
-  ;;(finalize-system-definitions extract)
+  ;; #### NOTE: the Common Lisp standard doesn't specify what happens when an
+  ;; object being traversed is modified (see Section 3.6 of the CLHS). So I
+  ;; can't reliably use DOLIST here, even though I'm only pushing new
+  ;; definitions at the end of the list. I believe however that the code below
+  ;; is reliable. Also, note that the finalization process traverses ALL
+  ;; definitions, including the foreign ones added during the process. This
+  ;; means that we end up with a potentially large number of definitions that
+  ;; will probably not be documented. But again, you never know what people
+  ;; will want to do with that.
+  (do ((definitions (definitions extract) (cdr definitions)))
+      ((endp definitions))
+    (finalize (first definitions) (definitions extract)))
 
   extract)
 
