@@ -29,6 +29,7 @@
 (in-readtable :net.didierverna.declt)
 
 
+
 ;; ==========================================================================
 ;; Components
 ;; ==========================================================================
@@ -44,7 +45,8 @@
 ;; belong here.
 (defabstract component-definition (definition)
   ((object :reader component) ;; slot overload
-   (parent :documentation "The parent definition." :accessor parent))
+   (parent-definition :documentation "The corresponding parent definition."
+		      :accessor parent-definition))
   (:documentation "The COMPONENT-DEFINITION class.
 This is the base class for ASDF definitions."))
 
@@ -301,7 +303,7 @@ The concrete class of the new definition depends on the kind of FILE."
 
 (defclass system-definition (module-definition)
   ((object :initarg :system :reader system) ;; slot overload
-   (parent :initform nil) ;; slot -overload
+   (parent-definition :initform nil) ;; slot -overload
    (maintainer-names :documentation "The list of maintainer names."
 		     :initform nil :accessor maintainer-names)
    (maintainer-emails :documentation "The list of maintainer emails."

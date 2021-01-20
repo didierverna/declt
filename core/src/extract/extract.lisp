@@ -295,7 +295,7 @@ named SYSTEM/foobar, regardless of case."
 ;; ------------------
 
 (defmethod finalize progn ((definition symbol-definition) definitions)
-  "Fill in DEFINITION's package definition.
+  "Fill in symbol DEFINITION's package definition.
 New foreign package definitions may be created and added at the end of
 DEFINITIONS in the process."
   (setf (package-definition definition)
@@ -345,6 +345,26 @@ DEFINITIONS in the process."
 
 
 
+;; ---------------------
+;; Component definitions
+;; ---------------------
+
+(defmethod finalize progn
+    ((definition component-definition) definitions
+     &aux (parent (component-parent (component definition))))
+  "Fill in component DEFINITION's parent definition."
+  ;; #### WARNING: systems are components, but don't have a parent so PARENT
+  ;; is NIL for them here. We don't want to search definitions for a NIL
+  ;; object because we'd fall on constants, special variables, symbol macros,
+  ;; or types. So we need this workaround. The parent-definition slot for
+  ;; system definitions will actually be set to NIL through the overloaded
+  ;; :initform provided in the corresponding class.
+  (when parent
+    (setf (parent-definition definition)
+	  (find-definition parent definitions))))
+
+
+
 ;; ----------------
 ;; File definitions
 ;; ----------------
@@ -352,18 +372,12 @@ DEFINITIONS in the process."
 (defun finalize-file-definitions (extract)
   "Finalize EXTRACT's file definitions.
 More specifically, for each file definition:
-- fill in its parent,
 - populate a system file's system definitions list,
 - populate a Lisp file's package definitions list,
 - populate a Lisp file's symbol definitions list."
   (dolist (definition (file-definitions extract))
-    ;; 1. Parent.
-    (setf (parent definition)
-	  (let ((parent (component-parent (file definition))))
-	    (or (find parent (module-definitions extract) :key #'module)
-		(find parent (system-definitions extract) :key #'system))))
     ;; Lisp-specific
-    ;; 2. System definitions list.
+    ;; 1. System definitions list.
     (when (typep definition 'system-file-definition)
       (setf (system-definitions definition)
 	    (remove-if-not (lambda (system)
@@ -372,14 +386,14 @@ More specifically, for each file definition:
 		(system-definitions extract)
 	      :key #'system)))
     (when (typep definition 'lisp-file-definition)
-      ;; 3. Package definitions list.
+      ;; 2. Package definitions list.
       (setf (package-definitions definition)
 	    (remove-if-not (lambda (package)
 			     (equal (source package)
 				    (component-pathname (file definition))))
 		(package-definitions extract)
 	      :key #'definition-package))
-      ;; 4. Symbol definitions list.
+      ;; 3. Symbol definitions list.
       (setf (symbol-definitions definition)
 	    (sort (definitions-from-file
 		   (component-pathname (file definition))
