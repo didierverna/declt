@@ -36,11 +36,6 @@
 (in-readtable :net.didierverna.declt)
 
 
-
-;; ==========================================================================
-;; Utilities
-;; ==========================================================================
-
 ;; #### NOTE: SB-INTROSPECT:FIND-DEFINITION-SOURCES-BY-NAME may return
 ;; multiple sources (e.g. if we were to ask it for methods) so we take the
 ;; first one. This is okay because we actually use it only when there can be
@@ -181,18 +176,20 @@ method combinations, and types."))
 This mixin should be put before the funcoid superclass."))
 
 (defabstract expander-mixin ()
-  ((expander-for :documentation "A setf expander for this funcoid, or NIL.
+  ((expander-for
+    :documentation "A setf expander definition for this funcoid, or NIL.
 This is the definition of a setf expander that expands forms identical to this
 funcoid's signature. There can be only one. Note that the Common Lisp standard
 does not impose any actual relation between the setf expander and its
 access-fn. In fact, the access-fn may not even exist at all. However, if it
 does, it is very likely that it is a reader for the place updated by this setf
 expander."
-		 :accessor expander-for)
-   (expanders-to :documentation "Setf expanders to this funcoid, or NIL.
+    :accessor expander-for)
+   (expanders-to
+    :documentation "The list of setf expander definitions to this funcoid.
 This is a list of definitions for short form setf expanders that have this
 funcoid as their update-fn. There might be more than one."
-		 :accessor expanders-to))
+    :accessor expanders-to))
   (:documentation "Mixin class for funcoids relatable to setf expanders.
 These are (generic) functions and macros. A funcoid is relatable to a setf
 expander when its signature is the same as that of an access-fn, or when a
@@ -278,7 +275,7 @@ and methods for classes or conditions slots."))
   ((object :initarg :expander :reader expander) ;; slot overload
    (access-definition
     :documentation
-    "A definition corresponding to this expander's access-fn, or NIL.
+    "A corresponding access-fn definition, or NIL.
 If it exists, it's a definition for a function or macro with the same
 signature as that of the expander's access-fn. Note that the Common Lisp
 standard does not impose any actual relation between the setf expander and its
@@ -315,7 +312,7 @@ expander."
 
 (defclass short-expander-definition (%expander-definition)
   ((update-definition
-    :documentation "The definition corresponding to this expander's update-fn.
+    :documentation "The corresponding update-fn definition.
 This is a function or macro definition. It always exists."
     :accessor update-definition))
   (:documentation "The class of short form setf expanders definitions.
@@ -471,7 +468,8 @@ or a condition."))
 (defabstract combination-definition (funcoid-definition)
   ((object :initarg :combination :reader combination) ;; slot overload
    (user-definitions
-    :documentation "The corresponding method combination users, or NIL.
+    :documentation
+    "The list of corresponding method combination user definitions.
 This is a list of generic function definitions for generic functions using
 this combination."
     :accessor user-definitions))
@@ -543,12 +541,12 @@ The concrete class of the new definition depends on the COMBINATION type."
 
 (defclass slot-definition (symbol-definition)
   ((object :initarg :slot :reader slot) ;; slot overload
-   (classoid-definition
-    :documentation "The classoid definition this slot belongs to."
-    :initarg :classoid-definition :reader classoid-definition)
-   (reader-definitions :documentation "The slot's reader definitions."
+   (classoid-definition :documentation "The corresponding classoid definition."
+			:initarg :classoid-definition
+			:reader classoid-definition)
+   (reader-definitions :documentation "The list of slot reader definitions."
 		       :accessor reader-definitions)
-   (writer-definitions :documentation "The slot's writer definitions."
+   (writer-definitions :documentation "The list of slot writer definitions."
 		       :accessor writer-definitions))
   (:documentation "The class of slot definitions."))
 
@@ -574,17 +572,16 @@ The concrete class of the new definition depends on the COMBINATION type."
 (defabstract classoid-definition (symbol-definition)
   ((object :initarg :classoid :reader classoid) ;; slot overload
    (slot-definitions
-    :documentation "The list of definitions for the classoid's direct slots."
+    :documentation "The list of corresponding direct slot definitions."
     :accessor slot-definitions)
    (superclassoid-definitions
-    :documentation "The list of definitions for the classoid's superclassoids."
+    :documentation "The list of corresponding direct superclassoid definitions."
     :accessor superclassoid-definitions)
    (subclassoid-definitions
-    :documentation "The list of definitions for the classoid's subclassoids."
+    :documentation "The list of corresponding direct subclassoid definitions."
     :accessor subclassoid-definitions)
    (method-definitions
-    :documentation
-    "The list of definitions for direct methods on this classoid."
+    :documentation "The list of corresponding direct method definitions."
     :accessor method-definitions))
   (:documentation "Abstract root class for classoid definitions.
 These are conditions, structures, and classes."))

@@ -29,60 +29,34 @@
 (in-readtable :net.didierverna.declt)
 
 
+
 ;; ==========================================================================
-;; Utilities
-;; ==========================================================================
-
-(defun package-external-symbols (package &aux external-symbols)
-  "Return the list of external symbols from PACKAGE."
-  (do-external-symbols (symbol package external-symbols)
-    (when (eq (symbol-package symbol) package)
-      (push symbol external-symbols))))
-
-(defun package-internal-symbols
-    (package &aux (external-symbols (package-external-symbols package))
-		  internal-symbols)
-  "Return the list of internal definitions from PACKAGE."
-  (do-symbols (symbol package internal-symbols)
-    (when (and (not (member symbol external-symbols))
-	       (eq (symbol-package symbol) package))
-      (push symbol internal-symbols))))
-
-
-
-;; ==========================================================================
-;; Package Definitions
+;; Package Definition Basics
 ;; ==========================================================================
 
 (defclass package-definition (definition)
   ((object :initarg :package :reader definition-package) ;; slot overload
    (use-definitions
-    :documentation "The corresponding use-list, as package definitions."
+    :documentation "The list of corresponding use list package definitions."
     :accessor use-definitions)
    (used-by-definitions
-    :documentation "The corresponding used-by-list, as package definitions."
+    :documentation "The list of corresponding used-by list package definitions."
     :accessor used-by-definitions)
-   (symbol-definitions
-    :documentation "The corresponding symbol definitions."
-    :accessor symbol-definitions))
-  (:documentation "The Package Definition class."))
+   (definitions
+    :documentation "The list of corresponding definitions."
+    :accessor definitions))
+  (:documentation "The class of package definitions."))
 
 (defun make-package-definition (package &optional foreign)
   "Make a new PACKAGE definition, possibly FOREIGN."
   (make-instance 'package-definition :package package :foreign foreign))
 
-(defun get-package-definition (package definitions)
-  "Get a definition for PACKAGE from DEFINITIONS.
-If not found, create a new foreign one and add it at the end of DEFINITIONS."
-  (or (find-definition package definitions)
-      (let ((definition (make-package-definition package t)))
-	(endpush definition definitions)
-	definition)))
 
 
-;; ----------------
-;; Pseudo-accessors
-;; ----------------
+
+;; ==========================================================================
+;; Extraction Protocols
+;; ==========================================================================
 
 (defmethod name ((definition package-definition))
   "Return package DEFINITION's package name."
@@ -91,39 +65,6 @@ If not found, create a new foreign one and add it at the end of DEFINITIONS."
 (defun nicknames (package-definition)
   "Return the list of nicknames for PACKAGE-DEFINITION."
   (package-nicknames (definition-package package-definition)))
-
-(defmethod external-definitions
-  ((package-definition package-definition)
-   &aux (external-symbols
-	 (package-external-symbols (definition-package package-definition))))
-  "Return PACKAGE-DEFINITION's external definitions."
-  (remove-if-not (lambda (symbol) (member symbol external-symbols))
-      (symbol-definitions package-definition)
-    :key #'definition-symbol))
-
-(defmethod internal-definitions
-  ((package-definition package-definition)
-   &aux (internal-symbols
-	 (package-internal-symbols (definition-package package-definition))))
-  "Return PACKAGE-DEFINITION's internal definitions."
-  (remove-if-not (lambda (symbol) (member symbol internal-symbols))
-      (symbol-definitions package-definition)
-    :key #'definition-symbol))
-
-
-
-;; ==========================================================================
-;; Extraction Protocols
-;; ==========================================================================
-
-
-;; ------------------
-;; Docstring protocol
-;; ------------------
-
-(defmethod docstring ((package-definition package-definition))
-  "Return PACKAGE-DEFINITION's docstring."
-  (documentation (definition-package package-definition) t))
 
 
 
@@ -188,10 +129,58 @@ If not found, create a new foreign one and add it at the end of DEFINITIONS."
 	      (access-expander-definition generic-accessor)
 	      package)))))
 
-(defun definitions-package-definitions (definitions package)
+#+()(defun definitions-package-definitions (definitions package)
   "Return the subset of DEFINITIONS that belong to PACKAGE."
   (mapcan (lambda (definition)
 	    (definition-package-definitions definition package))
     definitions))
+
+
+
+
+;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
+(defun get-package-definition (package definitions)
+  "Get a definition for PACKAGE from DEFINITIONS.
+If not found, create a new foreign one and add it at the end of DEFINITIONS."
+  (or (find-definition package definitions)
+      (let ((definition (make-package-definition package t)))
+	(endpush definition definitions)
+	definition)))
+
+(defun package-external-symbols (package &aux external-symbols)
+  "Return the list of external symbols from PACKAGE."
+  (do-external-symbols (symbol package external-symbols)
+    (when (eq (symbol-package symbol) package)
+      (push symbol external-symbols))))
+
+(defun package-internal-symbols
+    (package &aux (external-symbols (package-external-symbols package))
+		  internal-symbols)
+  "Return the list of internal definitions from PACKAGE."
+  (do-symbols (symbol package internal-symbols)
+    (when (and (not (member symbol external-symbols))
+	       (eq (symbol-package symbol) package))
+      (push symbol internal-symbols))))
+
+(defmethod external-definitions
+  ((package-definition package-definition)
+   &aux (external-symbols
+	 (package-external-symbols (definition-package package-definition))))
+  "Return PACKAGE-DEFINITION's external definitions."
+  (remove-if-not (lambda (symbol) (member symbol external-symbols))
+      (definitions package-definition)
+    :key #'definition-symbol))
+
+(defmethod internal-definitions
+  ((package-definition package-definition)
+   &aux (internal-symbols
+	 (package-internal-symbols (definition-package package-definition))))
+  "Return PACKAGE-DEFINITION's internal definitions."
+  (remove-if-not (lambda (symbol) (member symbol internal-symbols))
+      (definitions package-definition)
+    :key #'definition-symbol))
 
 ;;; package.lisp ends here

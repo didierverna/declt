@@ -314,7 +314,7 @@ DEFINITIONS in the process."
 (defmethod finalize progn
     ((definition package-definition) definitions
      &aux (package (definition-package definition)))
-  "Fill in package DEFINITION's use, used-by, and symbol definitions lists.
+  "Fill in package DEFINITION's use, used-by, and definitions lists.
 New foreign package definitions may be created and added at the end of
 DEFINITIONS in the process."
   ;; 1. Use list.
@@ -333,7 +333,7 @@ DEFINITIONS in the process."
   ;; are added later on, we may miss them here. We probably need a two-phase
   ;; finalization: one for adding new definitions, and one when we're sure
   ;; it's not gonna happen again.
-  (setf (symbol-definitions definition)
+  (setf (definitions definition)
 	;; #### FIXME: write a RETAIN or KEEP function, also inverting the
 	;; order of TEST and KEY arguments.
 	(remove-if-not (lambda (definition)
@@ -398,6 +398,7 @@ DEFINITIONS in the process."
 			      (eq (component-parent (component definition))
 				  module)))
 	    definitions)))
+
 
 
 
