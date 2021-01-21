@@ -230,14 +230,24 @@ and methods for classes or conditions slots."))
     :initarg :compiler-macro :reader definition-compiler-macro))
   (:documentation "The class of compiler macro definitions."))
 
-(defun make-compiler-macro-definition (symbol compiler-macro)
-  "Make a new COMPILER-MACRO definition for SYMBOL."
-  (make-instance 'compiler-macro-definition
-    :symbol symbol :compiler-macro compiler-macro))
-
 (defmethod docstring ((compiler-macro compiler-macro-definition))
   "Return COMPILER-MACRO's docstring."
   (documentation (definition-symbol compiler-macro) 'compiler-macro))
+
+(defclass setf-compiler-macro-definition (setf-mixin compiler-macro-definition)
+  ()
+  (:documentation "The class of setf compiler macro definitions."))
+
+(defmethod docstring ((definition setf-compiler-macro-definition))
+  "Return setf compiler macro DEFINITION's docstring."
+  (documentation `(setf ,(definition-symbol definition)) 'compiler-macro))
+
+(defun make-compiler-macro-definition (symbol compiler-macro &optional setf)
+  "Make a new COMPILER-MACRO definition for SYMBOL."
+  (make-instance (if setf
+		   'compiler-macro-definition
+		   'setf-compiler-macro-definition)
+    :symbol symbol :compiler-macro compiler-macro))
 
 
 
@@ -651,6 +661,11 @@ depends on the kind of CLASSOID."
   ;; Compiler macros.
   (when-let (compiler-macro (compiler-macro-function symbol))
     (push (make-compiler-macro-definition symbol compiler-macro) definitions))
+  ;; Setf compiler macros.
+  (when-let* ((setf-name `(setf ,symbol))
+	      (compiler-macro (compiler-macro-function setf-name)))
+    (push (make-compiler-macro-definition symbol compiler-macro t)
+	  definitions))
   ;; Setf expanders
   (when-let (expander (sb-int:info :setf :expander symbol))
     (push (make-expander-definition symbol expander) definitions))
