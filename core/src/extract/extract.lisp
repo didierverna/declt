@@ -271,7 +271,7 @@ named SYSTEM/foobar, regardless of case."
 ;; ------------------
 
 (defmethod finalize progn ((definition symbol-definition) definitions)
-  "Fill in symbol DEFINITION's package definition.
+  "Compute symbol DEFINITION's package definition.
 New foreign package definitions may be created and added at the end of
 DEFINITIONS in the process."
   (setf (package-definition definition)
@@ -291,7 +291,7 @@ DEFINITIONS in the process."
 (defmethod finalize progn
     ((definition package-definition) definitions
      &aux (package (definition-package definition)))
-  "Fill in package DEFINITION's use, used-by, and definitions lists.
+  "Compute package DEFINITION's use, used-by, and definitions lists.
 New foreign package definitions may be created and added at the end of
 DEFINITIONS in the process."
   ;; 1. Use list.
@@ -329,7 +329,7 @@ DEFINITIONS in the process."
 (defmethod finalize progn
     ((definition component-definition) definitions
      &aux (parent (component-parent (component definition))))
-  "Fill in component DEFINITION's parent definition."
+  "Compute component DEFINITION's parent definition."
   ;; #### WARNING: systems are components, but don't have a parent so PARENT
   ;; is NIL for them here. We don't want to search definitions for a NIL
   ;; object because we'd fall on constants, special variables, symbol macros,
@@ -349,7 +349,7 @@ DEFINITIONS in the process."
 (defmethod finalize progn
     ((definition lisp-file-definition) definitions
      &aux (pathname (component-pathname (file definition))))
-  "Fill in Lisp file DEFINITION's definitions list."
+  "Compute Lisp file DEFINITION's definitions list."
   (setf (definitions definition)
 	;; #### FIXME: write a RETAIN or KEEP function, also inverting the
 	;; order of TEST and KEY arguments.
@@ -366,7 +366,7 @@ DEFINITIONS in the process."
 (defmethod finalize progn
     ((definition module-definition) definitions
      &aux (module (module definition)))
-  "Fill in module DEFINITION's child definitions."
+  "Compute module DEFINITION's child definitions."
   (setf (child-definitions definition)
 	;; #### FIXME: write a RETAIN or KEEP function, also inverting the
 	;; order of TEST and KEY arguments.
