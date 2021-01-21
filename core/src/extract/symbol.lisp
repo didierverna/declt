@@ -38,6 +38,24 @@
 
 
 ;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
+;; #### NOTE: SB-INTROSPECT:FIND-DEFINITION-SOURCES-BY-NAME may return
+;; multiple sources (e.g. if we were to ask it for methods) so we take the
+;; first one. This is okay because we actually use it only when there can be
+;; only one definition source.
+;; #### PORTME.
+(defun definition-source-by-name
+    (definition type &key (name (name definition)))
+  "Return DEFINITION's source for TYPE."
+  (when-let (sources (sb-introspect:find-definition-sources-by-name name type))
+    (sb-introspect:definition-source-pathname (first sources))))
+
+
+
+
+;; ==========================================================================
 ;; Symbol Definition Basics
 ;; ==========================================================================
 
@@ -70,11 +88,29 @@ other."
 ;; ==========================================================================
 
 (defabstract varoid-definition (symbol-definition)
-  ((object :reader varoid)) ;; slot overload
+  ()
   (:documentation "Abstract root class for simply valued symbol definitions.
 These are constants, special variables, and symbol macros."))
 
-(defclass constant-definition (varoid-definition)
+
+
+;; ---------
+;; Variables
+;; ---------
+
+(defabstract variable-definition (varoid-definition)
+  ()
+  (:documentation "Abstract root class for constant and special variables."))
+
+(defmethod docstring ((definition variable-definition))
+  "Return variable DEFINITION's docstring."
+  (documentation (definition-symbol definition) 'variable))
+
+
+
+;; Constants
+
+(defclass constant-definition (variable-definition)
   ()
   (:documentation "The class of constant definitions."))
 
@@ -82,6 +118,13 @@ These are constants, special variables, and symbol macros."))
   "Make a new constant definition for SYMBOL."
   (make-instance 'constant-definition :symbol symbol))
 
+(defmethod source ((constant constant-definition))
+  "Return CONSTANT's definition source."
+  (definition-source-by-name constant :constant))
+
+
+
+;; Special variables
 
 (defclass special-definition (varoid-definition)
   ()
@@ -91,7 +134,15 @@ These are constants, special variables, and symbol macros."))
   "Make a new special variable definition for SYMBOL."
   (make-instance 'special-definition :symbol symbol))
 
+(defmethod source ((special special-definition))
+  "Return SPECIAL's definition source."
+  (definition-source-by-name special :variable))
 
+
+
+;; -------------
+;; Symbol macros
+;; -------------
 (defclass symbol-macro-definition (varoid-definition)
   ()
   (:documentation "The class of symbol macro definitions."))
@@ -99,6 +150,17 @@ These are constants, special variables, and symbol macros."))
 (defun make-symbol-macro-definition (symbol)
   "Make a new symbol macro definition for SYMBOL."
   (make-instance 'symbol-macro-definition :symbol symbol))
+
+(defmethod source ((symbol-macro symbol-macro-definition))
+  "Return SYMBOL-MACRO's definition source."
+  (definition-source-by-name symbol-macro :symbol-macro))
+
+;; #### TODO: implement the trick of putting a symbol macro docstring in the
+;; symbol's plist. This will make the note below obsolete.
+(defmethod docstring ((symbol-macro symbol-macro-definition))
+  "Return NIL because symbol macros don't have a docstring."
+  (declare (ignore symbol-macro))
+  nil)
 
 
 
@@ -114,6 +176,11 @@ These are (compiler) macros, (generic) functions, methods, setf expanders,
 method combinations, and types."))
 
 (defabstract setf-mixin ()
+  ()
+  (:documentation "Mixin for setf funcoid definitions.
+This mixin should be put before the funcoid superclass."))
+
+(defabstract expander-mixin ()
   ((expander-for :documentation "A setf expander for this funcoid, or NIL.
 This is the definition of a setf expander that expands forms identical to this
 funcoid's signature. There can be only one. Note that the Common Lisp standard
@@ -146,7 +213,8 @@ and methods for classes or conditions slots."))
 ;; Simple funcoids
 ;; ---------------
 
-(defclass macro-definition (funcoid-definition setf-mixin)
+;; Macros
+(defclass macro-definition (funcoid-definition expander-mixin)
   ((object :initarg :macro :reader macro)) ;; slot overload
   (:documentation "The class of macro definitions."))
 
@@ -155,6 +223,8 @@ and methods for classes or conditions slots."))
   (make-instance 'macro-definition :symbol symbol :macro macro))
 
 
+
+;; Compiler macros
 (defclass compiler-macro-definition (funcoid-definition)
   ((object ;; slot overload
     :initarg :compiler-macro :reader definition-compiler-macro))
@@ -165,6 +235,13 @@ and methods for classes or conditions slots."))
   (make-instance 'compiler-macro-definition
     :symbol symbol :compiler-macro compiler-macro))
 
+(defmethod docstring ((compiler-macro compiler-macro-definition))
+  "Return COMPILER-MACRO's docstring."
+  (documentation (definition-symbol compiler-macro) 'compiler-macro))
+
+
+
+;; Types
 (defclass type-definition (funcoid-definition)
   ()
   (:documentation "The class of type definitions."))
@@ -173,13 +250,21 @@ and methods for classes or conditions slots."))
   "Make a new type definition for SYMBOL."
   (make-instance 'type-definition :symbol symbol))
 
+(defmethod source ((type type-definition))
+  "Return TYPE's definition source."
+  (definition-source-by-name type :type))
+
+(defmethod docstring ((type type-definition))
+  "Return TYPE's docstring."
+  (documentation (definition-symbol type) 'type))
+
 
 
 ;; --------------
 ;; Setf expanders
 ;; --------------
 
-(defabstract %expander-definition (funcoid-definition)
+(defabstract %expander-definition (setf-mixin funcoid-definition)
   ((object :initarg :expander :reader expander) ;; slot overload
    (access-definition
     :documentation
@@ -192,6 +277,31 @@ does, it is very likely that it is a reader for the place updated by this setf
 expander."
     :accessor access-definition))
   (:documentation "Abstract root class for setf expander definitions."))
+
+(defmethod source
+    ((definition %expander-definition) &aux (expander (expander definition)))
+  ;; #### NOTE: looking at how sb-introspect does it, it seems that the
+  ;; "source" of a setf expander is the source of the function object. For
+  ;; long forms, this should be OK. For short forms however, what we get is
+  ;; the source of the update function, which may be different from where
+  ;; DEFSETF was called, hence incorrect. There is an additional problem when
+  ;; the update function is foreign: we don't normally fill in the FUNCTION
+  ;; slot in foreign funcoid definitions because we don't care (we only print
+  ;; their names). In the case of setf expanders however, we need to do so
+  ;; because Declt will try to find the definition source for it, and will
+  ;; attempt to locate the source of the foreign function. This triggered a
+  ;; bug in a previous version (with the package cl-stdutils, which uses
+  ;; RPLACA as an update function for the stdutils.gds::vknode-value
+  ;; expander).
+  (object-source-pathname
+   (etypecase expander
+     (symbol (fdefinition expander))
+     (list (second expander))
+     (function expander))))
+
+(defmethod docstring ((expander %expander-definition))
+  "Return setf EXPANDER's docstring."
+  (documentation (definition-symbol expander) 'setf))
 
 (defclass short-expander-definition (%expander-definition)
   ((update-definition
@@ -229,6 +339,11 @@ DEFSETF, or DEFINE-SETF-EXPANDER."))
   ((object :initarg :function :reader definition-function)) ;; slot overload
   (:documentation "Abstract root class for functions."))
 
+;; #### NOTE: all functions are created with MAKE-FUNCTION-DEFINITION. This
+;; looks nicer in MAKE-SYMBOL-DEFINITIONS, with one drawback: the :setf
+;; argument is not really necessary in the case of generic functions, because
+;; (as for methods), the function's name could be deduced from the function
+;; object.
 (defun make-function-definition (symbol function &key setf foreign)
   "Make a new FUNCTION definition for (SETF) SYMBOL, possibly FOREIGN.
 The concrete class of the new definition depends on the kind of FUNCTION, and
@@ -241,18 +356,19 @@ whether it is a SETF one."
 	 (if setf 'setf-function-definition 'function-definition)))
     :symbol symbol :function function :foreign foreign))
 
+
 
 ;; Ordinary functions
-
 (defabstract ordinary-function-definition (%function-definition)
   ()
   (:documentation "Abstract root class for ordinary functions."))
 
-(defclass function-definition (ordinary-function-definition setf-mixin)
+(defclass function-definition (ordinary-function-definition expander-mixin)
   ()
   (:documentation "The class of ordinary, non-setf function definitions."))
 
-(defclass setf-function-definition (ordinary-function-definition)
+(defclass setf-function-definition
+    (setf-mixin ordinary-function-definition)
   ()
   (:documentation "The class of ordinary setf function definitions."))
 
@@ -269,8 +385,19 @@ structure."))
 An ordinary writer is an ordinary function that writes a slot in a
 structure."))
 
+
 
 ;; Methods
+
+;; #### PORTME.
+(defun method-name (method
+		    &aux (name (sb-mop:generic-function-name
+				(sb-mop:method-generic-function method))))
+  "Return METHOD's canonical name.
+Return a second value of T if METHOD is in fact a SETF one."
+  (if (listp name)
+    (values (second name) t)
+    name))
 
 (defabstract %method-definition (funcoid-definition)
   ((object :initarg :method :reader definition-method) ;; slot overload
@@ -282,19 +409,9 @@ structure."))
   ()
   (:documentation "The class of non-setf method definitions."))
 
-(defclass setf-method-definition (%method-definition)
+(defclass setf-method-definition (setf-mixin %method-definition)
   ()
   (:documentation "The class of setf method definitions."))
-
-;; #### PORTME.
-(defun method-name (method
-		    &aux (name (sb-mop:generic-function-name
-				(sb-mop:method-generic-function method))))
-  "Return METHOD's canonical name.
-Return a second value of T if METHOD is in fact a SETF one."
-  (if (listp name)
-    (values (second name) t)
-    name))
 
 (defun make-method-definition (method definition &key foreign)
   "Make a new METHOD definition for generic DEFINITION, possibly FOREIGN.
@@ -334,6 +451,7 @@ or a condition."))
 A setf writer method is a setf method that writes a slot in a class
 or a condition."))
 
+
 
 ;; Method combinations
 
@@ -368,6 +486,7 @@ The concrete class of the new definition depends on the COMBINATION type."
 	(sb-pcl::long-method-combination 'long-combination-definition))
     :symbol symbol :combination combination :foreign foreign))
 
+
 
 ;; Generic functions
 
@@ -393,11 +512,11 @@ The concrete class of the new definition depends on the COMBINATION type."
 		  (make-method-definition method definition :foreign foreign))
 	  (sb-mop:generic-function-methods (generic definition)))))
 
-(defclass generic-definition (generic-function-definition setf-mixin)
+(defclass generic-definition (generic-function-definition expander-mixin)
   ()
   (:documentation "The class of non-setf, generic function definitions."))
 
-(defclass generic-setf-definition (generic-function-definition)
+(defclass generic-setf-definition (setf-mixin generic-function-definition)
   ()
   (:documentation "The class of ordinary setf function definitions."))
 
@@ -430,6 +549,11 @@ The concrete class of the new definition depends on the COMBINATION type."
     :symbol (sb-mop:slot-definition-name slot)
     :slot slot
     :classoid-definition definition))
+
+;; #### PORTME.
+(defmethod docstring ((slot slot-definition))
+  "Return SLOT's docstring."
+  (sb-pcl::%slot-definition-documentation (slot slot)))
 
 
 
@@ -475,6 +599,12 @@ These are conditions, structures, and classes."))
    (subclassoid-definitions ;; slot overload
     :accessor substructure-definitions))
   (:documentation "The class of structure definitions."))
+
+;; #### NOTE: sb-introspect does funny stuff for typed structures, so it's
+;; better to use it.
+(defmethod source ((definition structure-definition))
+  "Return structure DEFINITION's source."
+  (definition-source-by-name definition :structure))
 
 (defclass class-definition (classoid-definition)
   ((object :reader definition-class) ;; slot overload
@@ -999,133 +1129,5 @@ Currently, this means resolving:
 	    (setf (update-expander-definition update-definition)
 		  expander)
 	    (setf (update expander) update-definition)))))))
-
-
-
-;; ==========================================================================
-;; Extraction Protocols
-;; ==========================================================================
-
-;; ---------------
-;; Source protocol
-;; ---------------
-
-;; #### NOTE: SB-INTROSPECT:FIND-DEFINITION-SOURCES-BY-NAME may return
-;; multiple sources (e.g. if we were to ask it for methods) so we take the
-;; first one. This is okay because we actually use it only when there can be
-;; only one definition source.
-;; #### PORTME.
-(defun definition-source-by-name
-    (definition type &key (name (name definition)))
-  "Return DEFINITION's source for TYPE."
-  (when-let (sources (sb-introspect:find-definition-sources-by-name name type))
-    (sb-introspect:definition-source-pathname (first sources))))
-
-(defmethod source ((constant constant-definition))
-  "Return CONSTANT's definition source."
-  (definition-source-by-name constant :constant))
-
-(defmethod source ((special special-definition))
-  "Return SPECIAL's definition source."
-  (definition-source-by-name special :variable))
-
-(defmethod source ((symbol-macro symbol-macro-definition))
-  "Return SYMBOL-MACRO's definition source."
-  (definition-source-by-name symbol-macro :symbol-macro))
-
-(defmethod source
-    ((definition %expander-definition) &aux (expander (expander definition)))
-  ;; #### NOTE: looking at how sb-introspect does it, it seems that the
-  ;; "source" of a setf expander is the source of the function object. For
-  ;; long forms, this should be OK. For short forms however, what we get is
-  ;; the source of the update function, which may be different from where
-  ;; DEFSETF was called, hence incorrect. There is an additional problem when
-  ;; the update function is foreign: we don't normally fill in the FUNCTION
-  ;; slot in foreign funcoid definitions because we don't care (we only print
-  ;; their names). In the case of setf expanders however, we need to do so
-  ;; because Declt will try to find the definition source for it, and will
-  ;; attempt to locate the source of the foreign function. This triggered a
-  ;; bug in a previous version (with the package cl-stdutils, which uses
-  ;; RPLACA as an update function for the stdutils.gds::vknode-value
-  ;; expander).
-  (object-source-pathname
-   (etypecase expander
-     (symbol (fdefinition expander))
-     (list (second expander))
-     (function expander))))
-
-;; #### NOTE: sb-introspect does funny stuff for typed structures, so it's
-;; better to use it.
-(defmethod source ((definition structure-definition))
-  "Return structure DEFINITION's source."
-  (definition-source-by-name definition :structure))
-
-(defmethod source ((type type-definition))
-  "Return TYPE's definition source."
-  (definition-source-by-name type :type))
-
-
-;; ------------------
-;; Docstring protocol
-;; ------------------
-
-(defmethod docstring ((constant constant-definition))
-  "Return CONSTANT's docstring."
-  (documentation (definition-symbol constant) 'variable))
-
-(defmethod docstring ((special special-definition))
-  "Return SPECIAL variable's docstring."
-  (documentation (definition-symbol special) 'variable))
-
-;; #### NOTE: normally, we shouldn't have to define this because the DOCUMENT
-;; method on symbol macros should just not try to get the documentation.
-;; However, we do because it allows us to reuse existing code, notably
-;; RENDER-@DEFVAROID and hence RENDER-DEFINITION-CORE, and perform the same
-;; stuff as for constants and variables.
-(defmethod docstring ((symbol-macro symbol-macro-definition))
-  "Return NIL because symbol macros don't have a docstring."
-  (declare (ignore symbol-macro))
-  nil)
-
-(defmethod docstring ((funcoid funcoid-definition))
-  "Return FUNCOID's docstring."
-  (documentation (definition-symbol funcoid) 'function))
-
-(defmethod docstring ((compiler-macro compiler-macro-definition))
-  "Return COMPILER-MACRO's docstring."
-  (documentation (definition-symbol compiler-macro) 'compiler-macro))
-
-(defmethod docstring ((writer writer-definition))
-  "Return WRITER's docstring."
-  (documentation `(setf ,(definition-symbol writer)) 'function))
-
-(defmethod docstring ((method method-definition))
-  "Return METHOD's docstring."
-  (documentation (definition-method method) t))
-
-#+()(defmethod docstring ((writer generic-writer-definition))
-  "Return generic WRITER's docstring."
-  (documentation `(setf ,(definition-symbol writer)) 'function))
-
-(defmethod docstring ((expander %expander-definition))
-  "Return setf EXPANDER's docstring."
-  (documentation (definition-symbol expander) 'setf))
-
-;; #### PORTME.
-(defmethod docstring ((slot slot-definition))
-  "Return SLOT's docstring."
-  (sb-pcl::%slot-definition-documentation (slot slot)))
-
-(defmethod docstring ((combination combination-definition))
-  "Return method COMBINATION's docstring."
-  (documentation (definition-symbol combination) 'method-combination))
-
-(defmethod docstring ((classoid classoid-definition))
-  "Return CLASSOID's docstring."
-  (documentation (definition-symbol classoid) 'type))
-
-(defmethod docstring ((type type-definition))
-  "Return TYPE's docstring."
-  (documentation (definition-symbol type) 'type))
 
 ;;; symbol.lisp ends here
