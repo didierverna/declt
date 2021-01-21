@@ -644,7 +644,8 @@ depends on the kind of CLASSOID."
 ;; ==========================================================================
 
 ;; #### PORTME.
-(defun make-symbol-definitions (symbol &aux definitions)
+(defun make-symbol-definitions
+    (symbol &aux (setf-symbol `(setf ,symbol)) definitions)
   "Make and return a list of all existing definitions for SYMBOL."
   ;; Constants.
   (when (eql (sb-int:info :variable :kind symbol) :constant)
@@ -662,8 +663,7 @@ depends on the kind of CLASSOID."
   (when-let (compiler-macro (compiler-macro-function symbol))
     (push (make-compiler-macro-definition symbol compiler-macro) definitions))
   ;; Setf compiler macros.
-  (when-let* ((setf-name `(setf ,symbol))
-	      (compiler-macro (compiler-macro-function setf-name)))
+  (when-let (compiler-macro (compiler-macro-function setf-symbol))
     (push (make-compiler-macro-definition symbol compiler-macro t)
 	  definitions))
   ;; Setf expanders
@@ -678,9 +678,7 @@ depends on the kind of CLASSOID."
     ;; homogeneous with the rest.
     (push (make-function-definition symbol function) definitions))
   ;; (Generic) setf functions.
-  (when-let* ((setf-name `(setf ,symbol))
-	      (function (and (fboundp setf-name)
-			     (fdefinition setf-name))))
+  (when-let (function (and (fboundp setf-symbol) (fdefinition setf-symbol)))
     ;; #### NOTE: technically, the symbol can be extracted from the generic
     ;; function object. However, using this general constructor is more
     ;; homogeneous with the rest.
