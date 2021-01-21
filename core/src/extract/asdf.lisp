@@ -31,7 +31,7 @@
 
 
 ;; ==========================================================================
-;; Components
+;; Component Definition Basics
 ;; ==========================================================================
 
 ;; #### NOTE: we more or less need to follow the ASDF hierarchy, which is not
@@ -65,13 +65,16 @@ This is the base class for ASDF definitions."))
   "Return component DEFINITION's description."
   (component-description (component definition)))
 
+(defmethod docstring ((definition component-definition))
+  "Return component DEFINITION's description.
+This is the same as the `description' function."
+  (description definition))
+
 (defun long-description (definition)
   "Return component DEFINITION's long description."
   (component-long-description (component definition)))
 
-;; #### NOTE: this is not very satisfactory, but Declt has a VERSION regular
-;; function for its own version information.
-(defun version-string (definition)
+(defun definition-version (definition)
   "Return component DEFINITION's version string."
   (component-version (component definition)))
 
@@ -92,13 +95,14 @@ This actually is the corresponding system's source file."
   (system-source-file component))
 
 
+
+
 ;; ==========================================================================
 ;; Files
 ;; ==========================================================================
 
 ;; The hierarchy below mimics that of ASDF (apart from the 3 kinds of Lisp
 ;; files), which is probably overkill, but we never know.
-;; #### NOTE: we currently don't create foreign files.
 
 (defclass file-definition (component-definition)
   ((object :initarg :file :reader file)) ;; slot overload
@@ -213,10 +217,6 @@ definition for each file."
   ()
   (:documentation "The HTML-FILE-DEFINITION class."))
 
-(defun make-html-file-definition (file &optional foreign)
-  "Make a new HTML FILE definition, possibly FOREIGN."
-  (make-instance 'html-file-definition :file file :foreign foreign))
-
 (defun make-file-definition (file)
   "Make a new FILE definition.
 The concrete class of the new definition depends on the kind of FILE."
@@ -291,31 +291,26 @@ The concrete class of the new definition depends on the kind of FILE."
 	      (access-expander-definition generic-accessor)
 	      file)))))
 
-;; #### FIXME: tmp hack
-(defun definitions-from-file (file definitions)
-  "Return the subset of DEFINITIONS that belong to FILE."
-  (mapcan (lambda (definition) (definition-file-definitions definition file))
-    definitions))
 
 
-
+
 ;; ==========================================================================
 ;; Modules
 ;; ==========================================================================
 
 (defclass module-definition (component-definition)
   ((object :initarg :module :reader module) ;; slot overload
-   (child-definitions :documentation "The module's child definitions."
+   (child-definitions :documentation "The list of module child definitions."
 		      :accessor child-definitions))
   (:documentation "The Module Definition class."))
 
-;; #### NOTE: we currently don't create foreign modules.
-(defun make-module-definition (module &optional foreign)
-  "Make a new MODULE definition, possibly FOREIGN."
-  (make-instance 'module-definition :module module :foreign foreign))
+(defun make-module-definition (module)
+  "Make a new MODULE definition."
+  (make-instance 'module-definition :module module))
 
 
 
+
 ;; ==========================================================================
 ;; Systems
 ;; ==========================================================================
@@ -347,10 +342,9 @@ The concrete class of the new definition depends on the kind of FILE."
       (setf (author-names definition) authors)
       (setf (author-emails definition) emails))))
 
-;; #### NOTE: we currently don't create foreign systems.
-(defun make-system-definition (system &optional foreign)
-  "Make a new SYSTEM definition, possibly FOREIGN."
-  (make-instance 'system-definition :system system :foreign foreign))
+(defun make-system-definition (system)
+  "Make a new SYSTEM definition."
+  (make-instance 'system-definition :system system))
 
 
 ;; ----------------
@@ -358,33 +352,27 @@ The concrete class of the new definition depends on the kind of FILE."
 ;; ----------------
 
 (defun long-name (definition)
-  "Return system DEFINITION's long name, if any."
+  "Return system DEFINITION's long name, or NIL."
   (system-long-name (system definition)))
 
 (defun mailto (definition)
-  "Return system DEFINITION's mailto, if any."
+  "Return system DEFINITION's mailto, or NIL."
   (system-mailto (system definition)))
 
 (defun homepage (definition)
-  "Return system DEFINITION's homepage, if any."
+  "Return system DEFINITION's homepage, or NIL."
   (system-homepage (system definition)))
 
 (defun source-control (definition)
-    "Return system DEFINITION's source control, if any."
+    "Return system DEFINITION's source control, or NIL."
   (system-source-control (system definition)))
 
 (defun bug-tracker (definition)
-  "Return system DEFINITION's bug tracker, if any."
+  "Return system DEFINITION's bug tracker, or NIL."
   (system-bug-tracker (system definition)))
 
-;; #### NOTE: there's a LICENSE accessor on extracts, so this needs to be a
-;; #### method.
-(defmethod license ((definition system-definition))
-  "Return system DEFINITION's license, if any."
+(defun license-name (definition)
+  "Return system DEFINITION's license name, or NIL."
   (system-license (system definition)))
-
-(defun defsystem-dependencies (definition)
-  "Return system DEFINITION's defsystem dependencies."
-  (system-defsystem-depends-on (system definition)))
 
 ;;; asdf.lisp ends here
