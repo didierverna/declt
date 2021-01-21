@@ -118,9 +118,9 @@ These are constants, special variables, and symbol macros."))
   "Make a new constant definition for SYMBOL."
   (make-instance 'constant-definition :symbol symbol))
 
-(defmethod source ((constant constant-definition))
-  "Return CONSTANT's definition source."
-  (definition-source-by-name constant :constant))
+(defmethod source ((definition constant-definition))
+  "Return constant DEFINITION's source."
+  (definition-source-by-name definition :constant))
 
 
 
@@ -134,9 +134,9 @@ These are constants, special variables, and symbol macros."))
   "Make a new special variable definition for SYMBOL."
   (make-instance 'special-definition :symbol symbol))
 
-(defmethod source ((special special-definition))
-  "Return SPECIAL's definition source."
-  (definition-source-by-name special :variable))
+(defmethod source ((definition special-definition))
+  "Return special DEFINITION's source."
+  (definition-source-by-name definition :variable))
 
 
 
@@ -151,15 +151,15 @@ These are constants, special variables, and symbol macros."))
   "Make a new symbol macro definition for SYMBOL."
   (make-instance 'symbol-macro-definition :symbol symbol))
 
-(defmethod source ((symbol-macro symbol-macro-definition))
-  "Return SYMBOL-MACRO's definition source."
-  (definition-source-by-name symbol-macro :symbol-macro))
+(defmethod source ((definition symbol-macro-definition))
+  "Return symbol macro DEFINITION's source."
+  (definition-source-by-name definition :symbol-macro))
 
 ;; #### TODO: implement the trick of putting a symbol macro docstring in the
 ;; symbol's plist. This will make the note below obsolete.
-(defmethod docstring ((symbol-macro symbol-macro-definition))
-  "Return NIL because symbol macros don't have a docstring."
-  (declare (ignore symbol-macro))
+(defmethod docstring ((definition symbol-macro-definition))
+  "Return NIL (symbol macros don't have a docstring)."
+  (declare (ignore definition))
   nil)
 
 
@@ -230,9 +230,9 @@ and methods for classes or conditions slots."))
     :initarg :compiler-macro :reader definition-compiler-macro))
   (:documentation "The class of compiler macro definitions."))
 
-(defmethod docstring ((compiler-macro compiler-macro-definition))
-  "Return COMPILER-MACRO's docstring."
-  (documentation (definition-symbol compiler-macro) 'compiler-macro))
+(defmethod docstring ((definition compiler-macro-definition))
+  "Return compiler macro DEFINITION's docstring."
+  (documentation (definition-symbol definition) 'compiler-macro))
 
 (defclass setf-compiler-macro-definition (setf-mixin compiler-macro-definition)
   ()
@@ -260,13 +260,13 @@ and methods for classes or conditions slots."))
   "Make a new type definition for SYMBOL."
   (make-instance 'type-definition :symbol symbol))
 
-(defmethod source ((type type-definition))
-  "Return TYPE's definition source."
-  (definition-source-by-name type :type))
+(defmethod source ((definition type-definition))
+  "Return type DEFINITION's source."
+  (definition-source-by-name definition :type))
 
-(defmethod docstring ((type type-definition))
-  "Return TYPE's docstring."
-  (documentation (definition-symbol type) 'type))
+(defmethod docstring ((definition type-definition))
+  "Return type DEFINITION's docstring."
+  (documentation (definition-symbol definition) 'type))
 
 
 
@@ -309,9 +309,9 @@ expander."
      (list (second expander))
      (function expander))))
 
-(defmethod docstring ((expander %expander-definition))
-  "Return setf EXPANDER's docstring."
-  (documentation (definition-symbol expander) 'setf))
+(defmethod docstring ((definition %expander-definition))
+  "Return setf expander DEFINITION's docstring."
+  (documentation (definition-symbol definition) 'setf))
 
 (defclass short-expander-definition (%expander-definition)
   ((update-definition
@@ -561,9 +561,9 @@ The concrete class of the new definition depends on the COMBINATION type."
     :classoid-definition definition))
 
 ;; #### PORTME.
-(defmethod docstring ((slot slot-definition))
-  "Return SLOT's docstring."
-  (sb-pcl::%slot-definition-documentation (slot slot)))
+(defmethod docstring ((definition slot-definition))
+  "Return slot DEFINITION's docstring."
+  (sb-pcl::%slot-definition-documentation (slot definition)))
 
 
 
