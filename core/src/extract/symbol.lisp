@@ -177,6 +177,14 @@ These are constants, special variables, and symbol macros."))
 These are (compiler) macros, (generic) functions, methods, setf expanders,
 method combinations, and types."))
 
+(defgeneric lambda-list (definition)
+  (:documentation "Return DEFINITION's lambda-list.")
+  ;; #### PORTME.
+  (:method ((definition funcoid-definition))
+    "Return funcoid DEFINITION's function lambda-list.
+This is the default method."
+    (sb-introspect:function-lambda-list (funcoid definition))))
+
 (defabstract setf-mixin ()
   ()
   (:documentation "Mixin for setf funcoid definitions.
@@ -272,6 +280,11 @@ and methods for classes or conditions slots."))
   "Return type DEFINITION's docstring."
   (documentation (definition-symbol definition) 'type))
 
+;; #### PORTME.
+(defmethod lambda-list ((definition type-definition))
+  "Return type DEFINITION's type lambda-list."
+  (sb-introspect:deftype-lambda-list (definition-symbol definition)))
+
 
 
 ;; --------------
@@ -310,12 +323,22 @@ expander."
   (object-source-pathname
    (etypecase expander
      (symbol (fdefinition expander))
-     (list (second expander))
+     (list (cdr expander))
      (function expander))))
 
 (defmethod docstring ((definition %expander-definition))
   "Return setf expander DEFINITION's docstring."
   (documentation (definition-symbol definition) 'setf))
+
+;; #### PORTME.
+(defmethod lambda-list
+    ((definition %expander-definition) &aux (expander (expander definition)))
+  "Return setf expander DEFINITION's expander function lambda-list."
+  (etypecase expander
+    (symbol ;; remove the last argument as it represents the new value
+     (butlast (sb-introspect:function-lambda-list (fdefinition expander))))
+    (list (sb-introspect:function-lambda-list (cdr expander)))
+    (function (sb-introspect:function-lambda-list expander))))
 
 (defclass short-expander-definition (%expander-definition)
   ((update-definition
@@ -418,6 +441,12 @@ Return a second value of T if METHOD is in fact a SETF one."
    (generic-definition :documentation "The corresponding generic definition."
 		       :initarg :generic-definition))
   (:documentation "Abstract root class for method definitions."))
+
+;; #### PORTME.
+(defmethod lambda-list ((definition method-definition))
+  "Return method DEFINITION's method lambda-list."
+  (sb-mop:method-lambda-list (definition-method definition)))
+
 
 (defclass method-definition (%method-definition)
   ()
@@ -728,29 +757,6 @@ depends on the kind of CLASSOID."
 
 
 
-;; #### PORTME.
-(defgeneric lambda-list (object)
-  (:documentation "Return OBJECT's lambda-list.")
-  (:method ((function function))
-    "Return FUNCTION's lambda-list."
-    (sb-introspect:function-lambda-list function))
-  (:method ((funcoid funcoid-definition))
-    "Return FUNCOID's lambda-list."
-    (lambda-list (funcoid funcoid)))
-  (:method
-      ((definition %expander-definition) &aux (expander (expander definition)))
-    "Return setf expander DEFINITION's lambda-list."
-    (sb-introspect:function-lambda-list
-     (etypecase expander
-       (symbol (fdefinition expander))
-       (list (second expander))
-       (function expander))))
-  (:method ((method method-definition))
-    "Return METHOD's lambda-list."
-    (sb-mop:method-lambda-list (definition-method method)))
-  (:method ((type type-definition))
-    "Return TYPE's lambda-list."
-    (sb-introspect:deftype-lambda-list (definition-symbol type))))
 
 ;; #### PORTME.
 (defun specializers (method)
