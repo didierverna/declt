@@ -29,6 +29,7 @@
 (in-readtable :net.didierverna.declt)
 
 
+
 ;; ==========================================================================
 ;; Extract Class
 ;; ==========================================================================
@@ -284,11 +285,10 @@ named SYSTEM/foobar, regardless of case."
 
 (defgeneric finalize (definition definitions)
   (:documentation "Finalize DEFINITION in DEFINITIONS.")
-  (:method-combination progn)
-  ;; #### FIXME: REMOVE EVENTUALLY!
-  (:method progn (a b)))
+  (:method-combination progn))
 
 
+
 ;; ------------------
 ;; Symbol definitions
 ;; ------------------
