@@ -36,6 +36,12 @@
 
 (defclass package-definition (definition)
   ((object :initarg :package :reader definition-package) ;; slot overload
+   (external-symbols
+    :documentation "The list of corresponding external symbols."
+    :accessor external-symbols)
+   (internal-symbols
+    :documentation "The list of corresponding internal symbols."
+    :accessor internal-symbols)
    (use-definitions
     :documentation "The list of corresponding use list package definitions."
     :accessor use-definitions)
@@ -46,6 +52,31 @@
     :documentation "The list of corresponding definitions."
     :accessor definitions))
   (:documentation "The class of package definitions."))
+
+(defun package-external-symbols (package &aux external-symbols)
+  "Return the list of PACKAGE's external symbols."
+  (do-external-symbols (symbol package external-symbols)
+    (when (eq (symbol-package symbol) package)
+      (push symbol external-symbols))))
+
+;; #### WARNING: evil inside. Since we need to compute the package's external
+;; symbols list anyway, we might as well return it as a second value. If you
+;; use both, as below, the name is misleading though.
+(defun package-internal-symbols
+    (package &aux (external-symbols (package-external-symbols package))
+		  internal-symbols)
+  "Return the lists of PACKAGE's internal and external symbols as two values."
+  (do-symbols (symbol package (values internal-symbols external-symbols))
+    (when (and (eq (symbol-package symbol) package)
+	       (not (member symbol external-symbols)))
+      (push symbol internal-symbols))))
+
+(defmethod initialize-instance :after ((definition package-definition) &key)
+  "Compute DEFINITION's package lists of external and internal symbols."
+  (multiple-value-bind (internals externals)
+      (package-internal-symbols (definition-package definition))
+    (setf (external-symbols definition) externals)
+    (setf (internal-symbols definition) internals)))
 
 (defun make-package-definition (package &optional foreign)
   "Make a new PACKAGE definition, possibly FOREIGN."
@@ -150,37 +181,12 @@ If not found, create a new foreign one and add it at the end of DEFINITIONS."
 	(endpush definition definitions)
 	definition)))
 
-(defun package-external-symbols (package &aux external-symbols)
-  "Return the list of external symbols from PACKAGE."
-  (do-external-symbols (symbol package external-symbols)
-    (when (eq (symbol-package symbol) package)
-      (push symbol external-symbols))))
+(defmethod public-definitions ((definition package-definition))
+  "Return package DEFINITION's public definitions."
+  (remove-if-not #'publicp (definitions definition)))
 
-(defun package-internal-symbols
-    (package &aux (external-symbols (package-external-symbols package))
-		  internal-symbols)
-  "Return the list of internal definitions from PACKAGE."
-  (do-symbols (symbol package internal-symbols)
-    (when (and (not (member symbol external-symbols))
-	       (eq (symbol-package symbol) package))
-      (push symbol internal-symbols))))
-
-(defmethod external-definitions
-  ((package-definition package-definition)
-   &aux (external-symbols
-	 (package-external-symbols (definition-package package-definition))))
-  "Return PACKAGE-DEFINITION's external definitions."
-  (remove-if-not (lambda (symbol) (member symbol external-symbols))
-      (definitions package-definition)
-    :key #'definition-symbol))
-
-(defmethod internal-definitions
-  ((package-definition package-definition)
-   &aux (internal-symbols
-	 (package-internal-symbols (definition-package package-definition))))
-  "Return PACKAGE-DEFINITION's internal definitions."
-  (remove-if-not (lambda (symbol) (member symbol internal-symbols))
-      (definitions package-definition)
-    :key #'definition-symbol))
+(defmethod private-definitions ((definition package-definition))
+  "Return package DEFINITION's private definitions."
+  (remove-if #'publicp (definitions definition)))
 
 ;;; package.lisp ends here

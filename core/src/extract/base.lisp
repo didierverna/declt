@@ -96,10 +96,10 @@ This is the default method."
   ;; (e.g. medium form setf expanders).
   (find object definitions :key #'object :test #'equal))
 
-(defgeneric external-definitions (object)
-  (:documentation "Return OBJECT's external definitions."))
+(defgeneric public-definitions (object)
+  (:documentation "Return OBJECT's public definitions."))
 
-(defgeneric internal-definitions (object)
-  (:documentation "Return OBJECT's internal definitions."))
+(defgeneric private-definitions (object)
+  (:documentation "Return OBJECT's private definitions."))
 
 ;;; base.lisp ends here

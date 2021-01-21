@@ -81,29 +81,6 @@ This is the class holding all extracted documentation information."))
 ;; that, I will surely add an EXPORTED slot to the definition class, which
 ;; will make things even easier.
 
-;; #### FIXME: rewrite later.
-#+()(defmethod external-definitions
-    ((extract extract)
-     &aux (external-symbols
-	   (mapcan #'package-external-symbols
-	     (mapcar #'definition-package
-	       (remove-if #'foreignp (package-definitions extract))))))
-  "Return EXTRACT's external definitions."
-  (remove-if-not (lambda (symbol) (member symbol external-symbols))
-      (symbol-definitions extract)
-    :key #'definition-symbol))
-
-#+()(defmethod internal-definitions
-    ((extract extract)
-     &aux (internal-symbols
-	   (mapcan #'package-internal-symbols
-	     (mapcar #'definition-package
-	       (remove-if #'foreignp (package-definitions extract))))))
-  "Return EXTRACT's internal definitions."
-  (remove-if-not (lambda (symbol) (member symbol internal-symbols))
-      (symbol-definitions extract)
-    :key #'definition-symbol))
-
 
 
 
@@ -540,5 +517,28 @@ allow to specify or override some bits of information.
     (finalize (first definitions) (definitions extract)))
 
   extract)
+
+
+
+
+;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
+;; #### FIXME: this is the same code as for Lisp files.
+
+(defmethod public-definitions ((extract extract))
+  "Return EXTRACT's public definitions."
+  (remove-if-not (lambda (definition)
+		   (and (typep definition 'symbol-definition)
+			(publicp definition)))
+      (definitions extract)))
+
+(defmethod private-definitions ((extract extract))
+  "Return EXTRACT's private definitions."
+  (remove-if (lambda (definition)
+	       (or (not (typep definition 'symbol-definition))
+		   (publicp definition)))
+      (definitions extract)))
 
 ;;; extract.lisp ends here

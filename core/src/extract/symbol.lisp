@@ -75,6 +75,13 @@ lexicographic order, related accessors end up being located next to each
 other."
   (definition-symbol definition))
 
+(defun publicp (definition)
+  "Return T is DEFINITION is public.
+A definition is public when the symbol naming it is exported from its home
+package."
+  (member (definition-symbol definition)
+	  (external-symbols (package-definition definition))))
+
 
 
 

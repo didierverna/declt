@@ -123,24 +123,6 @@ This is the base class for ASDF file definitions."))
 Note that ASDF system files are considered as Lisp files."
   (typep definition 'lisp-file-definition))
 
-;; #### FIXME: those two functions have to be utterly inefficient. Hopefully,
-;; this will go away with the addition of an EXPORTED slot.
-#+()(defmethod external-definitions ((definition lisp-file-definition))
-  "Return Lisp file DEFINITION's external definitions."
-  (remove-if-not
-      (lambda (symbol)
-	(member symbol (package-external-symbols (symbol-package symbol))))
-      (symbol-definitions definition)
-    :key #'definition-symbol))
-
-#+()(defmethod internal-definitions ((definition lisp-file-definition))
-  "Return Lisp file DEFINITION's internal definitions."
-  (remove-if
-      (lambda (symbol)
-	(member symbol (package-external-symbols (symbol-package symbol))))
-      (symbol-definitions definition)
-    :key #'definition-symbol))
-
 ;; #### WARNING: gross hack going on below. ASDF system files are technically
 ;; Lisp files because what they contain is Lisp, but they are not ASDF
 ;; components. We still want to document them as other Lisp files, without
@@ -374,5 +356,29 @@ The concrete class of the new definition depends on the kind of FILE."
 (defun license-name (definition)
   "Return system DEFINITION's license name, or NIL."
   (system-license (system definition)))
+
+
+
+
+;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
+;; #### WARNING: remember that a Lisp file definition contains symbol
+;; definitions, but also other things like packages and asdf components.
+
+(defmethod public-definitions ((definition lisp-file-definition))
+  "Return Lisp file DEFINITION's public definitions."
+  (remove-if-not (lambda (definition)
+		   (and (typep definition 'symbol-definition)
+			(publicp definition)))
+      (definitions definition)))
+
+(defmethod private-definitions ((definition lisp-file-definition))
+  "Return Lisp file DEFINITION's private definitions."
+  (remove-if (lambda (definition)
+	       (or (not (typep definition 'symbol-definition))
+		   (publicp definition)))
+      (definitions definition)))
 
 ;;; asdf.lisp ends here
