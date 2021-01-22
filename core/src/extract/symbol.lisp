@@ -460,7 +460,7 @@ Return a second value of T if METHOD is in fact a SETF one."
   (:documentation "Abstract root class for method definitions."))
 
 ;; #### PORTME.
-(defmethod lambda-list ((definition method-definition))
+(defmethod lambda-list ((definition %method-definition))
   "Return method DEFINITION's method lambda-list."
   (sb-mop:method-lambda-list (definition-method definition)))
 
