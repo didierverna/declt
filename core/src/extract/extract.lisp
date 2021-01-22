@@ -60,6 +60,11 @@
   (:documentation "The Extract class.
 This is the class holding all extracted documentation information."))
 
+(defmethod print-object ((extract extract) stream)
+  "Show EXTRACT's library name."
+  (print-unreadable-object (extract stream :type t)
+    (princ (library-name extract) stream)))
+
 (defun make-extract ()
   "Make a new extract."
   (make-instance 'extract))
