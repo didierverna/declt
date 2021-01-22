@@ -354,6 +354,51 @@ DEFINITIONS in the process."
 
 
 
+;; Method combinations
+;; #### PORTME.
+(defmethod finalize
+  ((definition combination-definition) definitions
+   &aux (name (name definition)))
+  "Compute method combination DEFINITION's users."
+  (setf (user-definitions definition)
+	(remove-if-not (lambda (candidate)
+			 (and (typep candidate 'generic-function-definition)
+			      (eq (sb-pcl::method-combination-type-name
+				   (sb-mop:generic-function-method-combination
+				    (generic candidate)))
+				  name)))
+	    definitions)))
+
+;; #### FIXME: the situation here is very similar to that of short form setf
+;; expanders: a short form method combination may be defined without its
+;; operator actually existing. This just means that the combination cannot be
+;; used (yet). The code below assumes that this never happens and so also
+;; assumes that if the operator is not found, then it's gotta be a foreign
+;; definition. This is incorrect and will break if the function is indeed not
+;; defined. What we need to do is check if the operator /should/ belong to us,
+;; in which case it should perhaps be left NULL and issue a buggy program
+;; warning.
+(defmethod finalize
+  ((definition short-combination-definition) definitions
+   &aux (name (sb-pcl::short-combination-operator (combination definition))))
+  "Compute short method combination DEFINITION's operator definition."
+  (let ((operator (find-if
+		   (lambda (candidate)
+		     (and (or (typep candidate 'macro-definition)
+			      (typep candidate '%function-definition))
+			  ;; this will filter out setf functions
+			  (eq (name candidate) name)))
+		   definitions)))
+    (unless operator
+      (setq operator
+	    (if (macro-function name)
+	      (make-macro-definition name (macro-function name) t)
+	      (make-function-definition name (fdefinition name) :foreign t)))
+      (endpush operator definitions))
+    (setf (operator-definition definition) operator)))
+
+
+
 ;; -------------------
 ;; Package definitions
 ;; -------------------

@@ -527,6 +527,9 @@ this combination."
     :accessor user-definitions))
   (:documentation "Abstract root class for method combination definitions."))
 
+;; #### WARNING: the CLHS specifies that the :operator argument to
+;; DEFINE-METHOD-COMBINATION is an /operator/, but later on claims that it is
+;; a /symbol/. Experimentation seems to demonstrate that it must be a symbol.
 (defclass short-combination-definition (combination-definition)
   ((operator-definition :documentation "The corresponding operator definition."
 			:accessor operator-definition))
@@ -987,38 +990,6 @@ Return NIL if not found."
 	     (sb-pcl::slot-definition-defstruct-accessor-symbol slot)))
        (or (find-definition writer-name 'writer-definition definitions)
 	   (make-writer-definition writer-name :foreign t))))))
-
-;; #### PORTME.
-#+()(defgeneric definition-combination-users (definition combination)
-  (:documentation "Return a list of definitions using method COMBINATION.
-The list may boil down to a generic function definition, but may also contain
-both a reader and a writer.")
-  ;; #### FIXME: wtf? When do we try to access a combination somewhere it
-  ;; doesn't exist? Oh... answer: probably for hybrid accessors. Hopefully,
-  ;; this mess will go away soon.
-  (:method (definition combination)
-    "Default method, for non generic function definitions.
-Return nil."
-    nil)
-  (:method ((definition generic-definition) combination)
-    "Method for simple generic and writer definitions."
-    (when (eq (sb-pcl::method-combination-type-name
-	       (sb-mop:generic-function-method-combination
-		(generic definition)))
-	      combination)
-      (list definition)))
-  (:method ((definition generic-accessor-definition) combination)
-    "Method for generic accessor definitions."
-    (nconc (call-next-method)
-	   (definition-combination-users
-	    ;; #### NOTE: a null writer is caught by the default method.
-	    (writer-definition definition) combination))))
-
-(defun definitions-combination-users (definitions combination)
-  "Return a list of all generic DEFINITIONS using method COMBINATION."
-  (mapcan (lambda (definition)
-	    (definition-combination-users definition combination))
-    definitions))
 
 ;; #### NOTE: this finalization step is required for two reasons:
 ;;   1. it makes it easier to handle cross references (e.g. class inheritance)
