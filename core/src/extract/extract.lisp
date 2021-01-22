@@ -278,6 +278,22 @@ DEFINITIONS in the process."
 	(get-package-definition (symbol-package (definition-symbol definition))
 				definitions)))
 
+(defmethod finalize progn
+    ((definition expander-mixin) definitions
+     &aux (name (name definition))
+	  (lambda-list (lambda-list definition)))
+  "Compute DEFINITION's expander-for and expanders-to references."
+  (setf (expander-for definition)
+	(find-if (lambda (candidate)
+		   (and (typep candidate '%expander-definition)
+			(equal (lambda-list candidate) lambda-list)))
+		 definitions))
+  (setf (expanders-to definition)
+	(remove-if-not (lambda (candidate)
+			 (and (typep candidate 'short-expander-definition)
+			      (eq (update-fn-name candidate) name)))
+	    definitions)))
+
 
 
 ;; -------------------

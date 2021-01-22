@@ -305,43 +305,14 @@ expander."
     :accessor access-definition))
   (:documentation "Abstract root class for setf expander definitions."))
 
-(defmethod source
-    ((definition %expander-definition) &aux (expander (expander definition)))
-  ;; #### NOTE: looking at how sb-introspect does it, it seems that the
-  ;; "source" of a setf expander is the source of the function object. For
-  ;; long forms, this should be OK. For short forms however, what we get is
-  ;; the source of the update function, which may be different from where
-  ;; DEFSETF was called, hence incorrect. There is an additional problem when
-  ;; the update function is foreign: we don't normally fill in the FUNCTION
-  ;; slot in foreign funcoid definitions because we don't care (we only print
-  ;; their names). In the case of setf expanders however, we need to do so
-  ;; because Declt will try to find the definition source for it, and will
-  ;; attempt to locate the source of the foreign function. This triggered a
-  ;; bug in a previous version (with the package cl-stdutils, which uses
-  ;; RPLACA as an update function for the stdutils.gds::vknode-value
-  ;; expander).
-  (object-source-pathname
-   (etypecase expander
-     (symbol (fdefinition expander))
-     (list (cdr expander))
-     (function expander))))
-
 (defmethod docstring ((definition %expander-definition))
   "Return setf expander DEFINITION's docstring."
   (documentation (definition-symbol definition) 'setf))
 
-;; #### PORTME.
-(defmethod lambda-list
-    ((definition %expander-definition) &aux (expander (expander definition)))
-  "Return setf expander DEFINITION's expander function lambda-list."
-  (etypecase expander
-    (symbol ;; remove the last argument as it represents the new value
-     (butlast (sb-introspect:function-lambda-list (fdefinition expander))))
-    (list (sb-introspect:function-lambda-list (cdr expander)))
-    (function (sb-introspect:function-lambda-list expander))))
 
 (defclass short-expander-definition (%expander-definition)
-  ((update-definition
+  ((object :reader update-fn-name) ;; slot overload
+   (update-definition
     :documentation "The corresponding update-fn definition.
 This is a function or macro definition. It always exists."
     :accessor update-definition))
@@ -349,11 +320,57 @@ This is a function or macro definition. It always exists."
 Short form setf expanders simply expand to a globally defined function or
 macro."))
 
+(defmethod source ((definition short-expander-definition))
+  "Return the source pathname of short setf expander DEFINITION's update-fn."
+  ;; #### NOTE: looking at how sb-introspect does it, it seems that the
+  ;; "source" of a setf expander is the source of the function object. For
+  ;; long forms, this should be OK. For short forms however, what we get is
+  ;; the source of the update function, which may be different from where
+  ;; DEFSETF was called, hence incorrect.
+
+  ;; #### FIXME: the comment below may not be relevant anymore, after the
+  ;; current overhaul.
+  ;; There is an additional problem when the update function is foreign: we
+  ;; don't normally fill in the FUNCTION slot in foreign funcoid definitions
+  ;; because we don't care (we only print their names). In the case of setf
+  ;; expanders however, we need to do so because Declt will try to find the
+  ;; definition source for it, and will attempt to locate the source of the
+  ;; foreign function. This triggered a bug in a previous version (with the
+  ;; package cl-stdutils, which uses RPLACA as an update function for the
+  ;; stdutils.gds::vknode-value expander).
+  (object-source-pathname (fdefinition (update-fn-name definition))))
+
+;; #### PORTME.
+(defmethod lambda-list ((definition short-expander-definition))
+  "Return the \"butlast\" lambda-list of setf expander DEFINITION's update-fn.
+This is because short form setf expanders pass the new value as the last
+argument to their update-fn."
+  (butlast (sb-introspect:function-lambda-list
+	    (fdefinition (update-fn-name definition)))))
+
+
 (defclass long-expander-definition (%expander-definition)
   ()
   (:documentation "The class of long form setf expanders definitions.
 This class is shared by expanders created with either the long form of
 DEFSETF, or DEFINE-SETF-EXPANDER."))
+
+(defmethod source ((definition long-expander-definition)
+		   &aux (expander (expander definition)))
+  "Return the source pathname of long setf expander DEFINITION's function."
+  (object-source-pathname
+   (etypecase expander
+     (list (cdr expander))
+     (function expander))))
+
+;; #### PORTME.
+(defmethod lambda-list ((definition long-expander-definition)
+			&aux (expander (expander definition)))
+  "Return long setf expander DEFINITION's expander function's lambda-list."
+  (etypecase expander
+    (list (sb-introspect:function-lambda-list (cdr expander)))
+    (function (sb-introspect:function-lambda-list expander))))
+
 
 (defun make-expander-definition (symbol expander)
   "Make a new setf EXPANDER definition for SYMBOL."
