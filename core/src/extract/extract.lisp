@@ -115,10 +115,16 @@ This is the class holding all extracted documentation information."))
     (when (sub-component-p dependency directory)
       dependency)))
 
+(defun system-dependencies (system)
+  "Return all SYSTEM dependencies.
+This includes :defsystem-depends-on first, and :depends-on next."
+  (append (system-defsystem-depends-on system)
+	  (component-sideway-dependencies system)))
+
 (defun subsystems (system directory)
   "Return the list of SYSTEM and all its dependencies found under DIRECTORY.
 All dependencies are descended recursively. Both :defsystem-depends-on and
-:depends-on are included. Potential duplicates are removed."
+:depends-on are included, in that order. Potential duplicates are removed."
   (cons
    system
    (remove-duplicates
@@ -134,7 +140,7 @@ All dependencies are descended recursively. Both :defsystem-depends-on and
   "Return a list of all system definitions for SYSTEM.
 The definition for SYSTEM is first. The other considered systems are those
 found recursively in SYSTEM's dependencies, and located under SYSTEM's
-directory."
+directory. See `subsystems' for more information."
   (mapcar #'make-system-definition
     (subsystems system (system-directory system))))
 
