@@ -356,7 +356,7 @@ DEFINITIONS in the process."
 
 ;; Method combinations
 ;; #### PORTME.
-(defmethod finalize
+(defmethod finalize progn
   ((definition combination-definition) definitions
    &aux (name (name definition)))
   "Compute method combination DEFINITION's users."
@@ -378,7 +378,7 @@ DEFINITIONS in the process."
 ;; defined. What we need to do is check if the operator /should/ belong to us,
 ;; in which case it should perhaps be left NULL and issue a buggy program
 ;; warning.
-(defmethod finalize
+(defmethod finalize progn
   ((definition short-combination-definition) definitions
    &aux (name (sb-pcl::short-combination-operator (combination definition))))
   "Compute short method combination DEFINITION's operator definition."
