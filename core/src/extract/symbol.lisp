@@ -622,6 +622,9 @@ The concrete class of the new definition depends on the COMBINATION type."
 ;; Conditions, structures, and classes
 ;; -----------------------------------
 
+;; #### FIXME: typed structures are a whole kind of different beast and are
+;; not supported yet.
+
 (defabstract classoid-definition (symbol-definition)
   ((object :initarg :classoid :reader classoid) ;; slot overload
    (slot-definitions
@@ -659,12 +662,6 @@ These are conditions, structures, and classes."))
    (subclassoid-definitions ;; slot overload
     :accessor substructure-definitions))
   (:documentation "The class of structure definitions."))
-
-;; #### NOTE: sb-introspect does funny stuff for typed structures, so it's
-;; better to use it.
-(defmethod source ((definition structure-definition))
-  "Return structure DEFINITION's source."
-  (definition-source-by-name definition :structure))
 
 (defclass class-definition (classoid-definition)
   ((object :reader definition-class) ;; slot overload

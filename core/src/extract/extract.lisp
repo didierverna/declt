@@ -295,6 +295,13 @@ DEFINITIONS in the process."
 	    definitions)))
 
 
+
+;; #### WARNING: there is no finalization method for the accessor mixin. This
+;; is handled when classoid definitions are finalized: the slot definitions
+;; are traversed, readers and writers are searched as regular functions, and
+;; when they are found, their respective classes are upgraded.
+
+
 
 ;; -------------------
 ;; Package definitions
