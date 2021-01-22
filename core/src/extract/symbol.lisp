@@ -230,9 +230,10 @@ and methods for classes or conditions slots."))
   ((object :initarg :macro :reader macro)) ;; slot overload
   (:documentation "The class of macro definitions."))
 
-(defun make-macro-definition (symbol macro)
+(defun make-macro-definition (symbol macro &optional foreign)
   "Make a new MACRO definition for SYMBOL."
-  (make-instance 'macro-definition :symbol symbol :macro macro))
+  (make-instance 'macro-definition
+    :symbol symbol :macro macro :foreign foreign))
 
 
 

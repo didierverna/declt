@@ -294,12 +294,50 @@ DEFINITIONS in the process."
 			      (eq (update-fn-name candidate) name)))
 	    definitions)))
 
-
-
 ;; #### WARNING: there is no finalization method for the accessor mixin. This
 ;; is handled when classoid definitions are finalized: the slot definitions
 ;; are traversed, readers and writers are searched as regular functions, and
 ;; when they are found, their respective classes are upgraded.
+
+(defmethod finalize progn
+    ((definition %expander-definition) definitions
+     &aux (name (name definition))
+	  (lambda-list (lambda-list definition)))
+  "Compute setf expander DEFINTIION's access definition."
+  (setf (access-definition definition)
+	(find-if (lambda (candidate)
+		   (and (or (typep candidate 'macro-definition)
+			    (and (typep candidate '%function-definition)
+				 (not (typep candidate 'setf-mixin))))
+			(eq (name candidate) name)
+			(equal (lambda-list candidate) lambda-list)))
+		 definitions)))
+
+(defmethod finalize progn
+    ((definition short-expander-definition) definitions
+     &aux (name (update-fn-name definition)))
+  "Computer short setf expander DEFINITION's update definition."
+  ;; #### FIXME: a setf expander may be defined without its update-fn actually
+  ;; existing. This just means that the expander cannot be used. The code
+  ;; below assumes that this never happens and so also assumes that if the
+  ;; update-fn is not found, then it's gotta be a foreign definition. This is
+  ;; incorrect and will break if the function is indeed not defined. What we
+  ;; need to do is check if the update-fn /should/ belong to us, in which case
+  ;; it should perhaps be left NULL and issue a buggy program warning.
+  (let ((update-fn (find-if
+		    (lambda (candidate)
+		      (and (or (typep candidate 'macro-definition)
+			       (and (typep candidate '%function-definition)
+				    (not (typep candidate 'setf-mixin))))
+			   (eq (name candidate) name)))
+		    definitions)))
+    (unless update-fn
+      (setq update-fn
+	    (if (macro-function name)
+	      (make-macro-definition name (macro-function name) t)
+	      (make-function-definition name (fdefinition name) t)))
+      (endpush update-fn definitions))
+    (setf (update-definition definition) update-fn)))
 
 
 
