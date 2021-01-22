@@ -633,15 +633,15 @@ The concrete class of the new definition depends on the COMBINATION type."
 
 (defabstract classoid-definition (symbol-definition)
   ((object :initarg :classoid :reader classoid) ;; slot overload
-   (slot-definitions
-    :documentation "The list of corresponding direct slot definitions."
-    :accessor slot-definitions)
    (superclassoid-definitions
     :documentation "The list of corresponding direct superclassoid definitions."
     :accessor superclassoid-definitions)
    (subclassoid-definitions
     :documentation "The list of corresponding direct subclassoid definitions."
     :accessor subclassoid-definitions)
+   (slot-definitions
+    :documentation "The list of corresponding direct slot definitions."
+    :accessor slot-definitions)
    (method-definitions
     :documentation "The list of corresponding direct method definitions."
     :accessor method-definitions))
@@ -793,120 +793,6 @@ depends on the kind of CLASSOID."
 ;; Finalization
 ;; ------------
 
-;; #### FIXME: this function doesn't seem to be used anywhere else than in the
-;; #### finalization process anymore, so the comment below needs action. Also,
-;; #### the ERRORP argument seems obsolete (probably for the same reason).
-;; #### FIXME: the finalize process needs to find standalone writers and uses
-;; this function. However, this function returns all writers; not only
-;; standalone ones. This is not normally a problem because at that time, we're
-;; resolving heterogeneous accessors so we shouldn't find leaf writers. To be
-;; really pedantic, we could check that it is actually the case.
-#+()(defgeneric find-definition (name type definitions &optional errorp)
-  (:documentation "Find a definition of TYPE for NAME in DEFINITIONS.
-If ERRORP, throw an error if not found. Otherwise, just return NIL.")
-  (:method (name type definitions
-	    &optional errorp
-	    &aux (definition
-		  (find-if (lambda (definition)
-			     (and (eq name (definition-symbol definition))
-				  (typep definition type)))
-			   definitions)))
-    "Default method used for root TYPEs"
-    (or definition
-	(when errorp
-	  (error "No ~A definition found for symbol ~A" type name))))
-  (:method
-      (name (type (eql 'accessor-definition)) definitions
-       &optional errorp
-       &aux (definition
-	     (find-definition name 'function-definition definitions errorp)))
-    "Method used to find accessor definitions."
-    (or (when (accessor-definition-p definition)
-	  definition)
-	(when errorp
-	  (error "No accessor definition found for symbol ~A." name))))
-  (:method
-      (name (type (eql 'writer-definition)) definitions
-       &optional errorp
-       &aux (definition
-	     (find-definition name 'function-definition definitions errorp)))
-    "Method used to find writer definitions.
-Name must be that of the reader (not the SETF form)."
-    (or (typecase definition
-	  (writer-definition
-	   definition)
-	  (accessor-definition
-	   ;; #### FIXME: can this be NIL? Shouldn't we check ERRORP as below?
-	   (writer-definition definition)))
-	(when errorp
-	  (error "No writer definition found for symbol ~A." name))))
-  (:method
-      (name (type (eql 'generic-accessor)) definitions
-       &optional errorp
-       &aux (definition
-	     (find-definition name 'generic-definition definitions errorp)))
-    "Method used to find generic accessor definitions."
-    (or (when (generic-accessor-definition-p definition)
-	  definition)
-	(when errorp
-	  (error "No generic accessor definition found for symbol ~A." name))))
-  (:method
-      (name (type (eql 'generic-writer-definition)) definitions
-       &optional errorp
-       &aux (definition
-	     (find-definition name 'generic-definition definitions errorp)))
-    "Method used to find generic writer definitions.
-Name must be that of the reader (not the SETF form)."
-    (or (typecase definition
-	  (generic-writer-definition
-	   definition)
-	  (generic-accessor-definition
-	   ;; #### FIXME: can this be NIL? Shouldn't we check ERRORP as below?
-	   (writer-definition definition)))
-	(when errorp
-	  (error "No generic writer definition found for symbol ~A" name)))))
-
-;; #### NOTE: this function is used only for finding methods specialized on
-;; classoids in the finalization process, so it may encounter a foreign
-;; generic function.
-#+()(defun find-method-definition (method definitions)
-  "Find a method definition for METHOD in DEFINITIONS.
-Return NIL if not found."
-  (multiple-value-bind (name writerp) (method-name method)
-    (when-let (generic (find-definition name 'generic-definition definitions))
-      (if writerp
-	(etypecase generic
-	  (generic-writer-definition
-	   (find method (method-definitions generic) :key #'definition-method))
-	  (generic-accessor-definition
-	   (find method (method-definitions (writer-definition generic))
-		 :key #'definition-method)))
-	(find method (method-definitions generic) :key #'definition-method)))))
-
-#+()(defgeneric type-definitions (type definitions)
-  (:documentation "Return all definitions of TYPE from DEFINITIONS.")
-  (:method (type definitions)
-    "Default method used for most types."
-    (remove-if-not (lambda (definition) (typep definition type))
-	definitions))
-  (:method ((type (eql 'setf-expander-definition)) definitions)
-    "Method used for setf expanders."
-    (mapcan (lambda (definition)
-	      ;; #### NOTE: do you see why dropping structures and using mixin
-	      ;; classes would help here ? ;-)
-	      (cond ((and (eq (type-of definition) 'macro-definition)
-			  (access-expander-definition definition))
-		     (list (access-expander-definition definition)))
-		    ((and (eq (type-of definition) 'function-definition)
-			  (accessor-definition-p definition)
-			  (access-expander-definition definition))
-		     (list (access-expander-definition definition)))
-		    ((and (eq (type-of definition) 'generic-definition)
-			  (generic-accessor-definition-p definition)
-			  (access-expander-definition definition))
-		     (list (access-expander-definition definition)))))
-      definitions)))
-
 #+()
 (defun make-symbol-definition (symbol type)
   ;; #### NOTE: for a generic accessor function, we store accessor methods in
@@ -995,66 +881,11 @@ Return NIL if not found."
        (or (find-definition writer-name 'writer-definition definitions)
 	   (make-writer-definition writer-name :foreign t))))))
 
-;; #### NOTE: this finalization step is required for two reasons:
-;;   1. it makes it easier to handle cross references (e.g. class inheritance)
-;;      because at that time, we know that all definitions have been created,
-;;   2. it also makes it easier to handle foreign definitions (that we don't
-;;      want to add in the definitions list) because at that time, we know
-;;      that if a definition doesn't exist in the list, then it is foreign.
-;; #### PORTME.
 #+()(defun finalize-definitions (definitions)
-  "Finalize the definitions in DEFINITIONS.
-Currently, this means resolving:
-- classes subclasses,
-- classes superclasses,
-- classes direct methods,
-- slots readers,
-- slots writers,
-- generic functions method combinations,
-- method combinations operators (for short ones) and users (for both),
-- heterogeneous accessors,
-- (generic) functions and macros (short form) setf expanders definitions."
-  (labels ((classoids-definitions (classoids type)
-	     (mapcar
-		 (lambda (name)
-		   (or  (find-definition name type definitions)
-			(ecase type
-			  (class-definition
-			   (make-class-definition name :foreign t))
-			  (structure-definition
-			   (make-structure-definition name :foreign t))
-			  (condition-definition
-			   (make-condition-definition name :foreign t)))))
-	       (reverse (mapcar #'class-name classoids))))
-	   (methods-definitions (methods)
-	     (mapcar
-		 (lambda (method)
-		   (or  (find-method-definition method definitions)
-			(make-method-definition method t)))
-	       methods))
-	   (compute-combination (generic-definition)
-	     (let* ((combination (sb-mop:generic-function-method-combination
-				  (generic generic-definition)))
-		    (name (sb-pcl::method-combination-type-name combination)))
-	       (setf (combination-definition generic-definition)
-		     (or (find-definition name 'combination-definition
-					  definitions)
-			 (if (sb-pcl::short-method-combination-p combination)
-			   (make-short-combination-definition
-			    name combination t)
-			   (make-long-combination-definition
-			    name combination t)))))))
+  (labels
     (dolist (type '(class-definition structure-definition condition-definition))
       (dolist (definition (type-definitions type definitions))
 	(let ((class (find-class (definition-symbol definition))))
-	  (setf (superclassoid-definitions definition)
-		(classoids-definitions
-		 (sb-mop:class-direct-superclasses class)
-		 type))
-	  (setf (subclassoid-definitions definition)
-		(classoids-definitions
-		 (sb-mop:class-direct-subclasses class)
-		 type))
 	  (setf (method-definitions definition)
 		(methods-definitions
 		 (sb-mop:specializer-direct-methods class)))

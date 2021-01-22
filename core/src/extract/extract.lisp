@@ -424,6 +424,31 @@ DEFINITIONS in the process."
 
 
 
+;; Classoids
+;; #### PORTME.
+(defmethod finalize progn ((definition classoid-definition) definitions)
+  "Compute classoid DEFINITION's super/sub classoids, and method definitions."
+  (setf (superclassoid-definitions definition)
+	(mapcar (lambda (class)
+		  (or (find class definitions :key #'object)
+		      (let ((newdef (make-classoid-definition
+				     (class-name class) class t)))
+			(endpush newdef definitions)
+			newdef)))
+	  (sb-mop:class-direct-superclasses (classoid definition))))
+  (setf (subclassoid-definitions definition)
+	(mapcar (lambda (class)
+		  (or (find class definitions :key #'object)
+		      (let ((newdef (make-classoid-definition
+				     (class-name class) class t)))
+			(endpush newdef definitions)
+			newdef)))
+	  (sb-mop:class-direct-subclasses (classoid definition))))
+  ;; #### FIXME: handle direct methods, slot readers and writers.
+  )
+
+
+
 ;; -------------------
 ;; Package definitions
 ;; -------------------
