@@ -93,6 +93,23 @@ This is the class holding all extracted documentation information."))
 ;; resolve the cross-references later, even those which were known right from
 ;; the start.
 
+;; ---------------
+;; Local utilities
+;; ---------------
+
+(defun components (module type)
+  "Return the list of all (sub)TYPE components found in MODULE's tree."
+  ;; #### NOTE: we accept subtypes of TYPE because ASDF components might be
+  ;; subclassed. An example of this is SBCL's grovel facility which subclasses
+  ;; asdf:cl-source-file.
+  (loop :for component :in (component-children parent)
+	:if (typep component type)
+	  :collect component
+	:if (typep component 'asdf:module)
+	  :nconc (components component type)))
+
+
+
 ;; ------------------
 ;; System definitions
 ;; ------------------
@@ -117,14 +134,14 @@ This is the class holding all extracted documentation information."))
 
 (defun system-dependencies (system)
   "Return all SYSTEM dependencies.
-This includes :defsystem-depends-on first, and :depends-on next."
+This includes both :defsystem-depends-on and :depends-on."
   (append (system-defsystem-depends-on system)
 	  (component-sideway-dependencies system)))
 
 (defun subsystems (system directory)
   "Return the list of SYSTEM and all its dependencies found under DIRECTORY.
 All dependencies are descended recursively. Both :defsystem-depends-on and
-:depends-on are included, in that order. Potential duplicates are removed."
+:depends-on are included. Potential duplicates are removed."
   (cons
    system
    (remove-duplicates
@@ -138,9 +155,10 @@ All dependencies are descended recursively. Both :defsystem-depends-on and
 
 (defun make-all-system-definitions (system)
   "Return a list of all system definitions for SYSTEM.
-The definition for SYSTEM is first. The other considered systems are those
-found recursively in SYSTEM's dependencies, and located under SYSTEM's
-directory. See `subsystems' for more information."
+The only guarantee is that the definition for SYSTEM comes first.
+The other considered systems are those found recursively in SYSTEM's
+dependencies, and located under SYSTEM's directory.
+See `subsystems' for more information."
   (mapcar #'make-system-definition
     (subsystems system (system-directory system))))
 
@@ -152,8 +170,8 @@ directory. See `subsystems' for more information."
 
 ;; #### WARNING: do not confuse this function with ASDF's MODULE-COMPONENTS
 ;; (which, BTW, is deprecated in favor of COMPONENT-CHILDREN).
-(defun module-components (parent)
-  "Return the list of all module components from ASDF PARENT."
+(defun module-components (module)
+  "Return the list of all module components found in MODULE's tree."
   (components parent 'asdf:module))
 
 (defun make-all-module-definitions (definitions)
@@ -176,8 +194,8 @@ directory. See `subsystems' for more information."
 ;; different logical names (hence anchors etc.). So in the end, it's better to
 ;; leave it like that.
 
-(defun file-components (parent)
-  "Return the list of all file components from ASDF PARENT."
+(defun file-components (module)
+  "Return the list of all file components found in MODULE's tree."
   (components parent 'asdf:file-component))
 
 (defun make-all-file-definitions

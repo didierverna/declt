@@ -37,21 +37,6 @@
   "Return COMPONENT's location RELATIVE-TO."
   (enough-namestring (component-pathname component) relative-to))
 
-(defun components (parent type)
-  "Return the list of all components of (sub)TYPE from ASDF PARENT."
-  ;; #### NOTE: we accept subtypes of TYPE because ASDF components might be
-  ;; subclassed. An example of this is SBCL's grovel facility which subclasses
-  ;; asdf:cl-source-file.
-  (loop :for component :in (component-children parent)
-	:if (typep component type)
-	  :collect component
-	:if (typep component 'asdf:module)
-	  :nconc (components component type)))
-
-(defun lisp-components (parent)
-  "Return the list of all Lisp source file components from ASDF PARENT."
-  (components parent 'asdf:cl-source-file))
-
 (defun system-directory (system)
   "Return ASDF SYSTEM's directory."
   (component-pathname system))
