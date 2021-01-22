@@ -278,14 +278,19 @@ DEFINITIONS in the process."
 	(get-package-definition (symbol-package (definition-symbol definition))
 				definitions)))
 
+
+
+;; Setf expander mixins
 (defmethod finalize progn
     ((definition expander-mixin) definitions
-     &aux (name (name definition))
+     &aux (name (name definition)) ;; always a symbol here
 	  (lambda-list (lambda-list definition)))
   "Compute DEFINITION's expander-for and expanders-to references."
   (setf (expander-for definition)
 	(find-if (lambda (candidate)
 		   (and (typep candidate '%expander-definition)
+			;; don't want the setf part
+			(eq (definition-symbol candidate) name)
 			(equal (lambda-list candidate) lambda-list)))
 		 definitions))
   (setf (expanders-to definition)
@@ -299,16 +304,19 @@ DEFINITIONS in the process."
 ;; are traversed, readers and writers are searched as regular functions, and
 ;; when they are found, their respective classes are upgraded.
 
+
+
+;; Setf expanders
 (defmethod finalize progn
     ((definition %expander-definition) definitions
-     &aux (name (name definition))
+     &aux (name (definition-symbol definition)) ;; don't want the setf part
 	  (lambda-list (lambda-list definition)))
   "Compute setf expander DEFINTIION's access definition."
   (setf (access-definition definition)
 	(find-if (lambda (candidate)
 		   (and (or (typep candidate 'macro-definition)
-			    (and (typep candidate '%function-definition)
-				 (not (typep candidate 'setf-mixin))))
+			    (typep candidate '%function-definition))
+			;; this will filter out setf functions
 			(eq (name candidate) name)
 			(equal (lambda-list candidate) lambda-list)))
 		 definitions)))
@@ -327,15 +335,15 @@ DEFINITIONS in the process."
   (let ((update-fn (find-if
 		    (lambda (candidate)
 		      (and (or (typep candidate 'macro-definition)
-			       (and (typep candidate '%function-definition)
-				    (not (typep candidate 'setf-mixin))))
+			       (typep candidate '%function-definition))
+			   ;; this will filter out setf functions
 			   (eq (name candidate) name)))
 		    definitions)))
     (unless update-fn
       (setq update-fn
 	    (if (macro-function name)
 	      (make-macro-definition name (macro-function name) t)
-	      (make-function-definition name (fdefinition name) t)))
+	      (make-function-definition name (fdefinition name) :foreign t)))
       (endpush update-fn definitions))
     (setf (update-definition definition) update-fn)))
 

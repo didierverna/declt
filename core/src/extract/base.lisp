@@ -63,7 +63,8 @@ associated Lisp object"
 (defgeneric name (definition)
   (:documentation "The definition's name.
 This is the native Lisp name for the definition's corresponding object.
-It's either a string (for ASDF components and packages) or a symbol."))
+It's either a string (for ASDF components and packages), a symbol,
+or a list of the form (setf symbol)."))
 
 ;; #### NOTE: we're trying to be clever here, bypassing
 ;; FIND-DEFINITION-SOURCES-BY-NAME when possible, because it performs some

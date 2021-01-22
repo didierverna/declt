@@ -66,13 +66,7 @@
   (eq (type-of object) 'symbol-definition))
 
 (defmethod name ((definition symbol-definition))
-  "Return symbol DEFINITION's symbol.
-Note that even in the case of setf expanders or functions, only the canonical
-symbol is returned. More specifically, the name of (SETF FOO) is just FOO,
-and the name of a setf expander is its ACCESS-FN symbol. The advantage of this
-policy is that if a documentation engine chooses to sort the definitions by
-lexicographic order, related accessors end up being located next to each
-other."
+  "Return symbol DEFINITION's symbol."
   (definition-symbol definition))
 
 (defun publicp (definition)
@@ -189,6 +183,10 @@ This is the default method."
   ()
   (:documentation "Mixin for setf funcoid definitions.
 This mixin should be put before the funcoid superclass."))
+
+(defmethod name ((definition setf-mixin))
+  "Return the list (setf <setf mixin DEFINITION's symbol>)."
+  (list 'setf (definition-symbol definition)))
 
 (defabstract expander-mixin ()
   ((expander-for
