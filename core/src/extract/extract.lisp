@@ -74,7 +74,7 @@ This is the class holding all extracted documentation information."))
 ;; shortcut.
 (defun location (extract)
   "Return EXTRACT's main system location."
-  (system-directory (system (car (system-definitions extract)))))
+  (system-directory (system (first (definitions extract)))))
 
 ;; #### NOTE: there are currently two equivalent ways to compute the values of
 ;; the two functions below. Namely, by filtering on:
