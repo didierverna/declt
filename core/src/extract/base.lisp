@@ -66,6 +66,11 @@ This is the native Lisp name for the definition's corresponding object.
 It's either a string (for ASDF components and packages), a symbol,
 or a list of the form (setf symbol)."))
 
+(defmethod print-object ((definition definition) stream)
+  "Show DEFINITION's name."
+  (print-unreadable-object (definition stream :type t)
+    (princ (name definition) stream)))
+
 ;; #### NOTE: we're trying to be clever here, bypassing
 ;; FIND-DEFINITION-SOURCES-BY-NAME when possible, because it performs some
 ;; checks that we know we don't need. I'm not sure it's worth the trouble
