@@ -76,16 +76,6 @@ This is the class holding all extracted documentation information."))
   "Return EXTRACT's main system location."
   (system-directory (system (first (definitions extract)))))
 
-;; #### NOTE: there are currently two equivalent ways to compute the values of
-;; the two functions below. Namely, by filtering on:
-;; 1. extract -> symbol definitions (as it is done below),
-;; 2. extract -> packages -> symbol definitions.
-;; The reason we use solution #1 is that later on, when/if we add some kind of
-;; foreign definitions (like, those pertaining to one of our files, but not to
-;; one of our packages), there will be a difference in the results. On top of
-;; that, I will surely add an EXPORTED slot to the definition class, which
-;; will make things even easier.
-
 
 
 
