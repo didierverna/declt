@@ -399,6 +399,31 @@ DEFINITIONS in the process."
 
 
 
+;; Generic functions
+;; #### NOTE: contrary to the case of short form setf expanders and short form
+;; method combinations, it seems that the method combination object must exist
+;; when a generic function is created (I'm getting errors otherwise). This
+;; means that if we cannot find the combination definition right now, it must
+;; be a foreign one.
+;; #### PORTME.
+(defmethod finalize progn
+    ((definition generic-function-definition) definitions
+     &aux (combination
+	   (sb-mop:generic-function-method-combination (generic definition))))
+  "Compute generic function DEFINITION's method combination definition."
+  (setf (combination-definition definition)
+	(or (find-if (lambda (candidate)
+		       (and (typep candidate 'combination-definition)
+			    (eq (combination candidate) combination)))
+		     definitions)
+	    (let ((newdef (make-combination-definition
+			   (sb-pcl::method-combination-type-name combination)
+			   combination t)))
+	      (endpush newdef definitions)
+	      newdef))))
+
+
+
 ;; -------------------
 ;; Package definitions
 ;; -------------------

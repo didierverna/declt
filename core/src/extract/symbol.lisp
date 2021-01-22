@@ -514,10 +514,10 @@ or a condition."))
 
 ;; Method combinations
 
-;; #### NOTE: even the short form is a funcoid, because of the optional ORDER
-;; option which defaults to :most-specific-first.
+;; #### NOTE: the root class is not abstract, because it is used for foreign
+;; definitions.
 
-(defabstract combination-definition (funcoid-definition)
+(defclass combination-definition (funcoid-definition)
   ((object :initarg :combination :reader combination) ;; slot overload
    (user-definitions
     :documentation
@@ -525,11 +525,13 @@ or a condition."))
 This is a list of generic function definitions for generic functions using
 this combination."
     :accessor user-definitions))
-  (:documentation "Abstract root class for method combination definitions."))
+  (:documentation "Root class for method combination definitions."))
 
 ;; #### WARNING: the CLHS specifies that the :operator argument to
 ;; DEFINE-METHOD-COMBINATION is an /operator/, but later on claims that it is
 ;; a /symbol/. Experimentation seems to demonstrate that it must be a symbol.
+;; #### NOTE: even the short form is a funcoid, because of the optional ORDER
+;; option which defaults to :most-specific-first.
 (defclass short-combination-definition (combination-definition)
   ((operator-definition :documentation "The corresponding operator definition."
 			:accessor operator-definition))
@@ -546,7 +548,9 @@ The concrete class of the new definition depends on the COMBINATION type."
   (make-instance
       (etypecase combination
 	(sb-pcl::short-method-combination 'short-combination-definition)
-	(sb-pcl::long-method-combination 'long-combination-definition))
+	(sb-pcl::long-method-combination 'long-combination-definition)
+	;; this one had better be foreign...
+	(sb-pcl::standard-method-combination 'combination-definition))
     :symbol symbol :combination combination :foreign foreign))
 
 
