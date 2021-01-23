@@ -202,7 +202,8 @@ See `subsystems' for more information."
     (definitions &aux (systems (mapcar #'system definitions)))
   "Return a list of all file definitions for system DEFINITIONS."
   (append (make-system-file-definitions systems)
-	  (mapcar #'make-file-definition (mapcan #'file-components systems))))
+	  (mapcar #'make-file-definition
+	    (mapcan #'file-components systems))))
 
 
 
@@ -256,13 +257,13 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
     (when (eq (symbol-package symbol) package)
       (push symbol symbols))))
 
-(defun make-all-symbol-definitions (packages)
-  "Return a list of all symbol definitions for PACKAGES definitions."
+(defun make-all-symbol-definitions (definitions)
+  "Return a list of all symbol definitions for package DEFINITIONS."
   (mapcan #'make-symbol-definitions
     (mapcan #'package-symbols
       ;; #### NOTE: at that point, we don't have any foreign package
       ;; definitions here, so we don't need to filter them.
-      (mapcar #'definition-package packages))))
+      (mapcar #'definition-package definitions))))
 
 
 
@@ -468,10 +469,6 @@ DEFINITIONS in the process."
 ;; -------------------
 ;; Package definitions
 ;; -------------------
-
-;; #### NOTE: admittedly, it's a bit too much to make this a FINALIZE method,
-;; as there's only one package definition class. But it's more coherent like
-;; that, and who knows what's gonna happen in the future.
 
 (defmethod finalize progn
     ((definition package-definition) definitions
