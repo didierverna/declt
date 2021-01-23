@@ -46,7 +46,7 @@
     ;; expanders after all.
     :documentation "The corresponding Lisp object, or NIL.
 Only constants, special variables, symbol macros, and types do not have an
-associated Lisp object"
+associated Lisp object."
     :initform nil :initarg :object :reader object)
    (foreign
     :documentation "Whether this definition is foreign."
