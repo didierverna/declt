@@ -102,7 +102,7 @@ This is the class holding all extracted documentation information."))
   ;; #### NOTE: we accept subtypes of TYPE because ASDF components might be
   ;; subclassed. An example of this is SBCL's grovel facility which subclasses
   ;; asdf:cl-source-file.
-  (loop :for component :in (component-children parent)
+  (loop :for component :in (component-children module)
 	:if (typep component type)
 	  :collect component
 	:if (typep component 'asdf:module)
@@ -172,7 +172,7 @@ See `subsystems' for more information."
 ;; (which, BTW, is deprecated in favor of COMPONENT-CHILDREN).
 (defun module-components (module)
   "Return the list of all module components found in MODULE's tree."
-  (components parent 'asdf:module))
+  (components module 'asdf:module))
 
 (defun make-all-module-definitions (definitions)
   "Return a list of all module definitions for system DEFINITIONS."
@@ -196,7 +196,7 @@ See `subsystems' for more information."
 
 (defun file-components (module)
   "Return the list of all file components found in MODULE's tree."
-  (components parent 'asdf:file-component))
+  (components module 'asdf:file-component))
 
 (defun make-all-file-definitions
     (definitions &aux (systems (mapcar #'system definitions)))
