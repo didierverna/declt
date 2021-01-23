@@ -210,37 +210,39 @@ See `subsystems' for more information."
 ;; Package definitions
 ;; -------------------
 
-(defun file-packages (file)
-  "Return the list of all packages defined in FILE."
-  (remove-if-not (lambda (source) (equal source file)) (list-all-packages)
-    :key #'object-source-pathname))
-
-;; #### FIXME: remind me why we need that stuff?
-;; #### WARNING: shaky heuristic, bound to fail one day or another.
-(defun unfiled-packages
-    (system &aux (prefix (concatenate 'string (component-name system) "/"))
-		 (length (length prefix)))
-  "Return the list of unlocated packages defined in ASDF SYSTEM.
-These are the packages for which source location is unavailable via
-introspection. We thus need to guess. The current heuristic considers packages
-named SYSTEM/foobar, regardless of case."
-  (remove-if-not
-      (lambda (package)
-	(let ((package-name (package-name package)))
-	  (and (not (object-source-pathname package))
-	       (> (length package-name) length)
-	       (string-equal prefix (subseq package-name 0 length)))))
-      (list-all-packages)))
-
-(defun make-all-package-definitions (files systems)
-  "Return a list of all package definitions for FILES and SYSTEMS definitions."
-  (mapcar #'make-package-definition
-    (append (mapcan #'file-packages
-	      (mapcar #'component-pathname
-		(mapcar #'file
-		  (remove-if-not #'lisp-file-definition-p files))))
-	    (mapcan #'unfiled-packages
-	      (mapcar #'system systems)))))
+(defun make-all-package-definitions
+    (file-definitions system-definitions
+     &aux (packages (list-all-packages))
+     ;; #### NOTE: I don't bother filtering out non-Lisp files here. No
+     ;; package could be defined in those anyway.
+	  (pathnames (mapcar (lambda (definition)
+			       (component-pathname (file definition)))
+		       file-definitions))
+	  (prefixes (mapcar (lambda (definition)
+			      (concatenate 'string
+				(component-name (system definition))
+				"/"))
+		      system-definitions))
+	  definitions)
+  "Return a list of all package definitions for FILE- and SYSTEM-DEFINITIONS.
+This list contains definitions for packages defined in the corresponding
+files, or for which the source is not found, but the name is of the form
+SYSTEM/... (case insensitive) for one of the corresponding systems."
+  (dolist (package packages)
+    (let ((pathname (object-source-pathname package))
+	  (name (package-name package)))
+      (when (or (member pathname pathnames :test #'equal)
+		;; #### FIXME: remind me why we need that stuff?
+		;; #### WARNING: shaky heuristic, bound to fail one day or
+		;; another.
+		(and (null pathname)
+		     (find-if (lambda (prefix)
+				(let ((pos (search prefix name
+						   :test #'char-equal)))
+				  (and pos (zerop pos))))
+			      prefixes)))
+	(push (make-package-definition package) definitions))))
+  definitions)
 
 
 
