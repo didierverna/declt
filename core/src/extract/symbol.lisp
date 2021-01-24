@@ -58,7 +58,7 @@
   ((symbol :documentation "The symbol naming this definition."
 	   :initarg :symbol :reader definition-symbol)
    (package-definition :documentation "The corresponding package definition."
-		       :accessor package-definition))
+		       :initform nil :accessor package-definition))
   (:documentation "Abstract root class for all definitions named by symbols."))
 
 (defun symbol-definition-p (object)
@@ -197,7 +197,7 @@ does not impose any actual relation between the setf expander and its
 access-fn. In fact, the access-fn may not even exist at all. However, if it
 does, it is very likely that it is a reader for the place updated by this setf
 expander."
-    :accessor expander-for)
+    :initform nil :accessor expander-for)
    (expanders-to
     :documentation "The list of setf expander definitions to this funcoid.
 This is a list of definitions for short form setf expanders that have this
@@ -301,7 +301,7 @@ standard does not impose any actual relation between the setf expander and its
 access-fn. In fact, the access-fn may not even exist at all. However, if it
 does, it is very likely that it is a reader for the place updated by this setf
 expander."
-    :accessor access-definition))
+    :initform nil :accessor access-definition))
   (:documentation "Abstract root class for setf expander definitions."))
 
 (defmethod docstring ((definition %expander-definition))
@@ -314,7 +314,7 @@ expander."
    (update-definition
     :documentation "The corresponding update-fn definition.
 This is a function or macro definition. It always exists."
-    :accessor update-definition))
+    :initform nil :accessor update-definition))
   (:documentation "The class of short form setf expanders definitions.
 Short form setf expanders simply expand to a globally defined function or
 macro."))
@@ -534,7 +534,7 @@ this combination."
 ;; option which defaults to :most-specific-first.
 (defclass short-combination-definition (combination-definition)
   ((operator-definition :documentation "The corresponding operator definition."
-			:accessor operator-definition))
+			:initform nil :accessor operator-definition))
   (:documentation "The class of short method combination definitions."))
 
 (defclass long-combination-definition (combination-definition)
@@ -568,7 +568,7 @@ The concrete class of the new definition depends on the COMBINATION type."
     :accessor method-definitions)
    (combination-definition
     :documentation "The corresponding method combination definition."
-    :accessor combination-definition))
+    :initform nil :accessor combination-definition))
   (:documentation "Abstract root class for generic function definitions."))
 
 (defmethod initialize-instance :after

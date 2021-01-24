@@ -173,14 +173,6 @@
 ;; Utilities
 ;; ==========================================================================
 
-(defun get-package-definition (package definitions)
-  "Get a definition for PACKAGE from DEFINITIONS.
-If not found, create a new foreign one and add it at the end of DEFINITIONS."
-  (or (find-definition package definitions)
-      (let ((definition (make-package-definition package t)))
-	(endpush definition definitions)
-	definition)))
-
 (defmethod public-definitions ((definition package-definition))
   "Return package DEFINITION's public definitions."
   (remove-if-not #'publicp (definitions definition)))

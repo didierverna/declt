@@ -282,6 +282,18 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
 ;; whereas this might fail if the definition has not been finalized yet:
 ;; (definition-package (package-definition definition)).
 
+(defvar *finalized* nil
+  "Whether the finalization process is over.
+This variable is dynamically set to NIL whenever new definitions are
+created during the finalization process. The finalization process is run over
+and over again until nothing moves anymore.")
+
+(defun get-package-definition (package definitions)
+  "Get a definition for PACKAGE from DEFINITIONS.
+If not found, create a new foreign one, add it at the end of DEFINITIONS,
+and mark the finalization process as dirty."
+  )
+
 (defgeneric finalize (definition definitions)
   (:documentation "Finalize DEFINITION in DEFINITIONS.")
   (:method-combination progn))
@@ -296,9 +308,15 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
   "Compute symbol DEFINITION's package definition.
 New foreign package definitions may be created and added at the end of
 DEFINITIONS in the process."
-  (setf (package-definition definition)
-	(get-package-definition (symbol-package (definition-symbol definition))
-				definitions)))
+  ;; #### NOTE: every symbol definition gets a working package definition;
+  ;; even the foreign ones.
+  (unless (package-definition definition)
+    (setf (package-definition definition)
+	  (or (find-definition package definitions)
+	      (let ((definition (make-package-definition package t)))
+		(endpush definition definitions)
+		(setq *finalized* nil)
+		definition)))))
 
 
 
@@ -308,40 +326,66 @@ DEFINITIONS in the process."
      &aux (name (name definition)) ;; always a symbol here
 	  (lambda-list (lambda-list definition)))
   "Compute DEFINITION's expander-for and expanders-to references."
-  (setf (expander-for definition)
-	(find-if (lambda (candidate)
-		   (and (typep candidate '%expander-definition)
-			;; don't want the setf part
-			(eq (definition-symbol candidate) name)
-			(equal (lambda-list candidate) lambda-list)))
-		 definitions))
+  ;; #### NOTE: this definition and a potential expander-for share the same
+  ;; symbol. Consequently, if this symbol is one of our own, we /will/ find an
+  ;; expander-for in the already existing definitions, if it exists. If, on
+  ;; the other hand, DEFINITION is foreign, then so will the expander-for, and
+  ;; thus we don't care if it's not found. To put it differently, we never
+  ;; need to create a foreign expander definition here.
+  (unless (expander-for definition)
+    (setf (expander-for definition)
+	  (find-if (lambda (candidate)
+		     (and (typep candidate '%expander-definition)
+			  ;; don't want the setf part
+			  (eq (definition-symbol candidate) name)
+			  (equal (lambda-list candidate) lambda-list)))
+		   definitions)))
+  ;; #### FIXME: in the code below, we're looking for expanders-to only in
+  ;; the current list of definitions. Although it may contain foreign
+  ;; definitions, it could also be incomplete. In order to be exhaustive for
+  ;; our own definitions if not for foreign ones, we would need to go through
+  ;; all existing symbols.
+  ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
+  ;; and only add what's missing, but I don't think it's worth the trouble.
   (setf (expanders-to definition)
 	(remove-if-not (lambda (candidate)
 			 (and (typep candidate 'short-expander-definition)
 			      (eq (update-fn-name candidate) name)))
 	    definitions)))
 
+
 ;; #### WARNING: there is no finalization method for the accessor mixin. This
 ;; is handled when classoid definitions are finalized: the slot definitions
-;; are traversed, readers and writers are searched as regular functions, and
-;; when they are found, their respective classes are upgraded.
+;; are traversed, readers and writers are searched for as regular functions,
+;; and when they are found, their respective classes are upgraded.
 
 
 
 ;; Setf expanders
+
+;; #### WARNING: in fact, take the comments above and below with a grain of
+;; salt. Especially because of the way we handle expanders-to above, we
+;; actually don't currently create foreign expanders, ever...
+
 (defmethod finalize progn
     ((definition %expander-definition) definitions
      &aux (name (definition-symbol definition)) ;; don't want the setf part
 	  (lambda-list (lambda-list definition)))
   "Compute setf expander DEFINTIION's access definition."
-  (setf (access-definition definition)
-	(find-if (lambda (candidate)
-		   (and (or (typep candidate 'macro-definition)
-			    (typep candidate '%function-definition))
-			;; this will filter out setf functions
-			(eq (name candidate) name)
-			(equal (lambda-list candidate) lambda-list)))
-		 definitions)))
+  ;; #### NOTE: same remark as above when finalizing and expander-for
+  ;; definition: if this expander is our own, then we /will/ find a definition
+  ;; for its access-definition if it exists, as it is for the same symbol.
+  ;; Otherwise, we don't care if we find a definition or not. So we never need
+  ;; to create a foreign access definition.
+  (unless (access-definition definition)
+    (setf (access-definition definition)
+	  (find-if (lambda (candidate)
+		     (and (or (typep candidate 'macro-definition)
+			      (typep candidate '%function-definition))
+			  ;; this will filter out setf functions
+			  (eq (name candidate) name)
+			  (equal (lambda-list candidate) lambda-list)))
+		   definitions))))
 
 ;; #### FIXME: a setf expander may be defined without its update-fn actually
 ;; existing. This just means that the expander cannot be used (yet). The code
@@ -354,37 +398,60 @@ DEFINITIONS in the process."
     ((definition short-expander-definition) definitions
      &aux (name (update-fn-name definition)))
   "Computer short setf expander DEFINITION's update definition."
-  (let ((update-fn (find-if
-		    (lambda (candidate)
-		      (and (or (typep candidate 'macro-definition)
-			       (typep candidate '%function-definition))
-			   ;; this will filter out setf functions
-			   (eq (name candidate) name)))
-		    definitions)))
-    (unless update-fn
-      (setq update-fn
-	    (if (macro-function name)
-	      (make-macro-definition name (macro-function name) t)
-	      (make-function-definition name (fdefinition name) :foreign t)))
-      (endpush update-fn definitions))
-    (setf (update-definition definition) update-fn)))
+  (unless (update-definition definition)
+    (setf (update-definition definition)
+	  (find-if (lambda (candidate)
+		     (and (or (typep candidate 'macro-definition)
+			      (typep candidate '%function-definition))
+			  ;; this will filter out setf functions
+			  (eq (name candidate) name)))
+		   definitions)))
+  (unless (or (update-definition definition) (foreignp definition))
+    (when (fboundp name)
+      (let* ((macro-function (macro-function name))
+	     (update-definition
+	       (if macro-function
+		 (make-macro-definition name (macro-function name) t)
+		 (make-function-definition name (fdefinition name)
+					   :foreign t))))
+	(endpush update-definition definitions)
+	(setq *finalized* nil)
+	(setf (update-definition definition) update-definition)))))
 
 
 
 ;; Method combinations
+
+;; #### NOTE: after Christophe's changes to SBCL following my ELS paper, I
+;; think we can reliably access the method combination object's hashtable of
+;; generic functions to compute its users. This is better than than the old
+;; way, which was to scan all known generic functions and look at their method
+;; combination.
+
 ;; #### PORTME.
 (defmethod finalize progn
-  ((definition combination-definition) definitions
-   &aux (name (name definition)))
+    ((definition combination-definition) definitions &aux users)
   "Compute method combination DEFINITION's users."
-  (setf (user-definitions definition)
-	(remove-if-not (lambda (candidate)
-			 (and (typep candidate 'generic-function-definition)
-			      (eq (sb-pcl::method-combination-type-name
-				   (sb-mop:generic-function-method-combination
-				    (generic candidate)))
-				  name)))
-	    definitions)))
+  ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
+  ;; and only add what's missing, but I don't think it's worth the trouble.
+  (maphash (lambda (function unused)
+	     (declare (ignore unused))
+	     (let ((user (find-definition function definitions)))
+	       (cond (user
+		      (push user users))
+		     ((not (foreignp definition))
+		      (let* ((name (sb-mop:generic-function-name
+				    function))
+			     (setf (consp name))
+			     (symbol (if setf (second name) name)))
+			(setq user (make-function-definition symbol function
+				     :setf setf :foreign t))
+			(setq *finalized* nil)
+			(endpush user definitions)
+			(push user users))))))
+	   (sb-pcl::method-combination-%generic-functions
+	    (combination definition)))
+  (setf (user-definitions definition) users))
 
 ;; #### FIXME: the situation here is very similar to that of short form setf
 ;; expanders: a short form method combination may be defined without its
@@ -399,68 +466,81 @@ DEFINITIONS in the process."
   ((definition short-combination-definition) definitions
    &aux (name (sb-pcl::short-combination-operator (combination definition))))
   "Compute short method combination DEFINITION's operator definition."
-  (let ((operator (find-if
-		   (lambda (candidate)
+  (unless (operator-definition definition)
+    (setf (operator-definition definition)
+	  (find-if (lambda (candidate)
 		     (and (or (typep candidate 'macro-definition)
 			      (typep candidate '%function-definition))
 			  ;; this will filter out setf functions
 			  (eq (name candidate) name)))
 		   definitions)))
-    (unless operator
-      (setq operator
-	    (if (macro-function name)
-	      (make-macro-definition name (macro-function name) t)
-	      (make-function-definition name (fdefinition name) :foreign t)))
-      (endpush operator definitions))
-    (setf (operator-definition definition) operator)))
+  (unless (or (operator-definition definition) (foreignp definition))
+    (when (fboundp name)
+      (let* ((macro-function (macro-function name))
+	     (operator-definition
+	       (if macro-function
+		 (make-macro-definition name (macro-function name) t)
+		 (make-function-definition name (fdefinition name)
+					   :foreign t))))
+	(setq *finalized* nil)
+	(endpush operator-definition definitions)
+	(setf (operator-definition definition) operator-definition)))))
 
 
 
 ;; Generic functions
+
 ;; #### NOTE: contrary to the case of short form setf expanders and short form
 ;; method combinations, it seems that the method combination object must exist
 ;; when a generic function is created (I'm getting errors otherwise). This
 ;; means that if we cannot find the combination definition right now, it must
 ;; be a foreign one.
+
 ;; #### PORTME.
 (defmethod finalize progn
     ((definition generic-function-definition) definitions
      &aux (combination
 	   (sb-mop:generic-function-method-combination (generic definition))))
   "Compute generic function DEFINITION's method combination definition."
-  (setf (combination-definition definition)
-	(or (find-if (lambda (candidate)
-		       (and (typep candidate 'combination-definition)
-			    (eq (combination candidate) combination)))
-		     definitions)
-	    (let ((newdef (make-combination-definition
-			   (sb-pcl::method-combination-type-name combination)
-			   combination t)))
-	      (endpush newdef definitions)
-	      newdef))))
+  (unless (combination-definition definition)
+    (setf (combination-definition definition)
+	  (find-definition combination definitions)))
+  (unless (or (combination-definition definition) (foreignp definition))
+    (let ((combination-definition
+	    (make-combination-definition
+	     (sb-pcl::method-combination-type-name combination)
+	     combination t)))
+      (setq *finalized* nil)
+      (endpush combination-definition definitions)
+      (setf (combination-definition definition) combination-definition))))
 
 
 
 ;; Classoids
 ;; #### PORTME.
-(defmethod finalize progn ((definition classoid-definition) definitions)
+(defmethod finalize progn
+    ((definition classoid-definition) definitions &aux classoid-definitions)
   "Compute classoid DEFINITION's super/sub classoids, and method definitions."
-  (setf (superclassoid-definitions definition)
-	(mapcar (lambda (class)
-		  (or (find class definitions :key #'object)
-		      (let ((newdef (make-classoid-definition
-				     (class-name class) class t)))
-			(endpush newdef definitions)
-			newdef)))
-	  (sb-mop:class-direct-superclasses (classoid definition))))
-  (setf (subclassoid-definitions definition)
-	(mapcar (lambda (class)
-		  (or (find class definitions :key #'object)
-		      (let ((newdef (make-classoid-definition
-				     (class-name class) class t)))
-			(endpush newdef definitions)
-			newdef)))
-	  (sb-mop:class-direct-subclasses (classoid definition))))
+  ;; #### NOTE: a case could be made to avoid rebuilding the whole lists here,
+  ;; and only add what's missing, but I don't think it's worth the trouble.
+  (flet ((get-classoid-definition (classoid)
+	   (let ((classoid-definition (find-definition classoid definitions)))
+	     (cond (classoid-definition
+		    (push classoid-definition classoid-definitions))
+		   ((not (foreignp definition))
+		    (setq classoid-definition
+			  (make-classoid-definition
+			   (class-name classoid) classoid t))
+		    (setq *finalized* nil)
+		    (endpush classoid-definition definitions)
+		    (push classoid-definition classoid-definitions))))))
+    (mapc #'get-classoid-definition
+      (sb-mop:class-direct-superclasses (classoid definition)))
+    (setf (superclassoid-definitions definition) classoid-definitions)
+    (setq classoid-definitions nil)
+    (mapc #'get-classoid-definition
+      (sb-mop:class-direct-subclasses (classoid definition)))
+    (setf (subclassoid-definitions definition) classoid-definitions))
   ;; #### FIXME: handle direct methods, slot readers and writers.
   )
 
@@ -472,26 +552,31 @@ DEFINITIONS in the process."
 
 (defmethod finalize progn
     ((definition package-definition) definitions
-     &aux (package (definition-package definition)))
+     &aux (package (definition-package definition))
+	  package-definitions)
   "Compute package DEFINITION's use, used-by, and definitions lists.
 New foreign package definitions may be created and added at the end of
 DEFINITIONS in the process."
-  ;; 1. Use list.
-  (setf (use-definitions definition)
-	(mapcar (lambda (package)
-		  (get-package-definition package definitions))
-	  (package-use-list package)))
-  ;; 2. Used-by list.
-  (setf (used-by-definitions definition)
-	(mapcar (lambda (package)
-		  (get-package-definition package definitions))
-	  (package-used-by-list package)))
+  ;; #### NOTE: a case could be made to avoid rebuilding the whole lists here,
+  ;; and only add what's missing, but I don't think it's worth the trouble.
+  (flet ((get-package-definition (package)
+	   (let ((package-definition (find-definition package definitions)))
+	     (cond (package-definition
+		    (push package-definition package-definitions))
+		   ((not (foreignp definition))
+		    (setq package-definition
+			  (make-package-definition package t))
+		    (setq *finalized* nil)
+		    (endpush package-definition definitions)
+		    (push package-definition package-definitions))))))
+    ;; 1. Use list.
+    (mapc #'get-package-definition (package-use-list package))
+    (setf (use-definitions definition) package-definitions)
+    ;; 2. Used-by list.
+    (setq package-definitions nil)
+    (mapc #'get-package-definition (package-used-by-list package))
+    (setf (used-by-definitions definition) package-definitions))
   ;; 3. Symbol definitions list.
-  ;; #### FIXME: this will break in corner cases because it's in contradiction
-  ;; with the general rule of thumb mentioned above: if new symbol definitions
-  ;; are added later on, we may miss them here. We probably need a two-phase
-  ;; finalization: one for adding new definitions, and one when we're sure
-  ;; it's not gonna happen again.
   (setf (definitions definition)
 	;; #### FIXME: write a RETAIN or KEEP function, also inverting the
 	;; order of TEST and KEY arguments.
@@ -515,9 +600,11 @@ DEFINITIONS in the process."
   ;; #### WARNING: systems are components, but don't have a parent so PARENT
   ;; is NIL for them here. We don't want to search definitions for a NIL
   ;; object because we'd fall on constants, special variables, symbol macros,
-  ;; or types. So we need this workaround. The parent-definition slot for
+  ;; or types. So we need this workaround (or check that the definition's
+  ;; actual type is not SYSTEM-DEFINITION). The parent-definition slot for
   ;; system definitions will actually be set to NIL through the overloaded
-  ;; :initform provided in the corresponding class.
+  ;; :initform provided in the corresponding class. There are no foreign
+  ;; components, apart from systems.
   (when parent
     (setf (parent-definition definition)
 	  (find-definition parent definitions))))
@@ -694,9 +781,11 @@ allow to specify or override some bits of information.
   ;; means that we end up with a potentially large number of definitions that
   ;; will probably not be documented. But again, you never know what people
   ;; will want to do with that.
-  (do ((definitions (definitions extract) (cdr definitions)))
-      ((endp definitions))
-    (finalize (first definitions) (definitions extract)))
+  (while (not *finalized*)
+    (setq *finalized* t)
+    (do ((definitions (definitions extract) (cdr definitions)))
+	((endp definitions))
+      (finalize (first definitions) (definitions extract))))
 
   extract)
 
