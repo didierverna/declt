@@ -610,12 +610,13 @@ The concrete class of the new definition depends on the COMBINATION type."
   (:documentation "The class of slot definitions."))
 
 ;; #### PORTME.
-(defun make-slot-definition (slot definition)
+(defun make-slot-definition (slot definition &optional foreign)
   "Make a new SLOT definition for classoid DEFINITION."
   (make-instance 'slot-definition
     :symbol (sb-mop:slot-definition-name slot)
     :slot slot
-    :classoid-definition definition))
+    :classoid-definition definition
+    :foreign foreign))
 
 ;; #### PORTME.
 (defmethod docstring ((definition slot-definition))
@@ -641,17 +642,20 @@ The concrete class of the new definition depends on the COMBINATION type."
     :accessor subclassoid-definitions)
    (slot-definitions
     :documentation "The list of corresponding direct slot definitions."
-    :accessor slot-definitions)
+    :initform nil :accessor slot-definitions)
    (method-definitions
     :documentation "The list of corresponding direct method definitions."
     :accessor method-definitions))
   (:documentation "Abstract root class for classoid definitions.
 These are conditions, structures, and classes."))
 
-(defmethod initialize-instance :after ((definition classoid-definition) &key)
-  (setf (slot-definitions definition)
-	(mapcar (lambda (slot) (make-slot-definition slot definition))
-	  (sb-mop:class-direct-slots (classoid definition)))))
+(defmethod initialize-instance :after
+    ((definition classoid-definition) &key foreign)
+  "Create all classoid DEFINITION's slot definitions, unless FOREIGN."
+  (unless foreign
+    (setf (slot-definitions definition)
+	  (mapcar (lambda (slot) (make-slot-definition slot definition))
+	    (sb-mop:class-direct-slots (classoid definition))))))
 
 (defclass condition-definition (classoid-definition)
   ((object :reader definition-condition) ;; slot overload
