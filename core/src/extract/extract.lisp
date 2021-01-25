@@ -545,7 +545,42 @@ DEFINITIONS in the process."
     (mapc #'get-classoid-definition
       (sb-mop:class-direct-subclasses (classoid definition)))
     (setf (subclassoid-definitions definition) classoid-definitions))
-  ;; #### FIXME: handle direct methods, slot readers and writers.
+  (setf (method-definitions definition)
+	(mapcan
+	    (lambda (method)
+	      (let* ((generic (sb-mop:method-generic-function method))
+		     (generic-definition (find-definition generic definitions))
+		     (method-definition
+		       (when generic-definition
+			 (find method (method-definitions generic-definition)
+			   :key #'definition-method))))
+		(if method-definition
+		  (list method-definition)
+		  ;; Starting here, that is, if we're missing the method
+		  ;; definition, or the whole generic definition, it means
+		  ;; that we're dealing with a foreign definition.
+		  (unless (foreignp definition)
+		    (cond (generic-definition
+			   (setq method-definition
+				 (make-method-definition
+				  method generic-definition t))
+			   (setq *finalized* nil)
+			   (push method-definition
+				 (method-definitions generic-definition))
+			   (list method-definition))
+			  (t
+			   (setq generic-definition
+				 (make-generic-definition generic t))
+			   (setq method-definition
+				 (make-method-definition
+				  method generic-definition t))
+			   (setq *finalized* nil)
+			   (push method-definition
+				 (method-definitions generic-definition))
+			   (endpush generic-definition definitions)
+			   (list method-definition)))))))
+	  (sb-mop:specializer-direct-methods (classoid definition))))
+  ;; #### FIXME: handle slot readers and writers.
   )
 
 

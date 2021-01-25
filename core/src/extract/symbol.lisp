@@ -471,7 +471,7 @@ Return a second value of T if METHOD is in fact a SETF one."
   ()
   (:documentation "The class of setf method definitions."))
 
-(defun make-method-definition (method definition &key foreign)
+(defun make-method-definition (method definition &optional foreign)
   "Make a new METHOD definition for generic DEFINITION, possibly FOREIGN.
 The concrete class of the new definition depends on whether it is a SETF one."
   (multiple-value-bind (symbol setf)
