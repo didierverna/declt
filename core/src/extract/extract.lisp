@@ -288,12 +288,6 @@ This variable is dynamically set to NIL whenever new definitions are
 created during the finalization process. The finalization process is run over
 and over again until nothing moves anymore.")
 
-(defun get-package-definition (package definitions)
-  "Get a definition for PACKAGE from DEFINITIONS.
-If not found, create a new foreign one, add it at the end of DEFINITIONS,
-and mark the finalization process as dirty."
-  )
-
 (defgeneric finalize (definition definitions)
   (:documentation "Finalize DEFINITION in DEFINITIONS.")
   (:method-combination progn))
@@ -304,7 +298,9 @@ and mark the finalization process as dirty."
 ;; Symbol definitions
 ;; ------------------
 
-(defmethod finalize progn ((definition symbol-definition) definitions)
+(defmethod finalize progn
+    ((definition symbol-definition) definitions
+     &aux (package (symbol-package (definition-symbol definition))))
   "Compute symbol DEFINITION's package definition.
 New foreign package definitions may be created and added at the end of
 DEFINITIONS in the process."
@@ -313,10 +309,10 @@ DEFINITIONS in the process."
   (unless (package-definition definition)
     (setf (package-definition definition)
 	  (or (find-definition package definitions)
-	      (let ((definition (make-package-definition package t)))
-		(endpush definition definitions)
+	      (let ((package-definition (make-package-definition package t)))
+		(endpush package-definition definitions)
 		(setq *finalized* nil)
-		definition)))))
+		package-definition)))))
 
 
 
