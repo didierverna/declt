@@ -572,11 +572,12 @@ The concrete class of the new definition depends on the COMBINATION type."
 
 (defmethod initialize-instance :after
     ((definition generic-function-definition) &key foreign)
-  "Create generic DEFINTION's method definitions."
-  (setf (method-definitions definition)
-	(mapcar (lambda (method)
-		  (make-method-definition method definition :foreign foreign))
-	  (sb-mop:generic-function-methods (generic definition)))))
+  "Create all generic DEFINTION's method definitions, unless FOREIGN."
+  (unless foreign
+    (setf (method-definitions definition)
+	  (mapcar (lambda (method)
+		    (make-method-definition method definition))
+	    (sb-mop:generic-function-methods (generic definition))))))
 
 (defclass generic-definition (generic-function-definition expander-mixin)
   ()
