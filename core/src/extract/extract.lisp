@@ -786,6 +786,7 @@ allow to specify or override some bits of information.
   ;; means that we end up with a potentially large number of definitions that
   ;; will probably not be documented. But again, you never know what people
   ;; will want to do with that.
+  (setq *finalized* nil)
   (while (not *finalized*)
     (setq *finalized* t)
     (do ((definitions (definitions extract) (cdr definitions)))
