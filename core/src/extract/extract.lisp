@@ -306,6 +306,17 @@ and over again until nothing moves anymore.")
     (make-instance (if setf 'generic-setf-definition 'generic-definition)
       :symbol symbol :generic generic :foreign foreign)))
 
+(defun make-foreign-funcoid-definition
+    (name &aux (macro-function (macro-function name)))
+  "Make a new foreign macro or function definition for NAME."
+  (if macro-function
+    (make-macro-definition name macro-function t)
+    (make-function-definition name (fdefinition name) :foreign t)))
+
+(defun foreign-funcoid-definition (name)
+  "Return a new foreign macro or function definition for NAME, or NIL."
+  (when (fboundp name) (make-foreign-funcoid-definition name)))
+
 
 
 ;; ------------------
@@ -417,16 +428,10 @@ DEFINITIONS in the process."
 			  (eq (name candidate) name)))
 		   definitions)))
   (unless (or (update-definition definition) (foreignp definition))
-    (when (fboundp name)
-      (let* ((macro-function (macro-function name))
-	     (update-definition
-	       (if macro-function
-		 (make-macro-definition name (macro-function name) t)
-		 (make-function-definition name (fdefinition name)
-					   :foreign t))))
-	(endpush update-definition definitions)
-	(setq *finalized* nil)
-	(setf (update-definition definition) update-definition)))))
+    (when-let (update-definition (foreign-funcoid-definition name))
+      (endpush update-definition definitions)
+      (setq *finalized* nil)
+      (setf (update-definition definition) update-definition))))
 
 
 
@@ -480,16 +485,10 @@ DEFINITIONS in the process."
 			  (eq (name candidate) name)))
 		   definitions)))
   (unless (or (operator-definition definition) (foreignp definition))
-    (when (fboundp name)
-      (let* ((macro-function (macro-function name))
-	     (operator-definition
-	       (if macro-function
-		 (make-macro-definition name (macro-function name) t)
-		 (make-function-definition name (fdefinition name)
-					   :foreign t))))
-	(setq *finalized* nil)
-	(endpush operator-definition definitions)
-	(setf (operator-definition definition) operator-definition)))))
+    (when-let (operator-definition (foreign-funcoid-definition name))
+      (setq *finalized* nil)
+      (endpush operator-definition definitions)
+      (setf (operator-definition definition) operator-definition))))
 
 
 
