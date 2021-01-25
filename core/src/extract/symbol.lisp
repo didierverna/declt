@@ -564,7 +564,7 @@ The concrete class of the new definition depends on the COMBINATION type."
   ((object :initarg :generic :reader generic) ;; slot overload
    (method-definitions
     :documentation "The list of corresponding method definitions."
-    :accessor method-definitions)
+    :initform nil :accessor method-definitions)
    (combination-definition
     :documentation "The corresponding method combination definition."
     :initform nil :accessor combination-definition))
