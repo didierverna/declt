@@ -392,11 +392,10 @@ DEFSETF, or DEFINE-SETF-EXPANDER."))
   ((object :initarg :function :reader definition-function)) ;; slot overload
   (:documentation "Abstract root class for functions."))
 
-;; #### NOTE: all functions are created with MAKE-FUNCTION-DEFINITION. This
-;; looks nicer in MAKE-SYMBOL-DEFINITIONS, with one drawback: the :setf
-;; argument is not really necessary in the case of generic functions, because
-;; (as for methods), the function's name could be deduced from the function
-;; object.
+;; #### NOTE: this is a general constructor used in MAKE-SYMBOLS-DEFINITIONS.
+;; It is used to create both ordinary and generic functions. In the case of
+;; generic functions, both SYMBOL and SETF could be deduced from the generic
+;; function object, but that information has already been figured out anyway.
 (defun make-function-definition (symbol function &key setf foreign)
   "Make a new FUNCTION definition for (SETF) SYMBOL, possibly FOREIGN.
 The concrete class of the new definition depends on the kind of FUNCTION, and
@@ -562,7 +561,7 @@ The concrete class of the new definition depends on the COMBINATION type."
 ;; indeed readers / writers.
 
 (defabstract generic-function-definition (%function-definition)
-  ((object :reader generic) ;; slot overload
+  ((object :initarg :generic :reader generic) ;; slot overload
    (method-definitions
     :documentation "The list of corresponding method definitions."
     :accessor method-definitions)

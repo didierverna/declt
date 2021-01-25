@@ -294,6 +294,20 @@ and over again until nothing moves anymore.")
 
 
 
+;; ---------
+;; Utilities
+;; ---------
+
+(defun make-generic-definition (generic &optional foreign)
+  "Make a new GENERIC function definition, possibly FOREIGN."
+  (let* ((name (sb-mop:generic-function-name generic))
+	 (setf (consp name))
+	 (symbol (if setf (second name) name)))
+    (make-instance (if setf 'generic-setf-definition 'generic-definition)
+      :symbol symbol :generic generic :foreign foreign)))
+
+
+
 ;; ------------------
 ;; Symbol definitions
 ;; ------------------
@@ -436,15 +450,10 @@ DEFINITIONS in the process."
 	       (cond (user
 		      (push user users))
 		     ((not (foreignp definition))
-		      (let* ((name (sb-mop:generic-function-name
-				    function))
-			     (setf (consp name))
-			     (symbol (if setf (second name) name)))
-			(setq user (make-function-definition symbol function
-				     :setf setf :foreign t))
-			(setq *finalized* nil)
-			(endpush user definitions)
-			(push user users))))))
+		      (setq user (make-generic-definition function t))
+		      (setq *finalized* nil)
+		      (endpush user definitions)
+		      (push user users)))))
 	   (sb-pcl::method-combination-%generic-functions
 	    (combination definition)))
   (setf (user-definitions definition) users))
