@@ -593,6 +593,115 @@ DEFINITIONS in the process."
 ;; constraint, which is that both readers and writers share the same status,
 ;; as their names always go hand in hand.
 
+;; #### NOTE: we can't completely unify the finalization of slot readers and
+;; writers because structure classes behave differently from condition and
+;; regular ones (or, we would need an additional super-class for only these
+;; two). That's why we have 3 methods below, two of them actually using the
+;; same helper function.
+
+;; #### PORTME.
+(defun finalize-classoid-slots (definition definitions)
+  "Compute classoid DEFINITION's slot reader and writer definitions.
+This function is used for regular classes and conditions."
+  (mapc (lambda (slot-definition &aux (slot (slot slot-definition)))
+	  ;; #### NOTE: a case could be made to avoid rebuilding the whole
+	  ;; list here, and only add what's missing, but I don't think it's
+	  ;; worth the trouble.
+	  (setf (reader-definitions slot-definition)
+		(mapcan
+		    (lambda (name)
+		      (let* ((generic (fdefinition name))
+			     (reader-definition
+			       (find-definition generic definitions)))
+			(unless (or reader-definition (foreignp definition))
+			  (setq reader-definition
+				(make-generic-definition generic t))
+			  (setq *finalized* nil)
+			  (endpush reader-definition definitions))
+			(when reader-definition
+			  (let* ((method
+				   (find (classoid definition)
+				       (sb-mop:generic-function-methods
+					generic)
+				     :key (lambda (method)
+					    (first
+					     (sb-mop:method-specializers
+					      method)))))
+				 (method-definition
+				   (find-definition
+				    method
+				    (method-definitions reader-definition))))
+			    (unless (or method-definition
+					(foreignp definition))
+			      (setq method-definition
+				    (make-method-definition
+				     method reader-definition t))
+			      (setq *finalized* nil)
+			      (push method-definition
+				    (method-definitions reader-definition)))
+			    (when method-definition
+			      (change-class method-definition
+				  'reader-method-definition
+				:slot-definition slot-definition)
+			      (list method-definition))))))
+		  (sb-mop:slot-definition-readers slot)))
+	  (setf (writer-definitions slot-definition)
+		(mapcan
+		    (lambda (name)
+		      (let* ((generic (fdefinition name))
+			     (writer-definition
+			       (find-definition generic definitions)))
+			(unless (or writer-definition (foreignp definition))
+			  (setq writer-definition
+				(make-generic-definition generic t))
+			  (setq *finalized* nil)
+			  (endpush writer-definition definitions))
+			(when writer-definition
+			  (let* ((method
+				   (find (classoid definition)
+				       (sb-mop:generic-function-methods
+					generic)
+				     :key (lambda (method)
+					    ;; #### NOTE: whatever the kind of
+					    ;; writer, that is, whether it is
+					    ;; defined with :writer or
+					    ;; :accessor, the argument list is
+					    ;; always (NEW-VALUE OBJECT).
+					    (second
+					     (sb-mop:method-specializers
+					      method)))))
+				 (method-definition
+				   (find-definition
+				    method
+				    (method-definitions writer-definition))))
+			    (unless (or method-definition
+					(foreignp definition))
+			      (setq method-definition
+				    (make-method-definition
+				     method writer-definition t))
+			      (setq *finalized* nil)
+			      (push method-definition
+				    (method-definitions writer-definition)))
+			    (when method-definition
+			      (change-class method-definition
+				  (if (typep method-definition 'setf-mixin)
+				    'setf-writer-method-definition
+				    'writer-method-definition)
+				:slot-definition slot-definition)
+			      (list method-definition))))))
+		  (sb-mop:slot-definition-writers slot))))
+    (slot-definitions definition)))
+
+(defmethod finalize progn
+    ((definition condition-definition) definitions)
+  "Compute condition DEFINITION's slot reader and writer definitions."
+  (finalize-classoid-slots definition definitions))
+
+(defmethod finalize progn
+    ((definition class-definition) definitions)
+  "Compute class DEFINITION's slot reader and writer definitions."
+  (finalize-classoid-slots definition definitions))
+
 ;; #### PORTME.
 (defmethod finalize progn
     ((definition structure-definition) definitions)
