@@ -396,6 +396,7 @@ DEFSETF, or DEFINE-SETF-EXPANDER."))
 ;; It is used to create both ordinary and generic functions. In the case of
 ;; generic functions, both SYMBOL and SETF could be deduced from the generic
 ;; function object, but that information has already been figured out anyway.
+#i(make-function-definition 2)
 (defun make-function-definition (symbol function &key setf foreign)
   "Make a new FUNCTION definition for (SETF) SYMBOL, possibly FOREIGN.
 The concrete class of the new definition depends on the kind of FUNCTION, and
@@ -598,15 +599,18 @@ The concrete class of the new definition depends on the COMBINATION type."
 ;; Slots
 ;; -----
 
+;; #### NOTE: structure slots only have one associated reader / writer, so
+;; it's slightly overkill to use a list of those. On the other hand, it allows
+;; the documentation rendering code to be applicable to all classoids.
 (defclass slot-definition (symbol-definition)
   ((object :initarg :slot :reader slot) ;; slot overload
    (classoid-definition :documentation "The corresponding classoid definition."
 			:initarg :classoid-definition
 			:reader classoid-definition)
    (reader-definitions :documentation "The list of slot reader definitions."
-		       :accessor reader-definitions)
+		       :initform nil :accessor reader-definitions)
    (writer-definitions :documentation "The list of slot writer definitions."
-		       :accessor writer-definitions))
+		       :initform nil :accessor writer-definitions))
   (:documentation "The class of slot definitions."))
 
 ;; #### PORTME.
@@ -840,15 +844,7 @@ depends on the kind of CLASSOID."
 	(lambda (reader-name)
 	  (or (find-definition reader-name 'generic-definition definitions)
 	      (make-generic-definition reader-name :foreign t)))
-      (slot-property slot :readers)))
-  ;; #### PORTME.
-  (:method ((slot sb-pcl::structure-direct-slot-definition) definitions)
-    "Method for structure slots."
-    (list
-     (let ((reader-name
-	     (sb-pcl::slot-definition-defstruct-accessor-symbol slot)))
-       (or (find-definition reader-name 'function-definition definitions)
-	   (make-generic-definition reader-name :foreign t))))))
+      (slot-property slot :readers))))
 
 #+()(defgeneric slot-writer-definitions (slot definitions)
   (:documentation "Return a list of writer definitions for SLOT.")
@@ -875,105 +871,6 @@ depends on the kind of CLASSOID."
 		 (or (find-definition writer-name 'generic-definition
 				      definitions)
 		     (make-generic-definition writer-name :foreign t)))))
-      (slot-property slot :writers)))
-  ;; #### PORTME.
-  (:method ((slot sb-pcl::structure-direct-slot-definition) definitions)
-    "Method for structure slots."
-    (list
-     (let ((writer-name
-	     (sb-pcl::slot-definition-defstruct-accessor-symbol slot)))
-       (or (find-definition writer-name 'writer-definition definitions)
-	   (make-writer-definition writer-name :foreign t))))))
-
-#+()(defun finalize-definitions (definitions)
-  (labels
-    (dolist (type '(class-definition structure-definition condition-definition))
-      (dolist (definition (type-definitions type definitions))
-	(let ((class (find-class (definition-symbol definition))))
-	  (setf (method-definitions definition)
-		(methods-definitions
-		 (sb-mop:specializer-direct-methods class)))
-	  (dolist (slot-definition (slot-definitions definition))
-	    (setf (reader-definitions slot-definition)
-		  (slot-reader-definitions (slot slot-definition) definitions))
-	    (setf (writer-definitions slot-definition)
-		  (slot-writer-definitions (slot slot-definition) definitions))))))
-    (dolist (generic-definition
-	     (type-definitions 'generic-definition definitions))
-      (compute-combination generic-definition)
-      (when (and (generic-accessor-definition-p generic-definition)
-		 (writer-definition generic-definition))
-	(compute-combination (writer-definition generic-definition))))
-    (dolist (combination-definition
-	     (type-definitions 'short-combination-definition definitions))
-      (let ((operator (sb-pcl::short-combination-operator
-		       (combination combination-definition))))
-	(setf (operator-definition combination-definition)
-	      (or (find-definition operator 'function-definition definitions)
-		  (find-definition operator 'macro-definition definitions)
-		  ;; #### NOTE: a foreign operator is not necessarily a
-		  ;; regular function. However, since we don't actually
-		  ;; document those (only print their name), we can just use a
-		  ;; function definition here (it's out of laziness).
-		  (make-function-definition operator t))))
-      (setf (users combination-definition)
-	    (definitions-combination-users
-	     definitions (definition-symbol combination-definition))))
-    (dolist (combination-definition
-	     (type-definitions 'long-combination-definition definitions))
-      (setf (users combination-definition)
-	    (definitions-combination-users
-	     definitions (definition-symbol combination-definition))))
-    (dolist (accessor-definition
-	     (type-definitions 'accessor-definition definitions))
-      (unless (writer-definition accessor-definition)
-	(setf (writer-definition accessor-definition)
-	      (find-definition (definition-symbol accessor-definition)
-			       'generic-writer-definition definitions))))
-    (dolist (writer-definition
-	     (type-definitions 'writer-definition definitions))
-      (assert (null (reader-definition writer-definition)))
-      (setf (reader-definition writer-definition)
-	    (find-definition (definition-symbol writer-definition)
-			     'generic-accessor-definition definitions)))
-    (dolist (accessor-definition
-	     (type-definitions 'generic-accessor-definition definitions))
-      (unless (writer-definition accessor-definition)
-	(setf (writer-definition accessor-definition)
-	      (find-definition (definition-symbol accessor-definition)
-			       'writer-definition definitions))))
-    (dolist (writer-definition
-	     (type-definitions 'generic-writer-definition definitions))
-      (assert (null (reader-definition writer-definition)))
-      (setf (reader-definition writer-definition)
-	    (find-definition (definition-symbol writer-definition)
-			     'accessor-definition definitions)))
-    ;; At that point, a short form setf expander definition contains a symbol
-    ;; naming the update object. We now need to transform that into an actual
-    ;; (and possibly foreign) definition.
-    ;; #### FIXME: this is bad because we traverse long forms as
-    ;; well, but this will be fixed when adding to setf expander
-    ;; subclasses.
-    (dolist (expander (type-definitions 'setf-expander-definition definitions))
-      (let ((name (update expander)))
-	(when (symbolp name)
-	  (let ((update-definition
-		  (or (find-definition name 'function-definition definitions)
-		      (find-definition name 'generic-definition definitions)
-		      (find-definition name 'macro-definition definitions)
-		      ;; #### NOTE: a foreign expander is not necessarily a
-		      ;; regular function. However, since we don't actually
-		      ;; document those (only print their name), we can just
-		      ;; use a function definition here (it's out of
-		      ;; laziness).
-		      ;; #### FIXME: is using FDEFINITION correct? Or do we
-		      ;; risk missing a closure or something like that? Also,
-		      ;; see comment at the top of the file, and in the SOURCE
-		      ;; method, about the need to fill the FUNCTION slot.
-		      (make-function-definition
-		       name (fdefinition name) t))))
-	    (setf (update-expander-definition update-definition)
-		  expander)
-	    (setf (update expander) update-definition)))))))
+      (slot-property slot :writers))))
 
 ;;; symbol.lisp ends here

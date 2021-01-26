@@ -521,6 +521,7 @@ DEFINITIONS in the process."
 
 
 ;; Classoids
+
 ;; #### PORTME.
 (defmethod finalize progn
     ((definition classoid-definition) definitions &aux classoid-definitions)
@@ -579,9 +580,63 @@ DEFINITIONS in the process."
 				 (method-definitions generic-definition))
 			   (endpush generic-definition definitions)
 			   (list method-definition)))))))
-	  (sb-mop:specializer-direct-methods (classoid definition))))
-  ;; #### FIXME: handle slot readers and writers.
-  )
+	  (sb-mop:specializer-direct-methods (classoid definition)))))
+
+;; #### NOTE: regardless of the classoid (structures included), there is no
+;; relation between the foreign status of slots and their readers / writers.
+;; It's pretty obvious for regular classes and generic accessors. Maybe less
+;; so for structures, where the key factor is that with the :conc-name option,
+;; accessor names are interned in the current package, /not/ the structure
+;; name's package. In the end, we could get our own classoids with foreign
+;; accessors, but also foreign classoids with our own accessors. In the
+;; specific case of structures however,there is still one additional
+;; constraint, which is that both readers and writers share the same status,
+;; as their names always go hand in hand.
+
+;; #### PORTME.
+(defmethod finalize progn
+    ((definition structure-definition) definitions)
+  "Compute structure DEFINITION's slot reader and writer definitions."
+  (mapc (lambda (slot-definition &aux (slot (slot slot-definition)))
+	  ;; #### NOTE: in the case of structures, there is only one reader /
+	  ;; writer per slot, so if it's already there, we can save some time
+	  ;; because the list of it as a single element doesn't risk being out
+	  ;; of date. Also, remember that readers and writers share the same
+	  ;; status, so we only need to perform one test each time.
+	  (unless (reader-definitions slot-definition)
+	    (let* ((accessor-name
+		     (sb-pcl::slot-definition-defstruct-accessor-symbol slot))
+		   (reader-function
+		     (sb-pcl::slot-definition-internal-reader-function slot))
+		   (writer-function
+		     (sb-pcl::slot-definition-internal-writer-function slot))
+		   (reader-definition
+		     (find-definition reader-function definitions))
+		   (writer-definition
+		     (find-definition writer-function definitions)))
+	      (unless (or reader-definition (foreignp definition))
+		(setq reader-definition
+		      (make-function-definition accessor-name reader-function
+			:foreign t))
+		(setq writer-definition
+		      (make-function-definition accessor-name writer-function
+			:setf t :foreign t))
+		(setq *finalized* nil)
+		(endpush reader-definition definitions)
+		(endpush writer-definition definitions))
+	      (when reader-definition
+		(unless (typep reader-definition 'reader-definition)
+		  (change-class reader-definition 'reader-definition
+		    :slot-definition slot-definition))
+		(unless (typep writer-definition 'writer-definition)
+		  (change-class writer-definition 'writer-definition
+		    :slot-definition slot-definition)))
+	      ;; See comment on top of the SLOT-DEFINITION class about this.
+	      (setf (reader-definitions slot-definition)
+		    (when reader-definition (list reader-definition)))
+	      (setf (writer-definitions slot-definition)
+		    (when writer-definition (list writer-definition))))))
+    (slot-definitions definition)))
 
 
 
