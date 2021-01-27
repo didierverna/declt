@@ -48,6 +48,8 @@
 Only constants, special variables, symbol macros, and types do not have an
 associated Lisp object."
     :initform nil :initarg :object :reader object)
+   (source-file :documentation "The corresponding source file definition."
+		:initform nil :accessor source-file)
    (foreign
     :documentation "Whether this definition is foreign."
     :initform nil :initarg :foreign :reader foreignp))

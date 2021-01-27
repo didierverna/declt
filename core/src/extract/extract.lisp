@@ -319,6 +319,24 @@ and over again until nothing moves anymore.")
 
 
 
+;; ---------------
+;; All definitions
+;; ---------------
+
+(defmethod finalize progn ((definition definition) definitions)
+  "Compute DEFINITION's source file definition."
+  (unless (source-file definition)
+    (when-let (source-pathname (source-pathname definition))
+      (setf (source-file definition)
+	    ;; #### FIXME: FIND[-IF] with test and key reversed.
+	    (find-if (lambda (definition)
+		       (and (typep definition 'lisp-file-definition)
+			    (equal (component-pathname (file definition))
+				   source-pathname)))
+		     definitions)))))
+
+
+
 ;; ------------------
 ;; Symbol definitions
 ;; ------------------
