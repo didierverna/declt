@@ -1,6 +1,6 @@
 ;;; symbol.lisp --- Symbol definitions
 
-;; Copyright (C) 2010-2013, 2017, 2020 Didier Verna
+;; Copyright (C) 2010-2013, 2017, 2020, 2021 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -36,16 +36,32 @@
 (in-readtable :net.didierverna.declt)
 
 
+
+;; ==========================================================================
+;; Local Utilities
+;; ==========================================================================
+
 ;; #### NOTE: SB-INTROSPECT:FIND-DEFINITION-SOURCES-BY-NAME may return
 ;; multiple sources (e.g. if we were to ask it for methods) so we take the
 ;; first one. This is okay because we actually use it only when there can be
 ;; only one definition source.
+
 ;; #### PORTME.
 (defun definition-source-by-name
     (definition type &key (name (name definition)))
   "Return DEFINITION's source for TYPE."
   (when-let (sources (sb-introspect:find-definition-sources-by-name name type))
     (sb-introspect:definition-source-pathname (first sources))))
+
+;; #### PORTME.
+(defun specializers (method)
+  "Return METHOD's specializers."
+  (sb-mop:method-specializers (definition-method method)))
+
+;; #### PORTME.
+(defun qualifiers (method)
+  "Return METHOD's qualifiers."
+  (method-qualifiers (definition-method method)))
 
 
 
@@ -60,10 +76,6 @@
    (package-definition :documentation "The corresponding package definition."
 		       :initform nil :accessor package-definition))
   (:documentation "Abstract root class for all definitions named by symbols."))
-
-(defun symbol-definition-p (object)
-  "Return T if OBJECT is a symbol definition."
-  (eq (type-of object) 'symbol-definition))
 
 (defmethod name ((definition symbol-definition))
   "Return symbol DEFINITION's symbol."
@@ -179,6 +191,7 @@ method combinations, and types."))
 This is the default method."
     (sb-introspect:function-lambda-list (funcoid definition))))
 
+
 (defabstract setf-mixin ()
   ()
   (:documentation "Mixin for setf funcoid definitions.
@@ -187,6 +200,7 @@ This mixin should be put before the funcoid superclass."))
 (defmethod name ((definition setf-mixin))
   "Return the list (setf <setf mixin DEFINITION's symbol>)."
   (list 'setf (definition-symbol definition)))
+
 
 (defabstract expander-mixin ()
   ((expander-for
@@ -208,6 +222,7 @@ These are (generic) functions and macros. A funcoid is relatable to a setf
 expander when its signature is the same as that of an access-fn, or when a
 short form setf expander expands to it (i.e., it has this funcoid as its
 update-fn)."))
+
 
 (defabstract accessor-mixin ()
   ((slot-definition :documentation "The corresponding slot definition."
@@ -245,6 +260,7 @@ and methods for classes or conditions slots."))
   "Return compiler macro DEFINITION's docstring."
   (documentation (definition-symbol definition) 'compiler-macro))
 
+
 (defclass setf-compiler-macro-definition (setf-mixin compiler-macro-definition)
   ()
   (:documentation "The class of setf compiler macro definitions."))
@@ -252,6 +268,7 @@ and methods for classes or conditions slots."))
 (defmethod docstring ((definition setf-compiler-macro-definition))
   "Return setf compiler macro DEFINITION's docstring."
   (documentation `(setf ,(definition-symbol definition)) 'compiler-macro))
+
 
 (defun make-compiler-macro-definition (symbol compiler-macro &optional setf)
   "Make a new COMPILER-MACRO definition for SYMBOL."
@@ -369,139 +386,9 @@ DEFSETF, or DEFINE-SETF-EXPANDER."))
 
 
 
-;; -------------------------------
-;; (Generic) functions and methods
-;; -------------------------------
-
-;; #### NOTE: only basic function definitions are created. Reader and writer
-;; definitions are created during the finalization process by upgrading the
-;; class of the concerned definitions. The same goes for methods.
-
-(defabstract %function-definition (funcoid-definition)
-  ((object :initarg :function :reader definition-function)) ;; slot overload
-  (:documentation "Abstract root class for functions."))
-
-;; #### NOTE: this is a general constructor used in MAKE-SYMBOLS-DEFINITIONS.
-;; It is used to create both ordinary and generic functions. In the case of
-;; generic functions, both SYMBOL and SETF could be deduced from the generic
-;; function object, but that information has already been figured out anyway.
-#i(make-function-definition 2)
-(defun make-function-definition (symbol function &key setf foreign)
-  "Make a new FUNCTION definition for (SETF) SYMBOL, possibly FOREIGN.
-The concrete class of the new definition depends on the kind of FUNCTION, and
-whether it is a SETF one."
-  (make-instance
-      (typecase function
-	(generic-function
-	 (if setf 'generic-setf-definition 'generic-definition))
-	(otherwise
-	 (if setf 'setf-function-definition 'function-definition)))
-    :symbol symbol :function function :foreign foreign))
-
-
-
-;; Ordinary functions
-(defabstract ordinary-function-definition (%function-definition)
-  ()
-  (:documentation "Abstract root class for ordinary functions."))
-
-(defclass function-definition (ordinary-function-definition expander-mixin)
-  ()
-  (:documentation "The class of ordinary, non-setf function definitions."))
-
-(defclass setf-function-definition
-    (setf-mixin ordinary-function-definition)
-  ()
-  (:documentation "The class of ordinary setf function definitions."))
-
-(defclass reader-definition (function-definition accessor-mixin)
-  ()
-  (:documentation "The class of ordinary reader definitions.
-An ordinary reader is an ordinary function that reads a slot in a
-structure."))
-
-;; #### WARNING: see comment at the top of the file.
-(defclass writer-definition (setf-function-definition accessor-mixin)
-  ()
-  (:documentation "The class of ordinary writer definitions.
-An ordinary writer is an ordinary function that writes a slot in a
-structure."))
-
-
-
-;; Methods
-
-;; #### PORTME.
-(defun method-name (method
-		    &aux (name (sb-mop:generic-function-name
-				(sb-mop:method-generic-function method))))
-  "Return METHOD's canonical name.
-Return a second value of T if METHOD is in fact a SETF one."
-  (if (listp name)
-    (values (second name) t)
-    name))
-
-(defabstract %method-definition (funcoid-definition)
-  ((object :initarg :method :reader definition-method) ;; slot overload
-   (generic-definition :documentation "The corresponding generic definition."
-		       :initarg :generic-definition))
-  (:documentation "Abstract root class for method definitions."))
-
-;; #### PORTME.
-(defmethod lambda-list ((definition %method-definition))
-  "Return method DEFINITION's method lambda-list."
-  (sb-mop:method-lambda-list (definition-method definition)))
-
-
-(defclass method-definition (%method-definition)
-  ()
-  (:documentation "The class of non-setf method definitions."))
-
-(defclass setf-method-definition (setf-mixin %method-definition)
-  ()
-  (:documentation "The class of setf method definitions."))
-
-(defun make-method-definition (method definition &optional foreign)
-  "Make a new METHOD definition for generic DEFINITION, possibly FOREIGN.
-The concrete class of the new definition depends on whether it is a SETF one."
-  (multiple-value-bind (symbol setf)
-      (method-name method)
-    (make-instance (if setf 'setf-method-definition 'method-definition)
-      :symbol symbol :method method :generic-definition definition
-      :foreign foreign)))
-
-;; #### NOTE: the situation for readers and writers methods (on class and
-;; condition slots) is different from that of ordinary readers and writers (on
-;; structure slots). Indeed, an :accessor specification will create a setf
-;; function, but a :writer specification allows you to do whatever you like,
-;; not necessarily a setf form, so the hierarchy needs to be a bit different.
-
-(defclass reader-method-definition (method-definition accessor-mixin)
-  ()
-  (:documentation "The class of reader method definitions.
-A reader method is a method that reads a slot in a class or condition."))
-
-(defabstract %writer-method-definition (accessor-mixin)
-  ()
-  (:documentation "Abstract root class for writer method definitions."))
-
-(defclass writer-method-definition
-    (method-definition %writer-method-definition)
-  ()
-  (:documentation "The class of non-setf writer method definitions.
-A non-setf writer method is a non-setf method that writes a slot in a class
-or a condition."))
-
-(defclass setf-writer-method-definition
-    (setf-method-definition %writer-method-definition)
-  ()
-  (:documentation "The class of setf writer method definitions.
-A setf writer method is a setf method that writes a slot in a class
-or a condition."))
-
-
-
+;; -------------------
 ;; Method combinations
+;; -------------------
 
 ;; #### NOTE: the root class is not abstract, because it is used for foreign
 ;; definitions.
@@ -544,6 +431,130 @@ The concrete class of the new definition depends on the COMBINATION type."
 
 
 
+;; -------
+;; Methods
+;; -------
+
+(defabstract %method-definition (funcoid-definition)
+  ((object :initarg :method :reader definition-method) ;; slot overload
+   (generic-definition :documentation "The corresponding generic definition."
+		       :initarg :generic-definition))
+  (:documentation "Abstract root class for method definitions."))
+
+;; #### PORTME.
+(defmethod lambda-list ((definition %method-definition))
+  "Return method DEFINITION's method lambda-list."
+  (sb-mop:method-lambda-list (definition-method definition)))
+
+
+(defclass method-definition (%method-definition)
+  ()
+  (:documentation "The class of non-setf method definitions."))
+
+(defclass setf-method-definition (setf-mixin %method-definition)
+  ()
+  (:documentation "The class of setf method definitions."))
+
+;; #### PORTME.
+(defun method-name (method
+		    &aux (name (sb-mop:generic-function-name
+				(sb-mop:method-generic-function method))))
+  "Return METHOD's canonical name.
+Return a second value of T if METHOD is in fact a SETF one."
+  (if (listp name)
+    (values (second name) t)
+    name))
+
+(defun make-method-definition (method definition &optional foreign)
+  "Make a new METHOD definition for generic DEFINITION, possibly FOREIGN.
+The concrete class of the new definition depends on whether it is a SETF one."
+  (multiple-value-bind (symbol setf)
+      (method-name method)
+    (make-instance (if setf 'setf-method-definition 'method-definition)
+      :symbol symbol :method method :generic-definition definition
+      :foreign foreign)))
+
+
+;; #### NOTE: only basic method definitions are created. Reader and writer
+;; definitions are created during the finalization process by upgrading the
+;; class of the concerned definitions.
+
+;; #### NOTE: the situation for readers and writers methods (on class and
+;; condition slots) is different from that of ordinary readers and writers (on
+;; structure slots). Indeed, an :accessor specification will create a setf
+;; function, but a :writer specification allows you to do whatever you like,
+;; not necessarily a setf form, so the hierarchy needs to be a bit different.
+
+(defclass reader-method-definition (method-definition accessor-mixin)
+  ()
+  (:documentation "The class of reader method definitions.
+A reader method is a method that reads a slot in a class or condition."))
+
+
+(defabstract %writer-method-definition (accessor-mixin)
+  ()
+  (:documentation "Abstract root class for writer method definitions."))
+
+(defclass writer-method-definition
+    (method-definition %writer-method-definition)
+  ()
+  (:documentation "The class of non-setf writer method definitions.
+A non-setf writer method is a non-setf method that writes a slot in a class
+or a condition."))
+
+(defclass setf-writer-method-definition
+    (setf-method-definition %writer-method-definition)
+  ()
+  (:documentation "The class of setf writer method definitions.
+A setf writer method is a setf method that writes a slot in a class
+or a condition."))
+
+
+
+;; -------------------
+;; (Generic) functions
+;; -------------------
+
+(defabstract %function-definition (funcoid-definition)
+  ((object :initarg :function :reader definition-function)) ;; slot overload
+  (:documentation "Abstract root class for functions."))
+
+
+
+;; Ordinary functions
+
+;; #### NOTE: only basic function definitions are created. Reader and writer
+;; definitions are created during the finalization process by upgrading the
+;; class of the concerned definitions.
+
+(defabstract ordinary-function-definition (%function-definition)
+  ()
+  (:documentation "Abstract root class for ordinary functions."))
+
+(defclass function-definition (ordinary-function-definition expander-mixin)
+  ()
+  (:documentation "The class of ordinary, non-setf function definitions."))
+
+(defclass setf-function-definition
+    (setf-mixin ordinary-function-definition)
+  ()
+  (:documentation "The class of ordinary setf function definitions."))
+
+(defclass reader-definition (function-definition accessor-mixin)
+  ()
+  (:documentation "The class of ordinary reader definitions.
+An ordinary reader is an ordinary function that reads a slot in a
+structure."))
+
+;; #### WARNING: see comment at the top of the file.
+(defclass writer-definition (setf-function-definition accessor-mixin)
+  ()
+  (:documentation "The class of ordinary writer definitions.
+An ordinary writer is an ordinary function that writes a slot in a
+structure."))
+
+
+
 ;; Generic functions
 
 ;; #### TODO: we could think of creating classes of reader and writer generic
@@ -578,6 +589,28 @@ The concrete class of the new definition depends on the COMBINATION type."
   (:documentation "The class of ordinary setf function definitions."))
 
 
+
+;; General constructor
+
+;; #### NOTE: this is a general constructor used in MAKE-SYMBOLS-DEFINITIONS.
+;; It is used to create both ordinary and generic functions. In the case of
+;; generic functions, both SYMBOL and SETF could be deduced from the generic
+;; function object, but that information has already been figured out anyway.
+
+#i(make-function-definition 2)
+(defun make-function-definition (symbol function &key setf foreign)
+  "Make a new FUNCTION definition for (SETF) SYMBOL, possibly FOREIGN.
+The concrete class of the new definition depends on the kind of FUNCTION, and
+whether it is a SETF one."
+  (make-instance
+      (typecase function
+	(generic-function
+	 (if setf 'generic-setf-definition 'generic-definition))
+	(otherwise
+	 (if setf 'setf-function-definition 'function-definition)))
+    :symbol symbol :function function :foreign foreign))
+
+
 
 
 ;; ==========================================================================
@@ -591,6 +624,7 @@ The concrete class of the new definition depends on the COMBINATION type."
 ;; #### NOTE: structure slots only have one associated reader / writer, so
 ;; it's slightly overkill to use a list of those. On the other hand, it allows
 ;; the documentation rendering code to be applicable to all classoids.
+
 (defclass slot-definition (symbol-definition)
   ((object :initarg :slot :reader slot) ;; slot overload
    (classoid-definition :documentation "The corresponding classoid definition."
@@ -769,20 +803,5 @@ depends on the kind of CLASSOID."
     (push (make-type-definition symbol) definitions))
 
   definitions)
-
-
-
-
-
-
-;; #### PORTME.
-(defun specializers (method)
-  "Return METHOD's specializers."
-  (sb-mop:method-specializers (definition-method method)))
-
-;; #### PORTME.
-(defun qualifiers (method)
-  "Return METHOD's qualifiers."
-  (method-qualifiers (definition-method method)))
 
 ;;; symbol.lisp ends here
