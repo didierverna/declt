@@ -523,7 +523,8 @@ DEFINITIONS in the process."
     ((definition generic-function-definition) definitions
      &aux (combination
 	   (sb-mop:generic-function-method-combination (generic definition))))
-  "Compute generic function DEFINITION's method combination definition."
+  "Compute generic function DEFINITION's method combination definition.
+Also finalize all methods."
   (unless (combination-definition definition)
     (setf (combination-definition definition)
 	  (find-definition combination definitions)))
@@ -534,7 +535,9 @@ DEFINITIONS in the process."
 	     combination t)))
       (setq *finalized* nil)
       (endpush combination-definition definitions)
-      (setf (combination-definition definition) combination-definition))))
+      (setf (combination-definition definition) combination-definition)))
+  (mapc (lambda (method-definition) (finalize method-definition definitions))
+    (method-definitions definition)))
 
 
 
@@ -543,7 +546,8 @@ DEFINITIONS in the process."
 ;; #### PORTME.
 (defmethod finalize progn
     ((definition classoid-definition) definitions &aux classoid-definitions)
-  "Compute classoid DEFINITION's super/sub classoids, and method definitions."
+  "Compute classoid DEFINITION's super/sub classoids, and method definitions.
+Also finalize all slots."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole lists here,
   ;; and only add what's missing, but I don't think it's worth the trouble.
   (flet ((get-classoid-definition (classoid)
@@ -598,7 +602,9 @@ DEFINITIONS in the process."
 				 (method-definitions generic-definition))
 			   (endpush generic-definition definitions)
 			   (list method-definition)))))))
-	  (sb-mop:specializer-direct-methods (classoid definition)))))
+	  (sb-mop:specializer-direct-methods (classoid definition))))
+  (mapc (lambda (slot-definition) (finalize slot-definition definitions))
+    (slot-definitions definition)))
 
 ;; #### NOTE: regardless of the classoid (structures included), there is no
 ;; relation between the foreign status of slots and their readers / writers.
