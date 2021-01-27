@@ -1,6 +1,6 @@
-;;; base.lisp --- Code base for documentation extraction
+;;; definition.lisp --- Definitions code base
 
-;; Copyright (C) 2010, 2011, 2013, 2020 Didier Verna
+;; Copyright (C) 2010, 2011, 2013, 2020, 2021 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -55,11 +55,16 @@ associated Lisp object."
     :initform nil :initarg :foreign :reader foreignp))
   (:documentation "Abstract root class for all definitions."))
 
+(defmethod print-object ((definition definition) stream)
+  "Show DEFINITION's name."
+  (print-unreadable-object (definition stream :type t)
+    (princ (name definition) stream)))
+
 
 
 
 ;; ==========================================================================
-;; Extraction Protocols
+;; Public Protocols
 ;; ==========================================================================
 
 (defgeneric name (definition)
@@ -68,28 +73,18 @@ This is the native Lisp name for the definition's corresponding object.
 It's either a string (for ASDF components and packages), a symbol,
 or a list of the form (setf symbol)."))
 
-(defmethod print-object ((definition definition) stream)
-  "Show DEFINITION's name."
-  (print-unreadable-object (definition stream :type t)
-    (princ (name definition) stream)))
-
-;; #### NOTE: we're trying to be clever here, bypassing
-;; FIND-DEFINITION-SOURCES-BY-NAME when possible, because it performs some
-;; checks that we know we don't need. I'm not sure it's worth the trouble
-;; anymore.
-(defgeneric source-pathname (definition)
-  (:documentation "Return DEFINITION's source pathname.")
-  ;; #### PORTME.
-  (:method (definition)
-    "Return DEFINITION's object source pathname (this is the default method)."
-    (object-source-pathname (object definition))))
-
 (defgeneric docstring (definition)
   (:documentation "Return DEFINITION's docstring (Lisp documentation).")
   (:method (definition)
     "Return DEFINITION's object canonical documentation.
 This is the default method."
     (documentation (object definition) t)))
+
+(defgeneric public-definitions (object)
+  (:documentation "Return OBJECT's public definitions."))
+
+(defgeneric private-definitions (object)
+  (:documentation "Return OBJECT's private definitions."))
 
 
 
@@ -104,10 +99,15 @@ This is the default method."
   ;; (e.g. medium form setf expanders).
   (find object definitions :key #'object :test #'equal))
 
-(defgeneric public-definitions (object)
-  (:documentation "Return OBJECT's public definitions."))
+;; #### NOTE: we're trying to be clever here, bypassing
+;; FIND-DEFINITION-SOURCES-BY-NAME when possible, because it performs some
+;; checks that we know we don't need. I'm not sure it's worth the trouble
+;; anymore.
+(defgeneric source-pathname (definition)
+  (:documentation "Return DEFINITION's source pathname.")
+  ;; #### PORTME.
+  (:method (definition)
+    "Return DEFINITION's object source pathname (this is the default method)."
+    (object-source-pathname (object definition))))
 
-(defgeneric private-definitions (object)
-  (:documentation "Return OBJECT's private definitions."))
-
-;;; base.lisp ends here
+;;; definition.lisp ends here

@@ -55,7 +55,7 @@ net.didierverna.declt system."
 					   (:file "asdf")))
 			     (:module "extract"
 			      :serial t
-			      :components ((:file "base")
+			      :components ((:file "definition")
 					   (:file "license")
 					   (:file "symbol")
 					   (:file "package")
