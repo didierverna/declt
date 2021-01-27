@@ -31,7 +31,7 @@
 
 
 ;; ==========================================================================
-;; Component Definition Basics
+;; Components
 ;; ==========================================================================
 
 ;; #### NOTE: we more or less need to follow the ASDF hierarchy, which is not
@@ -54,7 +54,7 @@ This is the base class for ASDF definitions."))
 
 
 ;; ----------------
-;; Pseudo-accessors
+;; Public protocols
 ;; ----------------
 
 (defmethod name ((definition component-definition))
@@ -82,9 +82,16 @@ This is the same as the `description' function."
   "Return component DEFINITION's if-feature."
   (component-if-feature (component definition)))
 
+;; #### FIXME: this one needs to be converted to definition references.
 (defun dependencies (definition)
   "Return component DEFINITION's dependencies."
   (component-sideway-dependencies (component definition)))
+
+
+
+;; ---------
+;; Utilities
+;; ---------
 
 (defmethod source-pathname
     ((definition component-definition) &aux (component (component definition)))
@@ -118,10 +125,70 @@ This is the base class for ASDF file definitions."))
 		:accessor definitions))
   (:documentation "The LISP-FILE-DEFINITION class."))
 
-(defun lisp-file-definition-p (definition)
-  "Return T if DEFINITION is for a Lisp file.
-Note that ASDF system files are considered as Lisp files."
-  (typep definition 'lisp-file-definition))
+(defclass c-file-definition (source-file-definition)
+  ()
+  (:documentation "The C-FILE-DEFINITION class."))
+
+(defclass java-file-definition (source-file-definition)
+  ()
+  (:documentation "The JAVA-FILE-DEFINITION class."))
+
+(defclass static-file-definition (source-file-definition)
+  ()
+  (:documentation "The STATIC-FILE-DEFINITION class."))
+
+(defclass doc-file-definition (static-file-definition)
+  ()
+  (:documentation "The DOC-FILE-DEFINITION class."))
+
+(defclass html-file-definition (doc-file-definition)
+  ()
+  (:documentation "The HTML-FILE-DEFINITION class."))
+
+(defun make-file-definition (file)
+  "Make a new FILE definition.
+The concrete class of the new definition depends on the kind of FILE."
+  (make-instance
+      (etypecase file
+	;; #### WARNING: the order is important!
+	(asdf:cl-source-file 'lisp-file-definition)
+	(asdf:c-source-file 'c-file-definition)
+	(asdf:java-source-file 'java-file-definition)
+	(asdf:html-file 'html-file-definition)
+	(asdf:doc-file 'doc-file-definition)
+	(asdf:static-file 'static-file-definition)
+	(asdf:source-file 'source-file-definition)
+	(asdf:file-component 'file-definition))
+    :file file))
+
+
+
+;; ----------------
+;; Public protocols
+;; ----------------
+
+;; #### WARNING: remember that a Lisp file definition contains symbol
+;; definitions, but also other things like packages and asdf components.
+
+(defmethod public-definitions ((definition lisp-file-definition))
+  "Return Lisp file DEFINITION's public definitions."
+  (remove-if-not (lambda (definition)
+		   (and (typep definition 'symbol-definition)
+			(publicp definition)))
+      (definitions definition)))
+
+(defmethod private-definitions ((definition lisp-file-definition))
+  "Return Lisp file DEFINITION's private definitions."
+  (remove-if (lambda (definition)
+	       (or (not (typep definition 'symbol-definition))
+		   (publicp definition)))
+      (definitions definition)))
+
+
+
+;; ------------
+;; System files
+;; ------------
 
 ;; #### WARNING: gross hack going on below. ASDF system files are technically
 ;; Lisp files because what they contain is Lisp, but they are not ASDF
@@ -177,42 +244,6 @@ definition for each file."
   (mapcar #'make-system-file-definition
     (remove-duplicates systems
       :key #'system-source-file :test #'equal :from-end t)))
-
-(defclass c-file-definition (source-file-definition)
-  ()
-  (:documentation "The C-FILE-DEFINITION class."))
-
-(defclass java-file-definition (source-file-definition)
-  ()
-  (:documentation "The JAVA-FILE-DEFINITION class."))
-
-(defclass static-file-definition (source-file-definition)
-  ()
-  (:documentation "The STATIC-FILE-DEFINITION class."))
-
-(defclass doc-file-definition (static-file-definition)
-  ()
-  (:documentation "The DOC-FILE-DEFINITION class."))
-
-(defclass html-file-definition (doc-file-definition)
-  ()
-  (:documentation "The HTML-FILE-DEFINITION class."))
-
-(defun make-file-definition (file)
-  "Make a new FILE definition.
-The concrete class of the new definition depends on the kind of FILE."
-  (make-instance
-      (etypecase file
-	;; #### WARNING: the order is important!
-	(asdf:cl-source-file 'lisp-file-definition)
-	(asdf:c-source-file 'c-file-definition)
-	(asdf:java-source-file 'java-file-definition)
-	(asdf:html-file 'html-file-definition)
-	(asdf:doc-file 'doc-file-definition)
-	(asdf:static-file 'static-file-definition)
-	(asdf:source-file 'source-file-definition)
-	(asdf:file-component 'file-definition))
-    :file file))
 
 
 
@@ -270,8 +301,9 @@ The concrete class of the new definition depends on the kind of FILE."
   (make-instance 'system-definition :system system))
 
 
+
 ;; ----------------
-;; Pseudo-accessors
+;; Public protocols
 ;; ----------------
 
 (defun long-name (definition)
@@ -294,32 +326,9 @@ The concrete class of the new definition depends on the kind of FILE."
   "Return system DEFINITION's bug tracker, or NIL."
   (system-bug-tracker (system definition)))
 
+;; #### FIXME: maybe not public. See what to do about licenses.
 (defun license-name (definition)
   "Return system DEFINITION's license name, or NIL."
   (system-license (system definition)))
-
-
-
-
-;; ==========================================================================
-;; Utilities
-;; ==========================================================================
-
-;; #### WARNING: remember that a Lisp file definition contains symbol
-;; definitions, but also other things like packages and asdf components.
-
-(defmethod public-definitions ((definition lisp-file-definition))
-  "Return Lisp file DEFINITION's public definitions."
-  (remove-if-not (lambda (definition)
-		   (and (typep definition 'symbol-definition)
-			(publicp definition)))
-      (definitions definition)))
-
-(defmethod private-definitions ((definition lisp-file-definition))
-  "Return Lisp file DEFINITION's private definitions."
-  (remove-if (lambda (definition)
-	       (or (not (typep definition 'symbol-definition))
-		   (publicp definition)))
-      (definitions definition)))
 
 ;;; asdf.lisp ends here
