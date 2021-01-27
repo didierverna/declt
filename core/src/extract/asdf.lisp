@@ -279,7 +279,10 @@ definition for each file."
    (author-names :documentation "The list of author names."
 		 :initform nil :accessor author-names)
    (author-emails :documentation "The list of maintainer emails."
-		  :initform nil :accessor author-emails))
+		  :initform nil :accessor author-emails)
+   (defsystem-dependencies
+     :documentation "The list of defsystem dependency definitions."
+     :accessor defsystem-dependencies))
   (:documentation "The System Definition class."))
 
 (defmethod initialize-instance :after
@@ -296,9 +299,9 @@ definition for each file."
       (setf (author-names definition) authors)
       (setf (author-emails definition) emails))))
 
-(defun make-system-definition (system)
+(defun make-system-definition (system &optional foreign)
   "Make a new SYSTEM definition."
-  (make-instance 'system-definition :system system))
+  (make-instance 'system-definition :system system :foreign foreign))
 
 
 

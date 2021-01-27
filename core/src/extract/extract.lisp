@@ -63,30 +63,6 @@
 ;; System definitions
 ;; ------------------
 
-(defun reorder-dependency-def (dependency-def)
-  "Reorder information in DEPENDENCY-DEF so that the system is always first.
-More specifically:
-- simple component names are returned as-is,
-- :version expressions are returned as (system :version version-specifier),
-- :feature expressions are returned as (... :feature feature-expression),
-- :require expressions are returned as (system :require).
-
-Note that because a feature expression is defined recursively, the first
-element in the reordered list may be another reordered sub-list rather than a
-simple component name directly. In any case, the system name will always be
-in the deepest first position."
-  (typecase dependency-def ;; RTE to the rescue!
-    (list (ecase (car dependency-def)
-	    (:feature
-	     (list (reorder-dependency-def (third dependency-def))
-		   :feature (second dependency-def)))
-	    (:version
-	     (list (second dependency-def)
-		   :version (third dependency-def)))
-	    (:require
-	     (list (second dependency-def) :require))))
-    (otherwise dependency-def)))
-
 (defun reordered-dependency-def-system (reordered-dependency-def)
   "Extract the system name from REORDERED-DEPENDENCY-DEF.
 See `reorder-dependency-def' for more information."

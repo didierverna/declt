@@ -647,4 +647,37 @@ DEFINITIONS in the process."
 				  module)))
 	    definitions)))
 
+
+
+;; -------
+;; Systems
+;; -------
+
+(defmethod finalize progn
+    ((definition system-definition) definitions
+     &aux (system (system definition))
+	  (defsystem-dependencies (mapcar #'reorder-dependency-def
+				    (system-defsystem-depends-on system))))
+  "Compute system DEFINITION's defssystem dependency definitions."
+  (setf (defsystem-dependencies definition)
+	(mapcan (lambda (dependency &aux inner)
+		  (unless (listp dependency)
+		    (setq dependency (list dependency)))
+		  (setq inner dependency)
+		  (while (listp (car inner)) (setq inner (car inner)))
+		  (let* ((dependency-name (car inner))
+			 (dependency-system
+			   (resolve-dependency-name system dependency-name))
+			 (dependency-definition
+			   (find-definition dependency-system definitions)))
+		    (unless (or dependency-definition (foreignp definition))
+		      (setq dependency-definition
+			    (make-system-definition dependency-system t))
+		      (setq *finalized* nil)
+		      (endpush dependency-definition definitions))
+		    (when dependency-definition
+		      (rplaca inner dependency-definition)
+		      (list dependency))))
+	  defsystem-dependencies)))
+
 ;; finalize.lisp ends here
