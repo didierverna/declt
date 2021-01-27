@@ -394,9 +394,9 @@ DEFINITIONS in the process."
 
 
 ;; #### WARNING: there is no finalization method for the accessor mixin. This
-;; is handled when classoid definitions are finalized: the slot definitions
-;; are traversed, readers and writers are searched for as regular functions,
-;; and when they are found, their respective classes are upgraded.
+;; is handled by the sot finalization methods. Slot readers and writers are
+;; searched for as regular functions, and when they are found, their
+;; respective classes are upgraded.
 
 
 
@@ -790,14 +790,21 @@ DEFINITIONS in the process."
     (setf (used-by-definitions definition) package-definitions))
   ;; 3. Symbol definitions list.
   (setf (definitions definition)
-	;; #### FIXME: write a RETAIN or KEEP function, also inverting the
-	;; order of TEST and KEY arguments.
-	(remove-if-not (lambda (definition)
-			 (and (typep definition 'symbol-definition)
+	(mapcan (lambda (definition)
+		  (cond ((typep definition 'classoid-definition)
+			 ;; #### FIXME: RETAIN.
+			 (remove-if-not
+			     (lambda (definition)
+			       (eq (symbol-package
+				    (definition-symbol definition))
+				   package))
+			     (cons definition (slot-definitions definition))))
+			((and (typep definition 'symbol-definition)
 			      (eq (symbol-package
 				   (definition-symbol definition))
-				  package)))
-	    definitions)))
+				  package))
+			 (list definition))))
+	  definitions)))
 
 
 
