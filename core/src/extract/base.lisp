@@ -75,7 +75,7 @@ or a list of the form (setf symbol)."))
 ;; FIND-DEFINITION-SOURCES-BY-NAME when possible, because it performs some
 ;; checks that we know we don't need. I'm not sure it's worth the trouble
 ;; anymore.
-(defgeneric source (definition)
+(defgeneric source-pathname (definition)
   (:documentation "Return DEFINITION's source pathname.")
   ;; #### PORTME.
   (:method (definition)

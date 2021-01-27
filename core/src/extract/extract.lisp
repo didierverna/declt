@@ -825,7 +825,7 @@ DEFINITIONS in the process."
 	;; #### FIXME: write a RETAIN or KEEP function, also inverting the
 	;; order of TEST and KEY arguments.
 	(remove-if-not (lambda (definition)
-			 (equal (source definition) pathname))
+			 (equal (source-pathname definition) pathname))
 	    definitions)))
 
 

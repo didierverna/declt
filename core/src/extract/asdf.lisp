@@ -86,7 +86,7 @@ This is the same as the `description' function."
   "Return component DEFINITION's dependencies."
   (component-sideway-dependencies (component definition)))
 
-(defmethod source
+(defmethod source-pathname
     ((definition component-definition) &aux (component (component definition)))
   "Return component DEFINITION's source pathname.
 This actually is the corresponding system's source file."

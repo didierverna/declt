@@ -114,8 +114,8 @@ These are constants, special variables, and symbol macros."))
   "Make a new constant definition for SYMBOL."
   (make-instance 'constant-definition :symbol symbol))
 
-(defmethod source ((definition constant-definition))
-  "Return constant DEFINITION's source."
+(defmethod source-pathname ((definition constant-definition))
+  "Return constant DEFINITION's source pathname."
   (definition-source-by-name definition :constant))
 
 
@@ -130,8 +130,8 @@ These are constants, special variables, and symbol macros."))
   "Make a new special variable definition for SYMBOL."
   (make-instance 'special-definition :symbol symbol))
 
-(defmethod source ((definition special-definition))
-  "Return special DEFINITION's source."
+(defmethod source-pathname ((definition special-definition))
+  "Return special DEFINITION's source pathname."
   (definition-source-by-name definition :variable))
 
 
@@ -147,8 +147,8 @@ These are constants, special variables, and symbol macros."))
   "Make a new symbol macro definition for SYMBOL."
   (make-instance 'symbol-macro-definition :symbol symbol))
 
-(defmethod source ((definition symbol-macro-definition))
-  "Return symbol macro DEFINITION's source."
+(defmethod source-pathname ((definition symbol-macro-definition))
+  "Return symbol macro DEFINITION's source pathname."
   (definition-source-by-name definition :symbol-macro))
 
 ;; #### TODO: implement the trick of putting a symbol macro docstring in the
@@ -271,8 +271,8 @@ and methods for classes or conditions slots."))
   "Make a new type definition for SYMBOL."
   (make-instance 'type-definition :symbol symbol))
 
-(defmethod source ((definition type-definition))
-  "Return type DEFINITION's source."
+(defmethod source-pathname ((definition type-definition))
+  "Return type DEFINITION's source pathname."
   (definition-source-by-name definition :type))
 
 (defmethod docstring ((definition type-definition))
@@ -319,24 +319,13 @@ This is a function or macro definition. It always exists."
 Short form setf expanders simply expand to a globally defined function or
 macro."))
 
-(defmethod source ((definition short-expander-definition))
+(defmethod source-pathname ((definition short-expander-definition))
   "Return the source pathname of short setf expander DEFINITION's update-fn."
   ;; #### NOTE: looking at how sb-introspect does it, it seems that the
   ;; "source" of a setf expander is the source of the function object. For
   ;; long forms, this should be OK. For short forms however, what we get is
   ;; the source of the update function, which may be different from where
   ;; DEFSETF was called, hence incorrect.
-
-  ;; #### FIXME: the comment below may not be relevant anymore, after the
-  ;; current overhaul.
-  ;; There is an additional problem when the update function is foreign: we
-  ;; don't normally fill in the FUNCTION slot in foreign funcoid definitions
-  ;; because we don't care (we only print their names). In the case of setf
-  ;; expanders however, we need to do so because Declt will try to find the
-  ;; definition source for it, and will attempt to locate the source of the
-  ;; foreign function. This triggered a bug in a previous version (with the
-  ;; package cl-stdutils, which uses RPLACA as an update function for the
-  ;; stdutils.gds::vknode-value expander).
   (object-source-pathname (fdefinition (update-fn-name definition))))
 
 ;; #### PORTME.
@@ -354,8 +343,8 @@ argument to their update-fn."
 This class is shared by expanders created with either the long form of
 DEFSETF, or DEFINE-SETF-EXPANDER."))
 
-(defmethod source ((definition long-expander-definition)
-		   &aux (expander (expander definition)))
+(defmethod source-pathname ((definition long-expander-definition)
+			    &aux (expander (expander definition)))
   "Return the source pathname of long setf expander DEFINITION's function."
   (object-source-pathname
    (etypecase expander
