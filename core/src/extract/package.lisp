@@ -99,75 +99,6 @@
 
 
 
-;; ==========================================================================
-;; Finalization
-;; ==========================================================================
-
-;; #### FIXME: this is wrong in at least one corner case: for aggregates which
-;; #### names and slot names come from different packages.
-
-;; #### NOTE: contrary to DEFINITION-FILE-DEFINITIONS, this function could be
-;; optimized a bit. For instance, when we figure out that a generic function
-;; does belong to a package, we know that all methods do to because they share
-;; the same name. This means that we could save some package name comparison
-;; tests.
-#+()(defgeneric definition-package-definitions (definition package)
-  (:documentation
-   "Return the list of definitions from DEFINITION that belong to PACKAGE.")
-  (:method (definition package)
-    "Default method for definitions not containing sub-definitions."
-    (when (eq (definition-package definition) package)
-      (list definition)))
-  (:method ((macro macro-definition) package)
-    "Handle MACRO and its setf expander."
-    (nconc (call-next-method)
-	   (when (access-expander-definition macro)
-	     (definition-package-definitions
-	      (access-expander-definition macro)
-	      package))))
-  (:method ((accessor accessor-definition) package)
-    "Handle ACCESSOR, its writer and its setf expander."
-    (nconc (call-next-method)
-	   (when (writer-definition accessor)
-	     (definition-package-definitions
-	      (writer-definition accessor)
-	      package))
-	   (when (access-expander-definition accessor)
-	     (definition-package-definitions
-	      (access-expander-definition accessor)
-	      package))))
-  (:method ((accessor-method accessor-method-definition) package)
-    "Handle ACCESSOR-METHOD and its writer method."
-    (nconc (call-next-method)
-	   (definition-package-definitions
-	    (writer-definition accessor-method)
-	    package)))
-  (:method ((generic generic-definition) package)
-    "Handle GENERIC function and its methods."
-    (nconc (call-next-method)
-	   (mapcan (lambda (method)
-		     (definition-package-definitions method package))
-		   (method-definitions generic))))
-  (:method ((generic-accessor generic-accessor-definition) package)
-    "Handle GENERIC-ACCESSOR, its generic writer and its setf expander."
-    (nconc (call-next-method)
-	   (when (writer-definition generic-accessor)
-	     (definition-package-definitions
-	      (writer-definition generic-accessor)
-	      package))
-	   (when (access-expander-definition generic-accessor)
-	     (definition-package-definitions
-	      (access-expander-definition generic-accessor)
-	      package)))))
-
-#+()(defun definitions-package-definitions (definitions package)
-  "Return the subset of DEFINITIONS that belong to PACKAGE."
-  (mapcan (lambda (definition)
-	    (definition-package-definitions definition package))
-    definitions))
-
-
-
 
 ;; ==========================================================================
 ;; Utilities

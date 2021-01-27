@@ -215,64 +215,6 @@ The concrete class of the new definition depends on the kind of FILE."
     :file file))
 
 
-;; ------------------------------------
-;; Definition file definitions protocol
-;; ------------------------------------
-
-;; #### FIXME: similarly to DEFINITION-PACKAGE-DEFINITIONS, this function is
-;; #### likely to be wrong in some corner cases such as slot definitions. I
-;; #### should check that thoroughly.
-
-#+()(defgeneric definition-file-definitions (definition file)
-  (:documentation
-   "Return the list of definitions from DEFINITION that belong to FILE.")
-  (:method (definition file)
-    "Default method for definitions not containing sub-definitions."
-    (when (equal (source definition) file)
-      (list definition)))
-  (:method ((macro macro-definition) file)
-    "Handle MACRO and its setf expander."
-    (nconc (call-next-method)
-	   (when (access-expander-definition macro)
-	     (definition-file-definitions
-	      (access-expander-definition macro)
-	      file))))
-  (:method ((accessor accessor-definition) file)
-    "Handle ACCESSOR, its writer and its setf expander."
-    (nconc (call-next-method)
-	   (when (writer-definition accessor)
-	     (definition-file-definitions
-	      (writer-definition accessor)
-	      file))
-	   (when (access-expander-definition accessor)
-	     (definition-file-definitions
-	      (access-expander-definition accessor)
-	      file))))
-  (:method ((accessor-method accessor-method-definition) file)
-    "Handle ACCESSOR-METHOD and its writer method."
-    (nconc (call-next-method)
-	   (definition-file-definitions
-	    (writer-definition accessor-method)
-	    file)))
-  (:method ((generic generic-definition) file)
-    "Handle GENERIC function and its methods."
-    (nconc (call-next-method)
-	   (mapcan (lambda (method)
-		     (definition-file-definitions method file))
-		   (method-definitions generic))))
-  (:method ((generic-accessor generic-accessor-definition) file)
-    "Handle GENERIC-ACCESSOR, its generic writer and its setf expander."
-    (nconc (call-next-method)
-	   (when (writer-definition generic-accessor)
-	     (definition-file-definitions
-	      (writer-definition generic-accessor)
-	      file))
-	   (when (access-expander-definition generic-accessor)
-	     (definition-file-definitions
-	      (access-expander-definition generic-accessor)
-	      file)))))
-
-
 
 
 ;; ==========================================================================
