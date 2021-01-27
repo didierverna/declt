@@ -63,29 +63,52 @@
 ;; System definitions
 ;; ------------------
 
-(defun dependency-def-system (dependency-def)
-  "Extract a system name from ASDF DEPENDENCY-DEF specification."
+(defun reorder-dependency-def (dependency-def)
+  "Reorder information in DEPENDENCY-DEF so that the system is always first.
+More specifically:
+- simple component names are returned as-is,
+- :version expressions are returned as (system :version version-specifier),
+- :feature expressions are returned as (... :feature feature-expression),
+- :require expressions are returned as (system :require).
+
+Note that because a feature expression is defined recursively, the first
+element in the reordered list may be another reordered sub-list rather than a
+simple component name directly. In any case, the system name will always be
+in the deepest first position."
   (typecase dependency-def ;; RTE to the rescue!
     (list (ecase (car dependency-def)
-	    (:feature (dependency-def-system (third dependency-def)))
-	    (:version (second dependency-def))
-	    (:require nil)))
+	    (:feature
+	     (list (reorder-dependency-def (third dependency-def))
+		   :feature (second dependency-def)))
+	    (:version
+	     (list (second dependency-def)
+		   :version (third dependency-def)))
+	    (:require
+	     (list (second dependency-def) :require))))
     (otherwise dependency-def)))
 
-;; #### FIXME: there is redundancy with RENDER-DEPENDENCIES. I should write a
-;; more abstract dependency walker.
-(defun system-dependency-subsystem (dependency-def system directory)
-  "Return SYSTEM's DEPENDENCY-DEF subsystem if found under DIRECTORY, or nil."
-  (when-let* ((name (dependency-def-system dependency-def))
-	      (dependency (resolve-dependency-name system name)))
-    (when (sub-component-p dependency directory)
-      dependency)))
+(defun reordered-dependency-def-system (reordered-dependency-def)
+  "Extract the system name from REORDERED-DEPENDENCY-DEF.
+See `reorder-dependency-def' for more information."
+  (typecase reordered-dependency-def
+    (list (reordered-dependency-def-system (car reordered-dependency-def)))
+    (otherwise reordered-dependency-def)))
 
 (defun system-dependencies (system)
-  "Return all SYSTEM dependencies.
+  "Return all system names from SYSTEM dependencies.
 This includes both :defsystem-depends-on and :depends-on."
-  (append (system-defsystem-depends-on system)
-	  (component-sideway-dependencies system)))
+  (mapcar (lambda (dependency-def)
+	    (reordered-dependency-def-system
+	     (reorder-dependency-def dependency-def)))
+    (append (system-defsystem-depends-on system)
+	    (component-sideway-dependencies system))))
+
+(defun subsystem
+    (name system directory
+     &aux (subsystem (resolve-dependency-name system name)))
+  "Return NAME'd SYSTEM dependency if found under DIRECTORY, or nil."
+  (when (sub-component-p subsystem directory)
+    subsystem))
 
 (defun subsystems (system directory)
   "Return the list of SYSTEM and all its dependencies found under DIRECTORY.
@@ -97,8 +120,7 @@ All dependencies are descended recursively. Both :defsystem-depends-on and
     (mapcan (lambda (subsystem) (subsystems subsystem directory))
       (remove-if #'null
 	  (mapcar
-	      (lambda (dependency)
-		(system-dependency-subsystem dependency system directory))
+	      (lambda (name) (subsystem name system directory))
 	    (system-dependencies system))))
     :from-end t)))
 
