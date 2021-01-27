@@ -839,11 +839,17 @@ DEFINITIONS in the process."
      &aux (pathname (component-pathname (file definition))))
   "Compute Lisp file DEFINITION's definitions list."
   (setf (definitions definition)
-	;; #### FIXME: write a RETAIN or KEEP function, also inverting the
-	;; order of TEST and KEY arguments.
-	(remove-if-not (lambda (definition)
-			 (equal (source-pathname definition) pathname))
-	    definitions)))
+	(mapcan (lambda (definition)
+		  (cond ((typep definition 'generic-function-definition)
+			 ;; #### FIXME: RETAIN.
+			 (remove-if-not
+			     (lambda (definition)
+			       (equal (source-pathname definition) pathname))
+			     (cons definition
+				   (method-definitions definition))))
+			((equal (source-pathname definition) pathname)
+			 (list definition))))
+	  definitions)))
 
 
 
