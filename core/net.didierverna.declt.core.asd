@@ -60,6 +60,7 @@ net.didierverna.declt system."
 					   (:file "symbol")
 					   (:file "package")
 					   (:file "asdf")
+					   (:file "finalize")
 					   (:file "extract")))
 			     #+()(:module "doc"
 			      :serial t
