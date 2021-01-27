@@ -133,12 +133,11 @@ Note that ASDF system files are considered as Lisp files."
 ;; real ones; only what's necessary is there. Namely, this includes:
 ;; - the component's name (file basename) for the NAME protocol,
 ;; - the component's absolute pathname, for the COMPONENT-PATHNAME function,
-;;   #### FIXME: this is probably not required anymore.
-;; - the component's parent (system), for the SOURCE protocol which needs to
-;;   climb up the parents in order to find the system source file. Note that a
-;;   system file may contain several system definitions, but it doesn't
-;;   matter; we use any of these as the parent since the point is only to get
-;;   to the system file.
+;; - the component's parent (system), for the SOURCE-PATHNAME protocol which
+;;   needs to climb up the parents in order to find the system source file.
+;;   Note that a system file may contain several system definitions, but it
+;;   doesn't matter; we use any of these as the parent since the point is only
+;;   to get to the system file.
 ;; Of course, we don't mess up the original ASDF system object by telling it
 ;; that it has a new unwanted child (it would go to a foster home directly).
 
