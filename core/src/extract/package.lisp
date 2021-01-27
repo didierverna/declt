@@ -1,6 +1,6 @@
 ;;; package.lisp --- Package definitions
 
-;; Copyright (C) 2010-2013, 2017, 2020 Didier Verna
+;; Copyright (C) 2010-2013, 2017, 2020, 2021 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -86,7 +86,7 @@
 
 
 ;; ==========================================================================
-;; Extraction Protocols
+;; Public Protocols
 ;; ==========================================================================
 
 (defmethod name ((definition package-definition))
@@ -96,13 +96,6 @@
 (defun nicknames (package-definition)
   "Return the list of nicknames for PACKAGE-DEFINITION."
   (package-nicknames (definition-package package-definition)))
-
-
-
-
-;; ==========================================================================
-;; Utilities
-;; ==========================================================================
 
 (defmethod public-definitions ((definition package-definition))
   "Return package DEFINITION's public definitions."
