@@ -135,7 +135,7 @@ DEFINITIONS in the process."
   (unless (expander-for definition)
     (setf (expander-for definition)
 	  (find-if (lambda (candidate)
-		     (and (typep candidate '%expander-definition)
+		     (and (typep candidate 'expander-definition)
 			  ;; don't want the setf part
 			  (eq (definition-symbol candidate) name)
 			  (equal (lambda-list candidate) lambda-list)))
@@ -170,7 +170,7 @@ DEFINITIONS in the process."
 ;; actually don't currently create foreign expanders, ever...
 
 (defmethod finalize progn
-    ((definition %expander-definition) definitions
+    ((definition expander-definition) definitions
      &aux (name (definition-symbol definition)) ;; don't want the setf part
 	  (lambda-list (lambda-list definition)))
   "Compute setf expander DEFINTIION's access definition."

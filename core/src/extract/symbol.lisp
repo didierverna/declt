@@ -307,7 +307,7 @@ and methods for classes or conditions slots."))
 ;; Setf expanders
 ;; --------------
 
-(defabstract %expander-definition (setf-mixin funcoid-definition)
+(defabstract expander-definition (setf-mixin funcoid-definition)
   ((object :initarg :expander :reader expander) ;; slot overload
    (access-definition
     :documentation
@@ -321,12 +321,12 @@ expander."
     :initform nil :accessor access-definition))
   (:documentation "Abstract root class for setf expander definitions."))
 
-(defmethod docstring ((definition %expander-definition))
+(defmethod docstring ((definition expander-definition))
   "Return setf expander DEFINITION's docstring."
   (documentation (definition-symbol definition) 'setf))
 
 
-(defclass short-expander-definition (%expander-definition)
+(defclass short-expander-definition (expander-definition)
   ((object :reader update-fn-name) ;; slot overload
    (update-definition
     :documentation "The corresponding update-fn definition.
@@ -354,7 +354,7 @@ argument to their update-fn."
 	    (fdefinition (update-fn-name definition)))))
 
 
-(defclass long-expander-definition (%expander-definition)
+(defclass long-expander-definition (expander-definition)
   ()
   (:documentation "The class of long form setf expanders definitions.
 This class is shared by expanders created with either the long form of
