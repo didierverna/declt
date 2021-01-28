@@ -47,7 +47,9 @@
 (defabstract component-definition (definition)
   ((object :reader component) ;; slot overload
    (parent-definition :documentation "The corresponding parent definition."
-		      :accessor parent-definition))
+		      :accessor parent-definition)
+   (dependencies :documentation "The list of dependency definitions."
+		 :accessor dependencies))
   (:documentation "The COMPONENT-DEFINITION class.
 This is the base class for ASDF definitions."))
 
@@ -81,11 +83,6 @@ This is the same as the `description' function."
 (defun if-feature (definition)
   "Return component DEFINITION's if-feature."
   (component-if-feature (component definition)))
-
-;; #### FIXME: this one needs to be converted to definition references.
-(defun dependencies (definition)
-  "Return component DEFINITION's dependencies."
-  (component-sideway-dependencies (component definition)))
 
 
 
@@ -145,7 +142,7 @@ This is the base class for ASDF file definitions."))
   ()
   (:documentation "The HTML-FILE-DEFINITION class."))
 
-(defun make-file-definition (file)
+(defun make-file-definition (file &optional foreign)
   "Make a new FILE definition.
 The concrete class of the new definition depends on the kind of FILE."
   (make-instance
@@ -159,7 +156,7 @@ The concrete class of the new definition depends on the kind of FILE."
 	(asdf:static-file 'static-file-definition)
 	(asdf:source-file 'source-file-definition)
 	(asdf:file-component 'file-definition))
-    :file file))
+    :file file :foreign foreign))
 
 
 
@@ -258,9 +255,9 @@ definition for each file."
 		      :accessor child-definitions))
   (:documentation "The Module Definition class."))
 
-(defun make-module-definition (module)
+(defun make-module-definition (module &optional foreign)
   "Make a new MODULE definition."
-  (make-instance 'module-definition :module module))
+  (make-instance 'module-definition :module module :foreign foreign))
 
 
 

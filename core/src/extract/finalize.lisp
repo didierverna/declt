@@ -589,10 +589,20 @@ DEFINITIONS in the process."
 ;; Components
 ;; ==========================================================================
 
+(defun make-component-definition (component &optional foreign)
+  "Make a new COMPONENT definition of the appropriate class, possibly FOREIGN."
+  (etypecase component
+    (asdf:system (make-system-definition component foreign))
+    (asdf:module (make-module-definition component foreign))
+    (asdf:file-component (make-file-definition component foreign))))
+
 (defmethod finalize progn
     ((definition component-definition) definitions
-     &aux (parent (component-parent (component definition))))
-  "Compute component DEFINITION's parent definition."
+     &aux (parent (component-parent (component definition)))
+	  (component (component definition))
+	  (dependencies (mapcar #'reorder-dependency-def
+			  (component-sideway-dependencies component))))
+  "Compute component DEFINITION's parent and dependency definitions."
   ;; #### WARNING: systems are components, but don't have a parent so PARENT
   ;; is NIL for them here. We don't want to search definitions for a NIL
   ;; object because we'd fall on constants, special variables, symbol macros,
@@ -602,8 +612,29 @@ DEFINITIONS in the process."
   ;; :initform provided in the corresponding class. There are no foreign
   ;; components, apart from systems.
   (when parent
-    (setf (parent-definition definition)
-	  (find-definition parent definitions))))
+    (setf (parent-definition definition) (find-definition parent definitions)))
+  ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
+  ;; and only add what's missing, but I don't think it's worth the trouble.
+  (setf (dependencies definition)
+	(mapcan (lambda (dependency &aux inner)
+		  (unless (listp dependency)
+		    (setq dependency (list dependency)))
+		  (setq inner dependency)
+		  (while (listp (car inner)) (setq inner (car inner)))
+		  (let* ((dependency-name (car inner))
+			 (dependency-component
+			   (resolve-dependency-name component dependency-name))
+			 (dependency-definition
+			   (find-definition dependency-component definitions)))
+		    (unless (or dependency-definition (foreignp definition))
+		      (setq dependency-definition
+			    (make-component-definition dependency-component t))
+		      (setq *finalized* nil)
+		      (endpush dependency-definition definitions))
+		    (when dependency-definition
+		      (rplaca inner dependency-definition)
+		      (list dependency))))
+	  dependencies)))
 
 
 
@@ -659,6 +690,8 @@ DEFINITIONS in the process."
 	  (defsystem-dependencies (mapcar #'reorder-dependency-def
 				    (system-defsystem-depends-on system))))
   "Compute system DEFINITION's defsystem dependency definitions."
+  ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
+  ;; and only add what's missing, but I don't think it's worth the trouble.
   (setf (defsystem-dependencies definition)
 	(mapcan (lambda (dependency &aux inner)
 		  (unless (listp dependency)
