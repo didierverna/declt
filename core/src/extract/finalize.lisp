@@ -596,12 +596,33 @@ DEFINITIONS in the process."
     (asdf:module (make-module-definition component foreign))
     (asdf:file-component (make-file-definition component foreign))))
 
+(defun resolve-dependency-specification
+    (specification component definitions foreign &aux inner)
+  "Resolve dependency SPECIFICATION for (FOREIGN) COMPONENT in DEFINITIONS.
+SPECIFICATION must already be reordered (see `reorder-dependency-def' for more
+information). The specification's component name is replaced with its
+corresponding definition. A foreign definition may be created in the process.
+
+If such a definition is neither found, nor created, return NIL. Otherwise,
+return a list of the updated specification (suitable to MAPCAN)."
+  (unless (listp specification) (setq specification (list specification)))
+  (setq inner specification)
+  (while (listp (car inner)) (setq inner (car inner)))
+  (let* ((name (car inner))
+	 (dependency (resolve-dependency-name component name))
+	 (definition (find-definition dependency definitions)))
+    (unless (or definition foreign)
+      (setq definition (make-component-definition dependency t))
+      (setq *finalized* nil)
+      (endpush definition definitions))
+    (when definition
+      (rplaca inner definition)
+      (list specification))))
+
 (defmethod finalize progn
     ((definition component-definition) definitions
-     &aux (parent (component-parent (component definition)))
-	  (component (component definition))
-	  (dependencies (mapcar #'reorder-dependency-def
-			  (component-sideway-dependencies component))))
+     &aux (foreign (foreignp definition))
+	  (component (component definition)))
   "Compute component DEFINITION's parent and dependency definitions."
   ;; #### WARNING: systems are components, but don't have a parent so PARENT
   ;; is NIL for them here. We don't want to search definitions for a NIL
@@ -611,30 +632,16 @@ DEFINITIONS in the process."
   ;; system definitions will actually be set to NIL through the overloaded
   ;; :initform provided in the corresponding class. There are no foreign
   ;; components, apart from systems.
-  (when parent
+  (when-let (parent (component-parent component))
     (setf (parent-definition definition) (find-definition parent definitions)))
   ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
   ;; and only add what's missing, but I don't think it's worth the trouble.
   (setf (dependencies definition)
-	(mapcan (lambda (dependency &aux inner)
-		  (unless (listp dependency)
-		    (setq dependency (list dependency)))
-		  (setq inner dependency)
-		  (while (listp (car inner)) (setq inner (car inner)))
-		  (let* ((dependency-name (car inner))
-			 (dependency-component
-			   (resolve-dependency-name component dependency-name))
-			 (dependency-definition
-			   (find-definition dependency-component definitions)))
-		    (unless (or dependency-definition (foreignp definition))
-		      (setq dependency-definition
-			    (make-component-definition dependency-component t))
-		      (setq *finalized* nil)
-		      (endpush dependency-definition definitions))
-		    (when dependency-definition
-		      (rplaca inner dependency-definition)
-		      (list dependency))))
-	  dependencies)))
+	(mapcan (lambda (dependency)
+		  (resolve-dependency-specification
+		   dependency component definitions foreign))
+	  (mapcar #'reorder-dependency-def
+	    (component-sideway-dependencies component)))))
 
 
 
@@ -686,31 +693,16 @@ DEFINITIONS in the process."
 
 (defmethod finalize progn
     ((definition system-definition) definitions
-     &aux (system (system definition))
-	  (defsystem-dependencies (mapcar #'reorder-dependency-def
-				    (system-defsystem-depends-on system))))
+     &aux (foreign (foreignp definition))
+	  (system (system definition)))
   "Compute system DEFINITION's defsystem dependency definitions."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
   ;; and only add what's missing, but I don't think it's worth the trouble.
   (setf (defsystem-dependencies definition)
-	(mapcan (lambda (dependency &aux inner)
-		  (unless (listp dependency)
-		    (setq dependency (list dependency)))
-		  (setq inner dependency)
-		  (while (listp (car inner)) (setq inner (car inner)))
-		  (let* ((dependency-name (car inner))
-			 (dependency-system
-			   (resolve-dependency-name system dependency-name))
-			 (dependency-definition
-			   (find-definition dependency-system definitions)))
-		    (unless (or dependency-definition (foreignp definition))
-		      (setq dependency-definition
-			    (make-system-definition dependency-system t))
-		      (setq *finalized* nil)
-		      (endpush dependency-definition definitions))
-		    (when dependency-definition
-		      (rplaca inner dependency-definition)
-		      (list dependency))))
-	  defsystem-dependencies)))
+	(mapcan (lambda (dependency)
+		  (resolve-dependency-specification
+		   dependency system definitions foreign))
+	  (mapcar #'reorder-dependency-def
+	    (system-defsystem-depends-on system)))))
 
 ;; finalize.lisp ends here
