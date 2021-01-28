@@ -658,7 +658,7 @@ DEFINITIONS in the process."
      &aux (system (system definition))
 	  (defsystem-dependencies (mapcar #'reorder-dependency-def
 				    (system-defsystem-depends-on system))))
-  "Compute system DEFINITION's defssystem dependency definitions."
+  "Compute system DEFINITION's defsystem dependency definitions."
   (setf (defsystem-dependencies definition)
 	(mapcan (lambda (dependency &aux inner)
 		  (unless (listp dependency)
