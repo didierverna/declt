@@ -30,16 +30,6 @@
 
 
 ;; ==========================================================================
-;; Utilities
-;; ==========================================================================
-
-(defun render-packages-references (packages)
-  "Render a list of PACKAGES references."
-  (render-references packages "Packages"))
-
-
-
-;; ==========================================================================
 ;; Components
 ;; ==========================================================================
 
@@ -164,11 +154,14 @@ Documentation is done in a @table environment."
 (defmethod document ((definition lisp-file-definition) extract &key)
   "Render lisp file DEFINITION's documentation in EXTRACT."
   (call-next-method)
-  #+()(when (typep definition 'system-file-definition)
-    (render-references (system-definitions definition) "Systems"))
-  #+()(render-packages-references (package-definitions definition))
-  #+()(render-external-definitions-references (external-definitions definition))
-  #+()(render-internal-definitions-references (internal-definitions definition)))
+  (render-references
+   (remove-if-not #'component-definition-p (definitions definition))
+   "ASDF Components")
+  (render-references
+   (remove-if-not #'package-definition-p (definitions definition))
+   "Packages")
+  #+()(render-references (public-definitions definition) "Public Interface")
+  #+()(render-references (private-definitions definition) "Internals"))
 
 
 ;; -----

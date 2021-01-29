@@ -53,6 +53,10 @@
   (:documentation "The COMPONENT-DEFINITION class.
 This is the base class for ASDF definitions."))
 
+(defun component-definition-p (definition)
+  "Return T if DEFINITION is a component definition."
+  (typep definition 'component-definition))
+
 
 
 ;; ----------------
