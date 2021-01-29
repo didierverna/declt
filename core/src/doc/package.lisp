@@ -63,10 +63,8 @@
      (use-definitions definition) "Use List")
     (render-references
      (used-by-definitions definition) "Used By List")
-    #+()(render-external-definitions-references
-     (external-definitions package-definition))
-    #+()(render-internal-definitions-references
-     (internal-definitions package-definition))))
+    (render-references (public-definitions definition) "Public Interface")
+    (render-references (private-definitions definition) "Internals")))
 
 
 

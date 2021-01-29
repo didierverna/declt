@@ -160,8 +160,8 @@ Documentation is done in a @table environment."
   (render-references
    (remove-if-not #'package-definition-p (definitions definition))
    "Packages")
-  #+()(render-references (public-definitions definition) "Public Interface")
-  #+()(render-references (private-definitions definition) "Internals"))
+  (render-references (public-definitions definition) "Public Interface")
+  (render-references (private-definitions definition) "Internals"))
 
 
 ;; -----

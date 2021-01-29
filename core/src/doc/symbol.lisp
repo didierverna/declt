@@ -58,6 +58,45 @@ Each category is of type (TYPE DESCRIPTION-STRING).")
 ;; Rendering protocols
 ;; ==========================================================================
 
+(defmethod safe-name
+    ((definition symbol-definition)
+     &optional qualified
+     &aux (name (reveal (princ-to-string (name definition)))))
+  "Reveal symbol DEFINITION's name, possibly QUALIFIED.
+A QUALIFIED name is of the form \"package:[:]symbol\"."
+  (when qualified
+    (setq name (concatenate 'string
+		 (reveal (name (package-definition definition)))
+		 (if (publicp definition) ":" "::")
+		 name)))
+  name)
+
+(defmethod safe-name
+    ((definition setf-mixin)
+     &optional qualified
+     &aux (name (reveal (princ-to-string (second (name definition))))))
+  "Reveal setf DEFINITION's name, possibly QUALIFIED.
+A QUALIFIED name is of the form \"(setf package:[:]symbol)\"."
+  (when qualified
+    (setq name (concatenate 'string
+		 (reveal (name (package-definition definition)))
+		 (if (publicp definition) ":" "::")
+		 name)))
+  ;; Hack for future case-preserving implementation.
+  (format nil "(~A ~A)" 'setf name))
+
+;; #### FIXME: restore this properly.
+#+()(defmethod anchor-name ((method method-definition))
+  "Return METHOD's qualified symbol name, specializers and qualifiers ."
+  (format nil "~A::~A~{ ~A~^~}~{ ~A~^~}"
+    (definition-package-name method)
+    (pretty-name method)
+    (mapcar (lambda (specializer) (pretty-specializer specializer t))
+	    (specializers method))
+    (qualifiers method)))
+
+
+
 ;; ------------------
 ;; Type name protocol
 ;; ------------------
@@ -98,7 +137,13 @@ Each category is of type (TYPE DESCRIPTION-STRING).")
   "Return \"setf expander\""
   "setf expander")
 
-;; #### NOTE: no TYPE-NAME method for SLOT-DEFINITION
+(defmethod type-name ((definition slot-definition))
+  "Return \"slot\""
+  "slot")
+
+(defmethod type-name ((combination combination-definition))
+  "Return \"standard method combination\"."
+  "standard method combination")
 
 (defmethod type-name ((combination short-combination-definition))
   "Return \"short method combination\"."
@@ -151,12 +196,12 @@ Each category is of type (TYPE DESCRIPTION-STRING).")
   (format nil "(SETF ~A)"
     (pretty-name (definition-symbol writer-method))))
 
-(defmethod pretty-name ((generic-writer generic-writer-definition))
+#+()(defmethod pretty-name ((generic-writer generic-writer-definition))
   "Return GENERIC-WRITER's pretty name, that is (setf <pretty name>)."
   (format nil "(SETF ~A)"
     (pretty-name (definition-symbol generic-writer))))
 
-(defmethod pretty-name ((expander setf-expander-definition))
+(defmethod pretty-name ((expander expander-definition))
   "Return setf EXPANDER's pretty name, that is (setf <pretty name>)."
   (format nil "(SETF ~A)" (pretty-name (definition-symbol expander))))
 
@@ -169,14 +214,6 @@ Each category is of type (TYPE DESCRIPTION-STRING).")
 (defun definition-package-name (definition)
   "Return DEFINITION's symbol home package name."
   (pretty-name (definition-package definition)))
-
-(defun render-internal-definitions-references (definitions)
-  "Render references to a list of internal DEFINITIONS."
-  (render-references definitions "Internal Definitions"))
-
-(defun render-external-definitions-references (definitions)
-  "Render references to a list of external DEFINITIONS."
-  (render-references definitions "Exported Definitions"))
 
 (defun render-definition-core (definition extract)
   "Render DEFINITION's documentation core in EXTRACT.
@@ -348,7 +385,7 @@ not advertised if they are the same as GENERIC-SOURCE."
   (:method ((generic generic-definition))
     "Return #'@DEFGENERICX."
     #'@defgenericx)
-  (:method ((expander setf-expander-definition))
+  (:method ((expander expander-definition))
     "Return #'@DEFSETFX."
     #'@defsetfx))
 
@@ -363,22 +400,6 @@ not advertised if they are the same as GENERIC-SOURCE."
 ;; ==========================================================================
 ;; Documentation Protocols
 ;; ==========================================================================
-
-(defmethod anchor-name (definition)
-  "Return DEFINITION's qualified symbol name.
-This is the default method for most definitions."
-  (format nil "~A::~A"
-    (definition-package-name definition)
-    (pretty-name definition)))
-
-(defmethod anchor-name ((method method-definition))
-  "Return METHOD's qualified symbol name, specializers and qualifiers ."
-  (format nil "~A::~A~{ ~A~^~}~{ ~A~^~}"
-    (definition-package-name method)
-    (pretty-name method)
-    (mapcar (lambda (specializer) (pretty-specializer specializer t))
-	    (specializers method))
-    (qualifiers method)))
 
 ;; #### NOTE: the INDEX methods below only perform sub-indexing because the
 ;; main index entries are created automatically in Texinfo by the @defXXX
@@ -416,7 +437,7 @@ This is the default method for most definitions."
   "Render GENERIC's indexing command."
   (format t "@genericsubindex{~(~A~)}@c~%" (escape generic)))
 
-(defmethod index ((expander setf-expander-definition))
+(defmethod index ((expander expander-definition))
   "Render setf EXPANDER's indexing command."
   (format t "@setfexpandersubindex{~(~A~)}@c~%" (escape expander)))
 
@@ -447,16 +468,6 @@ This is the default method for most definitions."
 (defmethod index ((type type-definition))
   "Render TYPE's indexing command."
   (format t "@typesubindex{~(~A~)}@c~%" (escape type)))
-
-(defmethod reference ((definition symbol-definition))
-  "Render DEFINITION's reference."
-  (cond ((foreignp definition)
-	 (format t "@t{~(~A}~) (~A)~%"
-	   (escape definition)
-	   (type-name definition)))
-	(t
-	 (@ref (anchor-name definition) definition)
-	 (format t " (~A)~%" (type-name definition)))))
 
 (defmethod document ((constant constant-definition) extract &key)
   "Render CONSTANT's documentation in EXTRACT."
@@ -521,7 +532,7 @@ This is the default method for most definitions."
       (@tableitem "Reader"
 	(reference reader)))))
 
-(defmethod document
+#+()(defmethod document
     ((accessor accessor-definition) extract
      &key
      &aux (access-expander (access-expander-definition accessor))
@@ -599,7 +610,7 @@ This is the default method for most definitions."
 GENERIC-SOURCE is the source of METHOD's generic function."
   (render-method method extract generic-source))
 
-(defmethod document ((method accessor-method-definition) extract
+#+()(defmethod document ((method accessor-method-definition) extract
 		     &key (document-writers t) generic-source)
   "Render accessor METHOD's documentation in EXTRACT."
   (cond ((and (equal (source method)
@@ -649,7 +660,7 @@ The standard method combination is not rendered."
 	(dolist (method methods)
 	  (document method extract :generic-source (source generic)))))))
 
-(defmethod document
+#+()(defmethod document
     ((writer generic-writer-definition) extract &key additional-methods)
   "Render generic WRITER's documentation in EXTRACT."
   (render-funcoid :generic writer extract
@@ -663,7 +674,7 @@ The standard method combination is not rendered."
 	(dolist (method methods)
 	  (document method extract :generic-source (source writer)))))))
 
-(defmethod document
+#+()(defmethod document
     ((accessor generic-accessor-definition) extract
      &key
      &aux (access-expander (access-expander-definition accessor))
@@ -738,7 +749,7 @@ The standard method combination is not rendered."
 			      #'accessor-method-definition-p
 			      (method-definitions accessor))))))))
 
-(defmethod document ((expander setf-expander-definition) extract &key)
+#+()(defmethod document ((expander setf-expander-definition) extract &key)
   "Render setf EXPANDER's documentation in EXTRACT."
   (render-funcoid :setf expander extract
     (@tableitem "Reader"
