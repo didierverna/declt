@@ -61,7 +61,7 @@ element being the name of a component's parent."
       (static-file-definition "staticfile")
       (source-file-definition "sourcefile")
       (file-definition "otherfile"))
-    (escape (safe-name definition t))))
+    (escape (safe-name definition))))
 
 (defun render-dependency (dependency)
   "Render a resolved DEPENDENCY specification.

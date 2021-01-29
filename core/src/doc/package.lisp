@@ -45,7 +45,7 @@
 
 (defmethod index ((definition package-definition))
   "Render package DEFINITION's indexing command."
-  (format t "@packageindex{~(~A~)}@c~%" (escape (safe-name definition t))))
+  (format t "@packageindex{~(~A~)}@c~%" (escape (safe-name definition))))
 
 (defmethod document ((definition package-definition) extract &key)
   "Render package DEFINITION's documentation in EXTRACT."
