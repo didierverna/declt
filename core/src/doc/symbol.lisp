@@ -71,6 +71,11 @@ A QUALIFIED name is of the form \"package:[:]symbol\"."
 		 name)))
   name)
 
+;; #### NOTE: spaces in symbol names are revealed (see above), but not the
+;; ones between SETF and the symbol in a setf name, because that would look
+;; rather weird in the output. Consequently, Declt must expect to get names
+;; with unescaped spaces. @DEFFN, @DEFFNX, AND @DEFTP take care of protecting
+;; their NAME argument with braces because of that.
 (defmethod safe-name
     ((definition setf-mixin)
      &optional qualified
@@ -170,50 +175,10 @@ A QUALIFIED name is of the form \"(setf package:[:]symbol)\"."
   "type")
 
 
-;; -------------
-;; Name protocol
-;; -------------
-
-(defmethod pretty-name ((definition symbol-definition))
-  "Return DEFINITION's symbol pretty name."
-  (pretty-name (definition-symbol definition)))
-
-;; #### NOTE: all of these methods are in fact equivalent. That's the drawback
-;; of using structures instead of classes, which limits the inheritance
-;; expressiveness (otherwise I could have used a writer mixin or something).
-
-;; #### NOTE: spaces in symbol names are "revealed", but not the ones below
-;; (between SETF and the symbol) because that would look rather weird in the
-;; output. Consequently, Declt must expect to get names with unescaped
-;; spaces. @DEFFN, @DEFFNX, AND @DEFTP take care of protecting their NAME
-;; argument with braces because of that.
-(defmethod pretty-name ((writer writer-definition))
-  "Return WRITER's pretty name, that is (setf <pretty name>)."
-  (format nil "(SETF ~A)" (pretty-name (definition-symbol writer))))
-
-(defmethod pretty-name ((writer-method writer-method-definition))
-  "Return WRITER-METHOD's pretty name, that is (setf <pretty name>)."
-  (format nil "(SETF ~A)"
-    (pretty-name (definition-symbol writer-method))))
-
-#+()(defmethod pretty-name ((generic-writer generic-writer-definition))
-  "Return GENERIC-WRITER's pretty name, that is (setf <pretty name>)."
-  (format nil "(SETF ~A)"
-    (pretty-name (definition-symbol generic-writer))))
-
-(defmethod pretty-name ((expander expander-definition))
-  "Return setf EXPANDER's pretty name, that is (setf <pretty name>)."
-  (format nil "(SETF ~A)" (pretty-name (definition-symbol expander))))
-
-
 
 ;; ==========================================================================
 ;; Utilities
 ;; ==========================================================================
-
-(defun definition-package-name (definition)
-  "Return DEFINITION's symbol home package name."
-  (pretty-name (definition-package definition)))
 
 (defun render-definition-core (definition extract)
   "Render DEFINITION's documentation core in EXTRACT.
