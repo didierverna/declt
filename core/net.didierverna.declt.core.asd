@@ -62,12 +62,12 @@ net.didierverna.declt system."
 					   (:file "asdf")
 					   (:file "finalize")
 					   (:file "extract")))
-			     #+()(:module "doc"
+			     (:module "doc"
 			      :serial t
 			      :components ((:file "texi")
 					   (:file "doc")
-					   (:file "symbol")
-					   (:file "package")
+					   #+()(:file "symbol")
+					   #+()(:file "package")
 					   (:file "asdf")))
 			     (:file "declt")))))
 

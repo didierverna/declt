@@ -29,57 +29,16 @@
 
 
 ;; ==========================================================================
-;; Rendering Protocols
-;; ==========================================================================
-
-(defgeneric reveal (object)
-  (:documentation "Reveal blanks in OBJECT's representation.")
-  (:method ((char character))
-    "Return either CHAR or a non-blank representation for it."
-    (case char
-      (#\        #\⎵) ;; U+23B5 (Bottom Square Bracket)
-      (#\Newline #\↵) ;; U+21B5 (Downwards Arrow With Corner Leftwards)
-      (#\Tab     #\⇥) ;; U+21E5 (Rightwards Arrow To Bar)
-      (t char)))
-  (:method ((string string))
-    "Return STRING with blank characters revealed.
-Empty strings are represented by the empty set symbol. "
-    (if (zerop (length string))
-      "∅"
-      (coerce (loop :for char :across string :collect (reveal char))
-	      'string))))
-
-;; #### FIXME: reveal mess here. Isn't it systematic? I'm not sure I should
-;; keep this function around. See also about using my named readtables.
-(defgeneric pretty-name (object)
-  (:documentation "Return OBJECT's pretty name.
-A prettified name is suitable for printing, notably by revealing potentially
-problematic characters. See `reveal' for more information.")
-  (:method (object)
-    "Princ object to a string."
-    (princ-to-string object))
-  (:method ((symbol symbol))
-    "Return SYMBOL's name."
-    (reveal (symbol-name symbol)))
-  (:method ((char character))
-    "Return revealed CHAR."
-    (reveal char))
-  (:method ((string string))
-    "Return STRING."
-    string)
-  (:method ((pathname pathname))
-    "Return PATHNAME's name."
-    (reveal (namestring pathname))))
-
-
-
-;; ==========================================================================
 ;; Utilities
 ;; ==========================================================================
 
-;; #### NOTE: in many cases, it's preferable to use the alphabetic commands
-;; rather than shortcuts such as @@ etc. (see Section 12 of the Texinfo
-;; manual). For simplicity, we use those systematically.
+;; #### NOTE: Texinfo has different contexts in which the set of characters to
+;; escape varies. Since the escaping commands can be used (nearly?) anywhere,
+;; even when it's not actually needed, it's simpler for us to use them all,
+;; all the time. Also, in many cases, it's preferable to use the alphabetic
+;; commands rather than shortcuts such as @@ etc. (see Section 12 of the
+;; Texinfo manual). For simplicity, we use those systematically.
+
 (defvar *special-characters*
   '((#\@ . "atchar")
     (#\{ . "lbracechar")
@@ -92,20 +51,13 @@ problematic characters. See `reveal' for more information.")
 Elements are the form (CHAR . COMMAND) where CHAR is the special character and
 COMMAND is the name of the corresponding Texinfo alphabetic command.")
 
-;; #### FIXME: I'm not so sure anymore about ESCAPE, ESCAPE-ANCHOR and
-;; #### ESCAPE-LABEL taking objects. The code would be more readable if I
-;; #### simply used (escape (pretty-name ...))... See also about using my own
-;; #### named readtables.
-
-;; #### NOTE: Texinfo has different contexts in which the set of characters to
-;; escape varies. Since the escaping commands can be used (nearly?) anywhere,
-;; even when it's not actually needed, it's simpler for us to use them all the
-;; time.
-(defun escape (object)
-  "When OBJECT, escape its name for Texinfo."
-  (when object
+;; #### FIXME: I don't like much ESCAPE accepting NULL strings, but it saves
+;; us some conditionals in format calls.
+(defun escape (string)
+  "When STRING, escape it for Texinfo."
+  (when string
     (apply #'concatenate 'string
-	   (loop :for char :across (pretty-name object)
+	   (loop :for char :across string
 		 :for special := (assoc char *special-characters*)
 		 :if special
 		   :collect (concatenate 'string "@" (cdr special) "{}")
@@ -128,33 +80,31 @@ COMMAND is the name of the corresponding Texinfo alphabetic command.")
 Elements are the form (CHAR . ALT) where CHAR is the fragile (anchor)
 character and ALT is an alternative Unicode character.")
 
-(defun escape-anchor (object)
-  "When OBJECT, escape its name for use as a Texinfo anchor name.
+(defun escape-anchor (string)
+  "Escape STRING for use as a Texinfo anchor name.
 In addition to regular escaping, periods, commas, colons, and parenthesis are
 replaced with alternative Unicode characters."
-  (when object
-    (escape (apply #'concatenate 'string
-		   (loop :for char :across (pretty-name object)
-			 :for fragile := (assoc char *fragile-characters*)
-			 :if fragile
-			   :collect (string (cdr fragile))
-			 :else
-			   :collect (string char))))))
+  (escape (apply #'concatenate 'string
+		 (loop :for char :across (escape string)
+		       :for fragile := (assoc char *fragile-characters*)
+		       :if fragile
+			 :collect (string (cdr fragile))
+		       :else
+			 :collect (string char)))))
 
 ;; #### NOTE: Anchor labels have less restrictions than anchor names, but this
 ;; is not well documented. Dots seem to be allowed which is a relief.
-(defun escape-label (object)
-  "When OBJECT, escape its name for use as a Texinfo anchor label.
+(defun escape-label (string)
+  "Escape STRING for use as a Texinfo anchor label.
 In addition to regular escaping, colons are replaced with alternative Unicode
-  characters."
-  (when object
-    (escape
-     (apply #'concatenate 'string
-	    (loop :for char :across (pretty-name object)
-		  :if (member char '(#\:))
-		    :collect (string (cdr (assoc char *fragile-characters*)))
-		  :else
-		    :collect (string char))))))
+characters."
+  (escape
+   (apply #'concatenate 'string
+	  (loop :for char :across (escape string)
+		:if (member char '(#\:))
+		  :collect (string (cdr (assoc char *fragile-characters*)))
+		:else
+		  :collect (string char)))))
 
 (defun first-word-length (string)
   "Return the length of the first word in STRING.
@@ -223,6 +173,7 @@ Rendering is done on *standard-output*."
   (format t "@ref{~A, , @t{~(~A}~)}"
     (escape-anchor anchor) (escape-label label)))
 
+#i(tableitem 1)
 (defmacro @tableitem (title &body body)
   "Execute BODY within a table @item TITLE.
 BODY should render on *standard-output*."

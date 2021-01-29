@@ -1,6 +1,6 @@
 ;;; doc.lisp --- Items documentation
 
-;; Copyright (C) 2010-2013, 2015-2017, 2019, 2020 Didier Verna
+;; Copyright (C) 2010-2013, 2015-2017, 2019-2021 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -30,28 +30,62 @@
 
 
 ;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
+(defparameter *blanks*
+  '((#\        . #\⎵)  ;; U+23B5 (Bottom Square Bracket)
+    (#\Newline . #\↵)  ;; U+21B5 (Downwards Arrow With Corner Leftwards)
+    (#\Tab     . #\⇥)) ;; U+21E5 (Rightwards Arrow To Bar)
+  "A list of blank characters and their associated revealed representation.
+Each element in this list is of the form (#\BLANK . #\REPLACEMENT).")
+
+;; #### FIXME: there's got to be some portability pitfalls here, working with
+;; Unicode strings like that without any precaution.
+(defun reveal (string)
+  "Return a copy of STRING with blanks revealed.
+Each blank character is replaced with a visible Unicode representation.
+See `*blanks*' for more information."
+  (if (zerop (length string))
+    "∅"
+    (loop :with revealed := (copy-seq string)
+	  :for i :from 0 :upto (1- (length revealed))
+	  :for blank := (assoc (aref revealed i) *blanks*)
+	  :when blank
+	    :do (setf (aref revealed i) (cdr blank))
+	  :finally (return revealed))))
+
+
+
+
+;; ==========================================================================
 ;; Documentation Protocols
 ;; ==========================================================================
+
+(defgeneric safe-name (definition &optional qualified)
+  (:documentation "Return DEFINITION's safe name, possibly QUALIFIED.
+Safe names have blank characters replaced with visible Unicode symbols.
+See `reveal' for more information.")
+  ;; #### WARNING: not an around method, because we don't want to reveal
+  ;; spaces in a (setf name) form.
+  (:method ((definition definition) &optional qualified)
+    "Reveal unqualifiable DEFINITION's name. This is the default method."
+    (declare (ignore qualified))
+    (reveal (name definition))))
 
 (defgeneric type-name (definition)
   (:documentation "Return DEFINITION's type name."))
 
-(defgeneric title (item)
-  (:documentation "Return ITEM's title.")
-  (:method :around (item)
-    "Surround ITEM's title with \"the [...] <type>\"."
-    (format nil "the ~A ~A" (call-next-method) (type-name item))))
+(defun long-title (definition)
+  "Return a long title for DEFINITION.
+It is of the form \"The <full safe name> <type name>\"."
+  (format nil "The ~A ~A" (safe-name definition t) (type-name definition)))
 
-;; Since node references are boring in Texinfo, we prefer to create custom
-;; anchors for our items and link to them instead.
-(defgeneric anchor-name (item)
-  (:documentation "Return ITEM's anchor name.")
-  (:method :around (item)
-    "Surround ITEM's anchor name with \"go to the [...] <type>\"."
-    ;; #### NOTE: currently, our type names do not need to be escaped because
-    ;; we know they are safe. If this ever changes, we will need to wrap the
-    ;; TYPE-NAME call into ESCAPE-ANCHOR.
-    (format nil "go to the ~A ~A" (call-next-method) (type-name item))))
+(defun anchor-name (definition)
+  "Return an anchor name for DEFINITION.
+It is of the form \"go to the <full safe name> <type name>\"."
+  (format nil "go to the ~A ~A"
+    (safe-name definition t) (type-name definition)))
 
 (defgeneric index (item) (:documentation "Render ITEM's indexing command."))
 
@@ -66,14 +100,14 @@
 ;; Utilities
 ;; ==========================================================================
 
-(defun anchor (item)
-  "Render ITEM's anchor."
-  (@anchor (anchor-name item)))
+(defun anchor (definition)
+  "Render DEFINITION's anchor."
+  (@anchor (anchor-name definition)))
 
-(defun anchor-and-index (item)
-  "Anchor and index ITEM."
-  (anchor item)
-  (index item))
+(defun anchor-and-index (definition)
+  "Anchor and index DEFINITION."
+  (anchor definition)
+  (index definition))
 
 
 ;; #### NOTE: the use of PROBE-FILE below has two purposes:

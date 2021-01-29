@@ -444,7 +444,7 @@ The following keyword parameters are also available.
 		   introduction conclusion))
 
   ;; #### FIXME: this shouldn't be part of the EXTRACT structure.
-  (setf (hyperlinksp extract) hyperlinks)
+  #+()(setf (hyperlinksp extract) hyperlinks)
 
   ;; Construct the nodes hierarchy.
   (with-standard-io-syntax
@@ -489,8 +489,8 @@ on ~A~]~]."
       (add-systems-node     top-node extract)
       (add-modules-node     top-node extract)
       (add-files-node       top-node extract)
-      (add-packages-node    top-node extract)
-      (add-definitions-node top-node extract)
+      #+()(add-packages-node    top-node extract)
+      #+()(add-definitions-node top-node extract)
       (when (conclusion extract)
 	(add-child top-node
 	  (make-node :name "Conclusion"

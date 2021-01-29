@@ -37,87 +37,46 @@
   "Render a list of PACKAGES references."
   (render-references packages "Packages"))
 
-;; #### NOTE: the only ASDF components documented by Declt are source files,
-;; #### modules and systems. This function is used by the corresponding
-;; #### REFERENCE methods because the code is the same. The reason we don't do
-;; #### this as a method on COMPONENT directly is that such a method (see
-;; #### below) handles other components, such as extensions, that we don't
-;; #### know about.
-(defun reference-component (component)
-  "Render COMPONENT's reference."
-  (@ref (anchor-name component) component)
-  (format t " (~A)~%" (type-name component)))
-
-(defun reference-asdf-definition (definition)
-  "Render ASDF DEFINITION's reference."
-  (@ref (anchor-name definition) definition)
-  (format t " (~A)~%" (type-name definition)))
-
-(defgeneric virtual-path (component)
-  (:documentation "Return CONMPONENT's virtual path.
-This is the string of successive component names to access COMPONENT from the
-toplevel system, separated by slashes. File components also get their
-extension at the end.")
-  (:method (component)
-    "Default method for all components."
-    (format nil "~{~A~^/~}" (component-find-path component)))
-  (:method :around ((source-file asdf:source-file)
-		    &aux (virtual-path (call-next-method))
-			 (extension (asdf:file-type source-file)))
-    "Potentially add SOURCE-FILE's extension at the end of the virtual path."
-    (when extension
-      (setq virtual-path (concatenate 'string virtual-path "." extension)))
-    virtual-path))
-
 
 
 ;; ==========================================================================
 ;; Components
 ;; ==========================================================================
 
-;; -------------------
-;; Rendering protocols
-;; -------------------
+;; #### NOTE: a simpler route to this is to use ASDF:COMPONENT-FIND-PATH.
+;; The merit of this approach, however, is to stay at the definitions level
+;; and not access the underlying objects.
+(defmethod safe-name ((definition component-definition) &optional qualified)
+  "Reveal component DEFINITION's name, possibly QUALIFIED.
+A QUALIFIED component's name is of the form \"path/to/component\", each
+element being the name of a component's parent."
+  (if (and qualified (parent-definition definition))
+    (concatenate 'string (safe-name (parent-definition definition) t)
+		 "/"
+		 (call-next-method definition))
+    (call-next-method definition)))
 
-;; #### FIXME: remove when we have all definitions.
-(defmethod pretty-name ((component asdf:component))
-  "Return COMPONENT's name."
-  (reveal (component-name component)))
+(defmethod index ((definition component-definition))
+  "Render component DEFINITION's indexing command."
+  (format t "@~Aindex{~A}@c~%"
+    (etypecase definition
+      ;; #### WARNING: the order is important!
+      (system-definition "system")
+      (module-definition "module")
+      (lisp-file-definition "lispfile")
+      (c-file-definition "cfile")
+      (java-file-definition "javafile")
+      (html-file-definition "htmlfile")
+      (doc-file-definition "docfile")
+      (static-file-definition "staticfile")
+      (source-file-definition "sourcefile")
+      (file-definition "otherfile"))
+    (escape (safe-name definition t))))
 
-(defmethod pretty-name ((definition component-definition))
-  "Return component DEFINITION's pretty name."
-  (reveal (name definition)))
-
-
-;; -----------------------
-;; Documentation protocols
-;; -----------------------
-
-;; #### FIXME: remove when we have all definitions.
-(defmethod title ((component asdf:component))
-  "Return COMPONENT's title."
-  (virtual-path component))
-
-(defmethod title ((component-definition component-definition))
-  "Return COMPONENT-DEFINITION's title."
-  (virtual-path (component component-definition)))
-
-;; #### FIXME: remove when we have all definitions.
-(defmethod anchor-name ((component asdf:component))
-  "Return COMPONENT's anchor name."
-  (virtual-path component))
-
-(defmethod anchor-name ((component-definition component-definition))
-  "Return COMPONENT-DEFINITION's anchor name."
-  (virtual-path (component component-definition)))
-
-;; #### NOTE: this method is needed as a default method for potential ASDF
-;; extensions. I'm not willing to hard-code all possible such extensions, past
-;; present and future. Besides, those components would not be related to code,
-;; so Declt will not document them.
-(defmethod reference ((component asdf:component))
-  "Render unreferenced COMPONENT."
-  (format t "@t{~(~A}~) (other component)~%" (escape component)))
+(defmethod reference ((definition component-definition))
+  "Render component DEFINITION's reference."
+  (@ref (anchor-name definition) (safe-name definition))
+  (format t " (~A)~%" (type-name definition)))
 
 ;; #### FIXME: dependencies should be represented as potentially foreign
 ;; definitions.
@@ -170,8 +129,7 @@ Optionally PREFIX the title."
   "Anchor, index and document EXTRACT's COMPONENT-DEFINITION.
 Documentation is done in a @table environment."
   (anchor-and-index component-definition)
-  (@table ()
-    (call-next-method)))
+  (@table () (call-next-method)))
 
 (defmethod document ((definition component-definition) extract
 		     &key
@@ -234,30 +192,17 @@ Documentation is done in a @table environment."
 ;; Rendering protocols
 ;; -------------------
 
-;; #### FIXME: remove when we have all definitions.
-(defmethod type-name ((source-file asdf:source-file))
-  "Return \"file\""
-  "file")
-
 (defmethod type-name ((definition file-definition))
   "Return \"file\""
   "file")
 
-;; #### FIXME: remove in the end.
-(defmethod pretty-name ((source-file asdf:source-file)
-		 &aux (name (component-name source-file))
-		      (extension (asdf:file-type source-file)))
-  "Return SOURCE-FILE's name, possibly adding its extension."
-  (when extension (setq name (concatenate 'string name "." extension)))
-  (reveal name))
-
-;; #### FIXME: reveal mess. Reveal should be in an around method as far
-;; outside as possible.
-(defmethod pretty-name :around
+(defmethod safe-name :around
     ((definition file-definition)
+     &optional qualify
      &aux (name (call-next-method))
 	  (extension (reveal (asdf:file-type (file definition)))))
-  "Return file DEFINITION's name, possibly adding its extension."
+  "Append DEFINITION's file extension at the end."
+  (declare (ignore qualify))
   (when extension (setq name (concatenate 'string name "." extension)))
   name)
 
@@ -266,82 +211,26 @@ Documentation is done in a @table environment."
 ;; Documentation protocols
 ;; -----------------------
 
-;; #### FIXME: need more factoring.
-(defmethod index ((definition lisp-file-definition))
-  "Render Lisp file DEFINITION's indexing command."
-  (format t "@lispfileindex{~A}@c~%"
-    (escape (virtual-path (file definition)))))
-
-(defmethod index ((definition c-file-definition))
-  "Render C file DEFINITION's indexing command."
-  (format t "@cfileindex{~A}@c~%"
-    (escape (virtual-path (file definition)))))
-
-(defmethod index ((definition java-file-definition))
-  "Render Java file DEFINITION's indexing command."
-  (format t "@javafileindex{~A}@c~%"
-    (escape (virtual-path (file definition)))))
-
-(defmethod index ((definition html-file-definition))
-  "Render HTML file DEFINITION's indexing command."
-  (format t "@htmlfileindex{~A}@c~%"
-    (escape (virtual-path (file definition)))))
-
-(defmethod index ((definition doc-file-definition))
-  "Render doc file DEFINITION's indexing command."
-  (format t "@docfileindex{~A}@c~%"
-    (escape (virtual-path (file definition)))))
-
-(defmethod index ((definition static-file-definition))
-  "Render static file DEFINITION's indexing command."
-  (format t "@staticfileindex{~A}@c~%"
-    (escape (virtual-path (file definition)))))
-
-(defmethod index ((definition source-file-definition))
-  "Render source file DEFINITION's indexing command."
-  (format t "@sourcefileindex{~A}@c~%"
-    (escape (virtual-path (file definition)))))
-
-(defmethod index ((definition file-definition))
-  "Render other file DEFINITION's indexing command."
-  (format t "@otherfileindex{~A}@c~%"
-    (escape (virtual-path (file definition)))))
-
-;; #### FIXME: remove this afterwards.
-(defmethod reference ((source-file asdf:source-file))
-  "Render SOURCE-FILE's reference."
-  (reference-component source-file))
-
-(defmethod reference ((definition source-file-definition))
-  "Render source file DEFINITION's reference."
-  (reference-asdf-definition definition))
-
 ;; #### NOTE: other kinds of files are only documented as simple components.
 (defmethod document ((definition lisp-file-definition) extract &key)
   "Render lisp file DEFINITION's documentation in EXTRACT."
-  (call-next-method)
-  ;; #### FIXME: this whole business of type introspection is not
-  ;; satisfactory. The order in which we want to document things is very
-  ;; different from the hierarchy, so we need helper functions and simple
-  ;; methods calling them, without all this CALL-NEXT-METHOD mess.
-  (when (typep definition 'system-file-definition)
+  #+()(call-next-method)
+  #+()(when (typep definition 'system-file-definition)
     (render-references (system-definitions definition) "Systems"))
-  (render-packages-references (package-definitions definition))
-  (render-external-definitions-references (external-definitions definition))
-  (render-internal-definitions-references (internal-definitions definition)))
+  #+()(render-packages-references (package-definitions definition))
+  #+()(render-external-definitions-references (external-definitions definition))
+  #+()(render-internal-definitions-references (internal-definitions definition)))
 
 
 ;; -----
 ;; Nodes
 ;; -----
 
-;; #### FIXME: one of the casing problem is here. We shouldn't downcase file
-;; names!
 (defun file-node (definition extract)
   "Create and return a file DEFINITION node in EXTRACT."
-  (make-node :name (format nil "~@(~A~)" (title definition))
+  (make-node :name (long-title definition)
 	     :section-name
-	     (format nil "@t{~A}" (escape (virtual-path (file definition))))
+	     (format nil "@t{~A}" (escape (safe-name definition t)))
 	     :before-menu-contents
 	     (render-to-string (document definition extract))))
 
@@ -358,7 +247,8 @@ Documentation is done in a @table environment."
 Files are sorted by type and then listed depth-first from the systems
 components trees.")))))
   "Add the files node to PARENT in EXTRACT."
-  (dolist (definition (file-definitions extract))
+  (dolist (definition
+	   (remove-if-not #'file-definition-p (definitions extract)))
     (etypecase definition
       ;; #### WARNING: the order is important!
       (lisp-file-definition (push definition lisp-file-definitions))
@@ -397,43 +287,14 @@ components trees.")))))
 ;; Modules
 ;; ==========================================================================
 
-;; #### FIXME: remove when we have all definitions.
-(defmethod type-name ((module asdf:module))
+(defmethod type-name ((definition module-definition))
   "Return \"module\""
   "module")
-
-(defmethod type-name ((module-definition module-definition))
-  "Return \"module\""
-  "module")
-
-
-;; -----------------------
-;; Documentation protocols
-;; -----------------------
-
-;; #### FIXME: remove when we have all definitions.
-(defmethod index ((module asdf:module))
-  "Render MODULE's indexing command."
-  (format t "@moduleindex{~A}@c~%" (escape (virtual-path module))))
-
-(defmethod index ((module-definition module-definition))
-  "Render MODULE-DEFINITION's indexing command."
-  (format t "@moduleindex{~A}@c~%"
-    (escape (virtual-path (module module-definition)))))
-
-;; #### FIXME: remove when we have all definitions.
-(defmethod reference ((module asdf:module))
-  "Render MODULE's reference."
-  (reference-component module))
-
-(defmethod reference ((definition module-definition))
-  "Render module DEFINITION's reference."
-  (reference-asdf-definition definition))
 
 (defmethod document ((definition module-definition) extract &key)
   "Render module DEFINITION's documentation in EXTRACT."
-  (call-next-method)
-  (when-let* ((children (children definition))
+  #+()(call-next-method)
+  (when-let* ((children (child-definitions definition))
 	      (length (length children)))
     (@tableitem (format nil "Component~p" length)
       (if (eq length 1)
@@ -447,7 +308,14 @@ components trees.")))))
 
 (defun add-modules-node
     (parent extract
-     &aux (module-definitions (module-definitions extract)))
+     &aux (module-definitions
+	   (remove-if-not
+	       ;; This is to handle module subclasses, although I don't really
+	       ;; know if we're going to face it some day.
+	       (lambda (definition)
+		 (and (module-definition-p definition)
+		      (not (system-definition-p definition))))
+	       (definitions extract))))
   "Add the modules node to PARENT in EXTRACT."
   (when module-definitions
     (let ((modules-node (add-child parent
@@ -456,18 +324,13 @@ components trees.")))))
 				     :before-menu-contents
 				     (format nil "~
 Modules are listed depth-first from the system components tree.")))))
-      (dolist (module-definition module-definitions)
+      (dolist (definition module-definitions)
 	(add-child modules-node
-	  (make-node :name (format nil "~@(~A~)" (title module-definition))
+	  (make-node :name (long-title definition)
 		     :section-name (format nil "@t{~A}"
-				     (escape
-				      ;; #### FIXME: this is unclean and it
-				      ;; seems to be the same as title.
-				      (virtual-path
-				       (module module-definition))))
+				     (escape (safe-name definition t)))
 		     :before-menu-contents
-		     (render-to-string
-		       (document module-definition extract))))))))
+		     (render-to-string (document definition extract))))))))
 
 
 
@@ -475,47 +338,20 @@ Modules are listed depth-first from the system components tree.")))))
 ;; System
 ;; ==========================================================================
 
-;; #### FIXME: remove when we have all definitions.
-(defmethod type-name ((system asdf:system))
+(defmethod type-name ((definition system-definition))
   "Return \"system\""
   "system")
-
-(defmethod type-name ((system-definition system-definition))
-  "Return \"system\""
-  "system")
-
-;; -----------------------
-;; Documentation protocols
-;; -----------------------
-
-;; #### FIXME: remove when we have all definitions.
-(defmethod index ((system asdf:system))
-  "Render SYSTEM's indexing command."
-  (format t "@systemindex{~A}@c~%" (escape system)))
-
-(defmethod index ((system-definition system-definition))
-  "Render SYSTEM-DEFINITION's indexing command."
-  (format t "@systemindex{~A}@c~%" (escape system-definition)))
-
-;; #### FIXME: remove when we have all definitions.
-(defmethod reference ((system asdf:system))
-  "Render SYSTEM's reference."
-  (reference-component system))
-
-(defmethod reference ((definition system-definition))
-  "Render system DEFINITION's reference."
-  (reference-asdf-definition definition))
 
 (defmethod document ((definition system-definition) extract &key)
   "Render system DEFINITION's documentation in EXTRACT."
   (when-let (long-name (long-name definition))
-    (@tableitem "Long Name"
-      (format t "~A~%" (escape long-name))))
+    (@tableitem "Long Name" (format t "~A~%" (escape long-name))))
   (flet ((render-contacts (names emails category)
 	   "Render a CATEGORY contact list of NAMES and EMAILS."
-	   (when (and names emails) ;; both are null or not at the same time.
-	     (@tableitem (format nil (concatenate 'string category "~P")
-			   (length names))
+	   ;; Both names and emails are null or not at the same time.
+	   (when names
+	     (@tableitem
+		 (format nil (concatenate 'string category "~P") (length names))
 	       ;; #### FIXME: @* and map ugliness. I'm sure FORMAT can do all
 	       ;; #### this.
 	       (format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
@@ -530,11 +366,9 @@ Modules are listed depth-first from the system components tree.")))))
     (render-contacts
      (author-names definition) (author-emails definition) "Author"))
   (when-let (mailto (mailto definition))
-    (@tableitem "Contact"
-      (format t "@email{~A}~%" (escape mailto))))
+    (@tableitem "Contact" (format t "@email{~A}~%" (escape mailto))))
   (when-let (homepage (homepage definition))
-    (@tableitem "Home Page"
-      (format t "@uref{~A}~%" (escape homepage))))
+    (@tableitem "Home Page" (format t "@uref{~A}~%" (escape homepage))))
   (when-let (source-control (source-control definition))
     (@tableitem "Source Control"
       (etypecase source-control
@@ -543,13 +377,13 @@ Modules are listed depth-first from the system components tree.")))))
 		 (search "://" source-control)
 		 (escape source-control)))
 	(t
-	 (format t "@t{~A}~%"
-		 (escape (format nil "~(~S~)" source-control)))))))
+	 ;; #### FIXME: why this before ?
+	 ;; (escape (format nil "~(~S~)" source-control))
+	 (format t "@t{~A}~%" source-control)))))
   (when-let (bug-tracker (bug-tracker definition))
-    (@tableitem "Bug Tracker"
-      (format t "@uref{~A}~%" (escape bug-tracker))))
-  (format t "~@[@item License~%~
-	     ~A~%~]" (escape (license definition)))
+    (@tableitem "Bug Tracker" (format t "@uref{~A}~%" (escape bug-tracker))))
+  (when-let (license-name (license-name definition))
+    (@tableitem "License" (format t "~A~%" (escape license-name))))
   (call-next-method))
 
 
@@ -566,12 +400,13 @@ Modules are listed depth-first from the system components tree.")))))
 				     (format nil "~
 The main system appears first, followed by any subsystem dependency.")))))
   "Add the systems node to PARENT in EXTRACT."
-  (dolist (system-definition (system-definitions extract))
+  (dolist (definition
+	   (remove-if-not #'system-definition-p (definitions extract)))
     (add-child systems-node
-      (make-node :name (format nil "~@(~A~)" (title system-definition))
-		 :section-name (format nil "@t{~(~A~)}"
-				 (escape system-definition))
+      (make-node :name (long-title definition)
+		 :section-name (format nil "@t{~A}"
+				 (escape (safe-name definition t)))
 		 :before-menu-contents
-		 (render-to-string (document system-definition extract))))))
+		 (render-to-string (document definition extract))))))
 
 ;;; asdf.lisp ends here

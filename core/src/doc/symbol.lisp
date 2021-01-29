@@ -37,18 +37,19 @@
 ;; definitions in the generated manual.
 
 (defparameter *categories*
-  '((constant-definition       "constants")
-    (special-definition        "special variables")
-    (symbol-macro-definition   "symbol macros")
-    (macro-definition          "macros")
-    (compiler-macro-definition "compiler macros")
-    (function-definition       "functions")
-    (generic-definition        "generic functions")
-    (combination-definition    "method combinations")
-    (condition-definition      "conditions")
-    (structure-definition      "structures")
-    (class-definition          "classes")
-    (type-definition           "types"))
+  '((constant-definition          "constants")
+    (special-definition           "special variables")
+    (symbol-macro-definition      "symbol macros")
+    (macro-definition             "macros")
+    (compiler-macro-definition    "compiler macros")
+    (expander-definition          "setf expanders")
+    (ordinary-function-definition "ordinary functions")
+    (generic-function-definition  "generic functions")
+    (combination-definition       "method combinations")
+    (condition-definition         "conditions")
+    (structure-definition         "structures")
+    (class-definition             "classes")
+    (type-definition              "types"))
   "The list of definition categories.
 Each category is of type (TYPE DESCRIPTION-STRING).")
 
@@ -81,19 +82,19 @@ Each category is of type (TYPE DESCRIPTION-STRING).")
   "Return \"compiler macro\""
   "compiler macro")
 
-(defmethod type-name ((function function-definition))
+(defmethod type-name ((function ordinary-function-definition))
   "Return \"function\""
-  "function")
+  "ordinary function")
 
-(defmethod type-name ((generic generic-definition))
+(defmethod type-name ((generic generic-function-definition))
   "Return \"generic function\""
   "generic function")
 
-(defmethod type-name ((method method-definition))
+(defmethod type-name ((method %method-definition))
   "Return \"method\""
   "method")
 
-(defmethod type-name ((expander setf-expander-definition))
+(defmethod type-name ((expander expander-definition))
   "Return \"setf expander\""
   "setf expander")
 

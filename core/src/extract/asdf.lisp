@@ -113,6 +113,10 @@ This actually is the corresponding system's source file."
   (:documentation "The FILE-DEFINITION class.
 This is the base class for ASDF file definitions."))
 
+(defun file-definition-p (definition)
+  "Return T if DEFINITION is a file definition."
+  (typep definition 'file-definition))
+
 (defclass source-file-definition (file-definition)
   ()
   (:documentation "The SOURCE-FILE-DEFINITION class."))
@@ -255,6 +259,10 @@ definition for each file."
 		      :accessor child-definitions))
   (:documentation "The Module Definition class."))
 
+(defun module-definition-p (definition)
+  "Return T if DEFINITION is a module definition."
+  (typep definition 'module-definition))
+
 (defun make-module-definition (module &optional foreign)
   "Make a new MODULE definition."
   (make-instance 'module-definition :module module :foreign foreign))
@@ -281,6 +289,10 @@ definition for each file."
      :documentation "The list of defsystem dependency definitions."
      :accessor defsystem-dependencies))
   (:documentation "The System Definition class."))
+
+(defun system-definition-p (definition)
+  "Return T if DEFINITION is a system definition."
+  (typep definition 'system-definition))
 
 (defmethod initialize-instance :after
     ((definition system-definition) &key &aux (system (system definition)))
