@@ -173,7 +173,6 @@ Rendering is done on *standard-output*."
   (format t "@ref{~A, , @t{~(~A}~)}"
     (escape-anchor anchor) (escape-label label)))
 
-#i(tableitem 1)
 (defmacro @tableitem (title &body body)
   "Execute BODY within a table @item TITLE.
 BODY should render on *standard-output*."
@@ -213,6 +212,7 @@ BODY should render on *standard-output*."
      ,@body
      (format t "~&@end itemize~%")))
 
+#i(itemize-list 1)
 (defun @itemize-list
     (list &key renderer (kind :@bullet) (format "~A") (key #'identity))
   "Render a LIST of items within an @itemize KIND environment.
