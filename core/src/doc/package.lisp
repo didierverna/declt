@@ -74,12 +74,10 @@
 ;; Package Nodes
 ;; ==========================================================================
 
-(defun add-packages-node
-    (parent extract
-     &aux (definitions
-	   (remove-if-not #'package-definition-p (definitions extract))))
+(defun add-packages-node (parent extract)
   "Add the packages node to PARENT in EXTRACT."
-  (when definitions
+  (when-let (definitions
+	     (remove-if-not #'package-definition-p (definitions extract)))
     (let ((packages-node
 	    (add-child parent
 	      (make-node :name "Packages"
@@ -93,7 +91,6 @@ Packages are listed by definition order.")))))
 		     :section-name (format nil "@t{~(~A~)}"
 				     (escape (safe-name definition t)))
 		     :before-menu-contents
-		     (render-to-string
-		       (document definition extract))))))))
+		     (render-to-string (document definition extract))))))))
 
 ;;; package.lisp ends here

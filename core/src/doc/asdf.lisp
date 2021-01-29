@@ -301,25 +301,23 @@ components trees.")))))
 ;; Nodes
 ;; -----
 
-(defun add-modules-node
-    (parent extract
-     &aux (module-definitions
-	   (remove-if-not
-	       ;; This is to handle module subclasses, although I don't really
-	       ;; know if we're going to face it some day.
-	       (lambda (definition)
-		 (and (module-definition-p definition)
-		      (not (system-definition-p definition))))
-	       (definitions extract))))
+(defun add-modules-node (parent extract)
   "Add the modules node to PARENT in EXTRACT."
-  (when module-definitions
+  (when-let (definitions
+	     (remove-if-not
+		 ;; This is to handle module subclasses, although I don't
+		 ;; really know if we're going to face it some day.
+		 (lambda (definition)
+		   (and (module-definition-p definition)
+			(not (system-definition-p definition))))
+		 (definitions extract)))
     (let ((modules-node (add-child parent
 			  (make-node :name "Modules"
 				     :synopsis "The modules documentation"
 				     :before-menu-contents
 				     (format nil "~
 Modules are listed depth-first from the system components tree.")))))
-      (dolist (definition module-definitions)
+      (dolist (definition definitions)
 	(add-child modules-node
 	  (make-node :name (long-title definition)
 		     :section-name (format nil "@t{~A}"
