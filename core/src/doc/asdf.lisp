@@ -73,11 +73,6 @@ element being the name of a component's parent."
       (file-definition "otherfile"))
     (escape (safe-name definition t))))
 
-(defmethod reference ((definition component-definition))
-  "Render component DEFINITION's reference."
-  (@ref (anchor-name definition) (safe-name definition))
-  (format t " (~A)~%" (type-name definition)))
-
 ;; #### FIXME: dependencies should be represented as potentially foreign
 ;; definitions.
 (defgeneric render-dependency (dependency-def component relative-to)

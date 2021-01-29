@@ -67,7 +67,7 @@ net.didierverna.declt system."
 			      :components ((:file "texi")
 					   (:file "doc")
 					   #+()(:file "symbol")
-					   #+()(:file "package")
+					   (:file "package")
 					   (:file "asdf")))
 			     (:file "declt")))))
 

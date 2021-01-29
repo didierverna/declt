@@ -489,7 +489,7 @@ on ~A~]~]."
       (add-systems-node     top-node extract)
       (add-modules-node     top-node extract)
       (add-files-node       top-node extract)
-      #+()(add-packages-node    top-node extract)
+      (add-packages-node    top-node extract)
       #+()(add-definitions-node top-node extract)
       (when (conclusion extract)
 	(add-child top-node

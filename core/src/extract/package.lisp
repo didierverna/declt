@@ -53,6 +53,10 @@
     :accessor definitions))
   (:documentation "The class of package definitions."))
 
+(defun package-definition-p (definition)
+  "Return T if DEFINITION is a package definition."
+  (typep definition 'package-definition))
+
 (defun package-external-symbols (package &aux external-symbols)
   "Return the list of PACKAGE's external symbols."
   (do-external-symbols (symbol package external-symbols)

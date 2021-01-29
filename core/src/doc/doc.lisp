@@ -89,7 +89,10 @@ It is of the form \"go to the <full safe name> <type name>\"."
 
 (defgeneric index (item) (:documentation "Render ITEM's indexing command."))
 
-(defgeneric reference (item) (:documentation "Render ITEM's reference."))
+(defun reference (definition)
+  "Render DEFINITION's reference."
+  (@ref (anchor-name definition) (safe-name definition))
+  (format t " (~A)~%" (type-name definition)))
 
 (defgeneric document (item extract &key &allow-other-keys)
   (:documentation "Render ITEM's documentation in EXTRACT."))
