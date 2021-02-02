@@ -58,8 +58,8 @@
 		(length (length nicknames)))
       (@tableitem (format nil "Nickname~p" length)
 	(if (eq length 1)
-	    (format t "@t{~(~A~)}" (escape (first nicknames)))
-	    (@itemize-list nicknames :format "@t{~(~A~)}" :key #'escape))))
+	  (format t "@t{~(~A~)}" (escape (first nicknames)))
+	  (@itemize-list nicknames :format "@t{~(~A~)}" :key #'escape))))
     (render-references
      (use-definitions definition) "Use List")
     (render-references
@@ -71,22 +71,21 @@
     ;; for the same reason, only one would suffice). In the case of generic
     ;; functions, methods don't need to be referenced at all methods share the
     ;; same name.
-      (flet ((organize-definitions (definitions)
-	   (sort (remove-if
-		     (lambda (definition)
-		       (or (typep definition '%method-definition)
-			   (and (typep definition 'slot-definition)
-				(eq (package-definition definition)
-				    (package-definition
-				     (classoid-definition definition))))))
-		     definitions)
-	       #'string-lessp ;; #### WARNING: casing policy.
-	     :key (lambda (definition)
-		    (symbol-name (definition-symbol definition))))))
-    (render-references (organize-definitions (public-definitions definition))
-		       "Public Interface")
-    (render-references (organize-definitions (private-definitions definition))
-		       "Internals"))))
+    (flet ((organize-definitions (definitions)
+	     (sort (remove-if
+		       (lambda (definition)
+			 (or (typep definition '%method-definition)
+			     (and (typep definition 'slot-definition)
+				  (eq (package-definition definition)
+				      (package-definition
+				       (classoid-definition definition))))))
+		       definitions)
+		 #'string-lessp ;; #### WARNING: casing policy.
+	       :key #'definition-symbol)))
+      (render-references (organize-definitions (public-definitions definition))
+			 "Public Interface")
+      (render-references (organize-definitions (private-definitions definition))
+			 "Internals"))))
 
 
 

@@ -203,8 +203,7 @@ Documentation is done in a @table environment."
 				     (generic-definition definition))))))
 		     definitions)
 	       #'string-lessp ;; #### WARNING: casing policy.
-	     :key (lambda (definition)
-		    (symbol-name (definition-symbol definition))))))
+	     :key #'definition-symbol)))
     (render-references (organize-definitions (public-definitions definition))
 		       "Public Interface")
     (render-references (organize-definitions (private-definitions definition))
