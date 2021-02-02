@@ -442,7 +442,8 @@ The concrete class of the new definition depends on the COMBINATION type."
 (defabstract %method-definition (funcoid-definition)
   ((object :initarg :method :reader definition-method) ;; slot overload
    (generic-definition :documentation "The corresponding generic definition."
-		       :initarg :generic-definition))
+		       :initarg :generic-definition
+		       :reader generic-definition))
   (:documentation "Abstract root class for method definitions."))
 
 ;; #### PORTME.

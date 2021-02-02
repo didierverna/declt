@@ -186,8 +186,25 @@ Documentation is done in a @table environment."
   (render-references
    (remove-if-not #'package-definition-p (definitions definition))
    "Packages")
-  (render-references (public-definitions definition) "Public Interface")
-  (render-references (private-definitions definition) "Internals"))
+  ;; #### NOTE: generic functions and their methods are documented in a single
+  ;; bloc. As a consequence, if a generic function belongs to this file,
+  ;; there's no need to also reference (some of) its methods. On the other
+  ;; hand, we need to reference methods for which the generic function is
+  ;; elsewhere (admittedly, and for the same reason only one would suffice).
+  (flet ((organize-definitions (definitions)
+	   (sort (remove-if
+		     (lambda (definition)
+		       (and (typep definition '%method-definition)
+			    (eq (source-file definition)
+				(source-file (generic-definition definition)))))
+		     definitions)
+	       #'string-lessp ;; #### WARNING: casing policy.
+	     :key (lambda (definition)
+		    (symbol-name (definition-symbol definition))))))
+    (render-references (organize-definitions (public-definitions definition))
+		       "Public Interface")
+    (render-references (organize-definitions (private-definitions definition))
+		       "Internals")))
 
 
 ;; -----
