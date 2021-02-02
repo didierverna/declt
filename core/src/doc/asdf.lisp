@@ -177,9 +177,12 @@ Documentation is done in a @table environment."
 (defmethod document ((definition lisp-file-definition) context &key)
   "Render lisp file DEFINITION's documentation in CONTEXT."
   (call-next-method)
+  ;; #### NOTE: I don't think it's worth referencing all components here, so
+  ;; we're documenting systems only. This could be turned into a context
+  ;; option someday.
   (render-references
-   (remove-if-not #'component-definition-p (definitions definition))
-   "ASDF Components")
+   (remove-if-not #'system-definition-p (definitions definition))
+   "ASDF Systems")
   (render-references
    (remove-if-not #'package-definition-p (definitions definition))
    "Packages")
