@@ -677,7 +677,8 @@ return a list of the updated specification (suitable to MAPCAN)."
     ((definition system-definition) definitions
      &aux (foreign (foreignp definition))
 	  (system (system definition)))
-  "Compute system DEFINITION's defsystem dependency definitions."
+  "Compute system DEFINITION's defsystem dependency definitions.
+Those definitions are guaranteed to be in the original system's order."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
   ;; and only add what's missing, but I don't think it's worth the trouble.
   (setf (defsystem-dependencies definition)
