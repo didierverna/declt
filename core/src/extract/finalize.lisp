@@ -290,8 +290,7 @@ DEFINITIONS in the process."
     ((definition generic-function-definition) definitions
      &aux (combination
 	   (sb-mop:generic-function-method-combination (generic definition))))
-  "Compute generic function DEFINITION's method combination definition.
-Also finalize all methods."
+  "Compute generic function DEFINITION's method combination definition."
   (unless (combination-definition definition)
     (setf (combination-definition definition)
 	  (find-definition combination definitions)))
@@ -302,9 +301,7 @@ Also finalize all methods."
 	     combination t)))
       (setq *finalized* nil)
       (endpush combination-definition definitions)
-      (setf (combination-definition definition) combination-definition)))
-  (mapc (lambda (method-definition) (finalize method-definition definitions))
-    (method-definitions definition)))
+      (setf (combination-definition definition) combination-definition))))
 
 
 
@@ -472,8 +469,7 @@ This function is used for regular class and condition slots."
 ;; #### PORTME.
 (defmethod finalize progn
     ((definition classoid-definition) definitions &aux classoid-definitions)
-  "Compute classoid DEFINITION's super/sub classoids, and method definitions.
-Also finalize all slots."
+  "Compute classoid DEFINITION's super/sub classoids, and method definitions."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole lists here,
   ;; and only add what's missing, but I don't think it's worth the trouble.
   (flet ((get-classoid-definition (classoid)
@@ -528,9 +524,7 @@ Also finalize all slots."
 				 (method-definitions generic-definition))
 			   (endpush generic-definition definitions)
 			   (list method-definition)))))))
-	  (sb-mop:specializer-direct-methods (classoid definition))))
-  (mapc (lambda (slot-definition) (finalize slot-definition definitions))
-    (slot-definitions definition)))
+	  (sb-mop:specializer-direct-methods (classoid definition)))))
 
 
 
@@ -566,21 +560,13 @@ DEFINITIONS in the process."
     (setf (used-by-definitions definition) package-definitions))
   ;; 3. Symbol definitions list.
   (setf (definitions definition)
-	(mapcan (lambda (definition)
-		  (cond ((typep definition 'classoid-definition)
-			 ;; #### FIXME: RETAIN.
-			 (remove-if-not
-			     (lambda (definition)
-			       (eq (symbol-package
-				    (definition-symbol definition))
-				   package))
-			     (cons definition (slot-definitions definition))))
-			((and (typep definition 'symbol-definition)
-			      (eq (symbol-package
-				   (definition-symbol definition))
-				  package))
-			 (list definition))))
-	  definitions)))
+	;; #### FIXME: RETAIN.
+	(remove-if-not
+	    (lambda (definition)
+	      (and (symbol-definition-p definition)
+		   (eq (symbol-package (definition-symbol definition))
+		       package)))
+	    definitions)))
 
 
 
@@ -654,17 +640,10 @@ return a list of the updated specification (suitable to MAPCAN)."
      &aux (pathname (component-pathname (file definition))))
   "Compute Lisp file DEFINITION's definitions list."
   (setf (definitions definition)
-	(mapcan (lambda (definition)
-		  (cond ((typep definition 'generic-function-definition)
-			 ;; #### FIXME: RETAIN.
-			 (remove-if-not
-			     (lambda (definition)
-			       (equal (source-pathname definition) pathname))
-			     (cons definition
-				   (method-definitions definition))))
-			((equal (source-pathname definition) pathname)
-			 (list definition))))
-	  definitions)))
+	;; #### FIXME: RETAIN.
+	(remove-if-not
+	    (lambda (definition) (equal (source-pathname definition) pathname))
+	    definitions)))
 
 
 

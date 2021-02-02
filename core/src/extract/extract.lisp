@@ -204,40 +204,51 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
   "Make and return a list of all existing definitions for SYMBOL."
   ;; Constants.
   (when (eql (sb-int:info :variable :kind symbol) :constant)
-    (push (make-constant-definition symbol) definitions))
+    (endpush (make-constant-definition symbol) definitions))
   ;; Special variables.
   (when (eql (sb-int:info :variable :kind symbol) :special)
-    (push (make-special-definition symbol) definitions))
+    (endpush (make-special-definition symbol) definitions))
   ;; Symbol macros.
   (when (eql (sb-int:info :variable :kind symbol) :macro)
-    (push (make-symbol-macro-definition symbol) definitions))
+    (endpush (make-symbol-macro-definition symbol) definitions))
   ;; Macros.
   (when-let (macro (macro-function symbol))
-    (push (make-macro-definition symbol macro) definitions))
+    (endpush (make-macro-definition symbol macro) definitions))
   ;; Compiler macros.
   (when-let (compiler-macro (compiler-macro-function symbol))
-    (push (make-compiler-macro-definition symbol compiler-macro) definitions))
+    (endpush (make-compiler-macro-definition symbol compiler-macro)
+	     definitions))
   ;; Setf compiler macros.
   (when-let (compiler-macro (compiler-macro-function setf-symbol))
-    (push (make-compiler-macro-definition symbol compiler-macro t)
-	  definitions))
+    (endpush (make-compiler-macro-definition symbol compiler-macro t)
+	     definitions))
   ;; Setf expanders
   (when-let (expander (sb-int:info :setf :expander symbol))
-    (push (make-expander-definition symbol expander) definitions))
+    (endpush (make-expander-definition symbol expander) definitions))
   ;; (Generic) functions.
-  (when-let (function (and (fboundp symbol)
-			   (not (macro-function symbol))
-			   (fdefinition symbol)))
-    ;; #### NOTE: technically, the symbol can be extracted from the generic
-    ;; function object. However, using this general constructor is more
-    ;; homogeneous with the rest.
-    (push (make-function-definition symbol function) definitions))
+  (when-let* ((function (and (fboundp symbol)
+			     (not (macro-function symbol))
+			     (fdefinition symbol)))
+	      ;; #### NOTE: technically, the symbol can be extracted from the
+	      ;; generic function object. However, using this general
+	      ;; constructor is more homogeneous with the rest.
+	      (definition (make-function-definition symbol function)))
+    (if (typep definition 'generic-function-definition)
+      (setq definitions
+	    (append definitions
+		    (cons definition (method-definitions definition))))
+      (endpush definition definitions)))
   ;; (Generic) setf functions.
-  (when-let (function (and (fboundp setf-symbol) (fdefinition setf-symbol)))
-    ;; #### NOTE: technically, the symbol can be extracted from the generic
-    ;; function object. However, using this general constructor is more
-    ;; homogeneous with the rest.
-    (push (make-function-definition symbol function :setf t) definitions))
+  (when-let* ((function (and (fboundp setf-symbol) (fdefinition setf-symbol)))
+	      ;; #### NOTE: technically, the symbol can be extracted from the
+	      ;; generic function object. However, using this general
+	      ;; constructor is more homogeneous with the rest.
+	      (definition (make-function-definition symbol function :setf t)))
+    (if (typep definition 'generic-function-definition)
+      (setq definitions
+	    (append definitions
+		    (cons definition (method-definitions definition))))
+      (endpush definition definitions)))
   ;; Method combinations.
   ;; #### WARNING: method combinations are ill-defined in the Common Lisp
   ;; standard. In particular, they are not necessarily global objects and
@@ -265,13 +276,16 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
 	;; not advertised as part of the method combination, but as part of
 	;; the generic functions that use them.
 	(sb-mop:find-method-combination #'documentation symbol nil)))
-    (push (make-combination-definition symbol combination) definitions))
+    (endpush (make-combination-definition symbol combination) definitions))
   ;; Structures, classes, and conditions,
-  (when-let (classoid (find-class symbol nil))
-    (push (make-classoid-definition symbol classoid) definitions))
+  (when-let* ((classoid (find-class symbol nil))
+	      (definition (make-classoid-definition symbol classoid)))
+    (setq definitions
+	  (append definitions
+		  (cons definition (slot-definitions definition)))))
   ;; Types
   (when (eql (sb-int:info :type :kind symbol) :defined)
-    (push (make-type-definition symbol) definitions))
+    (endpush (make-type-definition symbol) definitions))
 
   definitions)
 

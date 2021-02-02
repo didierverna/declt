@@ -77,6 +77,10 @@
 		       :initform nil :accessor package-definition))
   (:documentation "Abstract root class for all definitions named by symbols."))
 
+(defun symbol-definition-p (definition)
+  "Return T if DEFINITION is a symbol definition."
+  (typep definition 'symbol-definition))
+
 (defmethod name ((definition symbol-definition))
   "Return symbol DEFINITION's symbol."
   (definition-symbol definition))
