@@ -520,7 +520,7 @@ or a condition."))
 ;; (Generic) functions
 ;; -------------------
 
-(defabstract %function-definition (funcoid-definition)
+(defabstract function-definition (funcoid-definition)
   ((object :initarg :function :reader definition-function)) ;; slot overload
   (:documentation "Abstract root class for functions."))
 
@@ -532,11 +532,12 @@ or a condition."))
 ;; definitions are created during the finalization process by upgrading the
 ;; class of the concerned definitions.
 
-(defabstract ordinary-function-definition (%function-definition)
+(defabstract ordinary-function-definition (function-definition)
   ()
   (:documentation "Abstract root class for ordinary functions."))
 
-(defclass function-definition (ordinary-function-definition expander-mixin)
+(defclass simple-function-definition
+    (ordinary-function-definition expander-mixin)
   ()
   (:documentation "The class of ordinary, non-setf function definitions."))
 
@@ -545,7 +546,7 @@ or a condition."))
   ()
   (:documentation "The class of ordinary setf function definitions."))
 
-(defclass reader-definition (function-definition accessor-mixin)
+(defclass reader-definition (simple-function-definition accessor-mixin)
   ()
   (:documentation "The class of ordinary reader definitions.
 An ordinary reader is an ordinary function that reads a slot in a
@@ -566,7 +567,7 @@ structure."))
 ;; functions. The condition to upgrade the class would be that all methods are
 ;; indeed readers / writers.
 
-(defabstract generic-function-definition (%function-definition)
+(defabstract generic-function-definition (function-definition)
   ((object :initarg :generic :reader generic) ;; slot overload
    (method-definitions
     :documentation "The list of corresponding method definitions."
@@ -585,7 +586,8 @@ structure."))
 		    (make-method-definition method definition))
 	    (sb-mop:generic-function-methods (generic definition))))))
 
-(defclass generic-definition (generic-function-definition expander-mixin)
+(defclass simple-generic-definition
+    (generic-function-definition expander-mixin)
   ()
   (:documentation "The class of non-setf, generic function definitions."))
 
@@ -610,9 +612,9 @@ whether it is a SETF one."
   (make-instance
       (typecase function
 	(generic-function
-	 (if setf 'generic-setf-definition 'generic-definition))
+	 (if setf 'generic-setf-definition 'simple-generic-definition))
 	(otherwise
-	 (if setf 'setf-function-definition 'function-definition)))
+	 (if setf 'setf-function-definition 'simple-function-definition)))
     :symbol symbol :function function :foreign foreign))
 
 

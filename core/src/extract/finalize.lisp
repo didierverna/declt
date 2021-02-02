@@ -59,7 +59,7 @@ and over again until nothing moves anymore.")
   (let* ((name (sb-mop:generic-function-name generic))
 	 (setf (consp name))
 	 (symbol (if setf (second name) name)))
-    (make-instance (if setf 'generic-setf-definition 'generic-definition)
+    (make-instance (if setf 'generic-setf-definition 'simple-generic-definition)
       :symbol symbol :generic generic :foreign foreign)))
 
 (defun make-foreign-funcoid-definition
@@ -183,7 +183,7 @@ DEFINITIONS in the process."
     (setf (access-definition definition)
 	  (find-if (lambda (candidate)
 		     (and (or (typep candidate 'macro-definition)
-			      (typep candidate '%function-definition))
+			      (typep candidate 'function-definition))
 			  ;; this will filter out setf functions
 			  (eq (name candidate) name)
 			  (equal (lambda-list candidate) lambda-list)))
@@ -204,7 +204,7 @@ DEFINITIONS in the process."
     (setf (update-definition definition)
 	  (find-if (lambda (candidate)
 		     (and (or (typep candidate 'macro-definition)
-			      (typep candidate '%function-definition))
+			      (typep candidate 'function-definition))
 			  ;; this will filter out setf functions
 			  (eq (name candidate) name)))
 		   definitions)))
@@ -263,7 +263,7 @@ DEFINITIONS in the process."
     (setf (operator-definition definition)
 	  (find-if (lambda (candidate)
 		     (and (or (typep candidate 'macro-definition)
-			      (typep candidate '%function-definition))
+			      (typep candidate 'function-definition))
 			  ;; this will filter out setf functions
 			  (eq (name candidate) name)))
 		   definitions)))

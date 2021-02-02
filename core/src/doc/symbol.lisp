@@ -344,10 +344,10 @@ not advertised if they are the same as GENERIC-SOURCE."
 
 (defgeneric headline-function (definition)
   (:documentation "Return a suitable headline function for DEFINITION.")
-  (:method ((function function-definition))
+  (:method ((function ordinary-function-definition))
     "Return #'@DEFUNX."
     #'@defunx)
-  (:method ((generic generic-definition))
+  (:method ((generic generic-function-definition))
     "Return #'@DEFGENERICX."
     #'@defgenericx)
   (:method ((expander expander-definition))
@@ -390,7 +390,7 @@ not advertised if they are the same as GENERIC-SOURCE."
   "Render COMPILER-MACRO's indexing command."
   (format t "@compilermacrosubindex{~(~A~)}@c~%" (escape compiler-macro)))
 
-(defmethod index ((function function-definition))
+(defmethod index ((function ordinary-function-definition))
   "Render FUNCTION's indexing command."
   (format t "@functionsubindex{~(~A~)}@c~%" (escape function)))
 
@@ -398,7 +398,7 @@ not advertised if they are the same as GENERIC-SOURCE."
   "Render METHOD's indexing command."
   (format t "@methodsubindex{~(~A~)}@c~%" (escape method)))
 
-(defmethod index ((generic generic-definition))
+(defmethod index ((generic generic-function-definition))
   "Render GENERIC's indexing command."
   (format t "@genericsubindex{~(~A~)}@c~%" (escape generic)))
 
@@ -483,7 +483,7 @@ not advertised if they are the same as GENERIC-SOURCE."
   "Render COMPILER-MACRO's documentation in CONTEXT."
   (render-funcoid :compilermacro compiler-macro context))
 
-(defmethod document ((function function-definition) context &key)
+(defmethod document ((function ordinary-function-definition) context &key)
   "Render FUNCTION's documentation in CONTEXT."
   (render-funcoid :un function context
     (when-let (expander (update-expander-definition function))
@@ -613,7 +613,7 @@ The standard method combination is not rendered."
 	  (first options)
 	  (rest options))))))
 
-(defmethod document ((generic generic-definition) context &key)
+(defmethod document ((generic generic-function-definition) context &key)
   "Render GENERIC's documentation in CONTEXT."
   (render-funcoid :generic generic context
     (when-let (expander (update-expander-definition generic))
