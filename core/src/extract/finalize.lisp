@@ -609,7 +609,8 @@ return a list of the updated specification (suitable to MAPCAN)."
     ((definition component-definition) definitions
      &aux (foreign (foreignp definition))
 	  (component (component definition)))
-  "Compute component DEFINITION's parent and dependency definitions."
+  "Compute component DEFINITION's parent and dependency definitions.
+Those definitions are guaranteed to be in the original component's order."
   ;; #### WARNING: systems are components, but don't have a parent so PARENT
   ;; is NIL for them here. We don't want to search definitions for a NIL
   ;; object because we'd fall on constants, special variables, symbol macros,
