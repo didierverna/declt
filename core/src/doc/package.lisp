@@ -64,8 +64,29 @@
      (use-definitions definition) "Use List")
     (render-references
      (used-by-definitions definition) "Used By List")
-    (render-references (public-definitions definition) "Public Interface")
-    (render-references (private-definitions definition) "Internals")))
+    ;; #### NOTE: classoids and their slots are documented in a singel bloc.
+    ;; As a consequence, if a classoid belongs to this package, there's no
+    ;; need to also reference (sone of) its slots. On the other hand, we need
+    ;; to reference slots for which the classoid is elsewhere (admittedly, and
+    ;; for the same reason, only one would suffice). In the case of generic
+    ;; functions, methods don't need to be referenced at all methods share the
+    ;; same name.
+      (flet ((organize-definitions (definitions)
+	   (sort (remove-if
+		     (lambda (definition)
+		       (or (typep definition '%method-definition)
+			   (and (typep definition 'slot-definition)
+				(eq (package-definition definition)
+				    (package-definition
+				     (classoid-definition definition))))))
+		     definitions)
+	       #'string-lessp ;; #### WARNING: casing policy.
+	     :key (lambda (definition)
+		    (symbol-name (definition-symbol definition))))))
+    (render-references (organize-definitions (public-definitions definition))
+		       "Public Interface")
+    (render-references (organize-definitions (private-definitions definition))
+		       "Internals"))))
 
 
 
