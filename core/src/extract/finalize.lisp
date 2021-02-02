@@ -408,7 +408,7 @@ This function is used for regular class and condition slots."
 		      (change-class method-definition
 			  (if (typep method-definition 'setf-mixin)
 			    'setf-writer-method-definition
-			    'writer-method-definition)
+			    'simple-writer-method-definition)
 			:slot-definition definition)
 		      (list method-definition))))))
 	  (sb-mop:slot-definition-writers slot))))

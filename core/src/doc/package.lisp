@@ -74,7 +74,7 @@
     (flet ((organize-definitions (definitions)
 	     (sort (remove-if
 		       (lambda (definition)
-			 (or (typep definition '%method-definition)
+			 (or (typep definition 'method-definition)
 			     (and (typep definition 'slot-definition)
 				  (eq (package-definition definition)
 				      (package-definition

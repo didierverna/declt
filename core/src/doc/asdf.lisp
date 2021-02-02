@@ -197,7 +197,7 @@ Documentation is done in a @table environment."
 	   (sort (remove-if
 		     (lambda (definition)
 		       (or (typep definition 'slot-definition)
-			   (and (typep definition '%method-definition)
+			   (and (typep definition 'method-definition)
 				(eq (source-file definition)
 				    (source-file
 				     (generic-definition definition))))))

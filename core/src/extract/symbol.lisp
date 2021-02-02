@@ -439,7 +439,7 @@ The concrete class of the new definition depends on the COMBINATION type."
 ;; Methods
 ;; -------
 
-(defabstract %method-definition (funcoid-definition)
+(defabstract method-definition (funcoid-definition)
   ((object :initarg :method :reader definition-method) ;; slot overload
    (generic-definition :documentation "The corresponding generic definition."
 		       :initarg :generic-definition
@@ -447,16 +447,16 @@ The concrete class of the new definition depends on the COMBINATION type."
   (:documentation "Abstract root class for method definitions."))
 
 ;; #### PORTME.
-(defmethod lambda-list ((definition %method-definition))
+(defmethod lambda-list ((definition method-definition))
   "Return method DEFINITION's method lambda-list."
   (sb-mop:method-lambda-list (definition-method definition)))
 
 
-(defclass method-definition (%method-definition)
+(defclass simple-method-definition (method-definition)
   ()
   (:documentation "The class of non-setf method definitions."))
 
-(defclass setf-method-definition (setf-mixin %method-definition)
+(defclass setf-method-definition (setf-mixin method-definition)
   ()
   (:documentation "The class of setf method definitions."))
 
@@ -475,7 +475,7 @@ Return a second value of T if METHOD is in fact a SETF one."
 The concrete class of the new definition depends on whether it is a SETF one."
   (multiple-value-bind (symbol setf)
       (method-name method)
-    (make-instance (if setf 'setf-method-definition 'method-definition)
+    (make-instance (if setf 'setf-method-definition 'simple-method-definition)
       :symbol symbol :method method :generic-definition definition
       :foreign foreign)))
 
@@ -490,25 +490,25 @@ The concrete class of the new definition depends on whether it is a SETF one."
 ;; function, but a :writer specification allows you to do whatever you like,
 ;; not necessarily a setf form, so the hierarchy needs to be a bit different.
 
-(defclass reader-method-definition (method-definition accessor-mixin)
+(defclass reader-method-definition (simple-method-definition accessor-mixin)
   ()
   (:documentation "The class of reader method definitions.
 A reader method is a method that reads a slot in a class or condition."))
 
 
-(defabstract %writer-method-definition (accessor-mixin)
+(defabstract writer-method-mixin (accessor-mixin)
   ()
   (:documentation "Abstract root class for writer method definitions."))
 
-(defclass writer-method-definition
-    (method-definition %writer-method-definition)
+(defclass simple-writer-method-definition
+    (simple-method-definition writer-method-mixin)
   ()
   (:documentation "The class of non-setf writer method definitions.
 A non-setf writer method is a non-setf method that writes a slot in a class
 or a condition."))
 
 (defclass setf-writer-method-definition
-    (setf-method-definition %writer-method-definition)
+    (setf-method-definition writer-method-mixin)
   ()
   (:documentation "The class of setf writer method definitions.
 A setf writer method is a setf method that writes a slot in a class

@@ -134,7 +134,7 @@ A QUALIFIED name is of the form \"(setf package:[:]symbol)\"."
   "Return \"generic function\""
   "generic function")
 
-(defmethod type-name ((method %method-definition))
+(defmethod type-name ((method method-definition))
   "Return \"method\""
   "method")
 
