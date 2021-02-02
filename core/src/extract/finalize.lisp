@@ -652,21 +652,18 @@ Those definitions are guaranteed to be in the original component's order."
 ;; Modules
 ;; -------
 
-(defmethod finalize progn
-    ((definition module-definition) definitions
-     &aux (module (module definition)))
-  "Compute module DEFINITION's child definitions."
+(defmethod finalize progn ((definition module-definition) definitions)
+  "Compute module DEFINITION's child definitions.
+Those definitions are guaranteed to be in the module's original order."
   (setf (child-definitions definition)
-	;; #### FIXME: write a RETAIN or KEEP function, also inverting the
-	;; order of TEST and KEY arguments.
-	(remove-if-not (lambda (definition)
-			 (and (typep definition 'component-definition)
-			      ;; #### WARNING: remember that our hacked system
-			      ;; files are not really children.
-			      (not (typep definition 'system-file-definition))
-			      (eq (component-parent (component definition))
-				  module)))
-	    definitions)))
+	;; #### NOTE: remember that we may not have all children, in the case
+	;; of foreign (system) definitions. Also, note that this
+	;; implementation not only preserves the original order, but also
+	;; filters out our hacked system files.
+	(mapcan (lambda (component)
+		  (when-let (child (find-definition component definitions))
+		    (list child)))
+	  (component-children (module definition)))))
 
 
 
