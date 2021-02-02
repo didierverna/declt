@@ -421,7 +421,8 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 		   (declt-notice :long)
 
 	      &aux (current-time-string (current-time-string))
-		   (extract (apply #'extract system-name keys)))
+		   (extract (apply #'extract system-name keys))
+		   (context (make-context)))
   "Generate a reference manual for ASDF SYSTEM-NAME.
 The reference manual is currently generated in Texinfo format.
 
@@ -443,8 +444,7 @@ The following keyword parameters are also available.
 		   copyright-years license
 		   introduction conclusion))
 
-  ;; #### FIXME: this shouldn't be part of the EXTRACT structure.
-  #+()(setf (hyperlinksp extract) hyperlinks)
+  (setf (hyperlinks context) hyperlinks)
 
   ;; Construct the nodes hierarchy.
   (with-standard-io-syntax
@@ -486,10 +486,10 @@ on ~A~]~]."
 		     :synopsis (format nil "What ~A is all about"
 				 (escape (library-name extract)))
 		     :before-menu-contents (introduction extract))))
-      (add-systems-node     top-node extract)
-      (add-modules-node     top-node extract)
-      (add-files-node       top-node extract)
-      (add-packages-node    top-node extract)
+      (add-systems-node     top-node extract context)
+      (add-modules-node     top-node extract context)
+      (add-files-node       top-node extract context)
+      (add-packages-node    top-node extract context)
       #+()(add-definitions-node top-node extract)
       (when (conclusion extract)
 	(add-child top-node

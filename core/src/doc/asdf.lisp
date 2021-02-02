@@ -30,6 +30,30 @@
 
 
 ;; ==========================================================================
+;; Utilities
+;; ==========================================================================
+
+(defun render-pathname (definition context &optional (title "Location"))
+  "Render an itemized pathname line for DEFINITION in CONTEXT.
+Rendering is done on *standard-output*."
+  (when (hyperlinks context)
+    ;; #### NOTE: the use of PROBE-FILE below has two purposes: making sure
+    ;; that the file does exist, so that it can actually be linked properly,
+    ;; and dereferencing an (ASDF 1) installed system file symlink (what we
+    ;; get) in order to link the actual file (what we want).
+    (let* ((pathname  (component-pathname (component definition)))
+	   (probed-pathname (probe-file pathname))
+	   (probed-namestring
+	     (when probed-pathname (namestring probed-pathname))))
+      (@tableitem title
+	(format t "~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
+	  (escape probed-namestring)
+	  (escape (or probed-namestring
+		      (concatenate 'string pathname " (not found)")))
+	  probed-pathname)))))
+
+
+;; ==========================================================================
 ;; Components
 ;; ==========================================================================
 
@@ -89,18 +113,15 @@ See `resolve-dependency-specification' for more information."
 	:renderer #'render-dependency))))
 
 (defmethod document :around
-    ((definition component-definition) extract &key)
-  "Anchor, index and document EXTRACT's component DEFINITION.
+    ((definition component-definition) context &key)
+  "Anchor, index and document component DEFINITION in CONTEXT.
 Documentation is done in a @table environment."
   (anchor-and-index definition)
   (render-docstring definition)
-  (@table ()
-    (call-next-method)))
+  (@table () (call-next-method)))
 
-(defmethod document ((definition component-definition) extract
-		     &key
-		     &aux #+()(relative-to (location extract)))
-  "Render ASDF component DEFINITION's documentation in EXTRACT."
+(defmethod document ((definition component-definition) context &key)
+  "Render ASDF component DEFINITION's documentation in CONTEXT."
   ;; Reminder: this redirects to the component's short description.
   (when-let (long-description (long-description definition))
     (@tableitem "Long Description"
@@ -119,9 +140,9 @@ Documentation is done in a @table environment."
     (render-dependencies dependencies))
   (when-let (source (source-file definition))
     (@tableitem "Source" (reference source)))
+  (render-pathname definition context)
   (when-let (parent (parent-definition definition))
-    (@tableitem "Parent Component" (reference parent)))
-  #+()(render-location (component-pathname (component definition)) extract))
+    (@tableitem "Parent Component" (reference parent))))
 
 
 
@@ -153,8 +174,8 @@ Documentation is done in a @table environment."
 ;; -----------------------
 
 ;; #### NOTE: other kinds of files are only documented as simple components.
-(defmethod document ((definition lisp-file-definition) extract &key)
-  "Render lisp file DEFINITION's documentation in EXTRACT."
+(defmethod document ((definition lisp-file-definition) context &key)
+  "Render lisp file DEFINITION's documentation in CONTEXT."
   (call-next-method)
   (render-references
    (remove-if-not #'component-definition-p (definitions definition))
@@ -170,16 +191,16 @@ Documentation is done in a @table environment."
 ;; Nodes
 ;; -----
 
-(defun file-node (definition extract)
+(defun file-node (definition context)
   "Create and return a file DEFINITION node in EXTRACT."
   (make-node :name (long-title definition)
 	     :section-name
 	     (format nil "@t{~A}" (escape (safe-name definition t)))
 	     :before-menu-contents
-	     (render-to-string (document definition extract))))
+	     (render-to-string (document definition context))))
 
 (defun add-files-node
-    (parent extract
+    (parent extract context
      &aux lisp-file-definitions c-file-definitions java-file-definitions
 	  html-file-definitions doc-file-definitions
 	  static-file-definitions source-file-definitions file-definitions
@@ -223,7 +244,7 @@ components trees.")))))
 		    (add-child files-node
 		      (make-node :name name :section-name section-name)))
 	  :and :do (dolist (definition definitions)
-		     (add-child node (file-node definition extract)))))
+		     (add-child node (file-node definition context)))))
 
 
 
@@ -235,8 +256,8 @@ components trees.")))))
   "Return \"module\""
   "module")
 
-(defmethod document ((definition module-definition) extract &key)
-  "Render module DEFINITION's documentation in EXTRACT."
+(defmethod document ((definition module-definition) context &key)
+  "Render module DEFINITION's documentation in CONTEXT."
   (call-next-method)
   (when-let* ((children (child-definitions definition))
 	      (length (length children)))
@@ -250,12 +271,10 @@ components trees.")))))
 ;; Nodes
 ;; -----
 
-(defun add-modules-node (parent extract)
+(defun add-modules-node (parent extract context)
   "Add the modules node to PARENT in EXTRACT."
   (when-let (definitions
 	     (remove-if-not
-		 ;; This is to handle module subclasses, although I don't
-		 ;; really know if we're going to face it some day.
 		 (lambda (definition)
 		   (and (module-definition-p definition)
 			(not (system-definition-p definition))))
@@ -272,7 +291,7 @@ Modules are listed depth-first from the system components tree.")))))
 		     :section-name (format nil "@t{~A}"
 				     (escape (safe-name definition t)))
 		     :before-menu-contents
-		     (render-to-string (document definition extract))))))))
+		     (render-to-string (document definition context))))))))
 
 
 
@@ -284,8 +303,8 @@ Modules are listed depth-first from the system components tree.")))))
   "Return \"system\""
   "system")
 
-(defmethod document ((definition system-definition) extract &key)
-  "Render system DEFINITION's documentation in EXTRACT."
+(defmethod document ((definition system-definition) context &key)
+  "Render system DEFINITION's documentation in CONTEXT."
   (when-let (long-name (long-name definition))
     (@tableitem "Long Name" (format t "~A~%" (escape long-name))))
   (flet ((render-contacts (names emails category)
@@ -334,7 +353,7 @@ Modules are listed depth-first from the system components tree.")))))
 ;; -----
 
 (defun add-systems-node
-    (parent extract
+    (parent extract context
      &aux (systems-node (add-child parent
 			  (make-node :name "Systems"
 				     :synopsis "The systems documentation"
@@ -349,6 +368,6 @@ The main system appears first, followed by any subsystem dependency.")))))
 		 :section-name (format nil "@t{~A}"
 				 (escape (safe-name definition t)))
 		 :before-menu-contents
-		 (render-to-string (document definition extract))))))
+		 (render-to-string (document definition context))))))
 
 ;;; asdf.lisp ends here

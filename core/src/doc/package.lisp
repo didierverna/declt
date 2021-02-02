@@ -47,8 +47,8 @@
   "Render package DEFINITION's indexing command."
   (format t "@packageindex{~(~A~)}@c~%" (escape (safe-name definition))))
 
-(defmethod document ((definition package-definition) extract &key)
-  "Render package DEFINITION's documentation in EXTRACT."
+(defmethod document ((definition package-definition) context &key)
+  "Render package DEFINITION's documentation in context."
   (anchor-and-index definition)
   (render-docstring definition)
   (@table ()
@@ -73,7 +73,7 @@
 ;; Package Nodes
 ;; ==========================================================================
 
-(defun add-packages-node (parent extract)
+(defun add-packages-node (parent extract context)
   "Add the packages node to PARENT in EXTRACT."
   (when-let (definitions
 	     (remove-if-not #'package-definition-p (definitions extract)))
@@ -90,6 +90,6 @@ Packages are listed by definition order.")))))
 		     :section-name (format nil "@t{~(~A~)}"
 				     (escape (safe-name definition t)))
 		     :before-menu-contents
-		     (render-to-string (document definition extract))))))))
+		     (render-to-string (document definition context))))))))
 
 ;;; package.lisp ends here

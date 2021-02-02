@@ -29,6 +29,18 @@
 (in-readtable :net.didierverna.declt)
 
 
+(defclass context ()
+  ((hyperlinks :documentation
+	       "Whether to create hyperlinks for ASDF components.
+Currently supported values are NIL, and :file-system."
+	       :initarg :hyperlinks :accessor hyperlinks))
+  (:documentation "The class of rendering contexts."))
+
+(defun make-context ()
+  (make-instance 'context))
+
+
+
 ;; ==========================================================================
 ;; Utilities
 ;; ==========================================================================
@@ -94,8 +106,8 @@ It is of the form \"go to the <full safe name> <type name>\"."
   (@ref (anchor-name definition) (safe-name definition))
   (format t " (~A)" (type-name definition)))
 
-(defgeneric document (item extract &key &allow-other-keys)
-  (:documentation "Render ITEM's documentation in EXTRACT."))
+(defgeneric document (definition context &key &allow-other-keys)
+  (:documentation "Render DEFINITION's documentation in CONTEXT."))
 
 
 
