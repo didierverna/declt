@@ -191,12 +191,16 @@ Documentation is done in a @table environment."
   ;; there's no need to also reference (some of) its methods. On the other
   ;; hand, we need to reference methods for which the generic function is
   ;; elsewhere (admittedly, and for the same reason only one would suffice).
+  ;; In the case of classoids, slots don't need to be referenced at all
+  ;; because a slot definition is at the same lexical place as its classoid.
   (flet ((organize-definitions (definitions)
 	   (sort (remove-if
 		     (lambda (definition)
-		       (and (typep definition '%method-definition)
-			    (eq (source-file definition)
-				(source-file (generic-definition definition)))))
+		       (or (typep definition 'slot-definition)
+			   (and (typep definition '%method-definition)
+				(eq (source-file definition)
+				    (source-file
+				     (generic-definition definition))))))
 		     definitions)
 	       #'string-lessp ;; #### WARNING: casing policy.
 	     :key (lambda (definition)
