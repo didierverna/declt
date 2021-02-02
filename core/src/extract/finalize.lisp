@@ -660,6 +660,9 @@ return a list of the updated specification (suitable to MAPCAN)."
 	;; order of TEST and KEY arguments.
 	(remove-if-not (lambda (definition)
 			 (and (typep definition 'component-definition)
+			      ;; #### WARNING: remember that our hacked system
+			      ;; files are not really children.
+			      (not (typep definition 'system-file-definition))
 			      (eq (component-parent (component definition))
 				  module)))
 	    definitions)))
