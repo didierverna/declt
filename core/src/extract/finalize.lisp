@@ -365,8 +365,9 @@ This function is used for regular class and condition slots."
 			    (make-method-definition
 			     method reader-definition t))
 		      (setq *finalized* nil)
-		      (push method-definition
-			    (method-definitions reader-definition)))
+		      (endpush method-definition definitions)
+		      (endpush method-definition
+			       (method-definitions reader-definition)))
 		    (when method-definition
 		      (change-class method-definition 'reader-method-definition
 			:slot-definition definition)
@@ -402,8 +403,9 @@ This function is used for regular class and condition slots."
 			    (make-method-definition
 			     method writer-definition t))
 		      (setq *finalized* nil)
-		      (push method-definition
-			    (method-definitions writer-definition)))
+		      (endpush method-definition definitions)
+		      (endpush method-definition
+			       (method-definitions writer-definition)))
 		    (when method-definition
 		      (change-class method-definition
 			  (if (typep method-definition 'setf-mixin)
@@ -510,8 +512,9 @@ This function is used for regular class and condition slots."
 				 (make-method-definition
 				  method generic-definition t))
 			   (setq *finalized* nil)
-			   (push method-definition
-				 (method-definitions generic-definition))
+			   (endpush method-definition definitions)
+			   (endpush method-definition
+				    (method-definitions generic-definition))
 			   (list method-definition))
 			  (t
 			   (setq generic-definition
@@ -520,8 +523,9 @@ This function is used for regular class and condition slots."
 				 (make-method-definition
 				  method generic-definition t))
 			   (setq *finalized* nil)
-			   (push method-definition
-				 (method-definitions generic-definition))
+			   (endpush method-definition definitions)
+			   (endpush method-definition
+				    (method-definitions generic-definition))
 			   (endpush generic-definition definitions)
 			   (list method-definition)))))))
 	  (sb-mop:specializer-direct-methods (classoid definition)))))
