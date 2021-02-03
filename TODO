@@ -15,8 +15,6 @@ notice and this notice are preserved.
 Abstract it so that we may provide an option for case behavior.
 
 ** Slots
-Advertise fully qualified slot names when there are not in the same package as
-the cass name.
 Document not only direct slots, but also overloads (additional initargs etc).
 
 ** modify macros

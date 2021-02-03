@@ -175,6 +175,41 @@ These are constants, special variables, and symbol macros."))
   nil)
 
 
+
+;; -----
+;; Slots
+;; -----
+
+;; #### NOTE: structure slots only have one associated reader / writer, so
+;; it's slightly overkill to use a list of those. On the other hand, it allows
+;; the documentation rendering code to be applicable to all classoids.
+
+(defclass slot-definition (varoid-definition)
+  ((object :initarg :slot :reader slot) ;; slot overload
+   (classoid-definition :documentation "The corresponding classoid definition."
+			:initarg :classoid-definition
+			:reader classoid-definition)
+   (reader-definitions :documentation "The list of slot reader definitions."
+		       :initform nil :accessor reader-definitions)
+   (writer-definitions :documentation "The list of slot writer definitions."
+		       :initform nil :accessor writer-definitions))
+  (:documentation "The class of slot definitions."))
+
+;; #### PORTME.
+(defun make-slot-definition (slot definition &optional foreign)
+  "Make a new SLOT definition for classoid DEFINITION."
+  (make-instance 'slot-definition
+    :symbol (sb-mop:slot-definition-name slot)
+    :slot slot
+    :classoid-definition definition
+    :foreign foreign))
+
+;; #### PORTME.
+(defmethod docstring ((definition slot-definition))
+  "Return slot DEFINITION's docstring."
+  (sb-pcl::%slot-definition-documentation (slot definition)))
+
+
 
 
 ;; ==========================================================================
@@ -623,40 +658,6 @@ whether it is a SETF one."
 ;; ==========================================================================
 ;; Classoids
 ;; ==========================================================================
-
-;; -----
-;; Slots
-;; -----
-
-;; #### NOTE: structure slots only have one associated reader / writer, so
-;; it's slightly overkill to use a list of those. On the other hand, it allows
-;; the documentation rendering code to be applicable to all classoids.
-
-(defclass slot-definition (symbol-definition)
-  ((object :initarg :slot :reader slot) ;; slot overload
-   (classoid-definition :documentation "The corresponding classoid definition."
-			:initarg :classoid-definition
-			:reader classoid-definition)
-   (reader-definitions :documentation "The list of slot reader definitions."
-		       :initform nil :accessor reader-definitions)
-   (writer-definitions :documentation "The list of slot writer definitions."
-		       :initform nil :accessor writer-definitions))
-  (:documentation "The class of slot definitions."))
-
-;; #### PORTME.
-(defun make-slot-definition (slot definition &optional foreign)
-  "Make a new SLOT definition for classoid DEFINITION."
-  (make-instance 'slot-definition
-    :symbol (sb-mop:slot-definition-name slot)
-    :slot slot
-    :classoid-definition definition
-    :foreign foreign))
-
-;; #### PORTME.
-(defmethod docstring ((definition slot-definition))
-  "Return slot DEFINITION's docstring."
-  (sb-pcl::%slot-definition-documentation (slot definition)))
-
 
 
 ;; -----------------------------------

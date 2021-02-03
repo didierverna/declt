@@ -129,54 +129,12 @@ Each element is rendered as a table item."
 	 (render-definition-core ,the-funcoid ,context)
 	 ,@body))))
 
-;; #### PORTME.
-(defun slot-property (slot property)
-  "Return SLOT definition's PROPERTY value."
-  (funcall
-      (intern (concatenate 'string "SLOT-DEFINITION-" (symbol-name property))
-	      :sb-mop)
-    slot))
-
-(defun render-slot-property
-    (slot property
-	  &key (renderer (lambda (value)
-			   (format t "@t{~A}~%"
-			     (escape (format nil "~(~S~)" value)))))
-	  &aux (value (slot-property slot property)))
-  "Render SLOT definition's PROPERTY value as a table item."
-  (when (and value
-	     (not (and (eq value t) (eq property :type)))
-	     (not (and (eq value :instance) (eq property :allocation))))
-    (@tableitem (format nil "~@(~A~)" (symbol-name property))
-      (funcall renderer value))))
-
-(defun render-slot-definition (definition &aux (slot (slot definition)))
-  "Render slot DEFINITION's documentation."
-  (@defslot (string-downcase (safe-name definition))
-    (index definition)
-    (render-docstring definition)
-    (@table ()
-      (render-slot-property slot :type)
-      (render-slot-property slot :allocation)
-      (render-slot-property slot :initargs
-	:renderer (lambda (value)
-		    (let ((values (mapcar (lambda (val)
-					    (escape
-					     (format nil "~(~S~)" val)))
-					  value)))
-		      (format t "@t{~A}~{, @t{~A}~}"
-			(first values)
-			(rest values)))))
-      (render-slot-property slot :initform)
-      (render-references (reader-definitions definition) "Readers")
-      (render-references (writer-definitions definition) "Writers"))))
-
-(defun render-slots (classoid)
+(defun render-slots (classoid context)
   "Render CLASSOID's direct slots documentation."
   (when-let (slot-definitions (slot-definitions classoid))
     (@tableitem "Direct slots"
       (dolist (slot-definition slot-definitions)
-	(render-slot-definition slot-definition)))))
+	(document slot-definition context)))))
 
 (defmacro render-classoid (kind classoid context &body body)
   "Render CLASSOID's definition of KIND in CONTEXT."
@@ -198,7 +156,7 @@ Each element is rendered as a table item."
 	   (render-references
 	    (method-definitions ,the-classoid)
 	    "Direct methods")
-	   (render-slots ,the-classoid)
+	   (render-slots ,the-classoid context)
 	   ,@body)))))
 
 ;; #### PORTME.
@@ -291,6 +249,86 @@ Each element is rendered as a table item."
 (defmethod document ((definition symbol-macro-definition) context &key)
   "Render symbol macro definition's documentation in CONTEXT."
     (render-varoid :symbolmacro definition context))
+
+
+;; Slots
+(defmethod safe-name
+    ((definition slot-definition)
+     &optional qualified
+     &aux (safe-name (call-next-method)))
+  "When QUALIFIED, prepend the classoid's safe name."
+  (if qualified
+    (concatenate 'string
+      (safe-name (classoid-definition definition) t)
+      "->"
+      safe-name)
+    safe-name))
+
+(defmethod type-name ((definition slot-definition))
+  "Return \"slot\"."
+  "slot")
+
+(defmethod index-command-name ((definition slot-definition))
+  "Return \"slotsubindex\"."
+  "slotsubindex")
+
+;; #### PORTME.
+(defun slot-property (slot property)
+  "Return SLOT's PROPERTY value."
+  (funcall (intern (concatenate 'string "SLOT-DEFINITION-"
+				(symbol-name property))
+		   :sb-mop)
+    slot))
+
+;; #### FIXME: not rendering standard / default values should be a context
+;; choice.
+#i(render-slot-property 2)
+(defun render-slot-property
+    (slot property
+     &key (renderer (lambda (value)
+		      (format t "@t{~A}~%"
+			;; #### WARNING: casing policy.
+			(escape (format nil "~(~S~)" value)))))
+     &aux (value (slot-property slot property)))
+  "Render SLOT's PROPERTY value as a table item on *standard-output*."
+  (when (and value
+	     (not (and (eq property :type) (eq value t)))
+	     (not (and (eq property :allocation) (eq value :instance))))
+    (@tableitem (format nil "~@(~A~)" property)
+      (funcall renderer value))))
+
+;; #### NOTE: even though slots are varoids, they get a special treatment
+;; because they appear as part of a classoid documentation. In particular, we
+;; don't advertise their source file, as it is the same as the parent
+;; classoid, and we only advertise their package if it's different from that
+;; of the parent classoid.
+(defmethod document
+    ((definition slot-definition) context &key &aux (slot (slot definition)))
+  "Render slot DEFINITION's documentation in CONTEXT."
+  ;; #### WARNING: casing policy.
+  (@defslot (string-downcase (safe-name definition))
+    (anchor-and-index definition)
+    (render-docstring definition)
+    (unless (eq (package-definition definition)
+		(package-definition (classoid-definition definition)))
+      (@tableitem "Package"
+	(reference (package-definition definition))))
+    (@table ()
+      (render-slot-property slot :type)
+      (render-slot-property slot :allocation)
+      (render-slot-property slot :initform)
+      (render-slot-property slot :initargs
+	;; #### FIXME: format mess. There's gotta be a better way.
+	:renderer (lambda (value)
+		    (let ((values (mapcar (lambda (val)
+					    ;; #### WARNING: casing policy.
+					    (escape (format nil "~(~S~)" val)))
+				    value)))
+		      (format t "@t{~A}~{, @t{~A}~}"
+			(first values)
+			(rest values)))))
+      (render-references (reader-definitions definition) "Readers")
+      (render-references (writer-definitions definition) "Writers"))))
 
 
 
@@ -566,20 +604,6 @@ Each element is rendered as a table item."
 ;; Classoids
 ;; ---------
 
-;; Slots
-(defmethod type-name ((definition slot-definition))
-  "Return \"slot\"."
-  "slot")
-
-(defmethod index-command-name ((definition slot-definition))
-  "Return \"slotsubindex\"."
-  "slotsubindex")
-
-;; #### FIXME: this is wrong.
-;; #### NOTE: no DOCUMENT method for SLOT-DEFINITION
-
-
-
 ;; Conditions
 (defmethod type-name ((definition condition-definition))
   "Return \"condition\"."
