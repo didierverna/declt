@@ -30,22 +30,16 @@
 
 
 ;; ==========================================================================
-;; Rendering Protocols
-;; ==========================================================================
-
-(defmethod type-name ((package-definition package-definition))
-  "Return \"package\"."
-  "package")
-
-
-
-;; ==========================================================================
 ;; Documentation Protocols
 ;; ==========================================================================
 
-(defmethod index ((definition package-definition))
-  "Render package DEFINITION's indexing command."
-  (format t "@packageindex{~(~A~)}@c~%" (escape (safe-name definition))))
+(defmethod type-name ((definition package-definition))
+  "Return \"package\"."
+  "package")
+
+(defmethod index-command-name ((definition package-definition))
+  "Return \"packageindex\"."
+  "packageindex")
 
 (defmethod document ((definition package-definition) context &key)
   "Render package DEFINITION's documentation in context."

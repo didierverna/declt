@@ -88,26 +88,20 @@ See `reveal' for more information.")
 (defgeneric type-name (definition)
   (:documentation "Return DEFINITION's type name."))
 
+(defgeneric index-command-name (definition)
+  (:documentation "Return DEFINITION's index command name."))
+
 (defun long-title (definition)
   "Return a long title for DEFINITION.
-It is of the form \"The <full safe name> <type name>\"."
-  (format nil "The ~A ~A" (safe-name definition t) (type-name definition)))
+It is of the form \"The <qualified safe name> <type name>\"."
+  ;; #### WARNING: casing policy.
+  (format nil "The ~(~A~) ~A" (safe-name definition t) (type-name definition)))
 
 (defun anchor-name (definition)
-  "Return an anchor name for DEFINITION.
-It is of the form \"go to the <full safe name> <type name>\"."
+  "Return DEFINITION's anchor name.
+It is of the form \"go to the <qualified safe name> <type name>\"."
   (format nil "go to the ~A ~A"
     (safe-name definition t) (type-name definition)))
-
-(defgeneric index (item) (:documentation "Render ITEM's indexing command."))
-
-(defun reference (definition)
-  "Render DEFINITION's reference."
-  (@ref (anchor-name definition) (safe-name definition))
-  (format t " (~A)" (type-name definition)))
-
-(defgeneric document (definition context &key &allow-other-keys)
-  (:documentation "Render DEFINITION's documentation in CONTEXT."))
 
 
 
@@ -116,13 +110,29 @@ It is of the form \"go to the <full safe name> <type name>\"."
 ;; ==========================================================================
 
 (defun anchor (definition)
-  "Render DEFINITION's anchor."
+  "Render DEFINITION's anchoring command on *STANDARD-OUTPUT*."
   (@anchor (anchor-name definition)))
 
+(defun index (definition)
+  "Render DEFINITION's indexing command on *STANDARD-OUTPUT*."
+  ;; #### WARNING: casing policy.
+  (format t "@~A{~(~A~)}@c~%"
+    (index-command-name definition)
+    (escape (safe-name definition))))
+
 (defun anchor-and-index (definition)
-  "Anchor and index DEFINITION."
+  "Render DEFINITION's anchoring and indexing commands on *STANDARD-OUTPUT*."
   (anchor definition)
   (index definition))
+
+(defun reference (definition)
+  "Render DEFINITION's reference on *STANDARD-OUTPUT*."
+  (@ref (anchor-name definition) (safe-name definition))
+  (format t " ~A" (type-name definition)))
+
+(defgeneric document (definition context &key &allow-other-keys)
+  (:documentation "Render DEFINITION's documentation in CONTEXT."))
+
 
 
 ;; #### NOTE: the use of PROBE-FILE below has two purposes:

@@ -167,64 +167,14 @@ The ~A Reference Manual~@[, version ~A~].
 
 @c Modules
 @macro moduleindex{name}
-@cindex @t{\\name\\}
-@cindex Module, @t{\\name\\}
+@tpindex @t{\\name\\}
+@tpindex Module, @t{\\name\\}
 @end macro
 
-@c Lisp files
-@macro lispfileindex{name}
-@cindex @t{\\name\\}
-@cindex Lisp File, @t{\\name\\}
-@cindex File, Lisp, @t{\\name\\}
-@end macro
-
-@c C files
-@macro cfileindex{name}
-@cindex @t{\\name\\}
-@cindex C File, @t{\\name\\}
-@cindex File, C, @t{\\name\\}
-@end macro
-
-@c Java files
-@macro javafileindex{name}
-@cindex @t{\\name\\}
-@cindex Java File, @t{\\name\\}
-@cindex File, Java, @t{\\name\\}
-@end macro
-
-@c HTML files
-@macro htmlfileindex{name}
-@cindex @t{\\name\\}
-@cindex HTML File, @t{\\name\\}
-@cindex File, html, @t{\\name\\}
-@end macro
-
-@c Doc files
-@macro docfileindex{name}
-@cindex @t{\\name\\}
-@cindex Doc File, @t{\\name\\}
-@cindex File, doc, @t{\\name\\}
-@end macro
-
-@c Static files
-@macro staticfileindex{name}
-@cindex @t{\\name\\}
-@cindex Static File, @t{\\name\\}
-@cindex File, static, @t{\\name\\}
-@end macro
-
-@c Source files
-@macro sourcefileindex{name}
-@cindex @t{\\name\\}
-@cindex Source File, @t{\\name\\}
-@cindex File, source, @t{\\name\\}
-@end macro
-
-@c Other files
-@macro otherfileindex{name}
-@cindex @t{\\name\\}
-@cindex Other File, @t{\\name\\}
-@cindex File, other, @t{\\name\\}
+@c Files
+@macro fileindex{name}
+@tpindex @t{\\name\\}
+@tpindex File, @t{\\name\\}
 @end macro
 
 @c The following macros are meant to be used within @defxxx environments.
@@ -276,24 +226,13 @@ The ~A Reference Manual~@[, version ~A~].
 @end macro
 
 @c Setf Expanders
-@macro setfexpandersubindex{name}
+@macro expandersubindex{name}
 @findex @r{Setf Expander, }\\name\\
 @end macro
 
 @c Method Combinations
 @macro combinationsubindex{name}
-@tpindex @r{Standard Method Combination, }\\name\\
-@tpindex @r{Method Combination, Standard, }\\name\\
-@end macro
-
-@macro shortcombinationsubindex{name}
-@tpindex @r{Short Method Combination, }\\name\\
-@tpindex @r{Method Combination, Short, }\\name\\
-@end macro
-
-@macro longcombinationsubindex{name}
-@tpindex @r{Long Method Combination, }\\name\\
-@tpindex @r{Method Combination, Long, }\\name\\
+@tpindex @r{Method Combination, }\\name\\
 @end macro
 
 @c Conditions

@@ -76,80 +76,6 @@ A QUALIFIED name is of the form \"(setf package:[:]symbol)\"."
 
 
 
-;; ------------------
-;; Type name protocol
-;; ------------------
-
-(defmethod type-name ((constant constant-definition))
-  "Return \"constant\""
-  "constant")
-
-(defmethod type-name ((special special-definition))
-  "Return \"special variable\""
-  "special variable")
-
-(defmethod type-name ((symbol-macro symbol-macro-definition))
-  "Return \"symbol macro\""
-  "symbol macro")
-
-(defmethod type-name ((macro macro-definition))
-  "Return \"macro\""
-  "macro")
-
-(defmethod type-name ((compiler-macro compiler-macro-definition))
-  "Return \"compiler macro\""
-  "compiler macro")
-
-(defmethod type-name ((function ordinary-function-definition))
-  "Return \"function\""
-  "ordinary function")
-
-(defmethod type-name ((generic generic-function-definition))
-  "Return \"generic function\""
-  "generic function")
-
-(defmethod type-name ((method method-definition))
-  "Return \"method\""
-  "method")
-
-(defmethod type-name ((expander expander-definition))
-  "Return \"setf expander\""
-  "setf expander")
-
-(defmethod type-name ((definition slot-definition))
-  "Return \"slot\""
-  "slot")
-
-(defmethod type-name ((combination combination-definition))
-  "Return \"standard method combination\"."
-  "standard method combination")
-
-(defmethod type-name ((combination short-combination-definition))
-  "Return \"short method combination\"."
-  "short method combination")
-
-(defmethod type-name ((combination long-combination-definition))
-  "Return \"long method combination\"."
-  "long method combination")
-
-(defmethod type-name ((condition condition-definition))
-  "Return \"condition\""
-  "condition")
-
-(defmethod type-name ((structure structure-definition))
-  "Return \"structure\""
-  "structure")
-
-(defmethod type-name ((class class-definition))
-  "Return \"class\""
-  "class")
-
-(defmethod type-name ((type type-definition))
-  "Return \"type\""
-  "type")
-
-
-
 ;; ==========================================================================
 ;; Utilities
 ;; ==========================================================================
@@ -324,9 +250,13 @@ Each element is rendered as a table item."
 ;; -------
 
 ;; Constants
-(defmethod index ((definition constant-definition))
-  "Render constant DEFINITION's indexing command."
-  (format t "@constantsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+(defmethod type-name ((definition constant-definition))
+  "Return \"constant\"."
+  "constant")
+
+(defmethod index-command-name ((definition constant-definition))
+  "Return \"constantsubindex\"."
+  "constantsubindex")
 
 (defmethod document ((definition constant-definition) context &key)
   "Render constant DEFINITION's documentation in CONTEXT."
@@ -335,9 +265,13 @@ Each element is rendered as a table item."
 
 
 ;; Special variables
-(defmethod index ((definition special-definition))
-  "Render special variable DEFINITION's indexing command."
-  (format t "@specialsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+(defmethod type-name ((definition special-definition))
+  "Return \"special variable\"."
+  "special variable")
+
+(defmethod index-command-name ((definition special-definition))
+  "Return \"specialsubindex\"."
+  "specialsubindex")
 
 (defmethod document ((definition special-definition) context &key)
   "Render special variable DEFINITION's documentation in CONTEXT."
@@ -346,10 +280,13 @@ Each element is rendered as a table item."
 
 
 ;; Symbol macros
-(defmethod index ((definition symbol-macro-definition))
-  "Render symbol macro DEFIITION's indexing command."
-  (format t "@symbolmacrosubindex{~(~A~)}@c~%"
-    (escape (safe-name definition))))
+(defmethod type-name ((definition symbol-macro-definition))
+  "Return \"symbol macro\"."
+  "symbol macro")
+
+(defmethod index-command-name ((definition symbol-macro-definition))
+  "Return \"symbolmacrosubindex\"."
+  "symbolmacrosubindex")
 
 (defmethod document ((definition symbol-macro-definition) context &key)
   "Render symbol macro definition's documentation in CONTEXT."
@@ -362,9 +299,13 @@ Each element is rendered as a table item."
 ;; --------
 
 ;; Macros
-(defmethod index ((definition macro-definition))
-  "Render macro DEFINITION's indexing command."
-  (format t "@macrosubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+(defmethod type-name ((definition macro-definition))
+  "Return \"macro\"."
+  "macro")
+
+(defmethod index-command-name ((definition macro-definition))
+  "Return \"macrosubindex\"."
+  "macrosubindex")
 
 ;; #### FIXME: rethink the possibilities of merging with the expander-for.
 (defmethod document ((definition macro-definition) context &key)
@@ -379,10 +320,13 @@ Each element is rendered as a table item."
 
 
 ;; Compiler macros
-(defmethod index ((definition compiler-macro-definition))
-  "Render compiler macro DEFINITION's indexing command."
-  (format t "@compilermacrosubindex{~(~A~)}@c~%"
-    (escape (safe-name definition))))
+(defmethod type-name ((definition compiler-macro-definition))
+  "Return \"compiler macro\"."
+  "compiler macro")
+
+(defmethod index-command-name ((definition compiler-macro-definition))
+  "Return \"compilermacrosubindex\"."
+  "compilermacrosubindex")
 
 (defmethod document ((definition compiler-macro-definition) context &key)
   "Render compiler macro DEFINITION's documentation in CONTEXT."
@@ -391,9 +335,13 @@ Each element is rendered as a table item."
 
 
 ;; Types
-(defmethod index ((definition type-definition))
-  "Render type DEFINITION's indexing command."
-  (format t "@typesubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+(defmethod type-name ((definition type-definition))
+  "Return \"type\"."
+  "type")
+
+(defmethod index-command-name ((definition type-definition))
+  "Return \"typesubindex\"."
+  "typesubindex")
 
 (defmethod document ((definition type-definition) context &key)
   "Render type DEFINITION's documentation in CONTEXT."
@@ -408,12 +356,13 @@ Each element is rendered as a table item."
 
 
 ;; Setf expanders
-;; #### FIXME: distinguish between the 3 sorts, both in documentation and in
-;; indexing.
-(defmethod index ((definition expander-definition))
-  "Render setf expander DEFINITION's indexing command."
-  (format t "@setfexpandersubindex{~(~A~)}@c~%"
-    (escape (safe-name definition))))
+(defmethod type-name ((expander expander-definition))
+  "Return \"setf expander\"."
+  "setf expander")
+
+(defmethod index-command-name ((expander expander-definition))
+  "Return \"expandersubindex\"."
+  "expandersubindex")
 
 (defmethod document ((definition short-expander-definition) context &key)
   "Render short setf expander DEFINITION's documentation in CONTEXT."
@@ -434,6 +383,14 @@ Each element is rendered as a table item."
 
 
 ;; Method combinations
+(defmethod type-name ((definition combination-definition))
+  "Return \"method combination\"."
+  "method combination")
+
+(defmethod index-command-name ((definition combination-definition))
+  "Return \"combinationsubindex\"."
+  "combinationsubindex")
+
 (defmacro render-combination (kind definition context &body body)
   "Render KIND method combination DEFINITION's documentation in CONTEXT."
   (let ((the-definition (gensym "definition")))
@@ -446,20 +403,10 @@ Each element is rendered as a table item."
 	   (render-definition-core ,the-definition ,context)
 	   ,@body)))))
 
-(defmethod index ((definition combination-definition))
-  "Render standard method combination DEFINITION's indexing command."
-  (format t "@combinationsubindex{~(~A~)}@c~%"
-    (escape (safe-name definition))))
-
 (defmethod document ((definition combination-definition) context &key)
   "Render standard method combination DEFINITION's documentation in CONTEXT."
   (render-combination :standard definition context
     (render-references (user-definitions definition) "Users")))
-
-(defmethod index ((definition short-combination-definition))
-  "Render short method combination DEFINITION's indexing command."
-  (format t "@shortcombinationsubindex{~(~A~)}@c~%"
-    (escape (safe-name definition))))
 
 ;; #### PORTME.
 (defmethod document ((definition short-combination-definition) context &key)
@@ -474,11 +421,6 @@ Each element is rendered as a table item."
 	 (combination definition))))
     (render-references (user-definitions definition) "Users")))
 
-(defmethod index ((definition long-combination-definition))
-  "Render long method combination DEFINITION's indexing command."
-  (format t "@longcombinationsubindex{~(~A~)}@c~%"
-    (escape (safe-name definition))))
-
 (defmethod document ((definition long-combination-definition) context &key)
   "Render long method combination DEFINITION's documentation in CONTEXT."
   (render-combination :long definition context
@@ -487,6 +429,14 @@ Each element is rendered as a table item."
 
 
 ;; Methods
+(defmethod type-name ((definition method-definition))
+  "Return \"method\"."
+  "method")
+
+(defmethod index-command-name ((definition method-definition))
+  "Return \"methodsubindex\"."
+  "methodsubindex")
+
 (defmacro render-method
     (|definition(s)| context &aux (the-definition (gensym "definition")))
   "Render method DEFINITION(S) in CONTEXT."
@@ -517,10 +467,6 @@ Each element is rendered as a table item."
 	   (@table ()
 	     (@tableitem "Source" (reference source-file))))))))
 
-(defmethod index ((definition method-definition))
-  "Render method DEFINITION's indexing command."
-  (format t "@methodsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
-
 (defmethod document ((definition method-definition) context &key)
   "Render METHOD's documentation in CONTEXT."
   (render-method definition context))
@@ -530,9 +476,13 @@ Each element is rendered as a table item."
 
 
 ;; Ordinary functions
-(defmethod index ((definition ordinary-function-definition))
-  "Render function DEFINITION's indexing command."
-  (format t "@functionsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+(defmethod type-name ((definition ordinary-function-definition))
+  "Return \"function\"."
+  "function")
+
+(defmethod index-command-name ((definition ordinary-function-definition))
+  "Return \"functionsubindex\"."
+  "functionsubindex")
 
 (defmethod document ((definition simple-function-definition) context &key)
   "Render simple function DEFINITION's documentation in CONTEXT."
@@ -547,12 +497,14 @@ Each element is rendered as a table item."
   "Render setf function DEFINITION's documentation in CONTEXT."
   (render-funcoid :un definition context))
 
+;; #### FIXME: should be other kinds of @def.
 (defmethod document ((definition reader-definition) context &key)
   "Render function DEFINITION's documentation in CONTEXT."
   (render-funcoid :un definition context
     (@tableitem "Corresponding Slot"
       (reference (slot-definition definition)))))
 
+;; #### FIXME: should be other kinds of @def.
 (defmethod document ((definition writer-definition) context &key)
   "Render writer DEFINITION's documentation in CONTEXT."
   (render-funcoid :un definition context
@@ -562,9 +514,13 @@ Each element is rendered as a table item."
 
 
 ;; Generic functions
-(defmethod index ((definition generic-function-definition))
-  "Render generic function DEFINITION's indexing command."
-  (format t "@genericsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+(defmethod type-name ((definition generic-function-definition))
+  "Return \"generic function\"."
+  "generic function")
+
+(defmethod index-command-name ((definition generic-function-definition))
+  "Return \"genericsubindex\"."
+  "genericsubindex")
 
 ;; #### PORTME.
 (defun render-method-combination (definition)
@@ -611,10 +567,13 @@ Each element is rendered as a table item."
 ;; ---------
 
 ;; Slots
-(defmethod index ((definition slot-definition))
-  "render slot DEFINITION's indexing command."
-  (format t "@slotsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+(defmethod type-name ((definition slot-definition))
+  "Return \"slot\"."
+  "slot")
 
+(defmethod index-command-name ((definition slot-definition))
+  "Return \"slotsubindex\"."
+  "slotsubindex")
 
 ;; #### FIXME: this is wrong.
 ;; #### NOTE: no DOCUMENT method for SLOT-DEFINITION
@@ -622,9 +581,13 @@ Each element is rendered as a table item."
 
 
 ;; Conditions
-(defmethod index ((definition condition-definition))
-  "Render condition DEFINITION's indexing command."
-  (format t "@conditionsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+(defmethod type-name ((definition condition-definition))
+  "Return \"condition\"."
+  "condition")
+
+(defmethod index-command-name ((definition condition-definition))
+  "Return \"conditionsubindex\"."
+  "conditionsubindex")
 
 (defmethod document ((definition condition-definition) context &key)
   "Render condition DEFINITION's documentation in CONTEXT."
@@ -634,9 +597,13 @@ Each element is rendered as a table item."
 
 
 ;; Structures
-(defmethod index ((definition structure-definition))
-  "Render structure DEFINITION's indexing command."
-  (format t "@structuresubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+(defmethod type-name ((definition structure-definition))
+  "Return \"structure\"."
+  "structure")
+
+(defmethod index-command-name ((definition structure-definition))
+  "Return \"structuresubindex\"."
+  "structuresubindex")
 
 (defmethod document ((definition structure-definition) context &key)
   "Render structure DEFINITION's documentation in CONTEXT."
@@ -645,9 +612,13 @@ Each element is rendered as a table item."
 
 
 ;; Classes
-(defmethod index ((definition class-definition))
-  "Render class DEFINITION's indexing command."
-  (format t "@classsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+(defmethod type-name ((definition class-definition))
+  "Return \"class\"."
+  "class")
+
+(defmethod index-command-name ((definition class-definition))
+  "Return \"classsubindex\"."
+  "classsubindex")
 
 (defmethod document ((definition class-definition) context &key)
   "Render class DEFINITION's documentation in CONTEXT."

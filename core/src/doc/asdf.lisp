@@ -70,23 +70,6 @@ element being the name of a component's parent."
 		 (call-next-method definition))
     (call-next-method definition)))
 
-(defmethod index ((definition component-definition))
-  "Render component DEFINITION's indexing command."
-  (format t "@~Aindex{~A}@c~%"
-    (etypecase definition
-      ;; #### WARNING: the order is important!
-      (system-definition "system")
-      (module-definition "module")
-      (lisp-file-definition "lispfile")
-      (c-file-definition "cfile")
-      (java-file-definition "javafile")
-      (html-file-definition "htmlfile")
-      (doc-file-definition "docfile")
-      (static-file-definition "staticfile")
-      (source-file-definition "sourcefile")
-      (file-definition "otherfile"))
-    (escape (safe-name definition))))
-
 (defun render-dependency (dependency)
   "Render a resolved DEPENDENCY specification.
 See `resolve-dependency-specification' for more information."
@@ -150,14 +133,6 @@ Documentation is done in a @table environment."
 ;; Files
 ;; ==========================================================================
 
-;; -------------------
-;; Rendering protocols
-;; -------------------
-
-(defmethod type-name ((definition file-definition))
-  "Return \"file\""
-  "file")
-
 (defmethod safe-name :around
     ((definition file-definition)
      &optional qualify
@@ -168,10 +143,13 @@ Documentation is done in a @table environment."
   (when extension (setq name (concatenate 'string name "." extension)))
   name)
 
+(defmethod type-name ((definition file-definition))
+  "Return \"file\""
+  "file")
 
-;; -----------------------
-;; Documentation protocols
-;; -----------------------
+(defmethod index-command-name ((definition file-definition))
+  "Return \"fileindex\""
+  "fileindex")
 
 ;; #### NOTE: other kinds of files are only documented as simple components.
 (defmethod document ((definition lisp-file-definition) context &key)
@@ -279,6 +257,10 @@ components trees.")))))
   "Return \"module\""
   "module")
 
+(defmethod index-command-name ((definition module-definition))
+  "Return \"moduleindex\""
+  "moduleindex")
+
 (defmethod document ((definition module-definition) context &key)
   "Render module DEFINITION's documentation in CONTEXT."
   (call-next-method)
@@ -325,6 +307,10 @@ Modules are listed depth-first from the system components tree.")))))
 (defmethod type-name ((definition system-definition))
   "Return \"system\""
   "system")
+
+(defmethod index-command-name ((definition system-definition))
+  "Return \"systemindex\""
+  "systemindex")
 
 (defmethod document ((definition system-definition) context &key)
   "Render system DEFINITION's documentation in CONTEXT."
