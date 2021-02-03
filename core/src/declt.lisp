@@ -281,6 +281,11 @@ The ~A Reference Manual~@[, version ~A~].
 @end macro
 
 @c Method Combinations
+@macro combinationsubindex{name}
+@tpindex @r{Standard Method Combination, }\\name\\
+@tpindex @r{Method Combination, Standard, }\\name\\
+@end macro
+
 @macro shortcombinationsubindex{name}
 @tpindex @r{Short Method Combination, }\\name\\
 @tpindex @r{Method Combination, Short, }\\name\\
@@ -490,7 +495,7 @@ on ~A~]~]."
       (add-modules-node     top-node extract context)
       (add-files-node       top-node extract context)
       (add-packages-node    top-node extract context)
-      #+()(add-definitions-node top-node extract)
+      (add-definitions-node top-node extract context)
       (when (conclusion extract)
 	(add-child top-node
 	  (make-node :name "Conclusion"

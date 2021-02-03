@@ -273,9 +273,9 @@ If QUALIFY, also qualify the symbols.")
     (let ((specializer (or (ignore-errors (class-name specializer))
 			   specializer)))
       (if (and qualify (symbolp specializer))
-	  (format nil "~A::~A"
-	    (pretty-name (symbol-package specializer))
-	    (pretty-name specializer))
+	(format nil "~A::~A"
+	  (pretty-name (symbol-package specializer))
+	  (pretty-name specializer))
 	(pretty-name specializer))))
   ;; #### PORTME.
   (:method ((specializer sb-mop:eql-specializer) &optional qualify)
@@ -284,13 +284,15 @@ If QUALIFY, also qualify the symbols.")
       ;; #### WARNING: this is shaky at best. EQL specializers can be of any
       ;; form so in theory we would need to qualify every symbol inside.
       (if (and qualify (symbolp specializer-object))
-	  (format nil "(eql ~A::~A)"
-	    (pretty-name (symbol-package specializer-object))
-	    (pretty-name specializer-object))
+	(format nil "(eql ~A::~A)"
+	  (pretty-name (symbol-package specializer-object))
+	  (pretty-name specializer-object))
 	(format nil "(eql ~A)" (pretty-name specializer-object))))))
 
+;; #### FIXME: currently broken.
+(defun render-lambda-list (lambda-list &optional specializers) (terpri))
 ;; Based on Edi Weitz's write-lambda-list* from documentation-template.
-(defun render-lambda-list (lambda-list &optional specializers
+#+()(defun render-lambda-list (lambda-list &optional specializers
 				       &aux (firstp t)
 					    after-required-args-p)
   "Render LAMBDA-LIST with potential SPECIALIZERS.
@@ -352,7 +354,8 @@ BODY should render on *standard-output*."
   `(progn
      (format t "~&@deffn {~A} {~A} " (escape ,category) (escape ,name))
      (render-lambda-list ,lambda-list ,specializers)
-     (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape ,qualifiers))
+  ;; #### FIXME: restore.
+     #+()(format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape ,qualifiers))
      ,@body
      (format t "~&@end deffn~%")))
 
@@ -362,7 +365,8 @@ CATEGORY, NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for
 Texinfo prior to rendering."
   (format t "~&@deffnx {~A} {~A} " (escape category) (escape name))
   (render-lambda-list lambda-list specializers)
-  (format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape qualifiers)))
+  ;; #### FIXME: restore.
+  #+()(format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape qualifiers)))
 
 (defmacro @defun (name lambda-list &body body)
   "Execute BODY within a @deffn Function NAME LAMBDA-LIST environment.

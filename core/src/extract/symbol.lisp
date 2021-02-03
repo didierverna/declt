@@ -394,8 +394,8 @@ DEFSETF, or DEFINE-SETF-EXPANDER."))
 ;; Method combinations
 ;; -------------------
 
-;; #### NOTE: the root class is not abstract, because it is used for foreign
-;; definitions.
+;; #### NOTE: the root class is not abstract, because it is used for the
+;; standard one.
 
 (defclass combination-definition (funcoid-definition)
   ((object :initarg :combination :reader combination) ;; slot overload

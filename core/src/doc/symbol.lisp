@@ -28,32 +28,6 @@
 (in-readtable :net.didierverna.declt)
 
 
-;; ----------
-;; Categories
-;; ----------
-
-;; #### NOTE: the order in *CATEGORIES* is important (see
-;; ADD-CATEGORIES-NODE). It conditions the order of appearance of the
-;; definitions in the generated manual.
-
-(defparameter *categories*
-  '((constant-definition          "constants")
-    (special-definition           "special variables")
-    (symbol-macro-definition      "symbol macros")
-    (macro-definition             "macros")
-    (compiler-macro-definition    "compiler macros")
-    (expander-definition          "setf expanders")
-    (ordinary-function-definition "ordinary functions")
-    (generic-function-definition  "generic functions")
-    (combination-definition       "method combinations")
-    (condition-definition         "conditions")
-    (structure-definition         "structures")
-    (class-definition             "classes")
-    (type-definition              "types"))
-  "The list of definition categories.
-Each category is of type (TYPE DESCRIPTION-STRING).")
-
-
 ;; ==========================================================================
 ;; Rendering protocols
 ;; ==========================================================================
@@ -188,17 +162,20 @@ The documentation core includes all common definition attributes:
 
 Each element is rendered as a table item."
   (@tableitem "Package"
-    (reference (definition-package definition)))
-  (render-source definition context))
+    (reference (package-definition definition)))
+  (when-let (source (source-file definition))
+    (@tableitem "Source" (reference source))))
 
 (defmacro render-varoid
-    (kind varoid context &body body
+    (kind varoid context
+     &body body
      &aux (the-varoid (gensym "varoid"))
 	  (defcmd (intern (concatenate 'string "@DEF" (symbol-name kind))
 			  :net.didierverna.declt)))
   "Render VAROID definition of KIND in CONTEXT."
   `(let ((,the-varoid ,varoid))
-     (,defcmd (string-downcase (pretty-name ,the-varoid))
+     ;; #### WARNING: casing policy.
+     (,defcmd (string-downcase (safe-name ,the-varoid))
        (anchor-and-index ,the-varoid)
        (render-docstring ,the-varoid)
        (@table ()
@@ -206,58 +183,40 @@ Each element is rendered as a table item."
 	 ,@body))))
 
 (defmacro render-funcoid
-    (kind |funcoid(s)| context &body body
+    (kind |funcoid(s)| context
+     &body body
      &aux (the-funcoid (gensym "funcoid"))
 	  (defcmd (intern (concatenate 'string "@DEF" (symbol-name kind))
 			  :net.didierverna.declt)))
   "Render FUNCOID(S) definition of KIND in CONTEXT."
   `(let ((,the-funcoid ,(if (consp |funcoid(s)|)
-			    (car |funcoid(s)|)
-			    |funcoid(s)|)))
-     (,defcmd (string-downcase (pretty-name ,the-funcoid)) (lambda-list ,the-funcoid)
+			  (car |funcoid(s)|)
+			  |funcoid(s)|)))
+     ;; #### WARNING: casing policy.
+     (,defcmd (string-downcase (safe-name ,the-funcoid))
+	 (lambda-list ,the-funcoid)
        (anchor-and-index ,the-funcoid)
-       ,@(mapcar (lambda (funcoid)
-		   `(render-headline ,funcoid))
+       ,@(mapcar (lambda (funcoid) `(render-headline ,funcoid))
 	   (when (consp |funcoid(s)|) (cdr |funcoid(s)|)))
        (render-docstring ,the-funcoid)
        (@table ()
 	 (render-definition-core ,the-funcoid ,context)
 	 ,@body))))
 
-(defmacro render-method
-    (|method(s)| context generic-source &aux (the-method (gensym "method")))
-  "Render METHOD(S) definition in CONTEXT.
-GENERIC-SOURCE is the source of the generic function. METHOD(S) sources are
-not advertised if they are the same as GENERIC-SOURCE."
-  `(let ((,the-method ,(if (consp |method(s)|)
-			   (car |method(s)|)
-			   |method(s)|)))
-     (@defmethod (string-downcase (pretty-name ,the-method))
-	 (lambda-list ,the-method)
-	 (specializers ,the-method)
-	 (qualifiers ,the-method)
-       (anchor-and-index ,the-method)
-       ,@(mapcar (lambda (method)
-		   (let ((the-method (gensym "method")))
-		     `(let ((,the-method ,method))
-			(@defmethodx
-			    (string-downcase (pretty-name ,the-method))
-			    (lambda-list ,the-method)
-			    (specializers ,the-method)
-			    (qualifiers ,the-method))
-			(anchor-and-index ,the-method))))
-		 (when (consp |method(s)|) (cdr |method(s)|)))
-       (render-docstring ,the-method)
-       (unless (equal (source ,the-method) ,generic-source)
-	 (@table ()
-	   (render-source ,the-method ,context))))))
+;; #### PORTME.
+(defun slot-property (slot property)
+  "Return SLOT definition's PROPERTY value."
+  (funcall
+      (intern (concatenate 'string "SLOT-DEFINITION-" (symbol-name property))
+	      :sb-mop)
+    slot))
 
 (defun render-slot-property
     (slot property
 	  &key (renderer (lambda (value)
 			   (format t "@t{~A}~%"
 			     (escape (format nil "~(~S~)" value)))))
-	  &aux (value (slot-property (slot slot) property)))
+	  &aux (value (slot-property slot property)))
   "Render SLOT definition's PROPERTY value as a table item."
   (when (and value
 	     (not (and (eq value t) (eq property :type)))
@@ -265,11 +224,11 @@ not advertised if they are the same as GENERIC-SOURCE."
     (@tableitem (format nil "~@(~A~)" (symbol-name property))
       (funcall renderer value))))
 
-(defun render-slot (slot)
-  "Render SLOT's documentation."
-  (@defslot (string-downcase (pretty-name slot))
-    (index slot)
-    (render-docstring slot)
+(defun render-slot-definition (definition &aux (slot (slot definition)))
+  "Render slot DEFINITION's documentation."
+  (@defslot (string-downcase (safe-name definition))
+    (index definition)
+    (render-docstring definition)
     (@table ()
       (render-slot-property slot :type)
       (render-slot-property slot :allocation)
@@ -283,26 +242,15 @@ not advertised if they are the same as GENERIC-SOURCE."
 			(first values)
 			(rest values)))))
       (render-slot-property slot :initform)
-      (render-references (reader-definitions slot) "Readers")
-      (render-references (writer-definitions slot) "Writers"))))
+      (render-references (reader-definitions definition) "Readers")
+      (render-references (writer-definitions definition) "Writers"))))
 
 (defun render-slots (classoid)
   "Render CLASSOID's direct slots documentation."
-  (when-let (slots (slot-definitions classoid))
+  (when-let (slot-definitions (slot-definitions classoid))
     (@tableitem "Direct slots"
-      (dolist (slot slots)
-	(render-slot slot)))))
-
-(defmacro render-combination (kind combination context &body body)
-  "Render method COMBINATION's definition of KIND in CONTEXT."
-  (let ((the-combination (gensym "combination")))
-    `(let ((,the-combination ,combination))
-       (@defcombination (string-downcase (pretty-name ,the-combination)) ,kind
-	 (anchor-and-index ,the-combination)
-	 (render-docstring ,the-combination)
-	 (@table ()
-	   (render-definition-core ,the-combination ,context)
-	   ,@body)))))
+      (dolist (slot-definition slot-definitions)
+	(render-slot-definition slot-definition)))))
 
 (defmacro render-classoid (kind classoid context &body body)
   "Render CLASSOID's definition of KIND in CONTEXT."
@@ -310,7 +258,7 @@ not advertised if they are the same as GENERIC-SOURCE."
 			    :net.didierverna.declt))
 	(the-classoid (gensym "classoid")))
     `(let ((,the-classoid ,classoid))
-       (,|@defform| (string-downcase (pretty-name ,the-classoid))
+       (,|@defform| (string-downcase (safe-name ,the-classoid))
 	 (anchor-and-index ,the-classoid)
 	 (render-docstring ,the-classoid)
 	 (@table ()
@@ -357,145 +305,355 @@ not advertised if they are the same as GENERIC-SOURCE."
 (defun render-headline (definition)
   "Render a headline for DEFINITION. Also anchor and index it."
   (funcall (headline-function definition)
-	   (string-downcase (pretty-name definition)) (lambda-list definition))
+	   (string-downcase (safe-name definition)) (lambda-list definition))
   (anchor-and-index definition))
 
 
 
+
 ;; ==========================================================================
 ;; Documentation Protocols
 ;; ==========================================================================
 
-;; #### NOTE: the INDEX methods below only perform sub-indexing because the
-;; main index entries are created automatically in Texinfo by the @defXXX
-;; routines.
+;; #### NOTE: all the indexing methods below perform sub-indexing only,
+;; because the main index entries are created automatically in Texinfo by the
+;; @defXXX routines.
 
-(defmethod index ((constant constant-definition))
-  "Render CONSTANT's indexing command."
-  (format t "@constantsubindex{~(~A~)}@c~%" (escape constant)))
+;; -------
+;; Varoids
+;; -------
 
-(defmethod index ((special special-definition))
-  "Render SPECIAL's indexing command."
-  (format t "@specialsubindex{~(~A~)}@c~%" (escape special)))
+;; Constants
+(defmethod index ((definition constant-definition))
+  "Render constant DEFINITION's indexing command."
+  (format t "@constantsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
 
-(defmethod index ((symbol-macro symbol-macro-definition))
-  "Render SYMBOL-MACRO's indexing command."
-  (format t "@symbolmacrosubindex{~(~A~)}@c~%" (escape symbol-macro)))
+(defmethod document ((definition constant-definition) context &key)
+  "Render constant DEFINITION's documentation in CONTEXT."
+  (render-varoid :constant definition context))
 
-(defmethod index ((macro macro-definition))
-  "Render MACRO's indexing command."
-  (format t "@macrosubindex{~(~A~)}@c~%" (escape macro)))
 
-(defmethod index ((compiler-macro compiler-macro-definition))
-  "Render COMPILER-MACRO's indexing command."
-  (format t "@compilermacrosubindex{~(~A~)}@c~%" (escape compiler-macro)))
+
+;; Special variables
+(defmethod index ((definition special-definition))
+  "Render special variable DEFINITION's indexing command."
+  (format t "@specialsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
 
-(defmethod index ((function ordinary-function-definition))
-  "Render FUNCTION's indexing command."
-  (format t "@functionsubindex{~(~A~)}@c~%" (escape function)))
+(defmethod document ((definition special-definition) context &key)
+  "Render special variable DEFINITION's documentation in CONTEXT."
+  (render-varoid :special definition context))
 
-(defmethod index ((method method-definition))
-  "Render METHOD's indexing command."
-  (format t "@methodsubindex{~(~A~)}@c~%" (escape method)))
 
-(defmethod index ((generic generic-function-definition))
-  "Render GENERIC's indexing command."
-  (format t "@genericsubindex{~(~A~)}@c~%" (escape generic)))
+
+;; Symbol macros
+(defmethod index ((definition symbol-macro-definition))
+  "Render symbol macro DEFIITION's indexing command."
+  (format t "@symbolmacrosubindex{~(~A~)}@c~%"
+    (escape (safe-name definition))))
 
-(defmethod index ((expander expander-definition))
-  "Render setf EXPANDER's indexing command."
-  (format t "@setfexpandersubindex{~(~A~)}@c~%" (escape expander)))
+(defmethod document ((definition symbol-macro-definition) context &key)
+  "Render symbol macro definition's documentation in CONTEXT."
+    (render-varoid :symbolmacro definition context))
 
-(defmethod index ((slot slot-definition))
-  "Render SLOT's indexing command."
-  (format t "@slotsubindex{~(~A~)}@c~%" (escape slot)))
 
-(defmethod index ((combination short-combination-definition))
-  "Render short method COMBINATION's indexing command."
-  (format t "@shortcombinationsubindex{~(~A~)}@c~%" (escape combination)))
+
+;; --------
+;; Funcoids
+;; --------
 
-(defmethod index ((combination long-combination-definition))
-  "Render long method COMBINATION's indexing command."
-  (format t "@longcombinationsubindex{~(~A~)}@c~%" (escape combination)))
+;; Macros
+(defmethod index ((definition macro-definition))
+  "Render macro DEFINITION's indexing command."
+  (format t "@macrosubindex{~(~A~)}@c~%" (escape (safe-name definition))))
 
-(defmethod index ((condition condition-definition))
-  "Render CONDITION's indexing command."
-  (format t "@conditionsubindex{~(~A~)}@c~%" (escape condition)))
+;; #### FIXME: rethink the possibilities of merging with the expander-for.
+(defmethod document ((definition macro-definition) context &key)
+  "Render macro DEFINITION's documentation in CONTEXT."
+  (render-funcoid :macro definition context
+    (when-let (expander-for (expander-for definition))
+      (@tableitem "Setf expander for this macro"
+	(reference expander-for)))
+    (when-let (expanders-to (expanders-to definition))
+      (render-references expanders-to "Setf expanders to this macro"))))
 
-(defmethod index ((structure structure-definition))
-  "Render STRUCTURE's indexing command."
-  (format t "@structuresubindex{~(~A~)}@c~%" (escape structure)))
 
-(defmethod index ((class class-definition))
-  "Render CLASS's indexing command."
-  (format t "@classsubindex{~(~A~)}@c~%" (escape class)))
+
+;; Compiler macros
+(defmethod index ((definition compiler-macro-definition))
+  "Render compiler macro DEFINITION's indexing command."
+  (format t "@compilermacrosubindex{~(~A~)}@c~%"
+    (escape (safe-name definition))))
 
-(defmethod index ((type type-definition))
-  "Render TYPE's indexing command."
-  (format t "@typesubindex{~(~A~)}@c~%" (escape type)))
+(defmethod document ((definition compiler-macro-definition) context &key)
+  "Render compiler macro DEFINITION's documentation in CONTEXT."
+  (render-funcoid :compilermacro definition context))
 
-(defmethod document ((constant constant-definition) context &key)
-  "Render CONSTANT's documentation in CONTEXT."
-  (render-varoid :constant constant context))
 
-(defmethod document ((special special-definition) context &key)
-  "Render SPECIAL variable's documentation in CONTEXT."
-  (render-varoid :special special context))
+
+;; Types
+(defmethod index ((definition type-definition))
+  "Render type DEFINITION's indexing command."
+  (format t "@typesubindex{~(~A~)}@c~%" (escape (safe-name definition))))
 
-;; #### FIXME: there's no reason to show the expansion of a symbol macro, and
-;; not, say, that of a regular macro, or even a functional value.
-(defmethod document ((symbol-macro symbol-macro-definition) context &key)
-  "Render SYMBOL-MACRO's documentation in CONTEXT."
-    (render-varoid :symbolmacro symbol-macro context
-      (@tableitem "Expansion"
-	(format t "@t{~(~A~)}~%"
-	  (escape
-	   (format nil "~S"
-		   (macroexpand-1 (definition-symbol symbol-macro))))))))
+(defmethod document ((definition type-definition) context &key)
+  "Render type DEFINITION's documentation in CONTEXT."
+  ;; #### WARNING: casing policy.
+  (@deftype ((string-downcase (safe-name definition)) (lambda-list definition))
+      (anchor-and-index definition)
+    (render-docstring definition)
+    (@table ()
+      (render-definition-core definition context))))
 
-(defmethod document
-    ((macro macro-definition) context
-     &key
-     &aux (access-expander (access-expander-definition macro))
-	  (update-expander (update-expander-definition macro))
-	  (merge (and access-expander
-		      (functionp (update access-expander))
-		      (equal (source macro) (source access-expander))
-		      (equal (docstring macro) (docstring access-expander)))))
-  "Render MACRO's documentation in CONTEXT."
-  (cond (merge
-	 (render-funcoid :macro (macro access-expander) context
-	   (when update-expander
-	     (@tableitem "Setf Expander"
-	       (reference update-expander)))))
-	(t
-	 (render-funcoid :macro macro context
-	   (when update-expander
-	     (@tableitem "Setf Expander"
-	       (reference update-expander)))
-	   (when access-expander
-	     (@tableitem "Setf Expander"
-	       (reference access-expander))))
-	 (when access-expander
-	   (document access-expander context)))))
 
-(defmethod document ((compiler-macro compiler-macro-definition) context &key)
-  "Render COMPILER-MACRO's documentation in CONTEXT."
-  (render-funcoid :compilermacro compiler-macro context))
 
-(defmethod document ((function ordinary-function-definition) context &key)
-  "Render FUNCTION's documentation in CONTEXT."
-  (render-funcoid :un function context
-    (when-let (expander (update-expander-definition function))
-      (@tableitem "Setf Expander"
-	(reference expander)))))
+
+;; Setf expanders
+;; #### FIXME: distinguish between the 3 sorts, both in documentation and in
+;; indexing.
+(defmethod index ((definition expander-definition))
+  "Render setf expander DEFINITION's indexing command."
+  (format t "@setfexpandersubindex{~(~A~)}@c~%"
+    (escape (safe-name definition))))
 
-(defmethod document ((writer writer-definition) context &key)
-  "Render WRITER's documentation in CONTEXT."
-  (render-funcoid :un writer context
-    (when-let (reader (reader-definition writer))
-      (@tableitem "Reader"
-	(reference reader)))))
+(defmethod document ((definition short-expander-definition) context &key)
+  "Render short setf expander DEFINITION's documentation in CONTEXT."
+  (render-funcoid :setf definition context
+    (when-let (access-definition (access-definition definition))
+      (@tableitem "Corresponding Reader"
+	(reference access-definition)))
+    (@tableitem "Corresponding Writer"
+      (reference (update-definition definition)))))
+
+(defmethod document ((definition long-expander-definition) context &key)
+  "Render long setf expander DEFINITION's documentation in CONTEXT."
+  (render-funcoid :setf definition context
+    (when-let (access-definition (access-definition definition))
+      (@tableitem "Corresponding Reader"
+	(reference access-definition)))))
+
+
+
+;; Method combinations
+(defmacro render-combination (kind definition context &body body)
+  "Render KIND method combination DEFINITION's documentation in CONTEXT."
+  (let ((the-definition (gensym "definition")))
+    `(let ((,the-definition ,definition))
+       ;; #### WARNING: casing policy.
+       (@defcombination (string-downcase (safe-name ,the-definition)) ,kind
+	 (anchor-and-index ,the-definition)
+	 (render-docstring ,the-definition)
+	 (@table ()
+	   (render-definition-core ,the-definition ,context)
+	   ,@body)))))
+
+(defmethod index ((definition combination-definition))
+  "Render standard method combination DEFINITION's indexing command."
+  (format t "@combinationsubindex{~(~A~)}@c~%"
+    (escape (safe-name definition))))
+
+(defmethod document ((definition combination-definition) context &key)
+  "Render standard method combination DEFINITION's documentation in CONTEXT."
+  (render-combination :standard definition context
+    (render-references (user-definitions definition) "Users")))
+
+(defmethod index ((definition short-combination-definition))
+  "Render short method combination DEFINITION's indexing command."
+  (format t "@shortcombinationsubindex{~(~A~)}@c~%"
+    (escape (safe-name definition))))
+
+;; #### PORTME.
+(defmethod document ((definition short-combination-definition) context &key)
+  "Render short method combination DEFINITION's documentation in CONTEXT."
+  (render-combination :short definition context
+    (when-let (operator-definition (operator-definition definition))
+      (@tableitem "Operator"
+	(reference operator-definition)))
+    (@tableitem "Indentity with one argument"
+      (format t "@t{~(~A~)}"
+	(sb-pcl::short-combination-identity-with-one-argument
+	 (combination definition))))
+    (render-references (user-definitions definition) "Users")))
+
+(defmethod index ((definition long-combination-definition))
+  "Render long method combination DEFINITION's indexing command."
+  (format t "@longcombinationsubindex{~(~A~)}@c~%"
+    (escape (safe-name definition))))
+
+(defmethod document ((definition long-combination-definition) context &key)
+  "Render long method combination DEFINITION's documentation in CONTEXT."
+  (render-combination :long definition context
+    (render-references (user-definitions definition) "Users")))
+
+
+
+;; Methods
+(defmacro render-method
+    (|definition(s)| context &aux (the-definition (gensym "definition")))
+  "Render method DEFINITION(S) in CONTEXT."
+  `(let ((,the-definition ,(if (consp |definition(s)|)
+			     (car |definition(s)|)
+			     |definition(s)|)))
+     ;; #### WARNING: casing policy.
+     (@defmethod (string-downcase (safe-name ,the-definition))
+	 (lambda-list ,the-definition)
+       (specializers ,the-definition)
+       (qualifiers ,the-definition)
+       (anchor-and-index ,the-definition)
+       ,@(mapcar (lambda (definition)
+		   (let ((the-definition (gensym "definition")))
+		     `(let ((,the-definition ,definition))
+			(@defmethodx
+			    ;; #### WARNING: casing policy.
+			    (string-downcase (safe-name ,the-definition))
+			    (lambda-list ,the-definition)
+			  (specializers ,the-definition)
+			  (qualifiers ,the-definition))
+			(anchor-and-index ,the-definition))))
+	   (when (consp |definition(s)|) (cdr |definition(s)|)))
+       (render-docstring ,the-definition)
+       (when-let (source-file (source-file ,the-definition))
+	 (unless (equal source-file
+			(source-file (generic-definition ,the-definition)))
+	   (@table ()
+	     (@tableitem "Source" (reference source-file))))))))
+
+(defmethod index ((definition method-definition))
+  "Render method DEFINITION's indexing command."
+  (format t "@methodsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+
+(defmethod document ((definition method-definition) context &key)
+  "Render METHOD's documentation in CONTEXT."
+  (render-method definition context))
+
+;; #### FIXME: Implement reader and writer methods.
+
+
+
+;; Ordinary functions
+(defmethod index ((definition ordinary-function-definition))
+  "Render function DEFINITION's indexing command."
+  (format t "@functionsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+
+(defmethod document ((definition simple-function-definition) context &key)
+  "Render simple function DEFINITION's documentation in CONTEXT."
+  (render-funcoid :un definition context
+    (when-let (expander-for (expander-for definition))
+      (@tableitem "Setf expander for this function"
+	(reference expander-for)))
+    (when-let (expanders-to (expanders-to definition))
+      (render-references expanders-to "Setf expanders to this function"))))
+
+(defmethod document ((definition setf-function-definition) context &key)
+  "Render setf function DEFINITION's documentation in CONTEXT."
+  (render-funcoid :un definition context))
+
+(defmethod document ((definition reader-definition) context &key)
+  "Render function DEFINITION's documentation in CONTEXT."
+  (render-funcoid :un definition context
+    (@tableitem "Corresponding Slot"
+      (reference (slot-definition definition)))))
+
+(defmethod document ((definition writer-definition) context &key)
+  "Render writer DEFINITION's documentation in CONTEXT."
+  (render-funcoid :un definition context
+    (@tableitem "Corresponding Slot"
+      (reference (slot-definition definition)))))
+
+
+
+;; Generic functions
+(defmethod index ((definition generic-function-definition))
+  "Render generic function DEFINITION's indexing command."
+  (format t "@genericsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+
+;; #### PORTME.
+(defun render-method-combination (definition)
+  "Render generic function DEFINITION's method combination documentation."
+  (@tableitem "Method Combination"
+    (reference (combination-definition definition))
+    (terpri)
+    (when-let (options (mapcar (lambda (option)
+				 (escape (format nil "~(~S~)" option)))
+			 (sb-pcl::method-combination-options
+			  (sb-mop:generic-function-method-combination
+			   (generic definition)))))
+      (format t "@b{Options:} @t{~A}~{, @t{~A}~}"
+	(first options)
+	(rest options)))))
+
+(defmethod document ((definition simple-generic-definition) context &key)
+  "Render simple generic function DEFINITION's documentation in CONTEXT."
+  (render-funcoid :generic definition context
+    (when-let (expander-for (expander-for definition))
+      (@tableitem "Setf expander for this function"
+	(reference expander-for)))
+    (when-let (expanders-to (expanders-to definition))
+      (render-references expanders-to "Setf expanders to this function"))
+    (render-method-combination definition)
+    (when-let ((methods (method-definitions definition)))
+      (@tableitem "Methods"
+	(dolist (method methods)
+	  (document method context))))))
+
+(defmethod document ((definition generic-setf-definition) context &key)
+  "Render generic setf DEFINITION's documentation in CONTEXT."
+  (render-funcoid :generic definition context
+    (render-method-combination definition)
+    (when-let ((methods (method-definitions definition)))
+      (@tableitem "Methods"
+	(dolist (method methods)
+	  (document method context))))))
+
+
+
+;; ---------
+;; Classoids
+;; ---------
+
+;; Slots
+(defmethod index ((definition slot-definition))
+  "render slot DEFINITION's indexing command."
+  (format t "@slotsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+
+
+;; #### FIXME: this is wrong.
+;; #### NOTE: no DOCUMENT method for SLOT-DEFINITION
+
+
+
+;; Conditions
+(defmethod index ((definition condition-definition))
+  "Render condition DEFINITION's indexing command."
+  (format t "@conditionsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+
+(defmethod document ((definition condition-definition) context &key)
+  "Render condition DEFINITION's documentation in CONTEXT."
+  (render-classoid :cond definition context
+    (render-initargs definition)))
+
+
+
+;; Structures
+(defmethod index ((definition structure-definition))
+  "Render structure DEFINITION's indexing command."
+  (format t "@structuresubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+
+(defmethod document ((definition structure-definition) context &key)
+  "Render structure DEFINITION's documentation in CONTEXT."
+  (render-classoid :struct definition context))
+
+
+
+;; Classes
+(defmethod index ((definition class-definition))
+  "Render class DEFINITION's indexing command."
+  (format t "@classsubindex{~(~A~)}@c~%" (escape (safe-name definition))))
+
+(defmethod document ((definition class-definition) context &key)
+  "Render class DEFINITION's documentation in CONTEXT."
+  (render-classoid :class definition context
+    (render-initargs definition)))
+
 
 #+()(defmethod document
     ((accessor accessor-definition) context
@@ -570,11 +728,6 @@ not advertised if they are the same as GENERIC-SOURCE."
 	 (when (writer-definition-p writer)
 	   (document writer context)))))
 
-(defmethod document ((method method-definition) context &key generic-source)
-  "Render METHOD's documentation in CONTEXT.
-GENERIC-SOURCE is the source of METHOD's generic function."
-  (render-method method context generic-source))
-
 #+()(defmethod document ((method accessor-method-definition) context
 		     &key (document-writers t) generic-source)
   "Render accessor METHOD's documentation in CONTEXT."
@@ -594,36 +747,6 @@ GENERIC-SOURCE is the source of METHOD's generic function."
 	   ;; sources are the same. It's thus ok to use GENERIC-SOURCE here.
 	   (document (writer-definition method) context
 		     :generic-source generic-source)))))
-
-;; #### PORTME.
-(defun render-method-combination
-    (generic &aux (combination (combination-definition generic)))
-  "Render GENERIC definition's method combination documentation.
-The standard method combination is not rendered."
-  (unless (eq (definition-symbol combination) 'standard)
-    (@tableitem "Method Combination"
-      (reference combination)
-      (terpri)
-      (when-let (options (mapcar (lambda (option)
-				   (escape (format nil "~(~S~)" option)))
-			   (sb-pcl::method-combination-options
-			    (sb-mop:generic-function-method-combination
-			     (generic generic)))))
-	(format t "@b{Options:} @t{~A}~{, @t{~A}~}"
-	  (first options)
-	  (rest options))))))
-
-(defmethod document ((generic generic-function-definition) context &key)
-  "Render GENERIC's documentation in CONTEXT."
-  (render-funcoid :generic generic context
-    (when-let (expander (update-expander-definition generic))
-      (@tableitem "Setf Expander"
-	(reference expander)))
-    (render-method-combination generic)
-    (when-let ((methods (method-definitions generic)))
-      (@tableitem "Methods"
-	(dolist (method methods)
-	  (document method context :generic-source (source generic)))))))
 
 #+()(defmethod document
     ((writer generic-writer-definition) context &key additional-methods)
@@ -723,52 +846,37 @@ The standard method combination is not rendered."
       (@tableitem "Writer"
 	(reference (update expander))))))
 
-;; #### NOTE: no DOCUMENT method for SLOT-DEFINITION
-
-;; #### PORTME.
-(defmethod document ((combination short-combination-definition) contexy &key)
-  "Render short method COMBINATION's documentation in CONTEXT."
-  (render-combination :short combination context
-    (@tableitem "Operator"
-      (reference (operator-definition combination)))
-    (@tableitem "Indentity with one argument"
-      (format t "@t{~(~A~)}"
-	(sb-pcl::short-combination-identity-with-one-argument
-	 (combination combination))))
-    (render-references (users combination) "Users")))
-
-(defmethod document ((combination long-combination-definition) context &key)
-  "Render long method COMBINATION's documentation in CONTEXT."
-  (render-combination :long combination context
-    (render-references (users combination) "Users")))
-
-(defmethod document ((condition condition-definition) context &key)
-  "Render CONDITION's documentation in CONTEXT."
-  (render-classoid :cond condition context
-    (render-initargs condition)))
-
-(defmethod document ((structure structure-definition) context &key)
-  "Render STRUCTURE's documentation in CONTEXT."
-  (render-classoid :struct structure context))
-
-(defmethod document ((class class-definition) context &key)
-  "Render CLASS's documentation in CONTEXT."
-  (render-classoid :class class context
-    (render-initargs class)))
-
-(defmethod document ((type type-definition) context &key)
-  "Render TYPE's documentation in CONTEXT."
-  (@deftype ((string-downcase (pretty-name type)) (lambda-list type))
-    (anchor-and-index type)
-    (render-docstring type)
-    (@table ()
-      (render-definition-core type context))))
 
 
 
 ;; ==========================================================================
 ;; Definition Nodes
 ;; ==========================================================================
+
+;; ----------
+;; Categories
+;; ----------
+
+;; #### NOTE: the order in *CATEGORIES* is important (see
+;; ADD-CATEGORIES-NODE). It conditions the order of appearance of the
+;; definitions in the generated manual.
+
+(defparameter *categories*
+  '((constant-definition          "constants")
+    (special-definition           "special variables")
+    (symbol-macro-definition      "symbol macros")
+    (macro-definition             "macros")
+    (compiler-macro-definition    "compiler macros")
+    (expander-definition          "setf expanders")
+    (ordinary-function-definition "ordinary functions")
+    (generic-function-definition  "generic functions")
+    (combination-definition       "method combinations")
+    (condition-definition         "conditions")
+    (structure-definition         "structures")
+    (class-definition             "classes")
+    (type-definition              "types"))
+  "The list of definition categories.
+Each category is of type (TYPE DESCRIPTION-STRING).")
 
 (defun add-category-node (parent context status category definitions)
   "Add the STATUS CATEGORY node to PARENT for DEFINITIONS in CONTEXT."
@@ -784,24 +892,21 @@ The standard method combination is not rendered."
 (defun add-categories-node (parent context status definitions)
   "Add the STATUS DEFINITIONS categories nodes to PARENT in CONTEXT."
   (dolist (category *categories*)
-    (when-let (type-definitions (type-definitions (first category) definitions))
+    (when-let (type-definitions
+	       (remove-if-not (lambda (definition)
+				(typep definition (first category)))
+		   definitions))
       (add-category-node parent context status (second category)
 			 type-definitions))))
 
-(defun add-status-definitions-node (parent context status definitions)
-  "Add the STATUS DEFINITIONS node to PARENT in CONTEXT."
-  (let ((node (add-child parent
-		(make-node :name (format nil "~@(~A~) definitions" status)))))
-    (add-categories-node node context status definitions)))
-
 (defun add-definitions-node
-    (parent context
-     &aux (external-definitions (external-definitions context))
-	  (external-definitions-number (length external-definitions))
-	  (internal-definitions (internal-definitions context))
-	  (internal-definitions-number (length internal-definitions)))
-  "Add the definitions node to PARENT in CONTEXT."
-  (unless (zerop (+ external-definitions-number internal-definitions-number))
+    (parent extract context
+     &aux (public-definitions (public-definitions extract))
+	  (public-definitions-number (length public-definitions))
+	  (private-definitions (private-definitions extract))
+	  (private-definitions-number (length private-definitions)))
+  "Add EXTRACT's definitions node to PARENT in CONTEXT."
+  (unless (zerop (+ public-definitions-number private-definitions-number))
     (let ((definitions-node
 	    (add-child parent
 	      (make-node :name "Definitions"
@@ -809,11 +914,13 @@ The standard method combination is not rendered."
 			 :before-menu-contents(format nil "~
 Definitions are sorted by export status, category, package, and then by
 lexicographic order.")))))
-      (unless (zerop external-definitions-number)
-	(add-status-definitions-node definitions-node context "exported"
-				     external-definitions))
-      (unless (zerop internal-definitions-number)
-	(add-status-definitions-node definitions-node context "internal"
-				     internal-definitions)))))
+      (unless (zerop public-definitions-number)
+	(let ((node (add-child definitions-node
+		      (make-node :name "Public Interface"))))
+	  (add-categories-node node context "public" public-definitions)))
+      (unless (zerop private-definitions-number)
+	(let ((node (add-child definitions-node
+		      (make-node :name "Internals"))))
+	  (add-categories-node node context "private" private-definitions))))))
 
 ;;; symbol.lisp ends here
