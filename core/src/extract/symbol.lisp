@@ -138,7 +138,7 @@ These are constants, special variables, and symbol macros."))
 
 ;; Special variables
 
-(defclass special-definition (varoid-definition)
+(defclass special-definition (variable-definition)
   ()
   (:documentation "The class of special variable definitions."))
 
