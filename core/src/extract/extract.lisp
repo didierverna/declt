@@ -236,7 +236,8 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
     (if (typep definition 'generic-function-definition)
       (setq definitions
 	    (append definitions
-		    (cons definition (method-definitions definition))))
+		    (cons definition
+			  (copy-list (method-definitions definition)))))
       (endpush definition definitions)))
   ;; (Generic) setf functions.
   (when-let* ((function (and (fboundp setf-symbol) (fdefinition setf-symbol)))
@@ -247,7 +248,8 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
     (if (typep definition 'generic-function-definition)
       (setq definitions
 	    (append definitions
-		    (cons definition (method-definitions definition))))
+		    (cons definition
+			  (copy-list (method-definitions definition)))))
       (endpush definition definitions)))
   ;; Method combinations.
   ;; #### WARNING: method combinations are ill-defined in the Common Lisp
@@ -282,7 +284,8 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
 	      (definition (make-classoid-definition symbol classoid)))
     (setq definitions
 	  (append definitions
-		  (cons definition (slot-definitions definition)))))
+		  (cons definition
+			(copy-list (slot-definitions definition))))))
   ;; Types
   (when (eql (sb-int:info :type :kind symbol) :defined)
     (endpush (make-type-definition symbol) definitions))
