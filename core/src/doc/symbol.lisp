@@ -64,16 +64,6 @@ A QUALIFIED name is of the form \"(setf package:[:]symbol)\"."
   ;; Hack for future case-preserving implementation.
   (format nil "(~A ~A)" 'setf name))
 
-;; #### FIXME: restore this properly.
-#+()(defmethod anchor-name ((method method-definition))
-  "Return METHOD's qualified symbol name, specializers and qualifiers ."
-  (format nil "~A::~A~{ ~A~^~}~{ ~A~^~}"
-    (definition-package-name method)
-    (pretty-name method)
-    (mapcar (lambda (specializer) (pretty-specializer specializer t))
-	    (specializers method))
-    (qualifiers method)))
-
 
 
 ;; ==========================================================================
@@ -467,6 +457,26 @@ Each element is rendered as a table item."
 
 
 ;; Methods
+(defmethod safe-name
+    ((definition method-definition)
+     &optional qualified
+     &aux (safe-name (call-next-method)))
+  "When QUALIFIED, append method DEFINITION's qualifiers and specializers."
+  (if qualified
+    (concatenate 'string
+      safe-name
+      ;; #### NOTE: I'm using an S for qualifiers, assuming they'll always be
+      ;; symbols, in order to distinguish keywords from the rest.
+      (format nil "~{ ~S~} (~{~A~^ ~})"
+	(method-qualifiers (definition-method definition))
+	(mapcar (lambda (specializer)
+		  ;; #### PORTME.
+		  (typecase specializer
+		    (sb-mop:eql-specializer specializer)
+		    (otherwise (safe-name specializer t))))
+	  (specializers definition))))
+    safe-name))
+
 (defmethod type-name ((definition method-definition))
   "Return \"method\"."
   "method")
