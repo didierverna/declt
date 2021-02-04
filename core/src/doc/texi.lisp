@@ -241,30 +241,6 @@ BODY should render on *standard-output*."
      ,@body
      (format t "~&@end defvr~%")))
 
-(defmacro @defconstant (name &body body)
-  "Execute BODY within a @defvr {Constant} NAME environment.
-NAME is escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  `(@defvr "Constant" ,name ,@body))
-
-(defmacro @defspecial (name &body body)
-  "Execute BODY within a @defvr {Special Variable} NAME environment.
-NAME is escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  `(@defvr "Special Variable" ,name ,@body))
-
-(defmacro @defsymbolmacro (name &body body)
-  "Execute BODY within a @defvr {Symbol Macro} NAME environment.
-NAME is escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  `(@defvr "Symbol Macro" ,name ,@body))
-
-(defmacro @defslot (name &body body)
-  "Execute BODY within a @defvr {Slot} Name environment.
-NAME is escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  `(@defvr "Slot" ,name ,@body))
-
 (defgeneric pretty-specializer (specializer &optional qualify)
   (:documentation "Return a printable form of SPECIALIZER.
 If QUALIFY, also qualify the symbols.")

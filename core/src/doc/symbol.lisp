@@ -82,22 +82,6 @@ Each element is rendered as a table item."
   (when-let (source (source-file definition))
     (@tableitem "Source" (reference source))))
 
-(defmacro render-varoid
-    (kind varoid context
-     &body body
-     &aux (the-varoid (gensym "varoid"))
-	  (defcmd (intern (concatenate 'string "@DEF" (symbol-name kind))
-			  :net.didierverna.declt)))
-  "Render VAROID definition of KIND in CONTEXT."
-  `(let ((,the-varoid ,varoid))
-     ;; #### WARNING: casing policy.
-     (,defcmd (string-downcase (safe-name ,the-varoid))
-       (anchor-and-index ,the-varoid)
-       (render-docstring ,the-varoid)
-       (@table ()
-	 (render-definition-core ,the-varoid ,context)
-	 ,@body))))
-
 (defmacro render-funcoid
     (kind |funcoid(s)| context
      &body body
@@ -197,48 +181,61 @@ Each element is rendered as a table item."
 ;; Varoids
 ;; -------
 
+(defmacro render-varoid (definition context
+			 &body body
+			 &aux (the-definition (gensym "definition"))
+			      (the-context (gensym "context")))
+  "Execute BODY within a varoid DEFINITION documentation in CONTEXT.
+BODY is executed within a @table environement."
+  `(let ((,the-definition ,definition)
+	 (,the-context ,context))
+     (@defvr (type-name ,the-definition)
+	 ;; #### WARNING: casing policy.
+	 (string-downcase (safe-name ,the-definition))
+       (anchor-and-index ,the-definition)
+       (render-docstring ,the-definition)
+       (@table () ,@body))))
+
+(defmethod document ((definition varoid-definition) context &key)
+  "Render varoid DEFINITION in CONTEXT.
+This is the default method used for simple varoids,
+providing only basic information."
+  ;; #### WARNING: casing policy.
+  (render-varoid definition context
+    (render-definition-core definition context)))
+
+
+
 ;; Constants
 (defmethod type-name ((definition constant-definition))
   "Return \"constant\"."
-  "constant")
+  "Constant")
 
 (defmethod index-command-name ((definition constant-definition))
   "Return \"constantsubindex\"."
   "constantsubindex")
-
-(defmethod document ((definition constant-definition) context &key)
-  "Render constant DEFINITION's documentation in CONTEXT."
-  (render-varoid :constant definition context))
 
 
 
 ;; Special variables
 (defmethod type-name ((definition special-definition))
   "Return \"special variable\"."
-  "special variable")
+  "Special Variable")
 
 (defmethod index-command-name ((definition special-definition))
   "Return \"specialsubindex\"."
   "specialsubindex")
-
-(defmethod document ((definition special-definition) context &key)
-  "Render special variable DEFINITION's documentation in CONTEXT."
-  (render-varoid :special definition context))
 
 
 
 ;; Symbol macros
 (defmethod type-name ((definition symbol-macro-definition))
   "Return \"symbol macro\"."
-  "symbol macro")
+  "Symbol Macro")
 
 (defmethod index-command-name ((definition symbol-macro-definition))
   "Return \"symbolmacrosubindex\"."
   "symbolmacrosubindex")
-
-(defmethod document ((definition symbol-macro-definition) context &key)
-  "Render symbol macro definition's documentation in CONTEXT."
-    (render-varoid :symbolmacro definition context))
 
 
 ;; Slots
@@ -256,7 +253,7 @@ Each element is rendered as a table item."
 
 (defmethod type-name ((definition slot-definition))
   "Return \"slot\"."
-  "slot")
+  "Slot")
 
 (defmethod index-command-name ((definition slot-definition))
   "Return \"slotsubindex\"."
@@ -287,22 +284,18 @@ Each element is rendered as a table item."
     (@tableitem (format nil "~@(~A~)" property)
       (funcall renderer value))))
 
-;; #### NOTE: even though slots are varoids, they get a special treatment
-;; because they appear as part of a classoid documentation. In particular, we
-;; don't advertise their source file, as it is the same as the parent
-;; classoid, and we only advertise their package if it's different from that
-;; of the parent classoid.
 (defmethod document
     ((definition slot-definition) context &key &aux (slot (slot definition)))
-  "Render slot DEFINITION's documentation in CONTEXT."
+  "Render slot DEFINITION's documentation in CONTEXT.
+- The source file is not documented at all, since it is lexically the same as
+  that of the parent classoid.
+- The package is not documented, unless it differs from that of the parent
+  classoid."
   ;; #### WARNING: casing policy.
-  (@defslot (string-downcase (safe-name definition))
-    (anchor-and-index definition)
-    (render-docstring definition)
+  (render-varoid definition context
     (unless (eq (package-definition definition)
 		(package-definition (classoid-definition definition)))
-      (@tableitem "Package"
-	(reference (package-definition definition))))
+      (@tableitem "Package" (reference (package-definition definition))))
     (@table ()
       (render-slot-property slot :type)
       (render-slot-property slot :allocation)
