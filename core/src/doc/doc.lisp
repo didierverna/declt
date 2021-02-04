@@ -52,20 +52,19 @@ Currently supported values are NIL, and :file-system."
   "A list of blank characters and their associated revealed representation.
 Each element in this list is of the form (#\BLANK . #\REPLACEMENT).")
 
-;; #### FIXME: there's got to be some portability pitfalls here, working with
-;; Unicode strings like that without any precaution.
-(defun reveal (string)
+(defun reveal
+    ;; #### NOTE: make sure that we can have Unicode in the string.
+    (string &aux (string (coerce string '(simple-array character (*)))))
   "Return a copy of STRING with blanks revealed.
 Each blank character is replaced with a visible Unicode representation.
 See `*blanks*' for more information."
   (if (zerop (length string))
     "∅"
-    (loop :with revealed := (copy-seq string)
-	  :for i :from 0 :upto (1- (length revealed))
-	  :for blank := (assoc (aref revealed i) *blanks*)
+    (loop :for i :from 0 :upto (1- (length string))
+	  :for blank := (assoc (aref string i) *blanks*)
 	  :when blank
-	    :do (setf (aref revealed i) (cdr blank))
-	  :finally (return revealed))))
+	    :do (setf (aref string i) (cdr blank))
+	  :finally (return string))))
 
 
 
