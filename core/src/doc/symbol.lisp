@@ -82,27 +82,6 @@ Each element is rendered as a table item."
   (when-let (source (source-file definition))
     (@tableitem "Source" (reference source))))
 
-(defmacro render-funcoid
-    (kind |funcoid(s)| context
-     &body body
-     &aux (the-funcoid (gensym "funcoid"))
-	  (defcmd (intern (concatenate 'string "@DEF" (symbol-name kind))
-			  :net.didierverna.declt)))
-  "Render FUNCOID(S) definition of KIND in CONTEXT."
-  `(let ((,the-funcoid ,(if (consp |funcoid(s)|)
-			  (car |funcoid(s)|)
-			  |funcoid(s)|)))
-     ;; #### WARNING: casing policy.
-     (,defcmd (string-downcase (safe-name ,the-funcoid))
-	 (lambda-list ,the-funcoid)
-       (anchor-and-index ,the-funcoid)
-       ,@(mapcar (lambda (funcoid) `(render-headline ,funcoid))
-	   (when (consp |funcoid(s)|) (cdr |funcoid(s)|)))
-       (render-docstring ,the-funcoid)
-       (@table ()
-	 (render-definition-core ,the-funcoid ,context)
-	 ,@body))))
-
 (defgeneric headline-function (definition)
   (:documentation "Return a suitable headline function for DEFINITION.")
   (:method ((function ordinary-function-definition))
@@ -155,7 +134,6 @@ BODY is executed within a @table environement."
   "Render varoid DEFINITION's documentation in CONTEXT.
 This is the default method used for simple varoids,
 providing only basic information."
-  ;; #### WARNING: casing policy.
   (render-varoid definition context
     (render-definition-core definition context)))
 
@@ -246,7 +224,6 @@ providing only basic information."
   that of the parent classoid.
 - The package is not documented, unless it differs from that of the parent
   classoid."
-  ;; #### WARNING: casing policy.
   (render-varoid definition context
     (unless (eq (package-definition definition)
 		(package-definition (classoid-definition definition)))
@@ -274,10 +251,40 @@ providing only basic information."
 ;; Funcoids
 ;; --------
 
+(defmacro render-funcoid
+    (|definition(s)| context
+     &body body
+     &aux (the-definition (gensym "definition"))
+	  (the-context (gensym "context")))
+  "Render funcoid DEFINITION(S) documentation in CONTEXT."
+  `(let ((,the-definition ,(if (consp |definition(s)|)
+			     (car |definition(s)|)
+			     |definition(s)|))
+	 (,the-context ,context))
+     (@deffn ((type-name ,the-definition)
+	      ;; #### WARNING: casing policy.
+	      (string-downcase (safe-name ,the-definition))
+	      (format nil "~(~A~)~%" (lambda-list ,the-definition)))
+	 (anchor-and-index ,the-definition)
+       ,@(mapcar #'render-headline
+	   (when (consp |definition(s)|) (cdr |definition(s)|)))
+       (render-docstring ,the-definition)
+       (@table ()
+	 (render-definition-core ,the-definition ,the-context)
+	 ,@body))))
+
+(defmethod document ((definition funcoid-definition) context &key)
+  "Render funcoid DEFINITION's documentation in CONTEXT.
+This is the default method used for simple funcoids,
+providing only basic information."
+  (render-funcoid definition context))
+
+
+
 ;; Macros
 (defmethod type-name ((definition macro-definition))
-  "Return \"macro\"."
-  "macro")
+  "Return \"Macro\"."
+  "Macro")
 
 (defmethod index-command-name ((definition macro-definition))
   "Return \"macrosubindex\"."
@@ -286,7 +293,7 @@ providing only basic information."
 ;; #### FIXME: rethink the possibilities of merging with the expander-for.
 (defmethod document ((definition macro-definition) context &key)
   "Render macro DEFINITION's documentation in CONTEXT."
-  (render-funcoid :macro definition context
+  (render-funcoid definition context
     (when-let (expander-for (expander-for definition))
       (@tableitem "Setf expander for this macro"
 	(reference expander-for)))
@@ -297,44 +304,42 @@ providing only basic information."
 
 ;; Compiler macros
 (defmethod type-name ((definition compiler-macro-definition))
-  "Return \"compiler macro\"."
-  "compiler macro")
+  "Return \"Compiler Macro\"."
+  "Compiler Macro")
 
 (defmethod index-command-name ((definition compiler-macro-definition))
   "Return \"compilermacrosubindex\"."
   "compilermacrosubindex")
 
-(defmethod document ((definition compiler-macro-definition) context &key)
-  "Render compiler macro DEFINITION's documentation in CONTEXT."
-  (render-funcoid :compilermacro definition context))
-
 
 
 ;; Types
 (defmethod type-name ((definition type-definition))
-  "Return \"type\"."
-  "type")
+  "Return \"Type\"."
+  "Type")
 
 (defmethod index-command-name ((definition type-definition))
   "Return \"typesubindex\"."
   "typesubindex")
 
+;; #### WARNING: a type is a funcoid because it has a lambda list, but it's
+;; really a @deftp, not a @deffn.
 (defmethod document ((definition type-definition) context &key)
   "Render type DEFINITION's documentation in CONTEXT."
   ;; #### WARNING: casing policy.
-  (@deftype ((string-downcase (safe-name definition)) (lambda-list definition))
+  (@deftype ((string-downcase (safe-name definition))
+	     (format nil "~(~A~)" (lambda-list definition)))
       (anchor-and-index definition)
     (render-docstring definition)
     (@table ()
       (render-definition-core definition context))))
 
 
-
 
 ;; Setf expanders
 (defmethod type-name ((expander expander-definition))
-  "Return \"setf expander\"."
-  "setf expander")
+  "Return \"Setf Expander\"."
+  "Setf Expander")
 
 (defmethod index-command-name ((expander expander-definition))
   "Return \"expandersubindex\"."
@@ -342,7 +347,7 @@ providing only basic information."
 
 (defmethod document ((definition short-expander-definition) context &key)
   "Render short setf expander DEFINITION's documentation in CONTEXT."
-  (render-funcoid :setf definition context
+  (render-funcoid definition context
     (when-let (access-definition (access-definition definition))
       (@tableitem "Corresponding Reader"
 	(reference access-definition)))
@@ -351,7 +356,7 @@ providing only basic information."
 
 (defmethod document ((definition long-expander-definition) context &key)
   "Render long setf expander DEFINITION's documentation in CONTEXT."
-  (render-funcoid :setf definition context
+  (render-funcoid definition context
     (when-let (access-definition (access-definition definition))
       (@tableitem "Corresponding Reader"
 	(reference access-definition)))))
@@ -360,34 +365,37 @@ providing only basic information."
 
 ;; Method combinations
 (defmethod type-name ((definition combination-definition))
-  "Return \"method combination\"."
-  "method combination")
+  "Return \"Method Combination\"."
+  "Method Combination")
 
 (defmethod index-command-name ((definition combination-definition))
   "Return \"combinationsubindex\"."
   "combinationsubindex")
 
-(defmacro render-combination (kind definition context &body body)
-  "Render KIND method combination DEFINITION's documentation in CONTEXT."
-  (let ((the-definition (gensym "definition")))
-    `(let ((,the-definition ,definition))
+(defmacro render-combination (definition context &body body)
+  "Render method combination DEFINITION's documentation in CONTEXT."
+  (let ((the-definition (gensym "definition"))
+	(the-context (gensym "context")))
+    `(let ((,the-definition ,definition)
+	   (,the-context ,context))
        ;; #### WARNING: casing policy.
-       (@defcombination (string-downcase (safe-name ,the-definition)) ,kind
+       (@defcombination (string-downcase (safe-name ,the-definition))
 	 (anchor-and-index ,the-definition)
-	 (render-docstring ,the-definition)
-	 (@table ()
-	   (render-definition-core ,the-definition ,context)
-	   ,@body)))))
+	(render-docstring ,the-definition)
+	(@table ()
+	  (render-definition-core ,the-definition ,context)
+	  ,@body)))))
 
+;; #### FIXME: rethink the lambda-list problem (at least for long forms).
 (defmethod document ((definition combination-definition) context &key)
   "Render standard method combination DEFINITION's documentation in CONTEXT."
-  (render-combination :standard definition context
+  (render-combination definition context
     (render-references (user-definitions definition) "Users")))
 
 ;; #### PORTME.
 (defmethod document ((definition short-combination-definition) context &key)
   "Render short method combination DEFINITION's documentation in CONTEXT."
-  (render-combination :short definition context
+  (render-combination definition context
     (when-let (operator-definition (operator-definition definition))
       (@tableitem "Operator"
 	(reference operator-definition)))
@@ -395,11 +403,6 @@ providing only basic information."
       (format t "@t{~(~A~)}"
 	(sb-pcl::short-combination-identity-with-one-argument
 	 (combination definition))))
-    (render-references (user-definitions definition) "Users")))
-
-(defmethod document ((definition long-combination-definition) context &key)
-  "Render long method combination DEFINITION's documentation in CONTEXT."
-  (render-combination :long definition context
     (render-references (user-definitions definition) "Users")))
 
 
@@ -426,8 +429,16 @@ providing only basic information."
     safe-name))
 
 (defmethod type-name ((definition method-definition))
-  "Return \"method\"."
-  "method")
+  "Return \"Method\"."
+  "Method")
+
+(defmethod type-name ((definition reader-method-definition))
+  "Return \"Reader Method\"."
+  "Reader Method")
+
+(defmethod type-name ((definition writer-method-definition))
+  "Return \"Writer Method\"."
+  "Writer Method")
 
 (defmethod index-command-name ((definition method-definition))
   "Return \"methodsubindex\"."
@@ -440,10 +451,11 @@ providing only basic information."
 			     (car |definition(s)|)
 			     |definition(s)|)))
      ;; #### WARNING: casing policy.
-     (@defmethod (string-downcase (safe-name ,the-definition))
-	 (lambda-list ,the-definition)
-       (specializers ,the-definition)
-       (qualifiers ,the-definition)
+     (@defmethod (type-name ,the-definition)
+	 (string-downcase (safe-name ,the-definition))
+	 #+()(lambda-list ,the-definition) ""
+       #+()(specializers ,the-definition) ""
+       #+()(qualifiers ,the-definition) ""
        (anchor-and-index ,the-definition)
        ,@(mapcar (lambda (definition)
 		   (let ((the-definition (gensym "definition")))
@@ -473,8 +485,8 @@ providing only basic information."
 
 ;; Ordinary functions
 (defmethod type-name ((definition ordinary-function-definition))
-  "Return \"function\"."
-  "function")
+  "Return \"Function\"."
+  "Function")
 
 (defmethod index-command-name ((definition ordinary-function-definition))
   "Return \"functionsubindex\"."
@@ -482,28 +494,33 @@ providing only basic information."
 
 (defmethod document ((definition simple-function-definition) context &key)
   "Render simple function DEFINITION's documentation in CONTEXT."
-  (render-funcoid :un definition context
+  (render-funcoid definition context
     (when-let (expander-for (expander-for definition))
       (@tableitem "Setf expander for this function"
 	(reference expander-for)))
     (when-let (expanders-to (expanders-to definition))
       (render-references expanders-to "Setf expanders to this function"))))
 
-(defmethod document ((definition setf-function-definition) context &key)
-  "Render setf function DEFINITION's documentation in CONTEXT."
-  (render-funcoid :un definition context))
 
-;; #### FIXME: should be other kinds of @def.
+(defmethod type-name ((definition reader-definition))
+  "Return \"Reader\"."
+  "Reader")
+
 (defmethod document ((definition reader-definition) context &key)
   "Render function DEFINITION's documentation in CONTEXT."
-  (render-funcoid :un definition context
+  (render-funcoid definition context
     (@tableitem "Corresponding Slot"
       (reference (slot-definition definition)))))
 
-;; #### FIXME: should be other kinds of @def.
+
+(defmethod type-name ((definition writer-definition))
+  "Return \"Writer\"."
+  "Writer")
+
+;; #### FIXME: same as above.
 (defmethod document ((definition writer-definition) context &key)
   "Render writer DEFINITION's documentation in CONTEXT."
-  (render-funcoid :un definition context
+  (render-funcoid definition context
     (@tableitem "Corresponding Slot"
       (reference (slot-definition definition)))))
 
@@ -511,8 +528,8 @@ providing only basic information."
 
 ;; Generic functions
 (defmethod type-name ((definition generic-function-definition))
-  "Return \"generic function\"."
-  "generic function")
+  "Return \"Generic Function\"."
+  "Generic Function")
 
 (defmethod index-command-name ((definition generic-function-definition))
   "Return \"genericsubindex\"."
@@ -535,7 +552,7 @@ providing only basic information."
 
 (defmethod document ((definition simple-generic-definition) context &key)
   "Render simple generic function DEFINITION's documentation in CONTEXT."
-  (render-funcoid :generic definition context
+  (render-funcoid definition context
     (when-let (expander-for (expander-for definition))
       (@tableitem "Setf expander for this function"
 	(reference expander-for)))
@@ -549,7 +566,7 @@ providing only basic information."
 
 (defmethod document ((definition generic-setf-definition) context &key)
   "Render generic setf DEFINITION's documentation in CONTEXT."
-  (render-funcoid :generic definition context
+  (render-funcoid definition context
     (render-method-combination definition)
     (when-let ((methods (method-definitions definition)))
       (@tableitem "Methods"

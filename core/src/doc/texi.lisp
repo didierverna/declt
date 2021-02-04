@@ -328,9 +328,11 @@ CATEGORY, NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for
 Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-     (format t "~&@deffn {~A} {~A} " (escape ,category) (escape ,name))
-     (render-lambda-list ,lambda-list ,specializers)
-  ;; #### FIXME: restore.
+     (format t "~&@deffn {~A} {~A} ~A"
+       (escape ,category)
+       (escape ,name)
+       (escape ,lambda-list))
+     #+()(render-lambda-list ,lambda-list ,specializers)
      #+()(format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape ,qualifiers))
      ,@body
      (format t "~&@end deffn~%")))
@@ -344,74 +346,20 @@ Texinfo prior to rendering."
   ;; #### FIXME: restore.
   #+()(format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape qualifiers)))
 
-(defmacro @defun (name lambda-list &body body)
-  "Execute BODY within a @deffn Function NAME LAMBDA-LIST environment.
-NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  ;; #### NOTE: @DEFUN is implemented in terms of @deffn instead of @defun
-  ;; because Texinfo doesn't allow mixing of heterogeneous @def and @defx
-  ;; environments. This limitation gets in the way of definition merging
-  ;; (e.g. I couldn't nest @defun and @defsetfx).
-  `(@deffn ("Function" ,name ,lambda-list)
-     ,@body))
-
-(defun @defunx (name lambda-list)
-  "Render @deffnx Function NAME LAMBDA-LIST on *standard-output*."
-  (@deffnx "Function" name lambda-list))
-
-(defmacro @defmacro (name lambda-list &body body)
-  "Execute BODY within a @deffn Macro NAME LAMBDA-LIST environment.
-NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  ;; #### NOTE: @DEFMACRO is implemented in terms of @deffn instead of @defmac
-  ;; because Texinfo doesn't allow mixing of heterogeneous @def and @defx
-  ;; environments. This limitation gets in the way of definition merging
-  ;; (e.g. I couldn't nest @defmac and @defsetfx).
-  `(@deffn ("Macro" ,name ,lambda-list)
-     ,@body))
-
-(defmacro @defsetf (name lambda-list &body body)
-  "Execute BODY within a @deffn {Setf Expander} NAME LAMBDA-LIST environment.
-NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  `(@deffn ("Setf Expander" ,name ,lambda-list)
-     ,@body))
-
-(defun @defsetfx (name lambda-list)
-  "Render @deffnx {Setf Expander} NAME LAMBDA-LIST on *standard-output*"
-  (@deffnx "Setf Expander" name lambda-list))
-
-(defmacro @defcompilermacro (name lambda-list &body body)
-  "Execute BODY within a @deffn {Compiler Macro} NAME LAMBDA-LIST environment.
-NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  `(@deffn ("Compiler Macro" ,name ,lambda-list)
-     ,@body))
-
-(defmacro @defgeneric (name lambda-list &body body)
-  "Execute BODY within a @deffn {Generic Function} NAME LAMBDA-LIST environment.
-NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  `(@deffn ("Generic Function" ,name ,lambda-list)
-     ,@body))
-
-(defun @defgenericx (name lambda-list)
-  "Render @deffnx {Generic Function} NAME LAMBDA-LIST on *standard-output*"
-  (@deffnx "Generic Function" name lambda-list))
-
-(defmacro @defmethod (name lambda-list specializers qualifiers &body body)
+(defmacro @defmethod (category name lambda-list specializers qualifiers
+		      &body body)
   "Execute BODY within a @deffn Method NAME LAMBDA-LIST environment.
 NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for Texinfo prior
 to rendering.
 BODY should render on *standard-output*."
-  `(@deffn ("Method" ,name ,lambda-list ,specializers ,qualifiers)
+  `(@deffn (,category ,name ,lambda-list ,specializers ,qualifiers)
      ,@body))
 
-(defun @defmethodx (name lambda-list specializers qualifiers)
+(defun @defmethodx (category name lambda-list specializers qualifiers)
   "Render @deffnx Method NAME LAMBDA-LIST on *standard-output*.
 NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for Texinfo prior
 to rendering."
-  (@deffnx "Method" name lambda-list specializers qualifiers))
+  (@deffnx category name lambda-list specializers qualifiers))
 
 (defmacro @deftp ((category name &optional lambda-list) &body body)
   "Execute BODY within a @deftp CATEGORY NAME [LAMBDA-LIST] environment.
@@ -424,11 +372,11 @@ BODY should render on *standard-output*."
      ,@body
      (format t "~&@end deftp~%")))
 
-(defmacro @defcombination (name kind &body body)
+(defmacro @defcombination (name &body body)
   "Execute BODY within a @deftp {KIND Method Combination} NAME environment.
 NAME is escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
-  `(@deftp (,(format nil "~@(~A~) Method Combination" kind) ,name) ,@body))
+  `(@deftp ("Method Combination" ,name) ,@body))
 
 (defmacro @deftype ((name &optional lambda-list) &body body)
   "Execute BODY within a @deftp Type NAME [LAMBDA-LIST] environment.

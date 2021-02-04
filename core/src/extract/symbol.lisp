@@ -525,19 +525,17 @@ The concrete class of the new definition depends on whether it is a SETF one."
 A reader method is a method that reads a slot in a class or condition."))
 
 
-(defabstract writer-method-mixin (accessor-mixin)
+(defabstract writer-method-definition (method-definition accessor-mixin)
   ()
   (:documentation "Abstract root class for writer method definitions."))
 
-(defclass simple-writer-method-definition
-    (simple-method-definition writer-method-mixin)
+(defclass simple-writer-method-definition (writer-method-definition)
   ()
   (:documentation "The class of non-setf writer method definitions.
 A non-setf writer method is a non-setf method that writes a slot in a class
 or a condition."))
 
-(defclass setf-writer-method-definition
-    (setf-method-definition writer-method-mixin)
+(defclass setf-writer-method-definition (setf-mixin writer-method-definition)
   ()
   (:documentation "The class of setf writer method definitions.
 A setf writer method is a setf method that writes a slot in a class
