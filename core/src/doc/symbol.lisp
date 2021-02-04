@@ -295,15 +295,15 @@ symbols. See `reveal' for more information."
 			       (reveal (string part))
 			       (safe-name specializer))
 			     s)
-	       (write-string (escape (reveal (string part))) s)))))
+	       (write-string (reveal (string part)) s)))))
       (cond ((not next)
 	     (setq stop t))
 	    ((consp next)
 	     (setq part (car next)
 		   next (cdr next)))
 	    (t
-	     (write-char #\ )
-	     (write-char #\.)
+	     (write-char #\  s)
+	     (write-char #\. s)
 	     (setq  part next
 		    next nil))))
     (write-char #\) s)))
