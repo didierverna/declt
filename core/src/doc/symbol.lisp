@@ -197,7 +197,7 @@ BODY is executed within a @table environement."
        (@table () ,@body))))
 
 (defmethod document ((definition varoid-definition) context &key)
-  "Render varoid DEFINITION in CONTEXT.
+  "Render varoid DEFINITION's documentation in CONTEXT.
 This is the default method used for simple varoids,
 providing only basic information."
   ;; #### WARNING: casing policy.
