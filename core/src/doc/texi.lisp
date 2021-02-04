@@ -241,110 +241,26 @@ BODY should render on *standard-output*."
      ,@body
      (format t "~&@end defvr~%")))
 
-(defgeneric pretty-specializer (specializer &optional qualify)
-  (:documentation "Return a printable form of SPECIALIZER.
-If QUALIFY, also qualify the symbols.")
-  (:method (specializer &optional qualify)
-    "Return either SPECIALIZER itself, or its class name when appropriate."
-    (let ((specializer (or (ignore-errors (class-name specializer))
-			   specializer)))
-      (if (and qualify (symbolp specializer))
-	(format nil "~A::~A"
-	  (pretty-name (symbol-package specializer))
-	  (pretty-name specializer))
-	(pretty-name specializer))))
-  ;; #### PORTME.
-  (:method ((specializer sb-mop:eql-specializer) &optional qualify)
-    "Return the (eql object) list corresponding to SPECIALIZER in a string."
-    (let ((specializer-object (sb-mop:eql-specializer-object specializer)))
-      ;; #### WARNING: this is shaky at best. EQL specializers can be of any
-      ;; form so in theory we would need to qualify every symbol inside.
-      (if (and qualify (symbolp specializer-object))
-	(format nil "(eql ~A::~A)"
-	  (pretty-name (symbol-package specializer-object))
-	  (pretty-name specializer-object))
-	(format nil "(eql ~A)" (pretty-name specializer-object))))))
-
-;; #### FIXME: currently broken.
-(defun render-lambda-list (lambda-list &optional specializers) (terpri))
-;; Based on Edi Weitz's write-lambda-list* from documentation-template.
-#+()(defun render-lambda-list (lambda-list &optional specializers
-				       &aux (firstp t)
-					    after-required-args-p)
-  "Render LAMBDA-LIST with potential SPECIALIZERS.
-LAMBDA-LIST and SPECIALIZERS are escaped for Texinfo prior to rendering.
-Rendering is done on *standard-output*."
-  ;; #### NOTE: we cannot use DOLIST here because some lambda lists may be
-  ;; improper (e.g. in the case of macros).
-  (do ((part (car lambda-list))
-       (next (cdr lambda-list))
-       stop)
-      (stop)
-    (when (and (consp part) after-required-args-p)
-      (setq part (first part)))
-    (unless firstp
-      (write-char #\Space))
-    (setq firstp nil)
-    (cond ((listp part)
-	   (write-char #\()
-	   (when (consp part) (render-lambda-list part))
-	   (write-char #\)))
-	  ((member part '(&optional &rest &key &allow-other-keys
-			  &aux &environment &whole &body))
-	   (setq after-required-args-p t)
-	   ;; #### NOTE: PART is not escaped below, which is fine because
-	   ;; Texinfo recognizes &stuff (#### FIXME: does it really recognize
-	   ;; all &stuff, or just Emacs Lisp ones?) and processes them in a
-	   ;; special way as part of definition commands. This should be
-	   ;; exactly what we want.
-	   (format t "~(~A~)" part))
-	  (t
-	   ;; #### WARNING: we don't ask to qualify the specializers here
-	   ;; because that would completely clutter the display. There are
-	   ;; some cases however (like MCClim) which have specializers on the
-	   ;; same symbol but from different packages (e.g. defclass). These
-	   ;; won't show in the output unfortunately.
-	   (let ((specializer (pop specializers)))
-	     (if (and specializer (not (eq specializer (find-class t))))
-	       (format t "(~A @t{~(~A~)})"
-		 (escape part)
-		 (escape (pretty-specializer specializer)))
-	       (write-string (escape part))))))
-    (cond ((not next)
-	   (setq stop t))
-	  ((consp next)
-	   (setq part (car next)
-		 next (cdr next)))
-	  (t
-	   (write-char #\ )
-	   (write-char #\.)
-	   (setq  part next
-		  next nil)))))
-
-(defmacro @deffn ((category name lambda-list &optional specializers qualifiers)
-		  &body body)
+(defmacro @deffn ((category name lambda-list) &body body)
   "Execute BODY within a @deffn CATEGORY NAME LAMBDA-LIST environment.
-CATEGORY, NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for
-Texinfo prior to rendering.
+CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
      (format t "~&@deffn {~A} {~A} ~A"
        (escape ,category)
        (escape ,name)
-       (escape ,lambda-list))
-     #+()(render-lambda-list ,lambda-list ,specializers)
+       ,lambda-list)
      #+()(format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape ,qualifiers))
      ,@body
      (format t "~&@end deffn~%")))
 
-(defun @deffnx (category name lambda-list &optional specializers qualifiers)
+(defun @deffnx (category name lambda-list)
   "Render @deffnx CATEGORY NAME LAMBDA-LIST on *standard-output*.
-CATEGORY, NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for
-Texinfo prior to rendering."
-  (format t "~&@deffnx {~A} {~A} " (escape category) (escape name))
-  (render-lambda-list lambda-list specializers)
-  ;; #### FIXME: restore.
-  #+()(format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape qualifiers)))
+CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering."
+  (format t "~&@deffnx {~A} {~A} ~A"
+    (escape category)
+    (escape name)
+    lambda-list))
 
 (defmacro @defmethod (category name lambda-list specializers qualifiers
 		      &body body)
@@ -352,22 +268,24 @@ Texinfo prior to rendering."
 NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for Texinfo prior
 to rendering.
 BODY should render on *standard-output*."
-  `(@deffn (,category ,name ,lambda-list ,specializers ,qualifiers)
+  `(@deffn (,category ,name ,lambda-list)
      ,@body))
 
 (defun @defmethodx (category name lambda-list specializers qualifiers)
   "Render @deffnx Method NAME LAMBDA-LIST on *standard-output*.
 NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for Texinfo prior
 to rendering."
-  (@deffnx category name lambda-list specializers qualifiers))
+  #+()(@deffnx category name lambda-list specializers qualifiers))
 
 (defmacro @deftp ((category name &optional lambda-list) &body body)
   "Execute BODY within a @deftp CATEGORY NAME [LAMBDA-LIST] environment.
-CATEGORY, NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
+CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(progn
-     (format t "~&@deftp {~A} {~A} "  (escape ,category) (escape ,name))
-     (render-lambda-list ,lambda-list)
+     (format t "~&@deftp {~A} {~A}~@[ ~A~]"
+       (escape ,category)
+       (escape ,name)
+       ,lambda-list)
      (fresh-line)
      ,@body
      (format t "~&@end deftp~%")))
@@ -378,8 +296,8 @@ NAME is escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(@deftp ("Method Combination" ,name) ,@body))
 
-(defmacro @deftype ((name &optional lambda-list) &body body)
-  "Execute BODY within a @deftp Type NAME [LAMBDA-LIST] environment.
+(defmacro @deftype (name lambda-list &body body)
+  "Execute BODY within a @deftp Type NAME LAMBDA-LIST environment.
 NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
 BODY should render on *standard-output*."
   `(@deftp ("Type" ,name ,lambda-list) ,@body))

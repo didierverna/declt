@@ -251,6 +251,63 @@ providing only basic information."
 ;; Funcoids
 ;; --------
 
+;; #### TODO: there's the question of offering the option to qualify symbols.
+;; #### FIXME: specializers code not updated yet.
+;; Based on Edi Weitz's write-lambda-list* from documentation-template.
+(defun safe-lambda-list (lambda-list &optional specializers)
+  "Return a safe string for LAMBDA-LIST, possibly with SPECIALIZERS.
+Safe lambda list tokens have blank characters replaced with visible Unicode
+symbols. See `reveal' for more information."
+  ;; #### NOTE: we cannot use DOLIST here because some lambda lists may be
+  ;; improper (e.g. in the case of macros).
+  (with-output-to-string (s)
+    (write-char #\( s)
+    (do ((firstp t nil)
+	 (part (car lambda-list))
+	 (next (cdr lambda-list))
+	 after-required-args-p
+	 stop)
+	(stop)
+      (when (and (consp part) after-required-args-p) (setq part (first part)))
+      (unless firstp (write-char #\Space s))
+      (cond ((listp part)
+	     (write-char #\( s)
+	     (when (consp part) (write-string (safe-lambda-list part) s))
+	     (write-char #\) s))
+	    ((member part '(&optional &rest &key &allow-other-keys
+			    &aux &environment &whole &body))
+	     (setq after-required-args-p t)
+	     ;; #### NOTE: PART is not escaped below, which is fine because
+	     ;; Texinfo recognizes &stuff (#### FIXME: does it really
+	     ;; recognize all &stuff, or just Emacs Lisp ones?) and processes
+	     ;; them in a special way as part of definition commands. This
+	     ;; should be exactly what we want.
+	     (write-string (string part) s))
+	  (t
+	   ;; #### WARNING: we don't ask to qualify the specializers here
+	   ;; because that would completely clutter the display. There are
+	   ;; some cases however (like MCClim) which have specializers on the
+	   ;; same symbol but from different packages (e.g. defclass). These
+	   ;; won't show in the output unfortunately.
+	   (let ((specializer nil #+() (pop specializers)))
+	     (if (and specializer (not (eq specializer (find-class t))))
+	       (write-string (format nil "(~A @t{~A})"
+			       (reveal (string part))
+			       (safe-name specializer))
+			     s)
+	       (write-string (escape (reveal (string part))) s)))))
+      (cond ((not next)
+	     (setq stop t))
+	    ((consp next)
+	     (setq part (car next)
+		   next (cdr next)))
+	    (t
+	     (write-char #\ )
+	     (write-char #\.)
+	     (setq  part next
+		    next nil))))
+    (write-char #\) s)))
+
 (defmacro render-funcoid
     (|definition(s)| context
      &body body
@@ -264,7 +321,7 @@ providing only basic information."
      (@deffn ((type-name ,the-definition)
 	      ;; #### WARNING: casing policy.
 	      (string-downcase (safe-name ,the-definition))
-	      (format nil "~(~A~)~%" (lambda-list ,the-definition)))
+	      (safe-lambda-list (lambda-list ,the-definition)))
 	 (anchor-and-index ,the-definition)
        ,@(mapcar #'render-headline
 	   (when (consp |definition(s)|) (cdr |definition(s)|)))
@@ -327,9 +384,9 @@ providing only basic information."
 (defmethod document ((definition type-definition) context &key)
   "Render type DEFINITION's documentation in CONTEXT."
   ;; #### WARNING: casing policy.
-  (@deftype ((string-downcase (safe-name definition))
-	     (format nil "~(~A~)" (lambda-list definition)))
-      (anchor-and-index definition)
+  (@deftype (string-downcase (safe-name definition))
+      (safe-lambda-list (lambda-list definition))
+    (anchor-and-index definition)
     (render-docstring definition)
     (@table ()
       (render-definition-core definition context))))
