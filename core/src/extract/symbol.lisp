@@ -53,16 +53,6 @@
   (when-let (sources (sb-introspect:find-definition-sources-by-name name type))
     (sb-introspect:definition-source-pathname (first sources))))
 
-;; #### PORTME.
-(defun specializers (method)
-  "Return METHOD's specializers."
-  (sb-mop:method-specializers (definition-method method)))
-
-;; #### PORTME.
-(defun qualifiers (method)
-  "Return METHOD's qualifiers."
-  (method-qualifiers (definition-method method)))
-
 
 
 
@@ -478,7 +468,11 @@ The concrete class of the new definition depends on the COMBINATION type."
   ((object :initarg :method :reader definition-method) ;; slot overload
    (generic-definition :documentation "The corresponding generic definition."
 		       :initarg :generic-definition
-		       :reader generic-definition))
+		       :reader generic-definition)
+   (specializers :documentation "The corresponding specializers.
+These are either class definitions, for regular specializers,
+or raw eql specializers."
+		 :accessor specializers))
   (:documentation "Abstract root class for method definitions."))
 
 ;; #### PORTME.
