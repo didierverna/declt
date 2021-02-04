@@ -609,9 +609,10 @@ providing only basic information."
 
 (defmethod document ((definition classoid-definition) context &key)
   "Render classoid DEFINITION's documentation in CONTEXT.
-This is the default method used for simple classoids,
-providing only basic information."
-  (render-classoid definition context))
+This is the default method used for conditions and classes,
+which also documents direct default initargs."
+  (render-classoid definition context
+    (render-initargs definition context)))
 
 
 
@@ -624,6 +625,10 @@ providing only basic information."
   "Return \"structuresubindex\"."
   "structuresubindex")
 
+(defmethod document ((definition structure-definition) context &key)
+  "Render structure DEFINITION's documentation in CONTEXT."
+  (render-classoid definition context))
+
 
 
 ;; Conditions
@@ -635,11 +640,6 @@ providing only basic information."
   "Return \"conditionsubindex\"."
   "conditionsubindex")
 
-(defmethod document ((definition condition-definition) context &key)
-  "Render condition DEFINITION's documentation in CONTEXT."
-  (render-classoid definition context
-    (render-initargs definition context)))
-
 
 
 ;; Classes
@@ -650,12 +650,6 @@ providing only basic information."
 (defmethod index-command-name ((definition class-definition))
   "Return \"classsubindex\"."
   "classsubindex")
-
-(defmethod document ((definition class-definition) context &key)
-  "Render class DEFINITION's documentation in CONTEXT."
-  (render-classoid definition context
-    (render-initargs definition context)))
-
 
 
 #+()(defmethod document
