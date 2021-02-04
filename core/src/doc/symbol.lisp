@@ -141,7 +141,7 @@ providing only basic information."
 
 ;; Constants
 (defmethod type-name ((definition constant-definition))
-  "Return \"constant\"."
+  "Return \"Constant\"."
   "Constant")
 
 (defmethod index-command-name ((definition constant-definition))
@@ -152,7 +152,7 @@ providing only basic information."
 
 ;; Special variables
 (defmethod type-name ((definition special-definition))
-  "Return \"special variable\"."
+  "Return \"Special Variable\"."
   "Special Variable")
 
 (defmethod index-command-name ((definition special-definition))
@@ -163,7 +163,7 @@ providing only basic information."
 
 ;; Symbol macros
 (defmethod type-name ((definition symbol-macro-definition))
-  "Return \"symbol macro\"."
+  "Return \"Symbol Macro\"."
   "Symbol Macro")
 
 (defmethod index-command-name ((definition symbol-macro-definition))
@@ -185,7 +185,7 @@ providing only basic information."
     safe-name))
 
 (defmethod type-name ((definition slot-definition))
-  "Return \"slot\"."
+  "Return \"Slot\"."
   "Slot")
 
 (defmethod index-command-name ((definition slot-definition))
@@ -635,7 +635,7 @@ which also documents direct default initargs."
 
 ;; Structures
 (defmethod type-name ((definition structure-definition))
-  "Return \"structure\"."
+  "Return \"Structure\"."
   "Structure")
 
 (defmethod index-command-name ((definition structure-definition))
@@ -650,7 +650,7 @@ which also documents direct default initargs."
 
 ;; Conditions
 (defmethod type-name ((definition condition-definition))
-  "Return \"condition\"."
+  "Return \"Condition\"."
   "Condition")
 
 (defmethod index-command-name ((definition condition-definition))
@@ -661,7 +661,7 @@ which also documents direct default initargs."
 
 ;; Classes
 (defmethod type-name ((definition class-definition))
-  "Return \"class\"."
+  "Return \"Class\"."
   "Class")
 
 (defmethod index-command-name ((definition class-definition))
