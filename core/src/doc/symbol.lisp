@@ -256,7 +256,7 @@ Each element is rendered as a table item."
     ((definition slot-definition)
      &optional qualified
      &aux (safe-name (call-next-method)))
-  "When QUALIFIED, prepend the classoid's safe name."
+  "When QUALIFIED, prepend slot DEFINITION's classoid safe name."
   (if qualified
     (concatenate 'string
       (safe-name (classoid-definition definition) t)
