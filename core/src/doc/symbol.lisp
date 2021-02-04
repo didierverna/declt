@@ -103,51 +103,6 @@ Each element is rendered as a table item."
 	 (render-definition-core ,the-funcoid ,context)
 	 ,@body))))
 
-(defun render-slots (classoid context)
-  "Render CLASSOID's direct slots documentation."
-  (when-let (slot-definitions (slot-definitions classoid))
-    (@tableitem "Direct slots"
-      (dolist (slot-definition slot-definitions)
-	(document slot-definition context)))))
-
-(defmacro render-classoid (kind classoid context &body body)
-  "Render CLASSOID's definition of KIND in CONTEXT."
-  (let ((|@defform| (intern (concatenate 'string "@DEF" (symbol-name kind))
-			    :net.didierverna.declt))
-	(the-classoid (gensym "classoid")))
-    `(let ((,the-classoid ,classoid))
-       (,|@defform| (string-downcase (safe-name ,the-classoid))
-	 (anchor-and-index ,the-classoid)
-	 (render-docstring ,the-classoid)
-	 (@table ()
-	   (render-definition-core ,the-classoid ,context)
-	   (render-references
-	    (superclassoid-definitions ,the-classoid)
-	    "Direct superclasses")
-	   (render-references
-	    (subclassoid-definitions ,the-classoid)
-	    "Direct subclasses")
-	   (render-references
-	    (method-definitions ,the-classoid)
-	    "Direct methods")
-	   (render-slots ,the-classoid context)
-	   ,@body)))))
-
-;; #### PORTME.
-(defun render-initargs (classoid)
-  "Render CLASSOID's direct default initargs."
-  (when-let (initargs (sb-mop:class-direct-default-initargs
-		       (find-class (definition-symbol classoid))))
-    (@tableitem "Direct Default Initargs"
-      ;; #### FIXME: we should rather compute the longest initarg name and use
-      ;; that as a template size for the @headitem specification.
-      (@multitable (.3f0 .5f0)
-	(format t "@headitem Initarg @tab Value~%")
-	(dolist (initarg initargs)
-	  (format t "@item @t{~A}~%@tab @t{~A}~%"
-	    (escape (format nil "~(~S~)" (first initarg)))
-	    (escape (format nil "~(~S~)" (second initarg)))))))))
-
 (defgeneric headline-function (definition)
   (:documentation "Return a suitable headline function for DEFINITION.")
   (:method ((function ordinary-function-definition))
@@ -607,10 +562,74 @@ providing only basic information."
 ;; Classoids
 ;; ---------
 
+;; #### PORTME.
+(defun render-initargs (definition context)
+  "Render classoid DEFINITION's direct default initargs in CONTEXT."
+  (when-let (initargs
+	     (sb-mop:class-direct-default-initargs (classoid definition)))
+    (@tableitem "Direct Default Initargs"
+      ;; #### FIXME: we should rather compute the longest initarg name and use
+      ;; that as a template size for the @headitem specification.
+      (@multitable (.3f0 .5f0)
+	(format t "@headitem Initarg @tab Value~%")
+	(dolist (initarg initargs)
+	  (format t "@item @t{~A}~%@tab @t{~A}~%"
+	    ;; #### WARNING: casing policy.
+	    ;; The ~S is to preserve the appearance of keywords.
+	    (escape (format nil "~(~S~)" (first initarg)))
+	    (escape (format nil "~(~A~)" (second initarg)))))))))
+
+(defmacro render-classoid (definition context &body body)
+  "Execute BODY within a classoid DEFINITION documentation in CONTEXT."
+  (let ((the-definition (gensym "definition"))
+	(the-context (gensym "context")))
+    `(let ((,the-definition ,definition)
+	   (,the-context ,context))
+       (@deftp ((type-name ,the-definition)
+		;; #### WARNING: casing policy.
+		(string-downcase (safe-name ,the-definition)))
+	   (anchor-and-index ,the-definition)
+	 (render-docstring ,the-definition)
+	 (@table ()
+	   (render-definition-core ,the-definition ,the-context)
+	   (render-references
+	    (superclassoid-definitions ,the-definition)
+	    "Direct superclasses")
+	   (render-references
+	    (subclassoid-definitions ,the-definition)
+	    "Direct subclasses")
+	   (render-references
+	    (method-definitions ,the-definition)
+	    "Direct methods")
+	   (when-let (slot-definitions (slot-definitions ,the-definition))
+	     (@tableitem "Direct slots"
+	       (dolist (slot-definition slot-definitions)
+		 (document slot-definition ,the-context))))
+	   ,@body)))))
+
+(defmethod document ((definition classoid-definition) context &key)
+  "Render classoid DEFINITION's documentation in CONTEXT.
+This is the default method used for simple classoids,
+providing only basic information."
+  (render-classoid definition context))
+
+
+
+;; Structures
+(defmethod type-name ((definition structure-definition))
+  "Return \"structure\"."
+  "Structure")
+
+(defmethod index-command-name ((definition structure-definition))
+  "Return \"structuresubindex\"."
+  "structuresubindex")
+
+
+
 ;; Conditions
 (defmethod type-name ((definition condition-definition))
   "Return \"condition\"."
-  "condition")
+  "Condition")
 
 (defmethod index-command-name ((definition condition-definition))
   "Return \"conditionsubindex\"."
@@ -618,30 +637,15 @@ providing only basic information."
 
 (defmethod document ((definition condition-definition) context &key)
   "Render condition DEFINITION's documentation in CONTEXT."
-  (render-classoid :cond definition context
-    (render-initargs definition)))
-
-
-
-;; Structures
-(defmethod type-name ((definition structure-definition))
-  "Return \"structure\"."
-  "structure")
-
-(defmethod index-command-name ((definition structure-definition))
-  "Return \"structuresubindex\"."
-  "structuresubindex")
-
-(defmethod document ((definition structure-definition) context &key)
-  "Render structure DEFINITION's documentation in CONTEXT."
-  (render-classoid :struct definition context))
+  (render-classoid definition context
+    (render-initargs definition context)))
 
 
 
 ;; Classes
 (defmethod type-name ((definition class-definition))
   "Return \"class\"."
-  "class")
+  "Class")
 
 (defmethod index-command-name ((definition class-definition))
   "Return \"classsubindex\"."
@@ -649,8 +653,9 @@ providing only basic information."
 
 (defmethod document ((definition class-definition) context &key)
   "Render class DEFINITION's documentation in CONTEXT."
-  (render-classoid :class definition context
-    (render-initargs definition)))
+  (render-classoid definition context
+    (render-initargs definition context)))
+
 
 
 #+()(defmethod document
