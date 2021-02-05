@@ -479,8 +479,10 @@ providing only basic information."
   "methodsubindex")
 
 (defmacro render-method
-    (|definition(s)| context &aux (the-definition (gensym "definition")))
-  "Render method DEFINITION(S) in CONTEXT."
+    (|definition(s)| context
+     &body body
+     &aux (the-definition (gensym "definition")))
+  "Execute BODY within a method DEFINITION(S) documentation in CONTEXT."
   `(let ((,the-definition ,(if (consp |definition(s)|)
 			     (car |definition(s)|)
 			     |definition(s)|)))
@@ -506,14 +508,26 @@ providing only basic information."
        (when-let (source-file (source-file ,the-definition))
 	 (unless (equal source-file
 			(source-file (generic-definition ,the-definition)))
-	   (@table ()
-	     (@tableitem "Source" (reference source-file))))))))
+	   (@table () (@tableitem "Source" (reference source-file)))))
+       ,@body)))
 
 (defmethod document ((definition method-definition) context &key)
   "Render METHOD's documentation in CONTEXT."
   (render-method definition context))
 
-;; #### FIXME: Implement reader and writer methods.
+(defmethod document ((definition reader-method-definition) context &key)
+  "Render reader METHOD's documentation in CONTEXT."
+  (render-method definition context
+    (@table ()
+      (@tableitem "Corresponding Slot"
+	(reference (slot-definition definition))))))
+
+(defmethod document ((definition writer-method-definition) context &key)
+  "Render writer METHOD's documentation in CONTEXT."
+  (render-method definition context
+    (@table ()
+      (@tableitem "Corresponding Slot"
+	(reference (slot-definition definition))))))
 
 
 
