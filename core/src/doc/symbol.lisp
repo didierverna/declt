@@ -594,9 +594,9 @@ providing only basic information."
 			 (sb-pcl::method-combination-options
 			  (sb-mop:generic-function-method-combination
 			   (generic definition)))))
-      (format t "@b{Options:} @t{~A}~{, @t{~A}~}"
-	(first options)
-	(rest options)))))
+      (@table ()
+	(@tableitem "Options"
+	  (format t "~{@t{~A}~^, ~}" options))))))
 
 (defmethod document ((definition simple-generic-definition) context &key)
   "Render simple generic function DEFINITION's documentation in CONTEXT."
