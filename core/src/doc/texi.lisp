@@ -247,20 +247,22 @@ BODY should render on *standard-output*."
 This function expects a value from `safe-lambda-list', which see.
 It returns a string properly escaped for Texinfo, apart from &-constructs
 which retain their original form."
-  (loop :for rest :on lambda-list
-	:for element := (car rest)
-	:if (listp element)
-	  :collect (escape-lambda-list element) :into escaped-lambda-list
-	:else :if (member element '("&optional" "&rest" "&key"
-				    "&allow-other-keys" "&aux" "&environment"
-				    "&whole" "&body")
-			  :test #'string-equal) ;; case-insensitive test
-		:collect element :into escaped-lambda-list
-	:else :collect (escape element) :into escaped-lambda-list
-	:finally (progn (when rest ;; dotted list
-			  (setf (cdr (last escaped-lambda-list))
-				(escape rest))) ;; cannot be a &-construct
-			(return (princ-to-string escaped-lambda-list)))))
+  (if lambda-list
+    (loop :for rest :on lambda-list
+	  :for element := (car rest)
+	  :if (listp element)
+	    :collect (escape-lambda-list element) :into escaped-lambda-list
+	  :else :if (member element '("&optional" "&rest" "&key"
+				      "&allow-other-keys" "&aux" "&environment"
+				      "&whole" "&body")
+			    :test #'string-equal) ;; case-insensitive test
+		  :collect element :into escaped-lambda-list
+	  :else :collect (escape element) :into escaped-lambda-list
+	  :finally (progn (when rest ;; dotted list
+			    (setf (cdr (last escaped-lambda-list))
+				  (escape rest))) ;; cannot be a &-construct
+			  (return (princ-to-string escaped-lambda-list))))
+    "()"))
 
 (defmacro @deffn ((category name lambda-list) &body body)
   "Execute BODY within a @deffn CATEGORY NAME LAMBDA-LIST environment.
@@ -299,7 +301,10 @@ CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
 LAMBDA-LIST should be provided by `safe-lambda-list', which see."
   (@deffnx category name lambda-list))
 
-(defmacro @deftp ((category name &optional lambda-list) &body body)
+(defmacro @deftp
+    ((category name
+      &optional (lambda-list nil lambda-list-p))
+     &body body)
   "Execute BODY within a @deftp CATEGORY NAME [LAMBDA-LIST] environment.
 CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
 LAMBDA-LIST should be provided by `safe-lambda-list', which see.
@@ -308,7 +313,7 @@ BODY should render on *standard-output*."
      (format t "~&@deftp {~A} {~A}~@[ ~A~]~%"
        (escape ,category)
        (escape ,name)
-       (escape-lambda-list ,lambda-list))
+       (when ,lambda-list-p (escape-lambda-list ,lambda-list)))
      ,@body
      (format t "~&@end deftp~%")))
 
