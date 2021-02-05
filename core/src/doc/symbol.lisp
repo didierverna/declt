@@ -252,61 +252,38 @@ providing only basic information."
 ;; --------
 
 ;; #### TODO: there's the question of offering the option to qualify symbols.
-;; #### FIXME: specializers code not updated yet.
-;; Based on Edi Weitz's write-lambda-list* from documentation-template.
+;; #### FIXME: specializers not used/functional yet.
 (defun safe-lambda-list (lambda-list &optional specializers)
-  "Return a safe string for LAMBDA-LIST, possibly with SPECIALIZERS.
-Safe lambda list tokens have blank characters replaced with visible Unicode
-symbols. See `reveal' for more information."
-  ;; #### NOTE: we cannot use DOLIST here because some lambda lists may be
-  ;; improper (e.g. in the case of macros).
-  (with-output-to-string (s)
-    (write-char #\( s)
-    (do ((firstp t nil)
-	 (part (car lambda-list))
-	 (next (cdr lambda-list))
-	 after-required-args-p
-	 stop)
-	(stop)
-      (when (and (consp part) after-required-args-p) (setq part (first part)))
-      (unless firstp (write-char #\Space s))
-      (cond ((listp part)
-	     (write-char #\( s)
-	     (when (consp part) (write-string (safe-lambda-list part) s))
-	     (write-char #\) s))
-	    ((member part '(&optional &rest &key &allow-other-keys
-			    &aux &environment &whole &body))
-	     (setq after-required-args-p t)
-	     ;; #### NOTE: PART is not escaped below, which is fine because
-	     ;; Texinfo recognizes &stuff (#### FIXME: does it really
-	     ;; recognize all &stuff, or just Emacs Lisp ones?) and processes
-	     ;; them in a special way as part of definition commands. This
-	     ;; should be exactly what we want.
-	     (write-string (string part) s))
-	  (t
-	   ;; #### WARNING: we don't ask to qualify the specializers here
-	   ;; because that would completely clutter the display. There are
-	   ;; some cases however (like MCClim) which have specializers on the
-	   ;; same symbol but from different packages (e.g. defclass). These
-	   ;; won't show in the output unfortunately.
-	   (let ((specializer nil #+() (pop specializers)))
-	     (if (and specializer (not (eq specializer (find-class t))))
-	       (write-string (format nil "(~A @t{~A})"
-			       (reveal (string part))
-			       (safe-name specializer))
-			     s)
-	       (write-string (reveal (string part)) s)))))
-      (cond ((not next)
-	     (setq stop t))
-	    ((consp next)
-	     (setq part (car next)
-		   next (cdr next)))
-	    (t
-	     (write-char #\  s)
-	     (write-char #\. s)
-	     (setq  part next
-		    next nil))))
-    (write-char #\) s)))
+  "Return a safe LAMBDA-LIST, suitable to pass to Texinfo.
+The original lambda-list's structure is preserved, but all symbols are
+converted to revealed strings, and initform / supplied-p data is removed."
+  (loop :with specializer
+	:with post-mandatory
+	:for rest :on lambda-list
+	:for element := (if (and (listp (car rest)) post-mandatory)
+			  (first (car rest))
+			  (car rest))
+	:if (listp element)
+	  :collect (safe-lambda-list element) :into safe-lambda-list
+	:else :if (member element '(&optional &rest &key &allow-other-keys
+				    &aux &environment &whole &body))
+		;; #### WARNING: casing policy.
+		:collect (string-downcase element) :into safe-lambda-list
+		:and :do (setq post-mandatory t)
+	:else :do (setq specializer (pop specializers))
+	      :and :collect (if (and specializer
+				     (not (eq specializer (find-class t))))
+			      ;; #### WARNING: casing policy.
+			      (list (reveal (string-downcase element))
+				    (safe-name specializer))
+			      ;; #### WARNING: casing policy.
+			      (reveal (string-downcase element)))
+		     :into safe-lambda-list
+	:finally (progn (when rest ;; dotted list
+			  (setf (cdr (last safe-lambda-list))
+				;; #### WARNING: casing policy.
+				(reveal (string-downcase rest))))
+			(return safe-lambda-list))))
 
 (defmacro render-funcoid
     (|definition(s)| context
@@ -510,8 +487,8 @@ providing only basic information."
      ;; #### WARNING: casing policy.
      (@defmethod (type-name ,the-definition)
 	 (string-downcase (safe-name ,the-definition))
-	 #+()(lambda-list ,the-definition) ""
-       #+()(specializers ,the-definition) ""
+       (safe-lambda-list
+	(lambda-list ,the-definition) #+()(specializers ,the-definition))
        #+()(qualifiers ,the-definition) ""
        (anchor-and-index ,the-definition)
        ,@(mapcar (lambda (definition)

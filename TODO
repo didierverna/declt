@@ -91,8 +91,3 @@ Currently, we can link to source files on the local machine, which is not
 advisable for web installation of the reference manuals. However, if the
 library provides a source control address, we could link to files in a public
 repo !
-
-** Lambda-list rendering is wrong.
-In so many ways that I can't begin to describe it. We shouldn't use aesthetic
-display. Keywords are not visible, case is insensitive etc. This needs to be
-completely redone.

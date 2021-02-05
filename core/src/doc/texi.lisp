@@ -241,26 +241,49 @@ BODY should render on *standard-output*."
      ,@body
      (format t "~&@end defvr~%")))
 
+
+(defun escape-lambda-list (lambda-list)
+  "Escape safe LAMBDA-LIST for Texinfo.
+This function expects a value from `safe-lambda-list', which see.
+It returns a string properly escaped for Texinfo, apart from &-constructs
+which retain their original form."
+  (loop :for rest :on lambda-list
+	:for element := (car rest)
+	:if (listp element)
+	  :collect (escape-lambda-list element) :into escaped-lambda-list
+	:else :if (member element '("&optional" "&rest" "&key"
+				    "&allow-other-keys" "&aux" "&environment"
+				    "&whole" "&body")
+			  :test #'string-equal) ;; case-insensitive test
+		:collect element :into escaped-lambda-list
+	:else :collect (escape element) :into escaped-lambda-list
+	:finally (progn (when rest ;; dotted list
+			  (setf (cdr (last escaped-lambda-list))
+				(escape rest))) ;; cannot be a &-construct
+			(return (princ-to-string escaped-lambda-list)))))
+
 (defmacro @deffn ((category name lambda-list) &body body)
   "Execute BODY within a @deffn CATEGORY NAME LAMBDA-LIST environment.
 CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
+LAMBDA-LIST should be provided by `safe-lambda-list', which see.
 BODY should render on *standard-output*."
   `(progn
-     (format t "~&@deffn {~A} {~A} ~A"
+     (format t "~&@deffn {~A} {~A} ~A~%"
        (escape ,category)
        (escape ,name)
-       ,lambda-list)
+       (escape-lambda-list ,lambda-list))
      #+()(format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape ,qualifiers))
      ,@body
      (format t "~&@end deffn~%")))
 
 (defun @deffnx (category name lambda-list)
   "Render @deffnx CATEGORY NAME LAMBDA-LIST on *standard-output*.
-CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering."
-  (format t "~&@deffnx {~A} {~A} ~A"
+CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
+LAMBDA-LIST should be provided by `safe-lambda-list', which see."
+  (format t "~&@deffnx {~A} {~A} ~A~%"
     (escape category)
     (escape name)
-    lambda-list))
+    (escape-lambda-list lambda-list)))
 
 (defmacro @defmethod (category name lambda-list specializers qualifiers
 		      &body body)
@@ -280,13 +303,13 @@ to rendering."
 (defmacro @deftp ((category name &optional lambda-list) &body body)
   "Execute BODY within a @deftp CATEGORY NAME [LAMBDA-LIST] environment.
 CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
+LAMBDA-LIST should be provided by `safe-lambda-list', which see.
 BODY should render on *standard-output*."
   `(progn
-     (format t "~&@deftp {~A} {~A}~@[ ~A~]"
+     (format t "~&@deftp {~A} {~A}~@[ ~A~]~%"
        (escape ,category)
        (escape ,name)
-       ,lambda-list)
-     (fresh-line)
+       (escape-lambda-list ,lambda-list))
      ,@body
      (format t "~&@end deftp~%")))
 
