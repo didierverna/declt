@@ -383,16 +383,16 @@ providing only basic information."
   "Render short setf expander DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
     (when-let (access-definition (access-definition definition))
-      (@tableitem "Corresponding Reader"
+      (@tableitem "Reader"
 	(reference access-definition)))
-    (@tableitem "Corresponding Writer"
+    (@tableitem "Writer"
       (reference (update-definition definition)))))
 
 (defmethod document ((definition long-expander-definition) context &key)
   "Render long setf expander DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
     (when-let (access-definition (access-definition definition))
-      (@tableitem "Corresponding Reader"
+      (@tableitem "Reader"
 	(reference access-definition)))))
 
 
@@ -519,14 +519,14 @@ providing only basic information."
   "Render reader METHOD's documentation in CONTEXT."
   (render-method definition context
     (@table ()
-      (@tableitem "Corresponding Slot"
+      (@tableitem "Slot"
 	(reference (slot-definition definition))))))
 
 (defmethod document ((definition writer-method-definition) context &key)
   "Render writer METHOD's documentation in CONTEXT."
   (render-method definition context
     (@table ()
-      (@tableitem "Corresponding Slot"
+      (@tableitem "Slot"
 	(reference (slot-definition definition))))))
 
 
@@ -557,7 +557,7 @@ providing only basic information."
 (defmethod document ((definition reader-definition) context &key)
   "Render function DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
-    (@tableitem "Corresponding Slot"
+    (@tableitem "Slot"
       (reference (slot-definition definition)))))
 
 
@@ -569,7 +569,7 @@ providing only basic information."
 (defmethod document ((definition writer-definition) context &key)
   "Render writer DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
-    (@tableitem "Corresponding Slot"
+    (@tableitem "Slot"
       (reference (slot-definition definition)))))
 
 
