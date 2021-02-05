@@ -285,20 +285,19 @@ LAMBDA-LIST should be provided by `safe-lambda-list', which see."
     (escape name)
     (escape-lambda-list lambda-list)))
 
-(defmacro @defmethod (category name lambda-list specializers qualifiers
-		      &body body)
-  "Execute BODY within a @deffn Method NAME LAMBDA-LIST environment.
-NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for Texinfo prior
-to rendering.
+(defmacro @defmethod (category name lambda-list &body body)
+  "Execute BODY within a @deffn CATEGORY NAME LAMBDA-LIST environment.
+CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
+LAMBDA-LIST should be provided by `safe-lambda-list', which see.
 BODY should render on *standard-output*."
   `(@deffn (,category ,name ,lambda-list)
      ,@body))
 
-(defun @defmethodx (category name lambda-list specializers qualifiers)
-  "Render @deffnx Method NAME LAMBDA-LIST on *standard-output*.
-NAME, LAMBDA-LIST, SPECIALIZERS and QUALIFIERS are escaped for Texinfo prior
-to rendering."
-  #+()(@deffnx category name lambda-list specializers qualifiers))
+(defun @defmethodx (category name lambda-list)
+  "Render @deffnx CATEGORY NAME LAMBDA-LIST on *standard-output*.
+CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
+LAMBDA-LIST should be provided by `safe-lambda-list', which see."
+  (@deffnx category name lambda-list))
 
 (defmacro @deftp ((category name &optional lambda-list) &body body)
   "Execute BODY within a @deftp CATEGORY NAME [LAMBDA-LIST] environment.
