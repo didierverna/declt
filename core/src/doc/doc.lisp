@@ -124,10 +124,14 @@ It is of the form \"go to the <qualified safe name> <type name>\"."
   (anchor definition)
   (index definition))
 
-(defun reference (definition)
-  "Render DEFINITION's reference on *STANDARD-OUTPUT*."
+(defun reference (definition &optional short)
+  "Render a possibly SHORT DEFINITION's reference on *STANDARD-OUTPUT*.
+Unless SHORT, the DEFINITION type is advertised after the reference
+itself."
   (@ref (anchor-name definition) (safe-name definition))
-  (format t " ~A" (type-name definition)))
+  (if short
+    (write-char #\.)
+    (format t " ~A" (type-name definition))))
 
 (defgeneric document (definition context &key &allow-other-keys)
   (:documentation "Render DEFINITION's documentation in CONTEXT."))
@@ -186,17 +190,22 @@ Rendering is done on *standard-output*."
     (render-text docstring)))
 
 ;; #### FIXME: concatenate TITLE with ~p and format it to handle length = 1.
-(defun render-references (list title &aux (length (length list)))
-  "Render references to a LIST of items.
-References are rendered in a table item named TITLE as a list, unless there is
-only one item in LIST.
-
+(defun render-references (title definitions
+			  &optional short
+			  &aux (length (length definitions))
+			       (renderer (if short
+					   (lambda (definition)
+					     (reference definition t))
+					   #'reference)))
+  "Render an enTITLEd list of possibly SHORT references to DEFINITIONS.
+See `reference' for the meaning of SHORT. The list is rendered in an itemized
+table item, unless there is only one definition in which case it appears
+directly as the table item's contents.
 Rendering is done on *standard-output*."
   (unless (zerop length)
     (@tableitem title
       (if (= length 1)
-	  (reference (first list))
-	(@itemize-list list :renderer #'reference)))))
-
+	(reference (first definitions) short)
+	(@itemize-list definitions :renderer renderer)))))
 
 ;;; doc.lisp ends here

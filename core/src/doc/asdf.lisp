@@ -122,7 +122,7 @@ Documentation is done in a @table environment."
   (when-let (dependencies (dependencies definition))
     (render-dependencies dependencies))
   (when-let (source (source-file definition))
-    (@tableitem "Source" (reference source)))
+    (@tableitem "Source" (reference source t)))
   (render-pathname definition context)
   (when-let (parent (parent-definition definition))
     (@tableitem "Parent Component" (reference parent))))
@@ -158,12 +158,12 @@ Documentation is done in a @table environment."
   ;; #### NOTE: I don't think it's worth referencing all components here, so
   ;; we're documenting systems only. This could be turned into a context
   ;; option someday.
-  (render-references
-   (remove-if-not #'system-definition-p (definitions definition))
-   "ASDF Systems")
-  (render-references
-   (remove-if-not #'package-definition-p (definitions definition))
-   "Packages")
+  (render-references "ASDF Systems"
+    (remove-if-not #'system-definition-p (definitions definition))
+    t)
+  (render-references "Packages"
+    (remove-if-not #'package-definition-p (definitions definition))
+    t)
   ;; #### NOTE: generic functions and their methods are documented in a single
   ;; bloc. As a consequence, if a generic function belongs to this file,
   ;; there's no need to also reference (some of) its methods. On the other
@@ -182,10 +182,10 @@ Documentation is done in a @table environment."
 		     definitions)
 	       #'string-lessp ;; #### WARNING: casing policy.
 	     :key #'definition-symbol)))
-    (render-references (organize-definitions (public-definitions definition))
-		       "Public Interface")
-    (render-references (organize-definitions (private-definitions definition))
-		       "Internals")))
+    (render-references "Public Interface"
+      (organize-definitions (public-definitions definition)))
+    (render-references "Internals"
+      (organize-definitions (private-definitions definition)))))
 
 
 ;; -----

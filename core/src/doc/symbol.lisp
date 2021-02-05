@@ -78,9 +78,9 @@ The documentation core includes all common definition attributes:
 
 Each element is rendered as a table item."
   (@tableitem "Package"
-    (reference (package-definition definition)))
+    (reference (package-definition definition) t))
   (when-let (source (source-file definition))
-    (@tableitem "Source" (reference source))))
+    (@tableitem "Source" (reference source t))))
 
 (defgeneric headline-function (definition)
   (:documentation "Return a suitable headline function for DEFINITION.")
@@ -227,7 +227,7 @@ providing only basic information."
   (render-varoid definition context
     (unless (eq (package-definition definition)
 		(package-definition (classoid-definition definition)))
-      (@tableitem "Package" (reference (package-definition definition))))
+      (@tableitem "Package" (reference (package-definition definition) t)))
     (@table ()
       (render-slot-property slot :type)
       (render-slot-property slot :allocation)
@@ -242,8 +242,8 @@ providing only basic information."
 		      (format t "@t{~A}~{, @t{~A}~}"
 			(first values)
 			(rest values)))))
-      (render-references (reader-definitions definition) "Readers")
-      (render-references (writer-definitions definition) "Writers"))))
+      (render-references "Readers" (reader-definitions definition))
+      (render-references "Writers" (writer-definitions definition)))))
 
 
 
@@ -330,9 +330,9 @@ providing only basic information."
   (render-funcoid definition context
     (when-let (expander-for (expander-for definition))
       (@tableitem "Setf expander for this macro"
-	(reference expander-for)))
+	(reference expander-for t)))
     (when-let (expanders-to (expanders-to definition))
-      (render-references expanders-to "Setf expanders to this macro"))))
+      (render-references "Setf expanders to this macro" expanders-to t))))
 
 
 
@@ -424,7 +424,7 @@ providing only basic information."
 (defmethod document ((definition combination-definition) context &key)
   "Render standard method combination DEFINITION's documentation in CONTEXT."
   (render-combination definition context
-    (render-references (user-definitions definition) "Users")))
+    (render-references "Users" (user-definitions definition) t)))
 
 ;; #### PORTME.
 (defmethod document ((definition short-combination-definition) context &key)
@@ -437,7 +437,7 @@ providing only basic information."
       (format t "@t{~(~A~)}"
 	(sb-pcl::short-combination-identity-with-one-argument
 	 (combination definition))))
-    (render-references (user-definitions definition) "Users")))
+    (render-references "Users" (user-definitions definition) t)))
 
 
 
@@ -508,7 +508,7 @@ providing only basic information."
        (when-let (source-file (source-file ,the-definition))
 	 (unless (equal source-file
 			(source-file (generic-definition ,the-definition)))
-	   (@table () (@tableitem "Source" (reference source-file)))))
+	   (@table () (@tableitem "Source" (reference source-file t)))))
        ,@body)))
 
 (defmethod document ((definition method-definition) context &key)
@@ -520,14 +520,14 @@ providing only basic information."
   (render-method definition context
     (@table ()
       (@tableitem "Slot"
-	(reference (slot-definition definition))))))
+	(reference (slot-definition definition) t)))))
 
 (defmethod document ((definition writer-method-definition) context &key)
   "Render writer METHOD's documentation in CONTEXT."
   (render-method definition context
     (@table ()
       (@tableitem "Slot"
-	(reference (slot-definition definition))))))
+	(reference (slot-definition definition) t)))))
 
 
 
@@ -545,9 +545,9 @@ providing only basic information."
   (render-funcoid definition context
     (when-let (expander-for (expander-for definition))
       (@tableitem "Setf expander for this function"
-	(reference expander-for)))
+	(reference expander-for t)))
     (when-let (expanders-to (expanders-to definition))
-      (render-references expanders-to "Setf expanders to this function"))))
+      (render-references "Setf expanders to this function" expanders-to t))))
 
 
 (defmethod type-name ((definition reader-definition))
@@ -558,7 +558,7 @@ providing only basic information."
   "Render function DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
     (@tableitem "Slot"
-      (reference (slot-definition definition)))))
+      (reference (slot-definition definition) t))))
 
 
 (defmethod type-name ((definition writer-definition))
@@ -570,7 +570,7 @@ providing only basic information."
   "Render writer DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
     (@tableitem "Slot"
-      (reference (slot-definition definition)))))
+      (reference (slot-definition definition) t))))
 
 
 
@@ -587,7 +587,7 @@ providing only basic information."
 (defun render-method-combination (definition)
   "Render generic function DEFINITION's method combination documentation."
   (@tableitem "Method Combination"
-    (reference (combination-definition definition))
+    (reference (combination-definition definition) t)
     (terpri)
     (when-let (options (mapcar (lambda (option)
 				 (escape (format nil "~(~S~)" option)))
@@ -603,9 +603,9 @@ providing only basic information."
   (render-funcoid definition context
     (when-let (expander-for (expander-for definition))
       (@tableitem "Setf expander for this function"
-	(reference expander-for)))
+	(reference expander-for t)))
     (when-let (expanders-to (expanders-to definition))
-      (render-references expanders-to "Setf expanders to this function"))
+      (render-references "Setf expanders to this function" expanders-to t))
     (render-method-combination definition)
     (when-let ((methods (method-definitions definition)))
       (@tableitem "Methods"
@@ -657,15 +657,15 @@ providing only basic information."
 	 (render-docstring ,the-definition)
 	 (@table ()
 	   (render-definition-core ,the-definition ,the-context)
-	   (render-references
-	    (superclassoid-definitions ,the-definition)
-	    "Direct superclasses")
-	   (render-references
-	    (subclassoid-definitions ,the-definition)
-	    "Direct subclasses")
-	   (render-references
-	    (method-definitions ,the-definition)
-	    "Direct methods")
+	   (render-references "Direct superclasses"
+	     (superclassoid-definitions ,the-definition)
+	     t)
+	   (render-references "Direct subclasses"
+	     (subclassoid-definitions ,the-definition)
+	     t)
+	   (render-references "Direct methods"
+	     (method-definitions ,the-definition)
+	     t)
 	   (when-let (slot-definitions (slot-definitions ,the-definition))
 	     (@tableitem "Direct slots"
 	       (dolist (slot-definition slot-definitions)

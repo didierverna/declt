@@ -47,17 +47,15 @@
   (render-docstring definition)
   (@table ()
     (when-let (source (source-file definition))
-      (@tableitem "Source" (reference source)))
+      (@tableitem "Source" (reference source t)))
     (when-let* ((nicknames (nicknames definition))
 		(length (length nicknames)))
       (@tableitem (format nil "Nickname~p" length)
 	(if (eq length 1)
 	  (format t "@t{~(~A~)}" (escape (first nicknames)))
 	  (@itemize-list nicknames :format "@t{~(~A~)}" :key #'escape))))
-    (render-references
-     (use-definitions definition) "Use List")
-    (render-references
-     (used-by-definitions definition) "Used By List")
+    (render-references "Use List" (use-definitions definition) t)
+    (render-references "Used By List" (used-by-definitions definition) t)
     ;; #### NOTE: classoids and their slots are documented in a singel bloc.
     ;; As a consequence, if a classoid belongs to this package, there's no
     ;; need to also reference (sone of) its slots. On the other hand, we need
@@ -76,10 +74,10 @@
 		       definitions)
 		 #'string-lessp ;; #### WARNING: casing policy.
 	       :key #'definition-symbol)))
-      (render-references (organize-definitions (public-definitions definition))
-			 "Public Interface")
-      (render-references (organize-definitions (private-definitions definition))
-			 "Internals"))))
+      (render-references "Public Interface"
+	(organize-definitions (public-definitions definition)))
+      (render-references "Internals"
+	(organize-definitions (private-definitions definition))))))
 
 
 
