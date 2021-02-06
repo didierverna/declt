@@ -489,9 +489,11 @@ providing only basic information."
      ;; #### WARNING: casing policy.
      (@defmethod (type-name ,the-definition)
 	 (string-downcase (safe-name ,the-definition))
+       (when-let (qualifiers
+		  (method-qualifiers (definition-method ,the-definition)))
+	 (format nil "~(~{~S~^ ~}~)" qualifiers))
        (safe-lambda-list
 	(lambda-list ,the-definition) #+()(specializers ,the-definition))
-       #+()(qualifiers ,the-definition) ""
        (anchor-and-index ,the-definition)
        ,@(mapcar (lambda (definition)
 		   (let ((the-definition (gensym "definition")))

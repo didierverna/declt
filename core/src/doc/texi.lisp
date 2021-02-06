@@ -264,42 +264,44 @@ which retain their original form."
 			  (return (princ-to-string escaped-lambda-list))))
     "()"))
 
-(defmacro @deffn ((category name lambda-list) &body body)
-  "Execute BODY within a @deffn CATEGORY NAME LAMBDA-LIST environment.
-CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
-LAMBDA-LIST should be provided by `safe-lambda-list', which see.
+(defmacro @deffn ((category name lambda-list &optional qualifiers) &body body)
+  "Execute BODY under @deffn CATEGORY NAME [QUALIFIERS] LAMBDA-LIST.
+CATEGORY, NAME, QUALIFIERS, and LAMBDA-LIST are escaped for Texinfo prior to
+rendering. LAMBDA-LIST should be provided by `safe-lambda-list', which see.
 BODY should render on *standard-output*."
-  `(progn
-     (format t "~&@deffn {~A} {~A} ~A~%"
-       (escape ,category)
-       (escape ,name)
-       (escape-lambda-list ,lambda-list))
-     #+()(format t "~(~{ @t{~A}~^~}~)~%" (mapcar #'escape ,qualifiers))
-     ,@body
-     (format t "~&@end deffn~%")))
+  (let ((the-qualifiers (gensym "qualifiers")))
+    `(let ((,the-qualifiers ,qualifiers))
+       (format t "~&@deffn {~A} {~A}~@[ ~A~] ~A~%"
+	 (escape ,category)
+	 (escape ,name)
+	 (when ,the-qualifiers (escape ,the-qualifiers))
+	 (escape-lambda-list ,lambda-list))
+       ,@body
+       (format t "~&@end deffn~%"))))
 
-(defun @deffnx (category name lambda-list)
-  "Render @deffnx CATEGORY NAME LAMBDA-LIST on *standard-output*.
-CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
-LAMBDA-LIST should be provided by `safe-lambda-list', which see."
-  (format t "~&@deffnx {~A} {~A} ~A~%"
+(defun @deffnx (category name lambda-list &optional qualifiers)
+  "Render @deffnx CATEGORY NAME [QUALIFIERS] LAMBDA-LIST on *standard-output*.
+CATEGORY, NAME, QUALIFIERS, and LAMBDA-LIST are escaped for Texinfo prior to
+rendering. LAMBDA-LIST should be provided by `safe-lambda-list', which see."
+  (format t "~&@deffnx {~A} {~A}~@[ ~A~] ~A~%"
     (escape category)
     (escape name)
+    (when qualifiers (escape qualifiers))
     (escape-lambda-list lambda-list)))
 
-(defmacro @defmethod (category name lambda-list &body body)
-  "Execute BODY within a @deffn CATEGORY NAME LAMBDA-LIST environment.
+(defmacro @defmethod (category name qualifiers lambda-list &body body)
+  "Execute BODY under @deffn CATEGORY NAME QUALIFIERS LAMBDA-LIST.
 CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
 LAMBDA-LIST should be provided by `safe-lambda-list', which see.
 BODY should render on *standard-output*."
-  `(@deffn (,category ,name ,lambda-list)
+  `(@deffn (,category ,name ,lambda-list ,qualifiers)
      ,@body))
 
-(defun @defmethodx (category name lambda-list)
-  "Render @deffnx CATEGORY NAME LAMBDA-LIST on *standard-output*.
-CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
-LAMBDA-LIST should be provided by `safe-lambda-list', which see."
-  (@deffnx category name lambda-list))
+(defun @defmethodx (category name qualifiers lambda-list)
+  "Render @deffnx CATEGORY NAME QUALIFIERS LAMBDA-LIST on *standard-output*.
+CATEGORY, NAME, QUALIFIERS, and LAMBDA-LIST are escaped for Texinfo prior to
+rendering. LAMBDA-LIST should be provided by `safe-lambda-list', which see."
+  (@deffnx category name lambda-list qualifiers))
 
 (defmacro @deftp
     ((category name
