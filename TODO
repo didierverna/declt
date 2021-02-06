@@ -25,9 +25,6 @@ Some standard values are not documented, e.g, standard method combination,
 instance allocation, etc. We could provide a rendering option to make those
 apparent.
 
-** Methods
-Specializers should link back to the respective class definitions.
-
 ** Backend
 Clean up the code so that Texinfo becomes a backend with a clean
 interface. This way, we could envision adding other backends.

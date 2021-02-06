@@ -244,18 +244,23 @@ BODY should render on *standard-output*."
 
 (defun escape-lambda-list (lambda-list)
   "Escape safe LAMBDA-LIST for Texinfo.
-This function expects a value from `safe-lambda-list', which see.
-It returns a string properly escaped for Texinfo, apart from &-constructs
-which retain their original form."
+This function expects a value from `safe-lambda-list', or
+`safe-specializers', which see. It returns a string properly escaped for
+Texinfo, apart from &-constructs which retain their original form, and @ref's
+which are already properly set."
   (if lambda-list
     (loop :for rest :on lambda-list
 	  :for element := (car rest)
 	  :if (listp element)
 	    :collect (escape-lambda-list element) :into escaped-lambda-list
-	  :else :if (member element '("&optional" "&rest" "&key"
-				      "&allow-other-keys" "&aux" "&environment"
-				      "&whole" "&body")
-			    :test #'string-equal) ;; case-insensitive test
+	  :else :if (or (member element '("&optional" "&rest" "&key"
+					  "&allow-other-keys" "&aux"
+					  "&environment" "&whole" "&body")
+				:test #'string-equal) ;; case-insensitive test
+			;; #### WARNING: I'll be damned in we ever fall on a
+			;; specifier called @ref{... !
+			(when-let (pos (search "@ref{" element))
+			  (zerop pos)))
 		  :collect element :into escaped-lambda-list
 	  :else :collect (escape element) :into escaped-lambda-list
 	  :finally (progn (when rest ;; dotted list

@@ -252,13 +252,11 @@ providing only basic information."
 ;; --------
 
 ;; #### TODO: there's the question of offering the option to qualify symbols.
-;; #### FIXME: specializers not used/functional yet.
-(defun safe-lambda-list (lambda-list &optional specializers)
+(defun safe-lambda-list (lambda-list)
   "Return a safe LAMBDA-LIST, suitable to pass to Texinfo.
 The original lambda-list's structure is preserved, but all symbols are
 converted to revealed strings, and initform / supplied-p data is removed."
-  (loop :with specializer
-	:with post-mandatory
+  (loop :with post-mandatory
 	:for rest :on lambda-list
 	:for element := (if (and (listp (car rest)) post-mandatory)
 			  (first (car rest))
@@ -270,15 +268,9 @@ converted to revealed strings, and initform / supplied-p data is removed."
 		;; #### WARNING: casing policy.
 		:collect (string-downcase element) :into safe-lambda-list
 		:and :do (setq post-mandatory t)
-	:else :do (setq specializer (pop specializers))
-	      :and :collect (if (and specializer
-				     (not (eq specializer (find-class t))))
-			      ;; #### WARNING: casing policy.
-			      (list (reveal (string-downcase element))
-				    (safe-name specializer))
-			      ;; #### WARNING: casing policy.
-			      (reveal (string-downcase element)))
-		     :into safe-lambda-list
+			 ;; #### WARNING: casing policy.
+	:else :collect (reveal (string-downcase element))
+		:into safe-lambda-list
 	:finally (progn (when rest ;; dotted list
 			  (setf (cdr (last safe-lambda-list))
 				;; #### WARNING: casing policy.
@@ -478,6 +470,16 @@ providing only basic information."
   "Return \"methodsubindex\"."
   "methodsubindex")
 
+(defun safe-specializers (specializers)
+  (loop :for rest :on specializers
+	:for specializer := (car rest)
+	:collect (typecase specializer
+		   (definition
+		    (with-output-to-string (*standard-output*)
+		      (reference specializer t (when (cdr rest) #\,))))
+		   ;; #### WARNING: casing policy.
+		   (otherwise (format nil "~(~A~)" specializer)))))
+
 (defmacro render-method
     (|definition(s)| context
      &body body
@@ -492,8 +494,7 @@ providing only basic information."
        (when-let (qualifiers
 		  (method-qualifiers (definition-method ,the-definition)))
 	 (format nil "~(~{~S~^ ~}~)" qualifiers))
-       (safe-lambda-list
-	(lambda-list ,the-definition) #+()(specializers ,the-definition))
+       (safe-specializers (specializers ,the-definition))
        (anchor-and-index ,the-definition)
        ,@(mapcar (lambda (definition)
 		   (let ((the-definition (gensym "definition")))

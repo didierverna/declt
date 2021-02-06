@@ -124,13 +124,15 @@ It is of the form \"go to the <qualified safe name> <type name>\"."
   (anchor definition)
   (index definition))
 
-(defun reference (definition &optional short)
+(defun reference (definition &optional short (punctuation #\.))
   "Render a possibly SHORT DEFINITION's reference on *STANDARD-OUTPUT*.
 Unless SHORT, the DEFINITION type is advertised after the reference
-itself."
+itself. When SHORT, the reference is followed by a PUNCTUATION character (a
+dot by default) or NIL."
   (@ref (anchor-name definition) (safe-name definition))
   (if short
-    (write-char #\.)
+    (when punctuation (write-char punctuation))
+    ;; #### NOTE: Texinfo adds a comma automatically here.
     (format t " ~A" (type-name definition))))
 
 (defgeneric document (definition context &key &allow-other-keys)
