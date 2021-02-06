@@ -192,6 +192,7 @@ Rendering is done on *standard-output*."
     (render-text docstring)))
 
 ;; #### FIXME: concatenate TITLE with ~p and format it to handle length = 1.
+#i(render-references 1)
 (defun render-references (title definitions
 			  &optional short
 			  &aux (length (length definitions))

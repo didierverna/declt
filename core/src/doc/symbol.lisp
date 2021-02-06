@@ -242,8 +242,14 @@ providing only basic information."
 		      (format t "@t{~A}~{, @t{~A}~}"
 			(first values)
 			(rest values)))))
-      (render-references "Readers" (reader-definitions definition))
-      (render-references "Writers" (writer-definitions definition)))))
+      (render-references "Readers"
+	;; #### WARNING: casing policy.
+	(sort (reader-definitions definition) #'string-lessp
+	  :key #'definition-symbol))
+      (render-references "Writers"
+	;; #### WARNING: casing policy.
+	(sort (writer-definitions definition) #'string-lessp
+	  :key #'definition-symbol)))))
 
 
 
@@ -324,7 +330,10 @@ providing only basic information."
       (@tableitem "Setf expander for this macro"
 	(reference expander-for t)))
     (when-let (expanders-to (expanders-to definition))
-      (render-references "Setf expanders to this macro" expanders-to t))))
+      (render-references "Setf expanders to this macro"
+	;; #### WARNING: casing policy.
+	(sort expanders-to #'string-lessp :key #'definition-symbol)
+	t))))
 
 
 
@@ -416,7 +425,11 @@ providing only basic information."
 (defmethod document ((definition combination-definition) context &key)
   "Render standard method combination DEFINITION's documentation in CONTEXT."
   (render-combination definition context
-    (render-references "Users" (user-definitions definition) t)))
+    (render-references "Users"
+      ;; #### WARNING: casing policy.
+      (sort (user-definitions definition) #'string-lessp
+	:key #'definition-symbol)
+      t)))
 
 ;; #### PORTME.
 (defmethod document ((definition short-combination-definition) context &key)
@@ -429,7 +442,11 @@ providing only basic information."
       (format t "@t{~(~A~)}"
 	(sb-pcl::short-combination-identity-with-one-argument
 	 (combination definition))))
-    (render-references "Users" (user-definitions definition) t)))
+    (render-references "Users"
+      ;; #### WARNING: casing policy.
+      (sort (user-definitions definition) #'string-lessp
+	:key #'definition-symbol)
+      t)))
 
 
 
@@ -550,7 +567,9 @@ providing only basic information."
       (@tableitem "Setf expander for this function"
 	(reference expander-for t)))
     (when-let (expanders-to (expanders-to definition))
-      (render-references "Setf expanders to this function" expanders-to t))))
+      (render-references "Setf expanders to this function"
+	;; #### WARNING: casing policy.
+	(sort expanders-to #'string-lessp :key #'definition-symbol) t))))
 
 
 (defmethod type-name ((definition reader-definition))
@@ -608,7 +627,10 @@ providing only basic information."
       (@tableitem "Setf expander for this function"
 	(reference expander-for t)))
     (when-let (expanders-to (expanders-to definition))
-      (render-references "Setf expanders to this function" expanders-to t))
+      (render-references "Setf expanders to this function"
+	;; #### WARNING: casing policy.
+	(sort expanders-to #'string-lessp :key #'definition-symbol)
+	t))
     (render-method-combination definition)
     (when-let ((methods (method-definitions definition)))
       (@tableitem "Methods"
@@ -661,13 +683,19 @@ providing only basic information."
 	 (@table ()
 	   (render-definition-core ,the-definition ,the-context)
 	   (render-references "Direct superclasses"
-	     (superclassoid-definitions ,the-definition)
+	     ;; #### WARNING: casing policy.
+	     (sort (superclassoid-definitions ,the-definition) #'string-lessp
+	       :key #'definition-symbol)
 	     t)
 	   (render-references "Direct subclasses"
-	     (subclassoid-definitions ,the-definition)
+	     ;; #### WARNING: casing policy.
+	     (sort (subclassoid-definitions ,the-definition) #'string-lessp
+	       :key #'definition-symbol)
 	     t)
 	   (render-references "Direct methods"
-	     (method-definitions ,the-definition)
+	     ;; #### WARNING: casing policy.
+	     (sort (method-definitions ,the-definition) #'string-lessp
+	       :key #'definition-symbol)
 	     t)
 	   (when-let (slot-definitions (slot-definitions ,the-definition))
 	     (@tableitem "Direct slots"
