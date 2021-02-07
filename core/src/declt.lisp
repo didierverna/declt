@@ -232,7 +232,7 @@ The ~A Reference Manual~@[, version ~A~].
 
 @c Method Combinations
 @macro combinationsubindex{name}
-@tpindex @r{Method Combination, }\\name\\
+@findex @r{Method Combination, }\\name\\
 @end macro
 
 @c Conditions
