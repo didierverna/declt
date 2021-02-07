@@ -228,28 +228,27 @@ providing only basic information."
     (unless (eq (package-definition definition)
 		(package-definition (classoid-definition definition)))
       (@tableitem "Package" (reference (package-definition definition) t)))
-    (@table ()
-      (render-slot-property slot :type)
-      (render-slot-property slot :allocation)
-      (render-slot-property slot :initform)
-      (render-slot-property slot :initargs
-	;; #### FIXME: format mess. There's gotta be a better way.
-	:renderer (lambda (value)
-		    (let ((values (mapcar (lambda (val)
-					    ;; #### WARNING: casing policy.
-					    (escape (format nil "~(~S~)" val)))
-				    value)))
-		      (format t "@t{~A}~{, @t{~A}~}"
-			(first values)
-			(rest values)))))
-      (render-references "Readers"
-	;; #### WARNING: casing policy.
-	(sort (reader-definitions definition) #'string-lessp
-	  :key #'definition-symbol))
-      (render-references "Writers"
-	;; #### WARNING: casing policy.
-	(sort (writer-definitions definition) #'string-lessp
-	  :key #'definition-symbol)))))
+    (render-slot-property slot :type)
+    (render-slot-property slot :allocation)
+    (render-slot-property slot :initform)
+    (render-slot-property slot :initargs
+      ;; #### FIXME: format mess. There's gotta be a better way.
+      :renderer (lambda (value)
+		  (let ((values (mapcar (lambda (val)
+					  ;; #### WARNING: casing policy.
+					  (escape (format nil "~(~S~)" val)))
+				  value)))
+		    (format t "@t{~A}~{, @t{~A}~}"
+		      (first values)
+		      (rest values)))))
+    (render-references "Readers"
+      ;; #### WARNING: casing policy.
+      (sort (reader-definitions definition) #'string-lessp
+	:key #'definition-symbol))
+    (render-references "Writers"
+      ;; #### WARNING: casing policy.
+      (sort (writer-definitions definition) #'string-lessp
+	:key #'definition-symbol))))
 
 
 
