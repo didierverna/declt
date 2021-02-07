@@ -407,24 +407,9 @@ providing only basic information."
   "Return \"combinationsubindex\"."
   "combinationsubindex")
 
-(defmacro render-combination (definition context &body body)
-  "Render method combination DEFINITION's documentation in CONTEXT."
-  (let ((the-definition (gensym "definition"))
-	(the-context (gensym "context")))
-    `(let ((,the-definition ,definition)
-	   (,the-context ,context))
-       ;; #### WARNING: casing policy.
-       (@defcombination (string-downcase (safe-name ,the-definition))
-	 (anchor-and-index ,the-definition)
-	(render-docstring ,the-definition)
-	(@table ()
-	  (render-definition-core ,the-definition ,context)
-	  ,@body)))))
-
-;; #### FIXME: rethink the lambda-list problem (at least for long forms).
 (defmethod document ((definition combination-definition) context &key)
-  "Render standard method combination DEFINITION's documentation in CONTEXT."
-  (render-combination definition context
+  "Render method combination DEFINITION's documentation in CONTEXT."
+  (render-funcoid definition context
     (render-references "Users"
       ;; #### WARNING: casing policy.
       (sort (user-definitions definition) #'string-lessp
@@ -434,7 +419,7 @@ providing only basic information."
 ;; #### PORTME.
 (defmethod document ((definition short-combination-definition) context &key)
   "Render short method combination DEFINITION's documentation in CONTEXT."
-  (render-combination definition context
+  (render-funcoid definition context
     (when-let (operator-definition (operator-definition definition))
       (@tableitem "Operator"
 	(reference operator-definition)))
@@ -612,6 +597,7 @@ providing only basic information."
     (reference (combination-definition definition) t)
     (terpri)
     (when-let (options (mapcar (lambda (option)
+				 ;; #### FIXME: see TODO on format-tables.
 				 (escape (format nil "~(~S~)" option)))
 			 (sb-pcl::method-combination-options
 			  (sb-mop:generic-function-method-combination

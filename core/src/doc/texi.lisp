@@ -307,6 +307,12 @@ CATEGORY, NAME, QUALIFIERS, and LAMBDA-LIST are escaped for Texinfo prior to
 rendering. LAMBDA-LIST should be provided by `safe-lambda-list', which see."
   (@deffnx category name lambda-list qualifiers))
 
+(defmacro @defcombination (name lambda-list &body body)
+  "Execute BODY within a @deftp {KIND Method Combination} NAME environment.
+NAME is escaped for Texinfo prior to rendering.
+BODY should render on *standard-output*."
+  `(@deffn ("Method Combination" ,name ,lambda-list) ,@body))
+
 (defmacro @deftp
     ((category name
       &optional (lambda-list nil lambda-list-p))
@@ -322,12 +328,6 @@ BODY should render on *standard-output*."
        (when ,lambda-list-p (escape-lambda-list ,lambda-list)))
      ,@body
      (format t "~&@end deftp~%")))
-
-(defmacro @defcombination (name &body body)
-  "Execute BODY within a @deftp {KIND Method Combination} NAME environment.
-NAME is escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  `(@deftp ("Method Combination" ,name) ,@body))
 
 (defmacro @deftype (name lambda-list &body body)
   "Execute BODY within a @deftp Type NAME LAMBDA-LIST environment.

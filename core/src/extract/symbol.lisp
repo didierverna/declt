@@ -436,6 +436,12 @@ this combination."
     :accessor user-definitions))
   (:documentation "Root class for method combination definitions."))
 
+;; #### PORTME.
+(defmethod lambda-list ((definition combination-definition))
+  "Return method combination DEFINITION's lambda-list."
+  (sb-introspect:method-combination-lambda-list (combination definition)))
+
+
 ;; #### WARNING: the CLHS specifies that the :operator argument to
 ;; DEFINE-METHOD-COMBINATION is an /operator/, but later on claims that it is
 ;; a /symbol/. Experimentation seems to demonstrate that it must be a symbol.

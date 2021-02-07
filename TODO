@@ -14,6 +14,12 @@ notice and this notice are preserved.
 ** String downcasing
 Abstract it so that we may provide an option for case behavior.
 
+** Lisp objects formatting
+There are many places where we'd prefer ~S (e.g. to preserve colons in front
+of keywords), but that would break on unreadable objects. A solution would be
+to "ignore-errors" on ~S, and fall back to ~A instead. Make this work along
+with format-tables.
+
 ** Slots
 Document not only direct slots, but also overloads (additional initargs etc).
 
