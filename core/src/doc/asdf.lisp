@@ -312,11 +312,12 @@ Modules are listed depth-first from the system components tree.")))))
   "Return \"systemindex\""
   "systemindex")
 
+#i(render-contacts 1)
 (defmethod document ((definition system-definition) context &key)
   "Render system DEFINITION's documentation in CONTEXT."
   (when-let (long-name (long-name definition))
     (@tableitem "Long Name" (format t "~A~%" (escape long-name))))
-  (flet ((render-contacts (names emails category)
+  (flet ((render-contacts (category names emails)
 	   "Render a CATEGORY contact list of NAMES and EMAILS."
 	   ;; Both names and emails are null or not at the same time.
 	   (when names
@@ -331,10 +332,10 @@ Modules are listed depth-first from the system components tree.")))))
 			 (escape name) email (escape email)))
 		 (cdr names) (cdr emails)))
 	     (terpri))))
-    (render-contacts
-     (maintainer-names definition) (maintainer-emails definition) "Maintainer")
-    (render-contacts
-     (author-names definition) (author-emails definition) "Author"))
+    (render-contacts "Maintainer"
+      (maintainer-names definition) (maintainer-emails definition))
+    (render-contacts "Author"
+      (author-names definition) (author-emails definition)))
   (when-let (mailto (mailto definition))
     (@tableitem "Contact" (format t "@email{~A}~%" (escape mailto))))
   (when-let (homepage (homepage definition))
