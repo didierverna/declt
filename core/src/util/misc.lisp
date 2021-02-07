@@ -30,7 +30,7 @@
 
 
 ;; ==========================================================================
-;; General
+;; Standard Wannabees
 ;; ==========================================================================
 
 (defmacro while (test &body body)
@@ -40,6 +40,37 @@
 (defmacro endpush (object place)
   "Push OBJECT at the end of PLACE."
   `(setf ,place (nconc ,place (list ,object))))
+
+#i(retain 2)
+(defun retain (object list &key (test #'eq) key pre-test)
+  "Return a copy of LIST from which only OBJECT is retained.
+Each item in LIST is TESTed with EQ by default. TEST is performed on the item
+itself by default, or on the result of applying KEY to it. Optionally, only
+items satisfying PRE-TEST are considered."
+  (loop :for element :in list
+	:when (and (or (not pre-test) (funcall pre-test element))
+		   (funcall test
+		     (if key (funcall key element) element)
+		     object))
+	  :collect element))
+
+#i(find* 2)
+(defun find* (object list &key (test #'eq) key pre-test)
+  "Return the first finding of OBJECT in LIST, or NIL.
+Each item in LIST is TESTed with EQ by default. TEST is performed on the item
+itself by default, or on the result of applying KEY to it. Optionally, only
+items satisfying PRE-TEST are considered."
+  (loop :for element :in list
+	:when (and (or (not pre-test) (funcall pre-test element))
+		   (funcall test
+		     (if key (funcall key element) element)
+		     object))
+	  :do (return element)))
+
+
+;; ==========================================================================
+;; General
+;; ==========================================================================
 
 (defun current-time-string ()
   "Return the current time as a string."

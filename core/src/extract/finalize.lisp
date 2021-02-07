@@ -85,12 +85,11 @@ and over again until nothing moves anymore.")
   (unless (source-file definition)
     (when-let (source-pathname (source-pathname definition))
       (setf (source-file definition)
-	    ;; #### FIXME: FIND[-IF] with test and key reversed.
-	    (find-if (lambda (definition)
-		       (and (typep definition 'lisp-file-definition)
-			    (equal (component-pathname (file definition))
-				   source-pathname)))
-		     definitions)))))
+	    (find* source-pathname definitions
+		   :pre-test #'lisp-file-definition-p
+		   :key (lambda (candidate)
+			  (component-pathname (file candidate)))
+		   :test #'equal)))))
 
 
 
@@ -148,11 +147,8 @@ DEFINITIONS in the process."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
   ;; and only add what's missing, but I don't think it's worth the trouble.
   (setf (expanders-to definition)
-	(remove-if-not (lambda (candidate)
-			 (and (typep candidate 'short-expander-definition)
-			      (eq (update-fn-name candidate) name)))
-	    definitions)))
-
+	(retain name definitions
+	  :pre-test #'short-expander-definition-p :key #'update-fn-name)))
 
 ;; #### WARNING: there is no finalization method for the accessor mixin. This
 ;; is handled by the sot finalization methods. Slot readers and writers are
@@ -202,12 +198,11 @@ DEFINITIONS in the process."
   "Computer short setf expander DEFINITION's update definition."
   (unless (update-definition definition)
     (setf (update-definition definition)
-	  (find-if (lambda (candidate)
-		     (and (or (typep candidate 'macro-definition)
-			      (typep candidate 'function-definition))
-			  ;; this will filter out setf functions
-			  (eq (name candidate) name)))
-		   definitions)))
+	  (find* name definitions
+	    :pre-test (lambda (candidate)
+			(or (typep candidate 'macro-definition)
+			    (typep candidate 'function-definition)))
+	    :key #'name))) ;; EQ test will filter out setf functions.
   (unless (or (update-definition definition) (foreignp definition))
     (when-let (update-definition (foreign-funcoid-definition name))
       (endpush update-definition definitions)
@@ -261,12 +256,11 @@ DEFINITIONS in the process."
   "Compute short method combination DEFINITION's operator definition."
   (unless (operator-definition definition)
     (setf (operator-definition definition)
-	  (find-if (lambda (candidate)
-		     (and (or (typep candidate 'macro-definition)
-			      (typep candidate 'function-definition))
-			  ;; this will filter out setf functions
-			  (eq (name candidate) name)))
-		   definitions)))
+	  (find* name definitions
+	    :pre-test (lambda (candidate)
+			(or (typep candidate 'macro-definition)
+			    (typep candidate 'function-definition)))
+	    :key #'name))) ;; EQ test will filter out setf functions
   (unless (or (operator-definition definition) (foreignp definition))
     (when-let (operator-definition (foreign-funcoid-definition name))
       (setq *finalized* nil)
@@ -594,13 +588,10 @@ DEFINITIONS in the process."
     (setf (used-by-definitions definition) package-definitions))
   ;; 3. Symbol definitions list.
   (setf (definitions definition)
-	;; #### FIXME: RETAIN.
-	(remove-if-not
-	    (lambda (definition)
-	      (and (symbol-definition-p definition)
-		   (eq (symbol-package (definition-symbol definition))
-		       package)))
-	    definitions)))
+	(retain package definitions
+	  :pre-test #'symbol-definition-p
+	  :key (lambda (definition)
+		 (symbol-package (definition-symbol definition))))))
 
 
 
@@ -675,10 +666,7 @@ Those definitions are guaranteed to be in the original component's order."
      &aux (pathname (component-pathname (file definition))))
   "Compute Lisp file DEFINITION's definitions list."
   (setf (definitions definition)
-	;; #### FIXME: RETAIN.
-	(remove-if-not
-	    (lambda (definition) (equal (source-pathname definition) pathname))
-	    definitions)))
+	(retain pathname definitions :test #'equal :key #'source-pathname)))
 
 
 

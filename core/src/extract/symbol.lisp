@@ -365,6 +365,10 @@ This is a function or macro definition. It always exists."
 Short form setf expanders simply expand to a globally defined function or
 macro."))
 
+(defun short-expander-definition-p (definition)
+  "Return T if DEFINITION is a short expander definition."
+  (typep definition 'short-expander-definition))
+
 (defmethod source-pathname ((definition short-expander-definition))
   "Return the source pathname of short setf expander DEFINITION's update-fn."
   ;; #### NOTE: looking at how sb-introspect does it, it seems that the

@@ -130,6 +130,10 @@ This is the base class for ASDF file definitions."))
 		:accessor definitions))
   (:documentation "The LISP-FILE-DEFINITION class."))
 
+(defun lisp-file-definition-p (definition)
+  "Return T if DEFINITION is a Lisp file definition."
+  (typep definition 'lisp-file-definition))
+
 (defclass c-file-definition (source-file-definition)
   ()
   (:documentation "The C-FILE-DEFINITION class."))
