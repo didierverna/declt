@@ -358,8 +358,9 @@ expander."
 (defclass short-expander-definition (expander-definition)
   ((object :reader update-fn-name) ;; slot overload
    (update-definition
-    :documentation "The corresponding update-fn definition.
-This is a function or macro definition. It always exists."
+    :documentation "The corresponding update-fn definition, or NIL.
+This is a function or macro definition. Note that if this definition
+is unavailable, it means that the expander itself cannot be used (yet)."
     :initform nil :accessor update-definition))
   (:documentation "The class of short form setf expanders definitions.
 Short form setf expanders simply expand to a globally defined function or
@@ -371,20 +372,27 @@ macro."))
 
 (defmethod source-pathname ((definition short-expander-definition))
   "Return the source pathname of short setf expander DEFINITION's update-fn."
-  ;; #### NOTE: looking at how sb-introspect does it, it seems that the
+  ;; #### FIXME: looking at how sb-introspect does it, it seems that the
   ;; "source" of a setf expander is the source of the function object. For
   ;; long forms, this should be OK. For short forms however, what we get is
   ;; the source of the update function, which may be different from where
   ;; DEFSETF was called, hence incorrect.
-  (object-source-pathname (fdefinition (update-fn-name definition))))
+  (when (fboundp (update-fn-name definition))
+    (object-source-pathname (fdefinition (update-fn-name definition)))))
 
 ;; #### PORTME.
-(defmethod lambda-list ((definition short-expander-definition))
+(defmethod lambda-list
+    ((definition short-expander-definition)
+     &aux (update-fn-name (update-fn-name definition))
+	  (fdefinition (when (fboundp update-fn-name)
+			 (fdefinition update-fn-name))))
   "Return the \"butlast\" lambda-list of setf expander DEFINITION's update-fn.
 This is because short form setf expanders pass the new value as the last
-argument to their update-fn."
-  (butlast (sb-introspect:function-lambda-list
-	    (fdefinition (update-fn-name definition)))))
+argument to their update-fn.
+If the expander's update-fn is not defined, return two values: NIL and T."
+  (if fdefinition
+    (butlast (sb-introspect:function-lambda-list fdefinition))
+    (values nil t)))
 
 
 (defclass long-expander-definition (expander-definition)

@@ -167,31 +167,24 @@ DEFINITIONS in the process."
 
 (defmethod finalize progn
     ((definition expander-definition) definitions
-     &aux (name (definition-symbol definition)) ;; don't want the setf part
-	  (lambda-list (lambda-list definition)))
+     &aux (name (definition-symbol definition))) ;; don't want the setf part
   "Compute setf expander DEFINTIION's access definition."
   ;; #### NOTE: same remark as above when finalizing and expander-for
   ;; definition: if this expander is our own, then we /will/ find a definition
   ;; for its access-definition if it exists, as it is for the same symbol.
   ;; Otherwise, we don't care if we find a definition or not. So we never need
   ;; to create a foreign access definition.
-  (unless (access-definition definition)
-    (setf (access-definition definition)
-	  (find-if (lambda (candidate)
-		     (and (or (typep candidate 'macro-definition)
-			      (typep candidate 'function-definition))
-			  ;; this will filter out setf functions
-			  (eq (name candidate) name)
-			  (equal (lambda-list candidate) lambda-list)))
-		   definitions))))
+  (multiple-value-bind (lambda-list unavailable) (lambda-list definition)
+    (unless (or (access-definition definition) unavailable)
+      (setf (access-definition definition)
+	    (find-if (lambda (candidate)
+		       (and (or (typep candidate 'macro-definition)
+				(typep candidate 'function-definition))
+			    ;; this will filter out setf functions
+			    (eq (name candidate) name)
+			    (equal (lambda-list candidate) lambda-list)))
+		     definitions)))))
 
-;; #### FIXME: a setf expander may be defined without its update-fn actually
-;; existing. This just means that the expander cannot be used (yet). The code
-;; below assumes that this never happens and so also assumes that if the
-;; update-fn is not found, then it's gotta be a foreign definition. This is
-;; incorrect and will break if the function is indeed not defined. What we
-;; need to do is check if the update-fn /should/ belong to us, in which case
-;; it should perhaps be left NULL and issue a buggy program warning.
 (defmethod finalize progn
     ((definition short-expander-definition) definitions
      &aux (name (update-fn-name definition)))
@@ -204,10 +197,19 @@ DEFINITIONS in the process."
 			    (typep candidate 'function-definition)))
 	    :key #'name))) ;; EQ test will filter out setf functions.
   (unless (or (update-definition definition) (foreignp definition))
-    (when-let (update-definition (foreign-funcoid-definition name))
-      (endpush update-definition definitions)
-      (setq *finalized* nil)
-      (setf (update-definition definition) update-definition))))
+    (let* ((update-package-definition
+	     (find-definition (symbol-package name) definitions))
+	   (update-definition
+	     (unless (and update-package-definition
+			  (not (foreignp update-package-definition)))
+	       (foreign-funcoid-definition name))))
+      (cond (update-definition
+	     (setq *finalized* nil)
+	     (endpush update-definition definitions)
+	     (setf (update-definition definition) update-definition))
+	    (t
+	     (warn "~S: undefined update-fn for short form setf expander ~S."
+		   name (name definition)))))))
 
 
 

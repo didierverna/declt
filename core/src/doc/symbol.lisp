@@ -385,8 +385,12 @@ providing only basic information."
     (when-let (access-definition (access-definition definition))
       (@tableitem "Reader"
 	(reference access-definition)))
-    (@tableitem "Writer"
-      (reference (update-definition definition)))))
+    (let ((update-definition (update-definition definition)))
+      (cond (update-definition
+	     (@tableitem "Writer"
+	       (reference (update-definition definition))))
+	    ((not (foreignp definition))
+	     (@tableitem "Writer" (princ "@i{missing}")))))))
 
 (defmethod document ((definition long-expander-definition) context &key)
   "Render long setf expander DEFINITION's documentation in CONTEXT."
