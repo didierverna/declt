@@ -571,7 +571,6 @@ providing only basic information."
   "Return \"Writer\"."
   "Writer")
 
-;; #### FIXME: same as above.
 (defmethod document ((definition writer-definition) context &key)
   "Render writer DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
