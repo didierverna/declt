@@ -56,7 +56,7 @@
 	  (@itemize-list nicknames :format "@t{~(~A~)}" :key #'escape))))
     (render-references "Use List" (use-definitions definition) t)
     (render-references "Used By List" (used-by-definitions definition) t)
-    ;; #### NOTE: classoids and their slots are documented in a singel bloc.
+    ;; #### NOTE: classoids and their slots are documented in a single bloc.
     ;; As a consequence, if a classoid belongs to this package, there's no
     ;; need to also reference (sone of) its slots. On the other hand, we need
     ;; to reference slots for which the classoid is elsewhere (admittedly, and
