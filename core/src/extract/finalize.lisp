@@ -139,7 +139,7 @@ DEFINITIONS in the process."
 			  (eq (definition-symbol candidate) name)
 			  (equal (lambda-list candidate) lambda-list)))
 		   definitions)))
-  ;; #### FIXME: in the code below, we're looking for expanders-to only in
+  ;; #### TODO: in the code below, we're looking for expanders-to only in
   ;; the current list of definitions. Although it may contain foreign
   ;; definitions, it could also be incomplete. In order to be exhaustive for
   ;; our own definitions if not for foreign ones, we would need to go through
