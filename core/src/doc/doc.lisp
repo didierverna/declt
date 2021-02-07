@@ -129,7 +129,8 @@ It is of the form \"go to the <qualified safe name> <type name>\"."
 Unless SHORT, the DEFINITION type is advertised after the reference
 itself. When SHORT, the reference is followed by a PUNCTUATION character (a
 dot by default) or NIL."
-  (@ref (anchor-name definition) (safe-name definition))
+  ;; #### WARNING: casing policy.
+  (@ref (anchor-name definition) (string-downcase (safe-name definition)))
   (if short
     (when punctuation (write-char punctuation))
     ;; #### NOTE: Texinfo adds a comma automatically here.

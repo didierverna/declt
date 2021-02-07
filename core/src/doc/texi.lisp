@@ -169,8 +169,7 @@ Rendering is done on *standard-output*."
 Both ANCHOR and LABEL are escaped for Texinfo prior to rendering.
 LABEL is rendered in teletype.
 Rendering is done on *standard-output*."
-  ;; #### FIXME: handle case conversion somewhere else.
-  (format t "@ref{~A, , @t{~(~A}~)}"
+  (format t "@ref{~A, , @t{~A}}"
     (escape-anchor anchor) (escape-label label)))
 
 (defmacro @tableitem (title &body body)
