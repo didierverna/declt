@@ -456,8 +456,12 @@ this combination."
 ;; #### NOTE: even the short form is a funcoid, because of the optional ORDER
 ;; option which defaults to :most-specific-first.
 (defclass short-combination-definition (combination-definition)
-  ((operator-definition :documentation "The corresponding operator definition."
-			:initform nil :accessor operator-definition))
+  ((operator-definition
+    :documentation "The corresponding operator definition, or NIL.
+This is a function or macro definition. Note that if this definition
+is unavailable, it means that the method combination itself cannot be used
+(yet)."
+    :initform nil :accessor operator-definition))
   (:documentation "The class of short method combination definitions."))
 
 (defclass long-combination-definition (combination-definition)

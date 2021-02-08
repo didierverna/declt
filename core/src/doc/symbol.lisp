@@ -423,9 +423,11 @@ providing only basic information."
 (defmethod document ((definition short-combination-definition) context &key)
   "Render short method combination DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
-    (when-let (operator-definition (operator-definition definition))
-      (@tableitem "Operator"
-	(reference operator-definition)))
+    (let ((operator-definition (operator-definition definition)))
+      (cond (operator-definition
+	     (@tableitem "Operator" (reference operator-definition)))
+	    ((not (foreignp definition))
+	     (@tableitem "Operator" (princ "@i{missing}")))))
     (@tableitem "Indentity with one argument"
       (format t "@t{~(~A~)}"
 	(sb-pcl::short-combination-identity-with-one-argument

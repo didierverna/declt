@@ -243,15 +243,6 @@ DEFINITIONS in the process."
 	    (combination definition)))
   (setf (user-definitions definition) users))
 
-;; #### FIXME: the situation here is very similar to that of short form setf
-;; expanders: a short form method combination may be defined without its
-;; operator actually existing. This just means that the combination cannot be
-;; used (yet). The code below assumes that this never happens and so also
-;; assumes that if the operator is not found, then it's gotta be a foreign
-;; definition. This is incorrect and will break if the function is indeed not
-;; defined. What we need to do is check if the operator /should/ belong to us,
-;; in which case it should perhaps be left NULL and issue a buggy program
-;; warning.
 (defmethod finalize progn
   ((definition short-combination-definition) definitions
    &aux (name (sb-pcl::short-combination-operator (combination definition))))
@@ -264,10 +255,19 @@ DEFINITIONS in the process."
 			    (typep candidate 'function-definition)))
 	    :key #'name))) ;; EQ test will filter out setf functions
   (unless (or (operator-definition definition) (foreignp definition))
-    (when-let (operator-definition (foreign-funcoid-definition name))
-      (setq *finalized* nil)
-      (endpush operator-definition definitions)
-      (setf (operator-definition definition) operator-definition))))
+    (let* ((operator-package-definition
+	     (find-definition (symbol-package name) definitions))
+	   (operator-definition
+	     (unless (and operator-package-definition
+			  (not (foreignp operator-package-definition)))
+	       (foreign-funcoid-definition name))))
+      (cond (operator-definition
+	     (setq *finalized* nil)
+	     (endpush operator-definition definitions)
+	     (setf (operator-definition definition) operator-definition))
+	    (t
+	     (warn "~S: undefined operator for short method combination ~S."
+		   name (name definition)))))))
 
 
 
