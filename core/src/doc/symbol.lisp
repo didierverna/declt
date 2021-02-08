@@ -218,8 +218,10 @@ providing only basic information."
       (funcall renderer value))))
 
 (defmethod document
-    ((definition slot-definition) context &key &aux (slot (slot definition)))
-  "Render slot DEFINITION's documentation in CONTEXT.
+    ((definition clos-slot-definition) context
+     &key
+     &aux (slot (slot definition)))
+  "Render CLOS slot DEFINITION's documentation in CONTEXT.
 - The source file is not documented at all, since it is lexically the same as
   that of the parent classoid.
 - The package is not documented, unless it differs from that of the parent
@@ -249,6 +251,30 @@ providing only basic information."
       ;; #### WARNING: casing policy.
       (sort (writer-definitions definition) #'string-lessp
 	:key #'definition-symbol))))
+
+;; #### PORTME.
+(defmethod document
+    ((definition typed-structure-slot-definition) context
+     &key
+     &aux (slot (slot definition)))
+  "Render typed structure slot DEFINITION's documentation in CONTEXT.
+- The source file is unavailable, but not documented at all anyway, since it
+  is lexically the same as that of the parent classoid.
+- The package is not documented, unless it differs from that of the parent
+  classoid."
+  (render-varoid definition context
+    (unless (eq (package-definition definition)
+		(package-definition (classoid-definition definition)))
+      (@tableitem "Package" (reference (package-definition definition) t)))
+    ;; #### FIXME: not rendering standard / default values should be a context
+    ;; choice.
+    (unless (eq (sb-kernel:dsd-type slot) t)
+      (@tableitem "Type"
+	(format t "@t{~A}~%"
+	  ;; #### WARNING: casing policy.
+	  (escape (format nil "~(~S~)" (sb-kernel:dsd-type slot))))))
+    (render-references "Readers" (reader-definitions definition))
+    (render-references "Writers" (writer-definitions definition))))
 
 
 
@@ -659,8 +685,8 @@ providing only basic information."
 	    (escape (format nil "~(~S~)" (first initarg)))
 	    (escape (format nil "~(~A~)" (second initarg)))))))))
 
-(defmacro render-classoid (definition context &body body)
-  "Execute BODY within a classoid DEFINITION documentation in CONTEXT."
+(defmacro render-clos-classoid (definition context &body body)
+  "Execute BODY within a CLOS classoid DEFINITION documentation in CONTEXT."
   (let ((the-definition (gensym "definition"))
 	(the-context (gensym "context")))
     `(let ((,the-definition ,definition)
@@ -697,7 +723,7 @@ providing only basic information."
   "Render classoid DEFINITION's documentation in CONTEXT.
 This is the default method used for conditions and classes,
 which also documents direct default initargs."
-  (render-classoid definition context
+  (render-clos-classoid definition context
     (render-initargs definition context)))
 
 
@@ -711,9 +737,23 @@ which also documents direct default initargs."
   "Return \"structuresubindex\"."
   "structuresubindex")
 
-(defmethod document ((definition structure-definition) context &key)
-  "Render structure DEFINITION's documentation in CONTEXT."
-  (render-classoid definition context))
+(defmethod document ((definition clos-structure-definition) context &key)
+  "Render CLOS structure DEFINITION's documentation in CONTEXT."
+  (render-clos-classoid definition context))
+
+(defmethod document ((definition typed-structure-definition) context &key)
+  "Render typed structure DEFINITION's documentation in CONTEXT."
+  (@deftp ("Structure"
+	   ;; #### WARNING: casing policy.
+	   (string-downcase (safe-name definition)))
+      (anchor-and-index definition)
+    (render-docstring definition)
+    (@table ()
+      (render-definition-core definition context)
+      (when-let (slot-definitions (slot-definitions definition))
+	(@tableitem "Direct slots"
+	  (dolist (slot-definition slot-definitions)
+	    (document slot-definition context)))))))
 
 
 

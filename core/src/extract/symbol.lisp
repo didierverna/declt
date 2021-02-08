@@ -174,7 +174,7 @@ These are constants, special variables, and symbol macros."))
 ;; it's slightly overkill to use a list of those. On the other hand, it allows
 ;; the documentation rendering code to be applicable to all classoids.
 
-(defclass slot-definition (varoid-definition)
+(defabstract slot-definition (varoid-definition)
   ((object :initarg :slot :reader slot) ;; slot overload
    (classoid-definition :documentation "The corresponding classoid definition."
 			:initarg :classoid-definition
@@ -183,21 +183,44 @@ These are constants, special variables, and symbol macros."))
 		       :initform nil :accessor reader-definitions)
    (writer-definitions :documentation "The list of slot writer definitions."
 		       :initform nil :accessor writer-definitions))
-  (:documentation "The class of slot definitions."))
+  (:documentation "Abstract root class for slots."))
+
+
+(defclass clos-slot-definition (slot-definition)
+  ()
+  (:documentation "The class of CLOS slot definitions."))
 
 ;; #### PORTME.
-(defun make-slot-definition (slot definition &optional foreign)
-  "Make a new SLOT definition for classoid DEFINITION."
-  (make-instance 'slot-definition
+(defun make-clos-slot-definition (slot definition &optional foreign)
+  "Make a new CLOS SLOT definition for classoid DEFINITION."
+  (make-instance 'clos-slot-definition
     :symbol (sb-mop:slot-definition-name slot)
     :slot slot
     :classoid-definition definition
     :foreign foreign))
 
 ;; #### PORTME.
-(defmethod docstring ((definition slot-definition))
+(defmethod docstring ((definition clos-slot-definition))
   "Return slot DEFINITION's docstring."
   (sb-pcl::%slot-definition-documentation (slot definition)))
+
+
+(defclass typed-structure-slot-definition (slot-definition)
+  ()
+  (:documentation "The class of typed structure slot definitions."))
+
+;; #### PORTME.
+(defun make-typed-structure-slot-definition (slot definition &optional foreign)
+  "Make a new typed structure SLOT definition for classoid DEFINITION."
+  (make-instance 'typed-structure-slot-definition
+    :symbol (sb-kernel:dsd-name slot)
+    :slot slot
+    :classoid-definition definition
+    :foreign foreign))
+
+(defmethod docstring ((definition typed-structure-slot-definition))
+  "Return NIL."
+  nil)
 
 
 
@@ -673,40 +696,44 @@ whether it is a SETF one."
 ;; Classoids
 ;; ==========================================================================
 
-
 ;; -----------------------------------
 ;; Conditions, structures, and classes
 ;; -----------------------------------
 
-;; #### FIXME: typed structures are a whole kind of different beast and are
-;; not supported yet.
-
 (defabstract classoid-definition (symbol-definition)
   ((object :initarg :classoid :reader classoid) ;; slot overload
-   (superclassoid-definitions
+   (slot-definitions
+    :documentation "The list of corresponding direct slot definitions."
+    :initform nil :accessor slot-definitions))
+  (:documentation "Abstract root class for classoid definitions.
+These are conditions, structures, and classes."))
+
+;; #### FIXME: it should be possible to reconstruct super- and sub-structure
+;; information even in the case of typed structures. So some of the slots
+;; below are bound to move.
+
+(defabstract clos-classoid-mixin ()
+  ((superclassoid-definitions
     :documentation "The list of corresponding direct superclassoid definitions."
     :accessor superclassoid-definitions)
    (subclassoid-definitions
     :documentation "The list of corresponding direct subclassoid definitions."
     :accessor subclassoid-definitions)
-   (slot-definitions
-    :documentation "The list of corresponding direct slot definitions."
-    :initform nil :accessor slot-definitions)
    (method-definitions
     :documentation "The list of corresponding direct method definitions."
     :accessor method-definitions))
-  (:documentation "Abstract root class for classoid definitions.
-These are conditions, structures, and classes."))
+  (:documentation "Mixin for CLOS-based classoids.
+These are conditions, ordinary structures, and classes."))
 
 (defmethod initialize-instance :after
-    ((definition classoid-definition) &key foreign)
-  "Create all classoid DEFINITION's slot definitions, unless FOREIGN."
+    ((definition clos-classoid-mixin) &key foreign)
+  "Create all CLOS classoid DEFINITION's slot definitions, unless FOREIGN."
   (unless foreign
     (setf (slot-definitions definition)
-	  (mapcar (lambda (slot) (make-slot-definition slot definition))
+	  (mapcar (lambda (slot) (make-clos-slot-definition slot definition))
 	    (sb-mop:class-direct-slots (classoid definition))))))
 
-(defclass condition-definition (classoid-definition)
+(defclass condition-definition (classoid-definition clos-classoid-mixin)
   ((object :reader definition-condition) ;; slot overload
    (superclassoid-definitions ;; slot overload
     :accessor supercondition-definitions)
@@ -714,21 +741,43 @@ These are conditions, structures, and classes."))
     :accessor subcondition-definitions))
   (:documentation "The class of condition definitions."))
 
-(defclass structure-definition (classoid-definition)
-  ((object :reader definition-structure) ;; slot overload
-   (superclassoid-definitions ;; slot overload
-    :accessor superstructure-definitions)
-   (subclassoid-definitions ;; slot overload
-    :accessor substructure-definitions))
-  (:documentation "The class of structure definitions."))
-
-(defclass class-definition (classoid-definition)
+(defclass class-definition (classoid-definition clos-classoid-mixin)
   ((object :reader definition-class) ;; slot overload
    (superclassoid-definitions ;; slot overload
     :accessor superclass-definitions)
    (subclassoid-definitions ;; slot overload
     :accessor subclass-definitions))
   (:documentation "The class for class definitions."))
+
+
+(defabstract structure-definition (classoid-definition)
+  ((object :reader definition-structure)) ;; slot overload
+  (:documentation "Abstract root class for structures."))
+
+(defclass clos-structure-definition (structure-definition clos-classoid-mixin)
+  ((superclassoid-definitions ;; slot overload
+    :accessor superstructure-definitions)
+   (subclassoid-definitions ;; slot overload
+    :accessor substructure-definitions))
+  (:documentation "The class of CLOS structure definitions."))
+
+(defclass typed-structure-definition (structure-definition)
+  ()
+  (:documentation "The class of typed structure definitions."))
+
+(defmethod initialize-instance :after
+    ((definition typed-structure-definition) &key foreign)
+  "Create all typed structure DEFINITION's slot definitions, unless FOREIGN."
+  (unless foreign
+    (setf (slot-definitions definition)
+	  (mapcar (lambda (slot)
+		    (make-typed-structure-slot-definition slot definition))
+	    (sb-kernel:dd-slots (definition-structure definition))))))
+
+;; #### PORTME.
+(defmethod docstring ((definition typed-structure-definition))
+  "Return typed structure DEFINITION's docstring."
+  (sb-kernel::dd-doc (definition-structure definition)))
 
 ;; #### PORTME.
 (defun make-classoid-definition (symbol classoid &optional foreign)
@@ -738,7 +787,8 @@ depends on the kind of CLASSOID."
   (make-instance
       (typecase classoid
 	(sb-pcl::condition-class 'condition-definition)
-	(sb-pcl::structure-class 'structure-definition)
+	(sb-pcl::structure-class 'clos-structure-definition)
+	(sb-kernel:defstruct-description 'typed-structure-definition)
 	(otherwise 'class-definition))
     :symbol symbol :classoid classoid :foreign foreign))
 

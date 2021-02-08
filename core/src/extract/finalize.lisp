@@ -356,12 +356,12 @@ DEFINITIONS in the process."
 ;; same helper function.
 
 ;; #### PORTME.
-(defun finalize-classoid-slot
+(defun finalize-clos-classoid-slot
     (definition definitions
      &aux (slot (slot definition))
 	  (classoid-definition (classoid-definition definition))
 	  (classoid (classoid classoid-definition)))
-  "Compute classoid slot DEFINITION's reader and writer definitions.
+  "Compute CLOS classoid slot DEFINITION's reader and writer definitions.
 This function is used for regular class and condition slots."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
   ;; and only add what's missing, but I don't think it's worth the trouble.
@@ -442,11 +442,11 @@ This function is used for regular class and condition slots."
 	  (sb-mop:slot-definition-writers slot))))
 
 ;; #### PORTME.
-(defun finalize-structure-slot
+(defun finalize-clos-structure-slot
     (definition definitions
      &aux (slot (slot definition))
 	  (structure-definition (classoid-definition definition)))
-  "Compute structure slot DEFINITION's reader and writer definitions."
+  "Compute CLOS structure slot DEFINITION's reader and writer definitions."
   ;; #### NOTE: in the case of structures, there is only one reader / writer
   ;; per slot, so if it's already there, we can save some time because the
   ;; list of it as a single element doesn't risk being out of date. Also,
@@ -484,11 +484,55 @@ This function is used for regular class and condition slots."
       (setf (writer-definitions definition)
 	    (when writer-definition (list writer-definition))))))
 
-(defmethod finalize progn ((definition slot-definition) definitions)
-  "Compute slot DEFINITION's reader and writer definitions."
-  (if (typep (classoid-definition definition) 'structure-definition)
-    (finalize-structure-slot definition definitions)
-    (finalize-classoid-slot definition definitions)))
+(defmethod finalize progn ((definition clos-slot-definition) definitions)
+  "Compute CLOS slot DEFINITION's reader and writer definitions."
+  (if (typep (classoid-definition definition) 'clos-structure-definition)
+    (finalize-clos-structure-slot definition definitions)
+    (finalize-clos-classoid-slot definition definitions)))
+
+
+;; #### FIXME: we should have more abstaction here. Only the LET* binding code
+;; #### differ from that of the clos structure code. The rest is the same.
+
+;; #### PORTME.
+(defmethod finalize progn
+    ((definition typed-structure-slot-definition) definitions
+     &aux (slot (slot definition))
+	  (structure-definition (classoid-definition definition)))
+  "Compute typed structure slot DEFINITION's reader and writer definitions."
+  ;; #### NOTE: in the case of structures, there is only one reader / writer
+  ;; per slot, so if it's already there, we can save some time because the
+  ;; list of it as a single element doesn't risk being out of date. Also,
+  ;; remember that readers and writers share the same status, so we only need
+  ;; to perform one test each time.
+  (unless (reader-definitions definition)
+    (let* ((accessor-name (sb-kernel:dsd-accessor-name slot))
+	   (reader-function (fdefinition accessor-name))
+	   (writer-function (fdefinition `(setf ,accessor-name)))
+	   (reader-definition (find-definition reader-function definitions))
+	   (writer-definition (find-definition writer-function definitions)))
+      (unless (or reader-definition (foreignp structure-definition))
+	(setq reader-definition
+	      (make-function-definition accessor-name reader-function
+		:foreign t))
+	(setq writer-definition
+	      (make-function-definition accessor-name writer-function
+		:setf t :foreign t))
+	(setq *finalized* nil)
+	(endpush reader-definition definitions)
+	(endpush writer-definition definitions))
+      (when reader-definition
+	(unless (typep reader-definition 'reader-definition)
+	  (change-class reader-definition 'reader-definition
+	    :slot-definition definition))
+	(unless (typep writer-definition 'writer-definition)
+	  (change-class writer-definition 'writer-definition
+	    :slot-definition definition)))
+      ;; See comment on top of the SLOT-DEFINITION class about this.
+      (setf (reader-definitions definition)
+	    (when reader-definition (list reader-definition)))
+      (setf (writer-definitions definition)
+	    (when writer-definition (list writer-definition))))))
 
 
 
@@ -496,7 +540,7 @@ This function is used for regular class and condition slots."
 
 ;; #### PORTME.
 (defmethod finalize progn
-    ((definition classoid-definition) definitions &aux classoid-definitions)
+    ((definition clos-classoid-mixin) definitions &aux classoid-definitions)
   "Compute classoid DEFINITION's super/sub classoids, and method definitions."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole lists here,
   ;; and only add what's missing, but I don't think it's worth the trouble.
