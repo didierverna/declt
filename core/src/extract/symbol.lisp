@@ -762,12 +762,22 @@ These are conditions, ordinary structures, and classes."))
   (:documentation "The class of CLOS structure definitions."))
 
 (defclass typed-structure-definition (structure-definition)
-  ()
+  ((type :documentation "The structure type, either LIST or VECTOR."
+	 :initarg :type :accessor structure-type)
+   (element-type :documentation "The structure's element type.
+It is T for list structures, but may be something else for vector ones."
+		 :initarg :element-type :accessor element-type))
   (:documentation "The class of typed structure definitions."))
 
+;; #### PORTME.
 (defmethod initialize-instance :after
-    ((definition typed-structure-definition) &key foreign)
-  "Create all typed structure DEFINITION's slot definitions, unless FOREIGN."
+    ((definition typed-structure-definition)
+     &key foreign
+     &aux (structure (definition-structure definition)))
+  "Compute typed structure DEFINITION's type and element type.
+Unless FOREIGN, also compute its slot definitions."
+  (setf (structure-type definition) (sb-kernel:dd-type structure))
+  (setf (element-type definition) (sb-kernel::dd-element-type structure))
   (unless foreign
     (setf (slot-definitions definition)
 	  (mapcar (lambda (slot)

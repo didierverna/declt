@@ -750,6 +750,11 @@ which also documents direct default initargs."
     (render-docstring definition)
     (@table ()
       (render-definition-core definition context)
+      (@tableitem "Type"
+	(if (eq (element-type definition) t)
+	  ;; #### WARNING: casing policy.
+	  (format t "@t{~(~S~)}~%" (structure-type definition))
+	  (format t "@t{(vector ~(~A~))}~%" (element-type definition))))
       (when-let (slot-definitions (slot-definitions definition))
 	(@tableitem "Direct slots"
 	  (dolist (slot-definition slot-definitions)
