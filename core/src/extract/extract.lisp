@@ -264,20 +264,12 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
   ;; will be documented like the other ones, and generic functions using it
   ;; will provide a cross-reference to it, also advertising the options in
   ;; use.
-  (when-let*
-      ;; #### FIXME: I think this is not needed anymore, after Christophe's
-      ;; modifications following my ELS paper.
-      ((method
-	(find-method #'sb-mop:find-method-combination
-		     nil
-		     `(,(find-class 'generic-function) (eql ,symbol) t)
-		     nil))
-       (combination
-	;; #### NOTE: we could use any generic function instead of
-	;; DOCUMENTATION here. Also, NIL options don't matter because they are
-	;; not advertised as part of the method combination, but as part of
-	;; the generic functions that use them.
-	(sb-mop:find-method-combination #'documentation symbol nil)))
+  (when-let (combination
+	     ;; #### NOTE: we could use any generic function instead of
+	     ;; DOCUMENTATION here. Also, NIL options don't matter because
+	     ;; they are not advertised as part of the method combination, but
+	     ;; as part of the generic functions that use them.
+	     (sb-mop:find-method-combination #'documentation symbol nil))
     (endpush (make-combination-definition symbol combination) definitions))
   ;; Structures, classes, and conditions,
   (when-let* ((classoid (find-class symbol nil))
