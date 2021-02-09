@@ -480,10 +480,9 @@ providing only basic information."
       (format nil "~{ ~S~} (~{~A~^ ~})"
 	(method-qualifiers (definition-method definition))
 	(mapcar (lambda (specializer)
-		  ;; #### PORTME.
 		  (typecase specializer
-		    (sb-mop:eql-specializer specializer)
-		    (otherwise (safe-name specializer t))))
+		    (definition (safe-name specializer t))
+		    (otherwise specializer))) ;; EQL specializer
 	  (specializers definition))))
     safe-name))
 
