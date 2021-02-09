@@ -34,8 +34,6 @@
   (:shadow :*readtable*)
   ;; #### PORTME.
   (:import-from #+sbcl :sb-mop :validate-superclass)
-  (:import-from :quickutil
-    :when-let :when-let*)
   (:import-from :asdf
     :component-name
     :component-version

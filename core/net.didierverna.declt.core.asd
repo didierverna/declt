@@ -45,8 +45,7 @@ net.didierverna.declt system."
   :depends-on (:net.didierverna.declt.setup
 	       (:feature :sbcl :sb-introspect))
   :serial t
-  :components ((:file "quickutil")
-	       (:file "meta")
+  :components ((:file "meta")
 	       (:module "src"
 		:serial t
 		:components ((:module "util"

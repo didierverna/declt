@@ -67,7 +67,85 @@ items satisfying PRE-TEST are considered."
 		     object))
 	  :do (return element)))
 
+;; Based on public domain Alexandria / Quickutil version
+(defmacro when-let (bindings &body body)
+  "Execute BODY only when all BINDINGS are non-nil.
+BINDINGS must be either a single binding of the form (VARIABLE VALUE),
+or a list of such. VALUEs are computed sequentially in the specified order,
+and then VARIABLEs are bound to the corresponding VALUEs. If all VALUEs are
+non-nil, BODY is executed."
+  (when (and (consp bindings) (symbolp (car bindings)))
+    (setq bindings (list bindings)))
+  (let ((variables (mapcar #'car bindings)))
+    `(let ,bindings
+       (when (and ,@variables)
+	 ,@body))))
 
+;; Based on public domain Alexandria / Quickutil version
+(defmacro when-let* (bindings &body body)
+  "Execute BODY only when all BINDINGS are non-nil.
+BINDINGS must be either a single binding of the form (VARIABLE VALUE),
+or a list of such. VARIABLEs are bound to their respective VALUE sequentially,
+so that each VALUE expression may refer to a previously bound VARIABLE.
+Execution stops completely as soon as a null VALUE is encountered. Otherwise,
+BODY is executed as an implicit PROGN."
+  (when (and (consp bindings) (symbolp (car bindings)))
+    (setq bindings (list bindings)))
+  (labels ((bind (bindings body)
+	     (if bindings
+	       `((let (,(car bindings))
+		   (when ,(caar bindings)
+		     ,@(bind (cdr bindings) body))))
+	       body)))
+    `(let (,(car bindings))
+       (when ,(caar bindings)
+	 ,@(bind (cdr bindings) body)))))
+
+
+
+
+;; ==========================================================================
+;; CLOS Utility Routines
+;; ==========================================================================
+
+;; --------------------
+;; Portability wrappers
+;; --------------------
+
+(defmacro declare-valid-superclass (class superclass)
+  "Validate SUPERCLASS classes for CLASS classes."
+  ;; #### PORTME.
+  `(defmethod validate-superclass ((class ,class) (superclass ,superclass))
+     #+ecl (declare (ignore class superclass))
+     t))
+
+
+
+;; ----------------
+;; Abstract classes
+;; ----------------
+
+(defclass abstract-class (standard-class)
+  ()
+  (:documentation "The Abstract Class meta-class."))
+
+(defmacro defabstract (class super-classes slots &rest options)
+  "Like DEFCLASS, but define an abstract class."
+  (when (assoc :metaclass options)
+    (error "Defining abstract class ~S: explicit meta-class option." class))
+  `(defclass ,class ,super-classes ,slots ,@options
+     (:metaclass abstract-class)))
+
+(defmethod make-instance ((class abstract-class) &rest initargs)
+  (declare (ignore initargs))
+  (error "Instanciating class ~S: is abstract." (class-name class)))
+
+(declare-valid-superclass abstract-class standard-class)
+(declare-valid-superclass standard-class abstract-class)
+
+
+
+
 ;; ==========================================================================
 ;; General
 ;; ==========================================================================
@@ -160,46 +238,5 @@ one."
   "Return OBJECT's source pathname."
   (when-let (source (sb-introspect:find-definition-source object))
     (sb-introspect:definition-source-pathname source)))
-
-
-
-;; ==========================================================================
-;; CLOS Utility Routines
-;; ==========================================================================
-
-;; --------------------
-;; Portability wrappers
-;; --------------------
-
-(defmacro declare-valid-superclass (class superclass)
-  "Validate SUPERCLASS classes for CLASS classes."
-  ;; #### PORTME.
-  `(defmethod validate-superclass ((class ,class) (superclass ,superclass))
-     #+ecl (declare (ignore class superclass))
-     t))
-
-
-;; ----------------
-;; Abstract classes
-;; ----------------
-
-(defclass abstract-class (standard-class)
-  ()
-  (:documentation "The Abstract Class meta-class."))
-
-(defmacro defabstract (class super-classes slots &rest options)
-  "Like DEFCLASS, but define an abstract class."
-  (when (assoc :metaclass options)
-    (error "Defining abstract class ~S: explicit meta-class option." class))
-  `(defclass ,class ,super-classes ,slots ,@options
-     (:metaclass abstract-class)))
-
-(defmethod make-instance ((class abstract-class) &rest initargs)
-  (declare (ignore initargs))
-  (error "Instanciating class ~S: is abstract." (class-name class)))
-
-(declare-valid-superclass abstract-class standard-class)
-(declare-valid-superclass standard-class abstract-class)
-
 
 ;;; misc.lisp ends here
