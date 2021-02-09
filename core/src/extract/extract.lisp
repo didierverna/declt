@@ -63,13 +63,6 @@
 ;; System definitions
 ;; ------------------
 
-(defun reordered-dependency-def-system (reordered-dependency-def)
-  "Extract the system name from REORDERED-DEPENDENCY-DEF.
-See `reorder-dependency-def' for more information."
-  (typecase reordered-dependency-def
-    (list (reordered-dependency-def-system (car reordered-dependency-def)))
-    (otherwise reordered-dependency-def)))
-
 (defun system-dependencies (system)
   "Return all system names from SYSTEM dependencies.
 This includes both :defsystem-depends-on and :depends-on."
@@ -78,6 +71,24 @@ This includes both :defsystem-depends-on and :depends-on."
 	     (reorder-dependency-def dependency-def)))
     (append (system-defsystem-depends-on system)
 	    (component-sideway-dependencies system))))
+
+(defun sub-component-p
+    (component directory
+     ;; #### FIXME: not sure this is still valid, as we now have a specific
+     ;; way of loading UIOP and ASDF.
+     ;; #### NOTE: COMPONENT-PATHNAME can return nil when it's impossible to
+     ;; locate the component's source. This happens for example with UIOP when
+     ;; ASDF is embedded in a Lisp implementation like SBCL. Sabra Crolleton
+     ;; fell on this issue when trying to document CL-PROJECT, which
+     ;; explicitly depends on UIOP.
+     &aux (component-pathname (component-pathname component)))
+  "Return T if COMPONENT can be found under DIRECTORY."
+  (when component-pathname
+    (pathname-match-p component-pathname
+		      (make-pathname :name :wild
+				     :directory
+				     (append (pathname-directory directory)
+					     '(:wild-inferiors))))))
 
 (defun subsystem
     (name system directory
@@ -107,7 +118,7 @@ The other considered systems are those found recursively in SYSTEM's
 dependencies, and located under SYSTEM's directory.
 See `subsystems' for more information."
   (mapcar #'make-system-definition
-    (subsystems system (system-directory system))))
+    (subsystems system (component-pathname system))))
 
 
 
@@ -344,13 +355,6 @@ This is the class holding all extracted documentation information."))
 (defun make-extract ()
   "Make a new extract."
   (make-instance 'extract))
-
-;; #### FIXME: should this become a general definition protocol?
-;; This is used rather often (in fact, not so much! ;-)) so it is worth a
-;; shortcut.
-(defun location (extract)
-  "Return EXTRACT's main system location."
-  (system-directory (system (first (definitions extract)))))
 
 
 

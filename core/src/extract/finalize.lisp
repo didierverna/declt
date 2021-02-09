@@ -348,6 +348,7 @@ DEFINITIONS in the process."
 
 
 ;; Slots
+;; -----
 
 ;; #### NOTE: we can't completely unify the finalization of slot readers and
 ;; writers because structure classes behave differently from condition and
@@ -492,7 +493,7 @@ This function is used for regular class and condition slots."
 
 
 ;; #### FIXME: we should have more abstaction here. Only the LET* binding code
-;; #### differ from that of the clos structure code. The rest is the same.
+;; differ from that of the clos structure code. The rest is the same.
 
 ;; #### PORTME.
 (defmethod finalize progn
@@ -537,6 +538,7 @@ This function is used for regular class and condition slots."
 
 
 ;; Classes
+;; -------
 
 ;; #### PORTME.
 (defmethod finalize progn
