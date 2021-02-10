@@ -410,8 +410,105 @@ DEFSETF, or DEFINE-SETF-EXPANDER."))
 
 
 ;; -------------------
-;; Method combinations
+;; (Generic) functions
 ;; -------------------
+
+(defabstract function-definition (funcoid-definition)
+  ((object :initarg :function :reader definition-function)) ;; slot overload
+  (:documentation "Abstract root class for functions."))
+
+;; #### NOTE: this is a general constructor used in MAKE-SYMBOLS-DEFINITIONS.
+;; It is used to create both ordinary and generic functions. In the case of
+;; generic functions, both SYMBOL and SETF could be deduced from the generic
+;; function object, but that information has already been figured out anyway.
+
+#i(make-function-definition 2)
+(defun make-function-definition (symbol function &key setf foreign)
+  "Make a new FUNCTION definition for (SETF) SYMBOL, possibly FOREIGN.
+The concrete class of the new definition depends on the kind of FUNCTION, and
+whether it is a SETF one."
+  (make-instance
+      (typecase function
+	(generic-function
+	 (if setf 'generic-setf-definition 'simple-generic-definition))
+	(otherwise
+	 (if setf 'setf-function-definition 'simple-function-definition)))
+    :symbol symbol :function function :foreign foreign))
+
+
+
+;; Ordinary functions
+
+;; #### NOTE: only basic function definitions are created. Reader and writer
+;; definitions are created during the finalization process by upgrading the
+;; class of the concerned definitions.
+
+(defabstract ordinary-function-definition (function-definition)
+  ()
+  (:documentation "Abstract root class for ordinary functions."))
+
+(defclass simple-function-definition
+    (ordinary-function-definition expander-mixin)
+  ()
+  (:documentation "The class of ordinary, non-setf function definitions."))
+
+(defclass setf-function-definition
+    (setf-mixin ordinary-function-definition)
+  ()
+  (:documentation "The class of ordinary setf function definitions."))
+
+(defclass reader-definition (simple-function-definition accessor-mixin)
+  ()
+  (:documentation "The class of ordinary reader definitions.
+An ordinary reader is an ordinary function that reads a slot in a
+structure."))
+
+;; #### WARNING: see comment at the top of the file.
+(defclass writer-definition (setf-function-definition accessor-mixin)
+  ()
+  (:documentation "The class of ordinary writer definitions.
+An ordinary writer is an ordinary function that writes a slot in a
+structure."))
+
+
+
+;; Generic functions
+
+;; #### TODO: we could think of creating classes of reader and writer generic
+;; functions. The condition to upgrade the class would be that all methods are
+;; indeed readers / writers.
+
+(defabstract generic-function-definition (function-definition)
+  ((object :initarg :generic :reader generic) ;; slot overload
+   (method-definitions
+    :documentation "The list of corresponding method definitions."
+    :initform nil :accessor method-definitions)
+   (combination-definition
+    :documentation "The corresponding method combination definition."
+    :initform nil :accessor combination-definition))
+  (:documentation "Abstract root class for generic function definitions."))
+
+(defmethod initialize-instance :after
+    ((definition generic-function-definition) &key foreign)
+  "Create all generic DEFINTION's method definitions, unless FOREIGN."
+  (unless foreign
+    (setf (method-definitions definition)
+	  (mapcar (lambda (method)
+		    (make-method-definition method definition))
+	    (sb-mop:generic-function-methods (generic definition))))))
+
+(defclass simple-generic-definition
+    (generic-function-definition expander-mixin)
+  ()
+  (:documentation "The class of non-setf, generic function definitions."))
+
+(defclass generic-setf-definition (setf-mixin generic-function-definition)
+  ()
+  (:documentation "The class of ordinary setf function definitions."))
+
+
+
+;; Method combinations
 
 ;; #### NOTE: the root class is not abstract, because it is used for the
 ;; standard method combination.
@@ -540,109 +637,6 @@ or a condition."))
   (:documentation "The class of setf writer method definitions.
 A setf writer method is a setf method that writes a slot in a class
 or a condition."))
-
-
-
-;; -------------------
-;; (Generic) functions
-;; -------------------
-
-(defabstract function-definition (funcoid-definition)
-  ((object :initarg :function :reader definition-function)) ;; slot overload
-  (:documentation "Abstract root class for functions."))
-
-
-
-;; Ordinary functions
-
-;; #### NOTE: only basic function definitions are created. Reader and writer
-;; definitions are created during the finalization process by upgrading the
-;; class of the concerned definitions.
-
-(defabstract ordinary-function-definition (function-definition)
-  ()
-  (:documentation "Abstract root class for ordinary functions."))
-
-(defclass simple-function-definition
-    (ordinary-function-definition expander-mixin)
-  ()
-  (:documentation "The class of ordinary, non-setf function definitions."))
-
-(defclass setf-function-definition
-    (setf-mixin ordinary-function-definition)
-  ()
-  (:documentation "The class of ordinary setf function definitions."))
-
-(defclass reader-definition (simple-function-definition accessor-mixin)
-  ()
-  (:documentation "The class of ordinary reader definitions.
-An ordinary reader is an ordinary function that reads a slot in a
-structure."))
-
-;; #### WARNING: see comment at the top of the file.
-(defclass writer-definition (setf-function-definition accessor-mixin)
-  ()
-  (:documentation "The class of ordinary writer definitions.
-An ordinary writer is an ordinary function that writes a slot in a
-structure."))
-
-
-
-;; Generic functions
-
-;; #### TODO: we could think of creating classes of reader and writer generic
-;; functions. The condition to upgrade the class would be that all methods are
-;; indeed readers / writers.
-
-(defabstract generic-function-definition (function-definition)
-  ((object :initarg :generic :reader generic) ;; slot overload
-   (method-definitions
-    :documentation "The list of corresponding method definitions."
-    :initform nil :accessor method-definitions)
-   (combination-definition
-    :documentation "The corresponding method combination definition."
-    :initform nil :accessor combination-definition))
-  (:documentation "Abstract root class for generic function definitions."))
-
-(defmethod initialize-instance :after
-    ((definition generic-function-definition) &key foreign)
-  "Create all generic DEFINTION's method definitions, unless FOREIGN."
-  (unless foreign
-    (setf (method-definitions definition)
-	  (mapcar (lambda (method)
-		    (make-method-definition method definition))
-	    (sb-mop:generic-function-methods (generic definition))))))
-
-(defclass simple-generic-definition
-    (generic-function-definition expander-mixin)
-  ()
-  (:documentation "The class of non-setf, generic function definitions."))
-
-(defclass generic-setf-definition (setf-mixin generic-function-definition)
-  ()
-  (:documentation "The class of ordinary setf function definitions."))
-
-
-
-;; General constructor
-
-;; #### NOTE: this is a general constructor used in MAKE-SYMBOLS-DEFINITIONS.
-;; It is used to create both ordinary and generic functions. In the case of
-;; generic functions, both SYMBOL and SETF could be deduced from the generic
-;; function object, but that information has already been figured out anyway.
-
-#i(make-function-definition 2)
-(defun make-function-definition (symbol function &key setf foreign)
-  "Make a new FUNCTION definition for (SETF) SYMBOL, possibly FOREIGN.
-The concrete class of the new definition depends on the kind of FUNCTION, and
-whether it is a SETF one."
-  (make-instance
-      (typecase function
-	(generic-function
-	 (if setf 'generic-setf-definition 'simple-generic-definition))
-	(otherwise
-	 (if setf 'setf-function-definition 'simple-function-definition)))
-    :symbol symbol :function function :foreign foreign))
 
 
 
