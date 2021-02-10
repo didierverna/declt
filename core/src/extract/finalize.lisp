@@ -197,16 +197,15 @@ DEFINITIONS in the process."
 			    (typep candidate 'function-definition)))
 	    :key #'name))) ;; EQ test will filter out setf functions.
   (unless (or (standalone-writer definition) (foreignp definition))
-    (let* ((package-definition
+    (let* ((writer-package
 	     (find-definition (symbol-package name) definitions))
-	   (writer-definition
-	     (unless (and package-definition
-			  (not (foreignp package-definition)))
+	   (writer
+	     (unless (and writer-package (not (foreignp writer-package)))
 	       (foreign-funcoid-definition name))))
-      (cond (writer-definition
+      (cond (writer
 	     (setq *finalized* nil)
-	     (endpush writer-definition definitions)
-	     (setf (standalone-writer definition) writer-definition))
+	     (endpush writer definitions)
+	     (setf (standalone-writer definition) writer))
 	    (t
 	     (warn "~S: undefined writer for short form setf expander ~S."
 		   name (name definition)))))))
@@ -257,14 +256,14 @@ DEFINITIONS in the process."
   (unless (or (standalone-combinator definition) (foreignp definition))
     (let* ((combinator-package
 	     (find-definition (symbol-package name) definitions))
-	   (standalone-combinator
+	   (combinator
 	     (unless (and combinator-package
 			  (not (foreignp combinator-package)))
 	       (foreign-funcoid-definition name))))
-      (cond (standalone-combinator
+      (cond (combinator
 	     (setq *finalized* nil)
-	     (endpush standalone-combinator definitions)
-	     (setf (standalone-combinator definition) standalone-combinator))
+	     (endpush combinator definitions)
+	     (setf (standalone-combinator definition) combinator))
 	    (t
 	     (warn "~S: undefined operator for short method combination ~S."
 		   name (name definition)))))))
