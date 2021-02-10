@@ -105,7 +105,7 @@ Each element is rendered as a table item."
 BODY is executed within a @table environement."
   `(let ((,the-definition ,definition)
 	 (,the-context ,context))
-     (@defvr (type-name ,the-definition)
+     (@defvr (string-capitalize (category-name ,the-definition))
 	 ;; #### WARNING: casing policy.
 	 (string-downcase (safe-name ,the-definition))
        (anchor-and-index ,the-definition)
@@ -122,9 +122,9 @@ providing only basic information."
 
 
 ;; Constants
-(defmethod type-name ((definition constant-definition))
-  "Return \"Constant\"."
-  "Constant")
+(defmethod category-name ((definition constant-definition))
+  "Return \"constant\"."
+  "constant")
 
 (defmethod index-command-name ((definition constant-definition))
   "Return \"constantsubindex\"."
@@ -133,9 +133,9 @@ providing only basic information."
 
 
 ;; Special variables
-(defmethod type-name ((definition special-definition))
-  "Return \"Special Variable\"."
-  "Special Variable")
+(defmethod category-name ((definition special-definition))
+  "Return \"special variable\"."
+  "special variable")
 
 (defmethod index-command-name ((definition special-definition))
   "Return \"specialsubindex\"."
@@ -144,9 +144,9 @@ providing only basic information."
 
 
 ;; Symbol macros
-(defmethod type-name ((definition symbol-macro-definition))
-  "Return \"Symbol Macro\"."
-  "Symbol Macro")
+(defmethod category-name ((definition symbol-macro-definition))
+  "Return \"symbol macro\"."
+  "symbol macro")
 
 (defmethod index-command-name ((definition symbol-macro-definition))
   "Return \"symbolmacrosubindex\"."
@@ -163,9 +163,9 @@ providing only basic information."
     (concatenate 'string (safe-name (owner definition) t) "->" safe-name)
     safe-name))
 
-(defmethod type-name ((definition slot-definition))
-  "Return \"Slot\"."
-  "Slot")
+(defmethod category-name ((definition slot-definition))
+  "Return \"slot\"."
+  "slot")
 
 (defmethod index-command-name ((definition slot-definition))
   "Return \"slotsubindex\"."
@@ -285,7 +285,7 @@ converted to revealed strings, and initform / supplied-p data is removed."
 
 (defun render-headline (definition)
   "Render a headline for DEFINITION. Also anchor and index it."
-  (@deffnx (type-name definition)
+  (@deffnx (string-capitalize (category-name definition))
       (string-downcase (safe-name definition))
     (safe-lambda-list (lambda-list definition)))
   (anchor-and-index definition))
@@ -300,7 +300,7 @@ converted to revealed strings, and initform / supplied-p data is removed."
 			     (car |definition(s)|)
 			     |definition(s)|))
 	 (,the-context ,context))
-     (@deffn ((type-name ,the-definition)
+     (@deffn ((string-capitalize (category-name ,the-definition))
 	      ;; #### WARNING: casing policy.
 	      (string-downcase (safe-name ,the-definition))
 	      (safe-lambda-list (lambda-list ,the-definition)))
@@ -321,9 +321,9 @@ providing only basic information."
 
 
 ;; Macros
-(defmethod type-name ((definition macro-definition))
-  "Return \"Macro\"."
-  "Macro")
+(defmethod category-name ((definition macro-definition))
+  "Return \"macro\"."
+  "macro")
 
 (defmethod index-command-name ((definition macro-definition))
   "Return \"macrosubindex\"."
@@ -345,9 +345,9 @@ providing only basic information."
 
 
 ;; Compiler macros
-(defmethod type-name ((definition compiler-macro-definition))
-  "Return \"Compiler Macro\"."
-  "Compiler Macro")
+(defmethod category-name ((definition compiler-macro-definition))
+  "Return \"compiler macro\"."
+  "compiler macro")
 
 (defmethod index-command-name ((definition compiler-macro-definition))
   "Return \"compilermacrosubindex\"."
@@ -356,9 +356,9 @@ providing only basic information."
 
 
 ;; Types
-(defmethod type-name ((definition type-definition))
-  "Return \"Type\"."
-  "Type")
+(defmethod category-name ((definition type-definition))
+  "Return \"type\"."
+  "type")
 
 (defmethod index-command-name ((definition type-definition))
   "Return \"typesubindex\"."
@@ -379,9 +379,9 @@ providing only basic information."
 
 
 ;; Setf expanders
-(defmethod type-name ((expander expander-definition))
-  "Return \"Setf Expander\"."
-  "Setf Expander")
+(defmethod category-name ((expander expander-definition))
+  "Return \"setf expander\"."
+  "setf expander")
 
 (defmethod index-command-name ((expander expander-definition))
   "Return \"expandersubindex\"."
@@ -410,9 +410,9 @@ providing only basic information."
 
 
 ;; Method combinations
-(defmethod type-name ((definition combination-definition))
-  "Return \"Method Combination\"."
-  "Method Combination")
+(defmethod category-name ((definition combination-definition))
+  "Return \"method combination\"."
+  "method combination")
 
 (defmethod index-command-name ((definition combination-definition))
   "Return \"combinationsubindex\"."
@@ -466,17 +466,17 @@ providing only basic information."
 	  (specializers definition))))
     safe-name))
 
-(defmethod type-name ((definition method-definition))
-  "Return \"Method\"."
-  "Method")
+(defmethod category-name ((definition method-definition))
+  "Return \"method\"."
+  "method")
 
-(defmethod type-name ((definition reader-method-definition))
-  "Return \"Reader Method\"."
-  "Reader Method")
+(defmethod category-name ((definition reader-method-definition))
+  "Return \"reader method\"."
+  "reader method")
 
-(defmethod type-name ((definition writer-method-definition))
-  "Return \"Writer Method\"."
-  "Writer Method")
+(defmethod category-name ((definition writer-method-definition))
+  "Return \"writer method\"."
+  "writer method")
 
 (defmethod index-command-name ((definition method-definition))
   "Return \"methodsubindex\"."
@@ -500,8 +500,8 @@ providing only basic information."
   `(let ((,the-definition ,(if (consp |definition(s)|)
 			     (car |definition(s)|)
 			     |definition(s)|)))
-     ;; #### WARNING: casing policy.
-     (@defmethod (type-name ,the-definition)
+     (@defmethod (string-capitalize (category-name ,the-definition))
+	 ;; #### WARNING: casing policy.
 	 (string-downcase (safe-name ,the-definition))
        (when-let (qualifiers
 		  (method-qualifiers (definition-method ,the-definition)))
@@ -512,11 +512,14 @@ providing only basic information."
 		   (let ((the-definition (gensym "definition")))
 		     `(let ((,the-definition ,definition))
 			(@defmethodx
+			    (string-capitalize (category-name ,the-definition))
 			    ;; #### WARNING: casing policy.
 			    (string-downcase (safe-name ,the-definition))
-			    (lambda-list ,the-definition)
-			  (specializers ,the-definition)
-			  (qualifiers ,the-definition))
+			  (when-let (qualifiers
+				     (method-qualifiers
+				      (definition-method ,the-definition)))
+			    (format nil "~(~{~S~^ ~}~)" qualifiers))
+			  (safe-specializers (specializers ,the-definition)))
 			(anchor-and-index ,the-definition))))
 	   (when (consp |definition(s)|) (cdr |definition(s)|)))
        (render-docstring ,the-definition)
@@ -547,9 +550,9 @@ providing only basic information."
 
 
 ;; Ordinary functions
-(defmethod type-name ((definition ordinary-function-definition))
-  "Return \"Function\"."
-  "Function")
+(defmethod category-name ((definition ordinary-function-definition))
+  "Return \"function\"."
+  "function")
 
 (defmethod index-command-name ((definition ordinary-function-definition))
   "Return \"functionsubindex\"."
@@ -567,9 +570,9 @@ providing only basic information."
 	(sort expanders-to #'string-lessp :key #'definition-symbol) t))))
 
 
-(defmethod type-name ((definition reader-definition))
-  "Return \"Reader\"."
-  "Reader")
+(defmethod category-name ((definition reader-definition))
+  "Return \"reader\"."
+  "reader")
 
 (defmethod document ((definition reader-definition) context &key)
   "Render function DEFINITION's documentation in CONTEXT."
@@ -578,9 +581,9 @@ providing only basic information."
       (reference (target-slot definition) t))))
 
 
-(defmethod type-name ((definition writer-definition))
-  "Return \"Writer\"."
-  "Writer")
+(defmethod category-name ((definition writer-definition))
+  "Return \"writer\"."
+  "writer")
 
 (defmethod document ((definition writer-definition) context &key)
   "Render writer DEFINITION's documentation in CONTEXT."
@@ -591,9 +594,9 @@ providing only basic information."
 
 
 ;; Generic functions
-(defmethod type-name ((definition generic-function-definition))
-  "Return \"Generic Function\"."
-  "Generic Function")
+(defmethod category-name ((definition generic-function-definition))
+  "Return \"generic function\"."
+  "generic function")
 
 (defmethod index-command-name ((definition generic-function-definition))
   "Return \"genericsubindex\"."
@@ -670,7 +673,7 @@ providing only basic information."
 	(the-context (gensym "context")))
     `(let ((,the-definition ,definition)
 	   (,the-context ,context))
-       (@deftp ((type-name ,the-definition)
+       (@deftp ((string-capitalize (category-name ,the-definition))
 		;; #### WARNING: casing policy.
 		(string-downcase (safe-name ,the-definition)))
 	   (anchor-and-index ,the-definition)
@@ -710,9 +713,9 @@ which also documents direct default initargs."
 
 
 ;; Structures
-(defmethod type-name ((definition structure-definition))
-  "Return \"Structure\"."
-  "Structure")
+(defmethod category-name ((definition structure-definition))
+  "Return \"structure\"."
+  "structure")
 
 (defmethod index-command-name ((definition structure-definition))
   "Return \"structuresubindex\"."
@@ -744,9 +747,9 @@ which also documents direct default initargs."
 
 
 ;; Conditions
-(defmethod type-name ((definition condition-definition))
-  "Return \"Condition\"."
-  "Condition")
+(defmethod category-name ((definition condition-definition))
+  "Return \"condition\"."
+  "condition")
 
 (defmethod index-command-name ((definition condition-definition))
   "Return \"conditionsubindex\"."
@@ -755,9 +758,9 @@ which also documents direct default initargs."
 
 
 ;; Classes
-(defmethod type-name ((definition class-definition))
-  "Return \"Class\"."
-  "Class")
+(defmethod category-name ((definition class-definition))
+  "Return \"class\"."
+  "class")
 
 (defmethod index-command-name ((definition class-definition))
   "Return \"classsubindex\"."

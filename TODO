@@ -94,3 +94,8 @@ Currently, we can link to source files on the local machine, which is not
 advisable for web installation of the reference manuals. However, if the
 library provides a source control address, we could link to files in a public
 repo !
+
+** Profiling
+It may be nice to do it at some point. For example, I wonder if the abundance
+of STRING-CAPITALIZE on category names is costly, in which case we could
+change the protocol to provide both versions as premade compile-time strings.

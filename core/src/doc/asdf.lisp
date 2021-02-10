@@ -146,7 +146,7 @@ Documentation is done in a @table environment."
   (when extension (setq name (concatenate 'string name "." extension)))
   name)
 
-(defmethod type-name ((definition file-definition))
+(defmethod category-name ((definition file-definition))
   "Return \"file\""
   "file")
 
@@ -257,7 +257,7 @@ components trees.")))))
 ;; Modules
 ;; ==========================================================================
 
-(defmethod type-name ((definition module-definition))
+(defmethod category-name ((definition module-definition))
   "Return \"module\""
   "module")
 
@@ -310,7 +310,7 @@ Modules are listed depth-first from the system components tree.")))))
 ;; System
 ;; ==========================================================================
 
-(defmethod type-name ((definition system-definition))
+(defmethod category-name ((definition system-definition))
   "Return \"system\""
   "system")
 

@@ -33,7 +33,7 @@
 ;; Documentation Protocols
 ;; ==========================================================================
 
-(defmethod type-name ((definition package-definition))
+(defmethod category-name ((definition package-definition))
   "Return \"package\"."
   "package")
 

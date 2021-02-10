@@ -84,8 +84,8 @@ See `reveal' for more information.")
     (declare (ignore qualified))
     (reveal (name definition))))
 
-(defgeneric type-name (definition)
-  (:documentation "Return DEFINITION's type name."))
+(defgeneric category-name (definition)
+  (:documentation "Return DEFINITION's category name."))
 
 (defgeneric index-command-name (definition)
   (:documentation "Return DEFINITION's index command name."))
@@ -94,13 +94,15 @@ See `reveal' for more information.")
   "Return a long title for DEFINITION.
 It is of the form \"The <qualified safe name> <type name>\"."
   ;; #### WARNING: casing policy.
-  (format nil "The ~(~A~) ~A" (safe-name definition t) (type-name definition)))
+  (format nil "The ~(~A~) ~A"
+    (safe-name definition t)
+    (category-name definition)))
 
 (defun anchor-name (definition)
   "Return DEFINITION's anchor name.
 It is of the form \"go to the <qualified safe name> <type name>\"."
   (format nil "go to the ~A ~A"
-    (safe-name definition t) (type-name definition)))
+    (safe-name definition t) (category-name definition)))
 
 
 
@@ -134,7 +136,7 @@ dot by default) or NIL."
   (if short
     (when punctuation (write-char punctuation))
     ;; #### NOTE: Texinfo adds a comma automatically here.
-    (format t " ~A" (type-name definition))))
+    (format t " ~A" (category-name definition))))
 
 (defgeneric document (definition context &key &allow-other-keys)
   (:documentation "Render DEFINITION's documentation in CONTEXT."))
