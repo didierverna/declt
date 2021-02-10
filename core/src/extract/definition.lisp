@@ -36,7 +36,7 @@
 
 (defabstract definition ()
   ((object
-    ;; #### NOTE: it is unclear to me why symbol macros don't provide access
+    ;; #### FIXME: it is unclear to me why symbol macros don't provide access
     ;; to the corresponding expansion function in a way similar to regular
     ;; macros do. In other words, I'm not sure why there's no
     ;; SYMBOL-MACRO-FUNCTION in the standard. Probably for the same reason
@@ -48,12 +48,16 @@
 Only constants, special variables, symbol macros, and types do not have an
 associated Lisp object."
     :initform nil :initarg :object :reader object)
-   (source-file :documentation "The corresponding source file definition."
-		:initform nil :accessor source-file)
+   (source-file
+    :documentation "The source file definition for this definition's object."
+    :initform nil :accessor source-file)
    (foreign
     :documentation "Whether this definition is foreign."
     :initform nil :initarg :foreign :reader foreignp))
-  (:documentation "Abstract root class for all definitions."))
+  (:documentation "Abstract root class for all definitions.
+All definitions respond to the following public protocols, which see:
+- `name',
+- `docstring'."))
 
 (defmethod print-object ((definition definition) stream)
   "Show DEFINITION's name."
@@ -61,11 +65,10 @@ associated Lisp object."
     (princ (name definition) stream)))
 
 
-
 
-;; ==========================================================================
-;; Public Protocols
-;; ==========================================================================
+;; ---------------------------
+;; Public definition protocols
+;; ---------------------------
 
 (defgeneric name (definition)
   (:documentation "The definition's name.
@@ -80,6 +83,13 @@ or a list of the form (setf symbol)."))
 This is the default method."
     (documentation (object definition) t)))
 
+
+
+
+;; ==========================================================================
+;; Public Utility Protocols
+;; ==========================================================================
+
 (defgeneric public-definitions (object)
   (:documentation "Return OBJECT's public definitions."))
 
@@ -90,7 +100,7 @@ This is the default method."
 
 
 ;; ==========================================================================
-;; Utilities
+;; Internal Utility Protocols
 ;; ==========================================================================
 
 (defun find-definition (object definitions)
