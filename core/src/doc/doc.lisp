@@ -139,53 +139,6 @@ dot by default) or NIL."
 (defgeneric document (definition context &key &allow-other-keys)
   (:documentation "Render DEFINITION's documentation in CONTEXT."))
 
-
-
-;; #### NOTE: the use of PROBE-FILE below has two purposes:
-;; 1/ making sure that the file does exist, so that it can actually be linked
-;;    properly,
-;; 2/ dereferencing an (ASDF 1) installed system file symlink (what we get) in
-;;    order to link the actual file (what we want).
-;; #### FIXME: not a Declt bug, but currently, SBCL sets the source file of
-;; COPY-<struct> functions to its own target-defstruct.lisp file.
-(defun render-location
-    (pathname extract
-     &optional (title "Location")
-     &aux (probed-pathname (probe-file pathname))
-	  (relative-to (location extract))
-	  (hyperlinkp (and (hyperlinksp extract) probed-pathname)))
-  "Render an itemized location line for PATHNAME in EXTRACT.
-Rendering is done on *standard-output*."
-  (@tableitem title
-    (format t "~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
-      (when hyperlinkp
-	(escape probed-pathname))
-      (escape (if probed-pathname
-		  (enough-namestring probed-pathname relative-to)
-		(concatenate 'string (namestring pathname)
-			     " (not found)")))
-      hyperlinkp)))
-
-(defun render-source (item extract)
-  "Render an itemized source line for ITEM in EXTRACT.
-Rendering is done on *standard-output*."
-  (when-let (source-pathname (source item))
-    (let* ((systems (mapcar #'system (system-definitions extract)))
-	   ;; Remember that a source can be a system, although systems are not
-	   ;; actual cl-source-file's.
-	   (source-component
-	     (loop :for component
-		     :in (append systems (mapcan #'lisp-components systems))
-		   :when (equal source-pathname
-				(component-pathname component))
-		     :return component)))
-      (if source-component
-	  (@tableitem "Source" (reference source-component))
-	  ;; Otherwise, the source does not belong to the system. This may
-	  ;; happen for automatically generated sources (sb-grovel does this
-	  ;; for instance). So let's just reference the file itself.
-	  (render-location source-pathname extract "Source")))))
-
 (defun render-docstring (item)
   "Render ITEM's documentation string.
 Rendering is done on *standard-output*."
