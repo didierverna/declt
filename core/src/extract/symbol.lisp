@@ -467,12 +467,12 @@ The concrete class of the new definition depends on the COMBINATION type."
 
 (defabstract method-definition (funcoid-definition)
   ((object :initarg :method :reader definition-method) ;; slot overload
-   (generic-definition :documentation "The corresponding generic definition."
-		       :initarg :generic-definition
-		       :reader generic-definition)
-   (specializers :documentation "The corresponding specializers.
-These are either class definitions, for regular specializers,
-or raw eql specializers."
+   (owner :documentation
+	  "The generic function definition for this definition's method."
+	  :initarg :owner :reader owner)
+   (specializers :documentation "The specializers of this definition's method.
+This is a list of either class definitions (for regular specializers),
+or raw EQL specializers."
 		 :accessor specializers))
   (:documentation "Abstract root class for method definitions."))
 
@@ -506,8 +506,7 @@ The concrete class of the new definition depends on whether it is a SETF one."
   (multiple-value-bind (symbol setf)
       (method-name method)
     (make-instance (if setf 'setf-method-definition 'simple-method-definition)
-      :symbol symbol :method method :generic-definition definition
-      :foreign foreign)))
+      :symbol symbol :method method :owner definition :foreign foreign)))
 
 
 ;; #### NOTE: only basic method definitions are created. Reader and writer

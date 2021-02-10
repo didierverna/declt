@@ -540,7 +540,7 @@ providing only basic information."
        (render-docstring ,the-definition)
        (when-let (source-file (source-file ,the-definition))
 	 (unless (equal source-file
-			(source-file (generic-definition ,the-definition)))
+			(source-file (owner ,the-definition)))
 	   (@table () (@tableitem "Source" (reference source-file t)))))
        ,@body)))
 

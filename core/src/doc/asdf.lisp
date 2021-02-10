@@ -177,8 +177,7 @@ Documentation is done in a @table environment."
 		       (or (typep definition 'slot-definition)
 			   (and (typep definition 'method-definition)
 				(eq (source-file definition)
-				    (source-file
-				     (generic-definition definition))))))
+				    (source-file (owner definition))))))
 		     definitions)
 	       #'string-lessp ;; #### WARNING: casing policy.
 	     :key #'definition-symbol)))
