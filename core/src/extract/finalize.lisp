@@ -602,14 +602,14 @@ DEFINITIONS in the process."
 			  (make-package-definition package t))
 		    (setq *finalized* nil)
 		    (endpush package-definition definitions)
-		    (push package-definition package-definitions))))))
+		    (endpush package-definition package-definitions))))))
     ;; 1. Use list.
     (mapc #'get-package-definition (package-use-list package))
-    (setf (use-definitions definition) package-definitions)
+    (setf (use-list definition) package-definitions)
     ;; 2. Used-by list.
-    (setq package-definitions nil)
+    (setq package-definitions nil) ;; yuck.
     (mapc #'get-package-definition (package-used-by-list package))
-    (setf (used-by-definitions definition) package-definitions))
+    (setf (used-by-list definition) package-definitions))
   ;; 3. Symbol definitions list.
   (setf (definitions definition)
 	(retain package definitions

@@ -42,12 +42,12 @@
    (internal-symbols
     :documentation "The list of corresponding internal symbols."
     :accessor internal-symbols)
-   (use-definitions
-    :documentation "The list of corresponding use list package definitions."
-    :accessor use-definitions)
-   (used-by-definitions
-    :documentation "The list of corresponding used-by list package definitions."
-    :accessor used-by-definitions)
+   (use-list
+    :documentation "The definitions use-list for this definition's package."
+    :accessor use-list)
+   (used-by-list
+    :documentation "The definitions used-by-list for this definition's package."
+    :accessor used-by-list)
    (definitions
     :documentation "The list of corresponding definitions."
     :accessor definitions))
@@ -90,7 +90,7 @@
 
 
 ;; ==========================================================================
-;; Public Protocols
+;; Public Definition Protocols
 ;; ==========================================================================
 
 (defmethod name ((definition package-definition))
@@ -101,6 +101,12 @@
   "Return the list of nicknames for PACKAGE-DEFINITION."
   (package-nicknames (definition-package package-definition)))
 
+
+
+
+;; ==========================================================================
+;; Public Utility Protocols
+;; ==========================================================================
 
 ;; #### NOTE: here, we can be a little faster than the default method because
 ;; packages only contain symbol definitions.
