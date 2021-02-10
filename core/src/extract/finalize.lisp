@@ -368,46 +368,41 @@ This function is used for regular class and condition slots."
 	(mapcan
 	    (lambda (name)
 	      (let* ((generic (fdefinition name))
-		     (reader-definition (find-definition generic definitions)))
-		(unless (or reader-definition (foreignp classoid-definition))
-		  (setq reader-definition (make-generic-definition generic t))
+		     (reader (find-definition generic definitions)))
+		(unless (or reader (foreignp classoid-definition))
+		  (setq reader (make-generic-definition generic t))
 		  (setq *finalized* nil)
-		  (endpush reader-definition definitions))
-		(when reader-definition
+		  (endpush reader definitions))
+		(when reader
 		  (let* ((method
 			   (find classoid
 			       (sb-mop:generic-function-methods generic)
 			     :key (lambda (method)
 				    (first
 				     (sb-mop:method-specializers method)))))
-			 (method-definition
-			   (find-definition
-			    method
-			    (methods reader-definition))))
-		    (unless (or method-definition
-				(foreignp classoid-definition))
-		      (setq method-definition
-			    (make-method-definition
-			     method reader-definition t))
+			 (reader-method
+			   (find-definition method (methods reader))))
+		    (unless (or reader-method (foreignp classoid-definition))
+		      (setq reader-method
+			    (make-method-definition method reader t))
 		      (setq *finalized* nil)
-		      (endpush method-definition definitions)
-		      (endpush method-definition
-			       (methods reader-definition)))
-		    (when method-definition
-		      (change-class method-definition 'reader-method-definition
+		      (endpush reader-method definitions)
+		      (endpush reader-method (methods reader)))
+		    (when reader-method
+		      (change-class reader-method 'reader-method-definition
 			:target-slot definition)
-		      (list method-definition))))))
+		      (list reader-method))))))
 	  (sb-mop:slot-definition-readers slot)))
   (setf (writer-definitions definition)
 	(mapcan
 	    (lambda (name)
 	      (let* ((generic (fdefinition name))
-		     (writer-definition (find-definition generic definitions)))
-		(unless (or writer-definition (foreignp classoid-definition))
-		  (setq writer-definition (make-generic-definition generic t))
+		     (writer (find-definition generic definitions)))
+		(unless (or writer (foreignp classoid-definition))
+		  (setq writer (make-generic-definition generic t))
 		  (setq *finalized* nil)
-		  (endpush writer-definition definitions))
-		(when writer-definition
+		  (endpush writer definitions))
+		(when writer
 		  (let* ((method
 			   (find classoid
 			       (sb-mop:generic-function-methods generic)
@@ -418,26 +413,21 @@ This function is used for regular class and condition slots."
 				    ;; is always (NEW-VALUE OBJECT).
 				    (second
 				     (sb-mop:method-specializers method)))))
-			 (method-definition
-			   (find-definition
-			    method
-			    (methods writer-definition))))
-		    (unless (or method-definition
-				(foreignp classoid-definition))
-		      (setq method-definition
-			    (make-method-definition
-			     method writer-definition t))
+			 (writer-method
+			   (find-definition method (methods writer))))
+		    (unless (or writer-method (foreignp classoid-definition))
+		      (setq writer-method
+			    (make-method-definition method writer t))
 		      (setq *finalized* nil)
-		      (endpush method-definition definitions)
-		      (endpush method-definition
-			       (methods writer-definition)))
-		    (when method-definition
-		      (change-class method-definition
-			  (if (typep method-definition 'setf-mixin)
+		      (endpush writer-method definitions)
+		      (endpush writer-method (methods writer)))
+		    (when writer-method
+		      (change-class writer-method
+			  (if (typep writer-method 'setf-mixin)
 			    'setf-writer-method-definition
 			    'simple-writer-method-definition)
 			:target-slot definition)
-		      (list method-definition))))))
+		      (list writer-method))))))
 	  (sb-mop:slot-definition-writers slot))))
 
 ;; #### PORTME.
@@ -569,7 +559,7 @@ This function is used for regular class and condition slots."
 		     (generic-definition (find-definition generic definitions))
 		     (method-definition
 		       (when generic-definition
-			 (find method (method-definitions generic-definition)
+			 (find method (methods generic-definition)
 			   :key #'definition-method))))
 		(if method-definition
 		  (list method-definition)
@@ -584,7 +574,7 @@ This function is used for regular class and condition slots."
 			   (setq *finalized* nil)
 			   (endpush method-definition definitions)
 			   (endpush method-definition
-				    (method-definitions generic-definition))
+				    (methods generic-definition))
 			   (list method-definition))
 			  (t
 			   (setq generic-definition
@@ -595,7 +585,7 @@ This function is used for regular class and condition slots."
 			   (setq *finalized* nil)
 			   (endpush method-definition definitions)
 			   (endpush method-definition
-				    (method-definitions generic-definition))
+				    (methods generic-definition))
 			   (endpush generic-definition definitions)
 			   (list method-definition)))))))
 	  (sb-mop:specializer-direct-methods (classoid definition)))))
