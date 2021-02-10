@@ -54,8 +54,14 @@
 	(if (eq length 1)
 	  (format t "@t{~(~A~)}" (escape (first nicknames)))
 	  (@itemize-list nicknames :format "@t{~(~A~)}" :key #'escape))))
-    (render-references "Use List" (use-list definition) t)
-    (render-references "Used By List" (used-by-list definition) t)
+    ;; #### WARNING: casing policy.
+    (render-references "Use List"
+      (sort (use-list definition) #'string-lessp :key #'name)
+      t)
+    ;; #### WARNING: casing policy.
+    (render-references "Used By List"
+      (sort (used-by-list definition)  #'string-lessp :key #'name)
+      t)
     ;; #### NOTE: classoids and their slots are documented in a single bloc.
     ;; As a consequence, if a classoid belongs to this package, there's no
     ;; need to also reference (some of) its slots. On the other hand, we need
