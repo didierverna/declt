@@ -355,7 +355,7 @@ DEFINITIONS in the process."
   (flet ((get-classoid-definition (classoid)
 	   (let ((classoid-definition (find-definition classoid definitions)))
 	     (cond (classoid-definition
-		    (push classoid-definition classoid-definitions))
+		    (endpush classoid-definition classoid-definitions))
 		   ((not (foreignp definition))
 		    (setq classoid-definition
 			  (make-classoid-definition
@@ -596,7 +596,7 @@ DEFINITIONS in the process."
   (flet ((get-package-definition (package)
 	   (let ((package-definition (find-definition package definitions)))
 	     (cond (package-definition
-		    (push package-definition package-definitions))
+		    (enpush package-definition package-definitions))
 		   ((not (foreignp definition))
 		    (setq package-definition
 			  (make-package-definition package t))
