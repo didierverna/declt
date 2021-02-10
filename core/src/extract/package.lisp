@@ -101,6 +101,10 @@
   "Return the list of nicknames for PACKAGE-DEFINITION."
   (package-nicknames (definition-package package-definition)))
 
+
+;; #### NOTE: here, we can be a little faster than the default method because
+;; packages only contain symbol definitions.
+
 (defmethod public-definitions ((definition package-definition))
   "Return package DEFINITION's public definitions."
   (remove-if-not #'publicp (definitions definition)))

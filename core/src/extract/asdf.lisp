@@ -172,29 +172,6 @@ The concrete class of the new definition depends on the kind of FILE."
 
 
 
-;; ----------------
-;; Public protocols
-;; ----------------
-
-;; #### WARNING: remember that a Lisp file definition contains symbol
-;; definitions, but also other things like packages and asdf components.
-
-(defmethod public-definitions ((definition lisp-file-definition))
-  "Return Lisp file DEFINITION's public definitions."
-  (remove-if-not (lambda (definition)
-		   (and (typep definition 'symbol-definition)
-			(publicp definition)))
-      (definitions definition)))
-
-(defmethod private-definitions ((definition lisp-file-definition))
-  "Return Lisp file DEFINITION's private definitions."
-  (remove-if (lambda (definition)
-	       (or (not (typep definition 'symbol-definition))
-		   (publicp definition)))
-      (definitions definition)))
-
-
-
 ;; ------------
 ;; System files
 ;; ------------

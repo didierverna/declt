@@ -353,28 +353,6 @@ This is the class holding all extracted documentation information."))
   (make-instance 'extract))
 
 
-
-;; ----------------
-;; Public protocols
-;; ----------------
-
-;; #### FIXME: this is the same code as for Lisp files.
-
-(defmethod public-definitions ((extract extract))
-  "Return EXTRACT's public definitions."
-  (remove-if-not (lambda (definition)
-		   (and (typep definition 'symbol-definition)
-			(publicp definition)))
-      (definitions extract)))
-
-(defmethod private-definitions ((extract extract))
-  "Return EXTRACT's private definitions."
-  (remove-if (lambda (definition)
-	       (or (not (typep definition 'symbol-definition))
-		   (publicp definition)))
-      (definitions extract)))
-
-
 
 
 ;; ==========================================================================

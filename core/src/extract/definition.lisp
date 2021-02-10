@@ -91,10 +91,24 @@ This is the default method."
 ;; ==========================================================================
 
 (defgeneric public-definitions (object)
-  (:documentation "Return OBJECT's public definitions."))
+  (:documentation "Return OBJECT's public definitions.")
+  (:method  (object)
+    "Return OBJECT's public definitions from its definitions list.
+This is the default method for heterogeneous definitions lists."
+    (remove-if-not (lambda (definition)
+		     (and (typep definition 'symbol-definition)
+			  (publicp definition)))
+	(definitions object))))
 
 (defgeneric private-definitions (object)
-  (:documentation "Return OBJECT's private definitions."))
+  (:documentation "Return OBJECT's private definitions.")
+  (:method (object)
+    "Return OBJECT's private definitions from its definitions list.
+This is the default method for heterogeneous definitions lists."
+    (remove-if (lambda (definition)
+		 (or (not (typep definition 'symbol-definition))
+		     (publicp definition)))
+	(definitions object))))
 
 
 
