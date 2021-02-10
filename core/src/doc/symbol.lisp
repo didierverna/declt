@@ -554,15 +554,15 @@ providing only basic information."
   "Render reader METHOD's documentation in CONTEXT."
   (render-method definition context
     (@table ()
-      (@tableitem "Slot"
-	(reference (slot-definition definition) t)))))
+      (@tableitem "Target Slot"
+	(reference (target-slot definition) t)))))
 
 (defmethod document ((definition writer-method-definition) context &key)
   "Render writer METHOD's documentation in CONTEXT."
   (render-method definition context
     (@table ()
-      (@tableitem "Slot"
-	(reference (slot-definition definition) t)))))
+      (@tableitem "Target Slot"
+	(reference (target-slot definition) t)))))
 
 
 
@@ -594,8 +594,8 @@ providing only basic information."
 (defmethod document ((definition reader-definition) context &key)
   "Render function DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
-    (@tableitem "Slot"
-      (reference (slot-definition definition) t))))
+    (@tableitem "Target Slot"
+      (reference (target-slot definition) t))))
 
 
 (defmethod type-name ((definition writer-definition))
@@ -605,8 +605,8 @@ providing only basic information."
 (defmethod document ((definition writer-definition) context &key)
   "Render writer DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
-    (@tableitem "Slot"
-      (reference (slot-definition definition) t))))
+    (@tableitem "Target Slot"
+      (reference (target-slot definition) t))))
 
 
 

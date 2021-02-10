@@ -397,7 +397,7 @@ This function is used for regular class and condition slots."
 			       (method-definitions reader-definition)))
 		    (when method-definition
 		      (change-class method-definition 'reader-method-definition
-			:slot-definition definition)
+			:target-slot definition)
 		      (list method-definition))))))
 	  (sb-mop:slot-definition-readers slot)))
   (setf (writer-definitions definition)
@@ -438,7 +438,7 @@ This function is used for regular class and condition slots."
 			  (if (typep method-definition 'setf-mixin)
 			    'setf-writer-method-definition
 			    'simple-writer-method-definition)
-			:slot-definition definition)
+			:target-slot definition)
 		      (list method-definition))))))
 	  (sb-mop:slot-definition-writers slot))))
 
@@ -475,10 +475,10 @@ This function is used for regular class and condition slots."
       (when reader-definition
 	(unless (typep reader-definition 'reader-definition)
 	  (change-class reader-definition 'reader-definition
-	    :slot-definition definition))
+	    :target-slot definition))
 	(unless (typep writer-definition 'writer-definition)
 	  (change-class writer-definition 'writer-definition
-	    :slot-definition definition)))
+	    :target-slot definition)))
       ;; See comment on top of the SLOT-DEFINITION class about this.
       (setf (reader-definitions definition)
 	    (when reader-definition (list reader-definition)))
@@ -525,10 +525,10 @@ This function is used for regular class and condition slots."
       (when reader-definition
 	(unless (typep reader-definition 'reader-definition)
 	  (change-class reader-definition 'reader-definition
-	    :slot-definition definition))
+	    :target-slot definition))
 	(unless (typep writer-definition 'writer-definition)
 	  (change-class writer-definition 'writer-definition
-	    :slot-definition definition)))
+	    :target-slot definition)))
       ;; See comment on top of the SLOT-DEFINITION class about this.
       (setf (reader-definitions definition)
 	    (when reader-definition (list reader-definition)))

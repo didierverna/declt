@@ -231,10 +231,11 @@ update-fn)."))
 
 
 (defabstract accessor-mixin ()
-  ((slot-definition :documentation "The corresponding slot definition."
-		    :initarg :slot-definition :reader slot-definition))
+  ((target-slot
+    :documentation "The target slot definition for this definition's accessor."
+    :initarg :target-slot :reader target-slot))
   (:documentation "Mixin class for accessor definitions.
-An accessor is a funcoid which reads or writes a slot in a classoid.
+An accessor is a funcoid which reads or writes a target slot in a classoid.
 More specifically, these are ordinary functions for structure slots,
 and methods for classes or conditions slots."))
 
