@@ -247,8 +247,7 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
     (if (typep definition 'generic-function-definition)
       (setq definitions
 	    (append definitions
-		    (cons definition
-			  (copy-list (method-definitions definition)))))
+		    (cons definition (copy-list (methods definition)))))
       (endpush definition definitions)))
   ;; (Generic) setf functions.
   (when-let* ((function (and (fboundp setf-symbol) (fdefinition setf-symbol)))
@@ -259,8 +258,7 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
     (if (typep definition 'generic-function-definition)
       (setq definitions
 	    (append definitions
-		    (cons definition
-			  (copy-list (method-definitions definition)))))
+		    (cons definition (copy-list (methods definition)))))
       (endpush definition definitions)))
   ;; Method combinations.
   ;; #### WARNING: method combinations are ill-defined in the Common Lisp

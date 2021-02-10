@@ -621,7 +621,7 @@ providing only basic information."
 (defun render-method-combination (definition)
   "Render generic function DEFINITION's method combination documentation."
   (@tableitem "Method Combination"
-    (reference (combination-definition definition) t)
+    (reference (combination definition) t)
     (terpri)
     (when-let (options (mapcar (lambda (option)
 				 ;; #### FIXME: see TODO on format-tables.
@@ -645,7 +645,7 @@ providing only basic information."
 	(sort expanders-to #'string-lessp :key #'definition-symbol)
 	t))
     (render-method-combination definition)
-    (when-let ((methods (method-definitions definition)))
+    (when-let ((methods (methods definition)))
       (@tableitem "Methods"
 	(dolist (method methods)
 	  (document method context))))))
@@ -654,7 +654,7 @@ providing only basic information."
   "Render generic setf DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
     (render-method-combination definition)
-    (when-let ((methods (method-definitions definition)))
+    (when-let ((methods (methods definition)))
       (@tableitem "Methods"
 	(dolist (method methods)
 	  (document method context))))))

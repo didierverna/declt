@@ -480,19 +480,21 @@ structure."))
 
 (defabstract generic-function-definition (function-definition)
   ((object :initarg :generic :reader generic) ;; slot overload
-   (method-definitions
-    :documentation "The list of corresponding method definitions."
-    :initform nil :accessor method-definitions)
-   (combination-definition
-    :documentation "The corresponding method combination definition."
-    :initform nil :accessor combination-definition))
+   (methods
+    :documentation
+    "The list of method definitions for this definition's generic function."
+    :initform nil :accessor methods)
+   (combination
+    :documentation
+    "The method combination definition for this definition's generic function."
+    :initform nil :accessor combination))
   (:documentation "Abstract root class for generic function definitions."))
 
 (defmethod initialize-instance :after
     ((definition generic-function-definition) &key foreign)
   "Create all generic DEFINTION's method definitions, unless FOREIGN."
   (unless foreign
-    (setf (method-definitions definition)
+    (setf (methods definition)
 	  (mapcar (lambda (method)
 		    (make-method-definition method definition))
 	    (sb-mop:generic-function-methods (generic definition))))))

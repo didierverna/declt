@@ -286,17 +286,16 @@ DEFINITIONS in the process."
      &aux (combination
 	   (sb-mop:generic-function-method-combination (generic definition))))
   "Compute generic function DEFINITION's method combination definition."
-  (unless (combination-definition definition)
-    (setf (combination-definition definition)
-	  (find-definition combination definitions)))
-  (unless (or (combination-definition definition) (foreignp definition))
+  (unless (combination definition)
+    (setf (combination definition) (find-definition combination definitions)))
+  (unless (or (combination definition) (foreignp definition))
     (let ((combination-definition
 	    (make-combination-definition
 	     (sb-pcl::method-combination-type-name combination)
 	     combination t)))
       (setq *finalized* nil)
       (endpush combination-definition definitions)
-      (setf (combination-definition definition) combination-definition))))
+      (setf (combination definition) combination-definition))))
 
 
 
@@ -384,7 +383,7 @@ This function is used for regular class and condition slots."
 			 (method-definition
 			   (find-definition
 			    method
-			    (method-definitions reader-definition))))
+			    (methods reader-definition))))
 		    (unless (or method-definition
 				(foreignp classoid-definition))
 		      (setq method-definition
@@ -393,7 +392,7 @@ This function is used for regular class and condition slots."
 		      (setq *finalized* nil)
 		      (endpush method-definition definitions)
 		      (endpush method-definition
-			       (method-definitions reader-definition)))
+			       (methods reader-definition)))
 		    (when method-definition
 		      (change-class method-definition 'reader-method-definition
 			:target-slot definition)
@@ -422,7 +421,7 @@ This function is used for regular class and condition slots."
 			 (method-definition
 			   (find-definition
 			    method
-			    (method-definitions writer-definition))))
+			    (methods writer-definition))))
 		    (unless (or method-definition
 				(foreignp classoid-definition))
 		      (setq method-definition
@@ -431,7 +430,7 @@ This function is used for regular class and condition slots."
 		      (setq *finalized* nil)
 		      (endpush method-definition definitions)
 		      (endpush method-definition
-			       (method-definitions writer-definition)))
+			       (methods writer-definition)))
 		    (when method-definition
 		      (change-class method-definition
 			  (if (typep method-definition 'setf-mixin)
