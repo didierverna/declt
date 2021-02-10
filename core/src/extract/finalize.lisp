@@ -225,23 +225,23 @@ DEFINITIONS in the process."
 
 ;; #### PORTME.
 (defmethod finalize progn
-    ((definition combination-definition) definitions &aux users)
+    ((definition combination-definition) definitions &aux clients)
   "Compute method combination DEFINITION's users."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
   ;; and only add what's missing, but I don't think it's worth the trouble.
   (maphash (lambda (function unused)
 	     (declare (ignore unused))
-	     (let ((user (find-definition function definitions)))
-	       (cond (user
-		      (push user users))
+	     (let ((client (find-definition function definitions)))
+	       (cond (client
+		      (endpush client clients))
 		     ((not (foreignp definition))
-		      (setq user (make-generic-definition function t))
+		      (setq client (make-generic-definition function t))
 		      (setq *finalized* nil)
-		      (endpush user definitions)
-		      (push user users)))))
+		      (endpush client definitions)
+		      (endpush client clients)))))
 	   (sb-pcl::method-combination-%generic-functions
 	    (combination definition)))
-  (setf (user-definitions definition) users))
+  (setf (clients definition) clients))
 
 (defmethod finalize progn
   ((definition short-combination-definition) definitions

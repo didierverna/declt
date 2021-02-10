@@ -439,10 +439,9 @@ providing only basic information."
 (defmethod document ((definition combination-definition) context &key)
   "Render method combination DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
-    (render-references "Users"
+    (render-references "Client Functions"
       ;; #### WARNING: casing policy.
-      (sort (user-definitions definition) #'string-lessp
-	:key #'definition-symbol)
+      (sort (clients definition) #'string-lessp :key #'definition-symbol)
       t)))
 
 ;; #### PORTME.
@@ -458,10 +457,9 @@ providing only basic information."
       (format t "@t{~(~A~)}"
 	(sb-pcl::short-combination-identity-with-one-argument
 	 (combination definition))))
-    (render-references "Users"
+    (render-references "Client Functions"
       ;; #### WARNING: casing policy.
-      (sort (user-definitions definition) #'string-lessp
-	:key #'definition-symbol)
+      (sort (clients definition) #'string-lessp :key #'definition-symbol)
       t)))
 
 

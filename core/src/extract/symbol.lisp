@@ -414,16 +414,15 @@ DEFSETF, or DEFINE-SETF-EXPANDER."))
 ;; -------------------
 
 ;; #### NOTE: the root class is not abstract, because it is used for the
-;; standard one.
+;; standard method combination.
 
 (defclass combination-definition (funcoid-definition)
   ((object :initarg :combination :reader combination) ;; slot overload
-   (user-definitions
+   (clients
     :documentation
-    "The list of corresponding method combination user definitions.
-This is a list of generic function definitions for generic functions using
-this combination."
-    :accessor user-definitions))
+    "The list of client definitions for this definition's method combnination.
+These are generic functions using this combination."
+    :accessor clients))
   (:documentation "Root class for method combination definitions."))
 
 ;; #### PORTME.
