@@ -309,23 +309,23 @@ DEFINITIONS in the process."
   (setf (specializers definition)
 	(mapcar (lambda (specializer)
 		  ;; #### FIXME: according to my former version of
-		  ;; PRETTY-SPECIALIZER, the situation mignt be more
-		  ;; complicated than just eql or class specializers. Let's
+		  ;; PRETTY-SPECIALIZER, the situation might be more
+		  ;; complicated than just EQL or class specializers. Let's
 		  ;; just see until this breaks on a concrete case.
 		  (typecase specializer
 		    (sb-mop:eql-specializer specializer)
 		    (otherwise
-		     (let ((specializer-definition
+		     (let ((class-specializer
 			     (find-definition specializer definitions)))
-		       (unless specializer-definition
-			 (setq specializer-definition
+		       (unless class-specializer
+			 (setq class-specializer
 			       (make-classoid-definition
 				(class-name specializer)
 				specializer
 				t))
 			 (setq *finalized* nil)
-			 (endpush specializer-definition definitions))
-		       specializer-definition))))
+			 (endpush class-specializer definitions))
+		       class-specializer))))
 	  (sb-mop:method-specializers (definition-method definition)))))
 
 
