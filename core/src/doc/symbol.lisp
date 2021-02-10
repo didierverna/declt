@@ -82,24 +82,6 @@ Each element is rendered as a table item."
   (when-let (source (source-file definition))
     (@tableitem "Source" (reference source t))))
 
-(defgeneric headline-function (definition)
-  (:documentation "Return a suitable headline function for DEFINITION.")
-  (:method ((function ordinary-function-definition))
-    "Return #'@DEFUNX."
-    #'@defunx)
-  (:method ((generic generic-function-definition))
-    "Return #'@DEFGENERICX."
-    #'@defgenericx)
-  (:method ((expander expander-definition))
-    "Return #'@DEFSETFX."
-    #'@defsetfx))
-
-(defun render-headline (definition)
-  "Render a headline for DEFINITION. Also anchor and index it."
-  (funcall (headline-function definition)
-	   (string-downcase (safe-name definition)) (lambda-list definition))
-  (anchor-and-index definition))
-
 
 
 
@@ -300,6 +282,13 @@ converted to revealed strings, and initform / supplied-p data is removed."
 				;; #### WARNING: casing policy.
 				(reveal (string-downcase rest))))
 			(return safe-lambda-list))))
+
+(defun render-headline (definition)
+  "Render a headline for DEFINITION. Also anchor and index it."
+  (@deffnx (type-name definition)
+      (string-downcase (safe-name definition))
+    (safe-lambda-list (lambda-list definition)))
+  (anchor-and-index definition))
 
 (defmacro render-funcoid
     (|definition(s)| context
