@@ -669,7 +669,7 @@ Those definitions are guaranteed to be in the original component's order."
   ;; :initform provided in the corresponding class. There are no foreign
   ;; components, apart from systems.
   (when-let (parent (component-parent component))
-    (setf (parent-definition definition) (find-definition parent definitions)))
+    (setf (parent definition) (find-definition parent definitions)))
   ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
   ;; and only add what's missing, but I don't think it's worth the trouble.
   (setf (dependencies definition)
@@ -701,7 +701,7 @@ Those definitions are guaranteed to be in the original component's order."
 (defmethod finalize progn ((definition module-definition) definitions)
   "Compute module DEFINITION's child definitions.
 Those definitions are guaranteed to be in the module's original order."
-  (setf (child-definitions definition)
+  (setf (children definition)
 	;; #### NOTE: remember that we may not have all children, in the case
 	;; of foreign (system) definitions. Also, note that this
 	;; implementation not only preserves the original order, but also

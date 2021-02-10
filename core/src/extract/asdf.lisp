@@ -46,12 +46,14 @@
 
 (defabstract component-definition (definition)
   ((object :reader component) ;; slot overload
-   (parent-definition :documentation "The corresponding parent definition."
-		      :accessor parent-definition)
-   (dependencies :documentation "The list of dependency definitions."
-		 :accessor dependencies))
-  (:documentation "The COMPONENT-DEFINITION class.
-This is the base class for ASDF definitions."))
+   (parent
+    :documentation "The parent definition for this definition's component."
+    :accessor parent)
+   (dependencies
+    :documentation
+    "The list of dependency definitions for this definition's component."
+    :accessor dependencies))
+  (:documentation "Abstract root class for ASDF components."))
 
 (defun component-definition-p (definition)
   "Return T if DEFINITION is a component definition."
@@ -59,22 +61,22 @@ This is the base class for ASDF definitions."))
 
 
 
-;; ----------------
-;; Public protocols
-;; ----------------
+;; ---------------------------
+;; Public definition protocols
+;; ---------------------------
 
 (defmethod name ((definition component-definition))
   "Return component DEFINITION's component name."
   (component-name (component definition)))
 
-(defun description (definition)
-  "Return component DEFINITION's description."
-  (component-description (component definition)))
-
 (defmethod docstring ((definition component-definition))
   "Return component DEFINITION's description.
 This is the same as the `description' function."
   (description definition))
+
+(defun description (definition)
+  "Return component DEFINITION's description."
+  (component-description (component definition)))
 
 (defun long-description (definition)
   "Return component DEFINITION's long description."
@@ -90,9 +92,9 @@ This is the same as the `description' function."
 
 
 
-;; ---------
-;; Utilities
-;; ---------
+;; --------------------------
+;; Internal utility protocols
+;; --------------------------
 
 (defmethod source-pathname
     ((definition component-definition) &aux (component (component definition)))
@@ -114,8 +116,7 @@ This actually is the corresponding system's source file."
 
 (defclass file-definition (component-definition)
   ((object :initarg :file :reader file)) ;; slot overload
-  (:documentation "The FILE-DEFINITION class.
-This is the base class for ASDF file definitions."))
+  (:documentation "The class of ASDF file definitions."))
 
 (defun file-definition-p (definition)
   "Return T if DEFINITION is a file definition."
@@ -123,12 +124,13 @@ This is the base class for ASDF file definitions."))
 
 (defclass source-file-definition (file-definition)
   ()
-  (:documentation "The SOURCE-FILE-DEFINITION class."))
+  (:documentation "The class of ASDF source file definitions."))
 
 (defclass lisp-file-definition (source-file-definition)
-  ((definitions :documentation "The corresponding definitions."
-		:accessor definitions))
-  (:documentation "The LISP-FILE-DEFINITION class."))
+  ((definitions
+    :documentation "The list of definitions for this definition's file."
+    :accessor definitions))
+  (:documentation "The class of ASDF Lisp file definitions."))
 
 (defun lisp-file-definition-p (definition)
   "Return T if DEFINITION is a Lisp file definition."
@@ -136,23 +138,23 @@ This is the base class for ASDF file definitions."))
 
 (defclass c-file-definition (source-file-definition)
   ()
-  (:documentation "The C-FILE-DEFINITION class."))
+  (:documentation "The class of ASDF C file definitions."))
 
 (defclass java-file-definition (source-file-definition)
   ()
-  (:documentation "The JAVA-FILE-DEFINITION class."))
+  (:documentation "The class of ASDF Java file definitions."))
 
 (defclass static-file-definition (source-file-definition)
   ()
-  (:documentation "The STATIC-FILE-DEFINITION class."))
+  (:documentation "The class of ASDF static file definitions."))
 
 (defclass doc-file-definition (static-file-definition)
   ()
-  (:documentation "The DOC-FILE-DEFINITION class."))
+  (:documentation "The class of ASDF doc file definitions."))
 
 (defclass html-file-definition (doc-file-definition)
   ()
-  (:documentation "The HTML-FILE-DEFINITION class."))
+  (:documentation "The class of ASDF HTML file definitions."))
 
 (defun make-file-definition (file &optional foreign)
   "Make a new FILE definition.
@@ -200,7 +202,7 @@ The concrete class of the new definition depends on the kind of FILE."
 
 (defclass system-file-definition (lisp-file-definition)
   ()
-  (:documentation "The System File Definition class.
+  (:documentation "The class of ASDF system file definitions.
 This class represents ASDF system files as Lisp files. Because system files
 are not components, we use an ad-hoc fake component class for them,
 `cl-source-file.asd', which see."))
@@ -240,9 +242,10 @@ definition for each file."
 
 (defclass module-definition (component-definition)
   ((object :initarg :module :reader module) ;; slot overload
-   (child-definitions :documentation "The list of module child definitions."
-		      :accessor child-definitions))
-  (:documentation "The Module Definition class."))
+   (children
+    :documentation "The list of child definitions for this definition's module."
+    :accessor children))
+  (:documentation "The class of ASDF module definitions."))
 
 (defun module-definition-p (definition)
   "Return T if DEFINITION is a module definition."
@@ -261,19 +264,23 @@ definition for each file."
 
 (defclass system-definition (module-definition)
   ((object :initarg :system :reader system) ;; slot overload
-   (parent-definition :initform nil) ;; slot -overload
-   (maintainer-names :documentation "The list of maintainer names."
-		     :initform nil :accessor maintainer-names)
-   (maintainer-emails :documentation "The list of maintainer emails."
-		      :initform nil :accessor maintainer-emails)
-   (author-names :documentation "The list of author names."
-		 :initform nil :accessor author-names)
-   (author-emails :documentation "The list of maintainer emails."
-		  :initform nil :accessor author-emails)
+   (parent :initform nil) ;; slot -overload
+   (maintainer-names
+    :documentation "The list of maintainer names."
+    :initform nil :accessor maintainer-names)
+   (maintainer-emails
+    :documentation "The list of maintainer emails."
+    :initform nil :accessor maintainer-emails)
+   (author-names
+    :documentation "The list of author names."
+    :initform nil :accessor author-names)
+   (author-emails
+    :documentation "The list of maintainer emails."
+    :initform nil :accessor author-emails)
    (defsystem-dependencies
      :documentation "The list of defsystem dependency definitions."
      :accessor defsystem-dependencies))
-  (:documentation "The System Definition class."))
+  (:documentation "The class of ASDF system definitions."))
 
 (defun system-definition-p (definition)
   "Return T if DEFINITION is a system definition."
@@ -299,9 +306,9 @@ definition for each file."
 
 
 
-;; ----------------
-;; Public protocols
-;; ----------------
+;; ---------------------------
+;; Public definition protocols
+;; ---------------------------
 
 (defun long-name (definition)
   "Return system DEFINITION's long name, or NIL."

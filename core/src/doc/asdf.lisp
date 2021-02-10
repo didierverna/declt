@@ -30,7 +30,7 @@
 
 
 ;; ==========================================================================
-;; Utilities
+;; Local Utilities
 ;; ==========================================================================
 
 (defun render-pathname (definition context &optional (title "Location"))
@@ -53,6 +53,8 @@ Rendering is done on *standard-output*."
 	  probed-pathname)))))
 
 
+
+
 ;; ==========================================================================
 ;; Components
 ;; ==========================================================================
@@ -64,8 +66,8 @@ Rendering is done on *standard-output*."
   "Reveal component DEFINITION's name, possibly QUALIFIED.
 A QUALIFIED component's name is of the form \"path/to/component\", each
 element being the name of a component's parent."
-  (if (and qualified (parent-definition definition))
-    (concatenate 'string (safe-name (parent-definition definition) t)
+  (if (and qualified (parent definition))
+    (concatenate 'string (safe-name (parent definition) t)
 		 "/"
 		 (call-next-method definition))
     (call-next-method definition)))
@@ -124,11 +126,12 @@ Documentation is done in a @table environment."
   (when-let (source (source-file definition))
     (@tableitem "Source" (reference source t)))
   (render-pathname definition context)
-  (when-let (parent (parent-definition definition))
+  (when-let (parent (parent definition))
     (@tableitem "Parent Component" (reference parent))))
 
 
 
+
 ;; ==========================================================================
 ;; Files
 ;; ==========================================================================
@@ -187,6 +190,7 @@ Documentation is done in a @table environment."
       (organize-definitions (private-definitions definition)))))
 
 
+
 ;; -----
 ;; Nodes
 ;; -----
@@ -248,6 +252,7 @@ components trees.")))))
 
 
 
+
 ;; ==========================================================================
 ;; Modules
 ;; ==========================================================================
@@ -263,7 +268,7 @@ components trees.")))))
 (defmethod document ((definition module-definition) context &key)
   "Render module DEFINITION's documentation in CONTEXT."
   (call-next-method)
-  (when-let* ((children (child-definitions definition))
+  (when-let* ((children (children definition))
 	      (length (length children)))
     (@tableitem (format nil "Child Component~p" length)
       (if (eq length 1)
@@ -271,6 +276,7 @@ components trees.")))))
 	(@itemize-list children :renderer #'reference)))))
 
 
+
 ;; -----
 ;; Nodes
 ;; -----
@@ -299,6 +305,7 @@ Modules are listed depth-first from the system components tree.")))))
 
 
 
+
 ;; ==========================================================================
 ;; System
 ;; ==========================================================================
@@ -357,6 +364,7 @@ Modules are listed depth-first from the system components tree.")))))
   (call-next-method))
 
 
+
 ;; -----
 ;; Nodes
 ;; -----
