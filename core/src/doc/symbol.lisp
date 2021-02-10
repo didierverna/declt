@@ -693,21 +693,23 @@ providing only basic information."
 		(string-downcase (safe-name ,the-definition)))
 	   (anchor-and-index ,the-definition)
 	 (render-docstring ,the-definition)
+	 ;; #### TODO: we may want to change the titles below to display not
+	 ;; only "classes", but "structures" and "conditions" directly.
 	 (@table ()
 	   (render-definition-core ,the-definition ,the-context)
 	   (render-references "Direct superclasses"
 	     ;; #### WARNING: casing policy.
-	     (sort (superclassoid-definitions ,the-definition) #'string-lessp
+	     (sort (direct-superclassoids ,the-definition) #'string-lessp
 	       :key #'definition-symbol)
 	     t)
 	   (render-references "Direct subclasses"
 	     ;; #### WARNING: casing policy.
-	     (sort (subclassoid-definitions ,the-definition) #'string-lessp
+	     (sort (direct-subclassoids ,the-definition) #'string-lessp
 	       :key #'definition-symbol)
 	     t)
 	   (render-references "Direct methods"
 	     ;; #### WARNING: casing policy.
-	     (sort (method-definitions ,the-definition) #'string-lessp
+	     (sort (direct-methods ,the-definition) #'string-lessp
 	       :key #'definition-symbol)
 	     t)
 	   (when-let (direct-slots (direct-slots ,the-definition))

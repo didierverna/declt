@@ -544,15 +544,15 @@ This function is used for regular class and condition slots."
 			   (class-name classoid) classoid t))
 		    (setq *finalized* nil)
 		    (endpush classoid-definition definitions)
-		    (push classoid-definition classoid-definitions))))))
+		    (endpush classoid-definition classoid-definitions))))))
     (mapc #'get-classoid-definition
       (sb-mop:class-direct-superclasses (classoid definition)))
-    (setf (superclassoid-definitions definition) classoid-definitions)
-    (setq classoid-definitions nil)
+    (setf (direct-superclassoids definition) classoid-definitions)
+    (setq classoid-definitions nil) ;; yuck.
     (mapc #'get-classoid-definition
       (sb-mop:class-direct-subclasses (classoid definition)))
-    (setf (subclassoid-definitions definition) classoid-definitions))
-  (setf (method-definitions definition)
+    (setf (direct-subclassoids definition) classoid-definitions))
+  (setf (direct-methods definition)
 	(mapcan
 	    (lambda (method)
 	      (let* ((generic (sb-mop:method-generic-function method))

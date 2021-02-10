@@ -682,15 +682,18 @@ depends on the kind of CLASSOID."
 ;; below are bound to move.
 
 (defabstract clos-classoid-mixin ()
-  ((superclassoid-definitions
-    :documentation "The list of corresponding direct superclassoid definitions."
-    :accessor superclassoid-definitions)
-   (subclassoid-definitions
-    :documentation "The list of corresponding direct subclassoid definitions."
-    :accessor subclassoid-definitions)
-   (method-definitions
-    :documentation "The list of corresponding direct method definitions."
-    :accessor method-definitions))
+  ((direct-superclassoids
+    :documentation
+    "The list of direct superclassoid definitions for this definition's classoid."
+    :accessor direct-superclassoids)
+   (direct-subclassoids
+    :documentation
+    "The list of direct subclassoid definitions for this definition's classoid."
+    :accessor direct-subclassoids)
+   (direct-methods
+    :documentation
+    "The list of direct method definitions for this definition's classoid."
+    :accessor direct-methods))
   (:documentation "Mixin for CLOS-based classoids.
 These are conditions, ordinary structures, and classes."))
 
@@ -704,18 +707,18 @@ These are conditions, ordinary structures, and classes."))
 
 (defclass condition-definition (classoid-definition clos-classoid-mixin)
   ((object :reader definition-condition) ;; slot overload
-   (superclassoid-definitions ;; slot overload
-    :accessor supercondition-definitions)
-   (subclassoid-definitions ;; slot overload
-    :accessor subcondition-definitions))
+   (direct-superclassoids ;; slot overload
+    :accessor direct-superconditions)
+   (direct-subclassoids ;; slot overload
+    :accessor direct-subconditions))
   (:documentation "The class of condition definitions."))
 
 (defclass class-definition (classoid-definition clos-classoid-mixin)
   ((object :reader definition-class) ;; slot overload
-   (superclassoid-definitions ;; slot overload
-    :accessor superclass-definitions)
-   (subclassoid-definitions ;; slot overload
-    :accessor subclass-definitions))
+   (direct-superclassoids ;; slot overload
+    :accessor direct-superclasses)
+   (direct-subclassoids ;; slot overload
+    :accessor direct-subclasses))
   (:documentation "The class for class definitions."))
 
 
@@ -724,10 +727,10 @@ These are conditions, ordinary structures, and classes."))
   (:documentation "Abstract root class for structures."))
 
 (defclass clos-structure-definition (structure-definition clos-classoid-mixin)
-  ((superclassoid-definitions ;; slot overload
-    :accessor superstructure-definitions)
-   (subclassoid-definitions ;; slot overload
-    :accessor substructure-definitions))
+  ((direct-superclassoids ;; slot overload
+    :accessor direct-superstructures)
+   (direct-subclassoids ;; slot overload
+    :accessor direct-substructures))
   (:documentation "The class of CLOS structure definitions."))
 
 
