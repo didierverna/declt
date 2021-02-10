@@ -29,7 +29,7 @@
 ;; For example, this is guaranteed to work all the time:
 ;; (symbol-package (definition-symbol definition)
 ;; whereas this might fail if the definition has not been finalized yet:
-;; (definition-package (package-definition definition)).
+;; (definition-package (home-package definition)).
 
 
 ;;; Code:
@@ -101,13 +101,13 @@ and over again until nothing moves anymore.")
 (defmethod finalize progn
     ((definition symbol-definition) definitions
      &aux (package (symbol-package (definition-symbol definition))))
-  "Compute symbol DEFINITION's package definition.
+  "Compute symbol DEFINITION's home package definition.
 New foreign package definitions may be created and added at the end of
 DEFINITIONS in the process."
   ;; #### NOTE: every symbol definition gets a working package definition;
   ;; even the foreign ones.
-  (unless (package-definition definition)
-    (setf (package-definition definition)
+  (unless (home-package definition)
+    (setf (home-package definition)
 	  (or (find-definition package definitions)
 	      (let ((package-definition (make-package-definition package t)))
 		(endpush package-definition definitions)

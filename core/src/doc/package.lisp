@@ -68,8 +68,8 @@
 		       (lambda (definition)
 			 (or (typep definition 'method-definition)
 			     (and (typep definition 'slot-definition)
-				  (eq (package-definition definition)
-				      (package-definition
+				  (eq (home-package definition)
+				      (home-package
 				       (classoid-definition definition))))))
 		       definitions)
 		 #'string-lessp ;; #### WARNING: casing policy.

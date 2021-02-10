@@ -62,8 +62,9 @@
 (defabstract symbol-definition (definition)
   ((symbol :documentation "The symbol naming this definition."
 	   :initarg :symbol :reader definition-symbol)
-   (package-definition :documentation "The corresponding package definition."
-		       :initform nil :accessor package-definition))
+   (home-package
+    :documentation "The home package definition for this definition's symbol."
+    :initform nil :accessor home-package))
   (:documentation "Abstract root class for all definitions named by symbols.
 All symbol definitions respond to the following public protocols, which see:
 - `publicp'."))
@@ -87,7 +88,7 @@ All symbol definitions respond to the following public protocols, which see:
 A definition is public when the symbol naming it is exported from its home
 package."
   (member (definition-symbol definition)
-	  (external-symbols (package-definition definition))))
+	  (external-symbols (home-package definition))))
 
 
 

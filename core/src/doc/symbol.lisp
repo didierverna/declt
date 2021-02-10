@@ -40,7 +40,7 @@
 A QUALIFIED name is of the form \"package:[:]symbol\"."
   (when qualified
     (setq name (concatenate 'string
-		 (reveal (name (package-definition definition)))
+		 (reveal (name (home-package definition)))
 		 (if (publicp definition) ":" "::")
 		 name)))
   name)
@@ -58,7 +58,7 @@ A QUALIFIED name is of the form \"package:[:]symbol\"."
 A QUALIFIED name is of the form \"(setf package:[:]symbol)\"."
   (when qualified
     (setq name (concatenate 'string
-		 (reveal (name (package-definition definition)))
+		 (reveal (name (home-package definition)))
 		 (if (publicp definition) ":" "::")
 		 name)))
   ;; Hack for future case-preserving implementation.
@@ -78,7 +78,7 @@ The documentation core includes all common definition attributes:
 
 Each element is rendered as a table item."
   (@tableitem "Package"
-    (reference (package-definition definition) t))
+    (reference (home-package definition) t))
   (when-let (source (source-file definition))
     (@tableitem "Source" (reference source t))))
 
@@ -227,9 +227,9 @@ providing only basic information."
 - The package is not documented, unless it differs from that of the parent
   classoid."
   (render-varoid definition context
-    (unless (eq (package-definition definition)
-		(package-definition (classoid-definition definition)))
-      (@tableitem "Package" (reference (package-definition definition) t)))
+    (unless (eq (home-package definition)
+		(home-package (classoid-definition definition)))
+      (@tableitem "Package" (reference (home-package definition) t)))
     (render-slot-property slot :type)
     (render-slot-property slot :allocation)
     (render-slot-property slot :initform)
@@ -263,9 +263,9 @@ providing only basic information."
 - The package is not documented, unless it differs from that of the parent
   classoid."
   (render-varoid definition context
-    (unless (eq (package-definition definition)
-		(package-definition (classoid-definition definition)))
-      (@tableitem "Package" (reference (package-definition definition) t)))
+    (unless (eq (home-package definition)
+		(home-package (classoid-definition definition)))
+      (@tableitem "Package" (reference (home-package definition) t)))
     ;; #### FIXME: not rendering standard / default values should be a context
     ;; choice.
     (unless (eq (sb-kernel:dsd-type slot) t)
