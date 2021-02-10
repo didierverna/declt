@@ -596,7 +596,7 @@ DEFINITIONS in the process."
   (flet ((get-package-definition (package)
 	   (let ((package-definition (find-definition package definitions)))
 	     (cond (package-definition
-		    (enpush package-definition package-definitions))
+		    (endpush package-definition package-definitions))
 		   ((not (foreignp definition))
 		    (setq package-definition
 			  (make-package-definition package t))
