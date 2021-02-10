@@ -36,7 +36,6 @@
 (in-readtable :net.didierverna.declt)
 
 
-
 ;; ==========================================================================
 ;; Local Utilities
 ;; ==========================================================================
@@ -65,11 +64,19 @@
 	   :initarg :symbol :reader definition-symbol)
    (package-definition :documentation "The corresponding package definition."
 		       :initform nil :accessor package-definition))
-  (:documentation "Abstract root class for all definitions named by symbols."))
+  (:documentation "Abstract root class for all definitions named by symbols.
+All symbol definitions respond to the following public protocols, which see:
+- `publicp'."))
 
 (defun symbol-definition-p (definition)
   "Return T if DEFINITION is a symbol definition."
   (typep definition 'symbol-definition))
+
+
+
+;; ---------------------------
+;; Public definition protocols
+;; ---------------------------
 
 (defmethod name ((definition symbol-definition))
   "Return symbol DEFINITION's symbol."
@@ -142,9 +149,8 @@ These are constants, special variables, and symbol macros."))
 
 
 
-;; -------------
 ;; Symbol macros
-;; -------------
+
 (defclass symbol-macro-definition (varoid-definition)
   ()
   (:documentation "The class of symbol macro definitions."))
@@ -164,63 +170,8 @@ These are constants, special variables, and symbol macros."))
   (declare (ignore definition))
   nil)
 
-
-
-;; -----
-;; Slots
-;; -----
-
-;; #### NOTE: structure slots only have one associated reader / writer, so
-;; it's slightly overkill to use a list of those. On the other hand, it allows
-;; the documentation rendering code to be applicable to all classoids.
-
-(defabstract slot-definition (varoid-definition)
-  ((object :initarg :slot :reader slot) ;; slot overload
-   (classoid-definition :documentation "The corresponding classoid definition."
-			:initarg :classoid-definition
-			:reader classoid-definition)
-   (reader-definitions :documentation "The list of slot reader definitions."
-		       :initform nil :accessor reader-definitions)
-   (writer-definitions :documentation "The list of slot writer definitions."
-		       :initform nil :accessor writer-definitions))
-  (:documentation "Abstract root class for slots."))
-
-
-(defclass clos-slot-definition (slot-definition)
-  ()
-  (:documentation "The class of CLOS slot definitions."))
-
-;; #### PORTME.
-(defun make-clos-slot-definition (slot definition &optional foreign)
-  "Make a new CLOS SLOT definition for classoid DEFINITION."
-  (make-instance 'clos-slot-definition
-    :symbol (sb-mop:slot-definition-name slot)
-    :slot slot
-    :classoid-definition definition
-    :foreign foreign))
-
-;; #### PORTME.
-(defmethod docstring ((definition clos-slot-definition))
-  "Return slot DEFINITION's docstring."
-  (sb-pcl::%slot-definition-documentation (slot definition)))
-
-
-(defclass typed-structure-slot-definition (slot-definition)
-  ()
-  (:documentation "The class of typed structure slot definitions."))
-
-;; #### PORTME.
-(defun make-typed-structure-slot-definition (slot definition &optional foreign)
-  "Make a new typed structure SLOT definition for classoid DEFINITION."
-  (make-instance 'typed-structure-slot-definition
-    :symbol (sb-kernel:dsd-name slot)
-    :slot slot
-    :classoid-definition definition
-    :foreign foreign))
-
-(defmethod docstring ((definition typed-structure-slot-definition))
-  "Return NIL."
-  nil)
+;; #### NOTE: slots are defined as varoids, but they will appear later on,
+;; along with classoid definitions.
 
 
 
@@ -233,7 +184,9 @@ These are constants, special variables, and symbol macros."))
   ((object :reader funcoid)) ;; slot overload
   (:documentation "Abstract root class for functional definitions.
 These are (compiler) macros, (generic) functions, methods, setf expanders,
-method combinations, and types."))
+method combinations, and types.
+All funcoid definitions respond to the following public protocols, which see:
+- `lambda-list'."))
 
 (defgeneric lambda-list (definition)
   (:documentation "Return DEFINITION's lambda-list.")
@@ -801,5 +754,63 @@ depends on the kind of CLASSOID."
 	(sb-kernel:defstruct-description 'typed-structure-definition)
 	(otherwise 'class-definition))
     :symbol symbol :classoid classoid :foreign foreign))
+
+
+
+;; -----
+;; Slots
+;; -----
+
+;; #### NOTE: structure slots only have one associated reader / writer, so
+;; it's slightly overkill to use a list of those. On the other hand, it allows
+;; the documentation rendering code to be applicable to all classoids.
+
+(defabstract slot-definition (varoid-definition)
+  ((object :initarg :slot :reader slot) ;; slot overload
+   (classoid-definition :documentation "The corresponding classoid definition."
+			:initarg :classoid-definition
+			:reader classoid-definition)
+   (reader-definitions :documentation "The list of slot reader definitions."
+		       :initform nil :accessor reader-definitions)
+   (writer-definitions :documentation "The list of slot writer definitions."
+		       :initform nil :accessor writer-definitions))
+  (:documentation "Abstract root class for slots."))
+
+
+(defclass clos-slot-definition (slot-definition)
+  ()
+  (:documentation "The class of CLOS slot definitions."))
+
+;; #### PORTME.
+(defun make-clos-slot-definition (slot definition &optional foreign)
+  "Make a new CLOS SLOT definition for classoid DEFINITION."
+  (make-instance 'clos-slot-definition
+    :symbol (sb-mop:slot-definition-name slot)
+    :slot slot
+    :classoid-definition definition
+    :foreign foreign))
+
+;; #### PORTME.
+(defmethod docstring ((definition clos-slot-definition))
+  "Return slot DEFINITION's docstring."
+  (sb-pcl::%slot-definition-documentation (slot definition)))
+
+
+(defclass typed-structure-slot-definition (slot-definition)
+  ()
+  (:documentation "The class of typed structure slot definitions."))
+
+;; #### PORTME.
+(defun make-typed-structure-slot-definition (slot definition &optional foreign)
+  "Make a new typed structure SLOT definition for classoid DEFINITION."
+  (make-instance 'typed-structure-slot-definition
+    :symbol (sb-kernel:dsd-name slot)
+    :slot slot
+    :classoid-definition definition
+    :foreign foreign))
+
+(defmethod docstring ((definition typed-structure-slot-definition))
+  "Return NIL."
+  nil)
 
 ;;; symbol.lisp ends here
