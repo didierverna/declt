@@ -178,10 +178,7 @@ providing only basic information."
      &aux (safe-name (call-next-method)))
   "When QUALIFIED, prepend slot DEFINITION's classoid safe name."
   (if qualified
-    (concatenate 'string
-      (safe-name (classoid-definition definition) t)
-      "->"
-      safe-name)
+    (concatenate 'string (safe-name (owner definition) t) "->" safe-name)
     safe-name))
 
 (defmethod type-name ((definition slot-definition))
@@ -227,8 +224,7 @@ providing only basic information."
 - The package is not documented, unless it differs from that of the parent
   classoid."
   (render-varoid definition context
-    (unless (eq (home-package definition)
-		(home-package (classoid-definition definition)))
+    (unless (eq (home-package definition) (home-package (owner definition)))
       (@tableitem "Package" (reference (home-package definition) t)))
     (render-slot-property slot :type)
     (render-slot-property slot :allocation)
@@ -245,12 +241,10 @@ providing only basic information."
 		      (rest values)))))
     (render-references "Readers"
       ;; #### WARNING: casing policy.
-      (sort (reader-definitions definition) #'string-lessp
-	:key #'definition-symbol))
+      (sort (readers definition) #'string-lessp :key #'definition-symbol))
     (render-references "Writers"
       ;; #### WARNING: casing policy.
-      (sort (writer-definitions definition) #'string-lessp
-	:key #'definition-symbol))))
+      (sort (writers definition) #'string-lessp :key #'definition-symbol))))
 
 ;; #### PORTME.
 (defmethod document
@@ -263,8 +257,7 @@ providing only basic information."
 - The package is not documented, unless it differs from that of the parent
   classoid."
   (render-varoid definition context
-    (unless (eq (home-package definition)
-		(home-package (classoid-definition definition)))
+    (unless (eq (home-package definition) (home-package (owner definition)))
       (@tableitem "Package" (reference (home-package definition) t)))
     ;; #### FIXME: not rendering standard / default values should be a context
     ;; choice.
@@ -273,8 +266,8 @@ providing only basic information."
 	(format t "@t{~A}~%"
 	  ;; #### WARNING: casing policy.
 	  (escape (format nil "~(~S~)" (sb-kernel:dsd-type slot))))))
-    (render-references "Readers" (reader-definitions definition))
-    (render-references "Writers" (writer-definitions definition))))
+    (render-references "Readers" (readers definition))
+    (render-references "Writers" (writers definition))))
 
 
 

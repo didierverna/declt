@@ -777,13 +777,15 @@ Unless FOREIGN, also compute its slot definitions."
 
 (defabstract slot-definition (varoid-definition)
   ((object :initarg :slot :reader slot) ;; slot overload
-   (classoid-definition :documentation "The corresponding classoid definition."
-			:initarg :classoid-definition
-			:reader classoid-definition)
-   (reader-definitions :documentation "The list of slot reader definitions."
-		       :initform nil :accessor reader-definitions)
-   (writer-definitions :documentation "The list of slot writer definitions."
-		       :initform nil :accessor writer-definitions))
+   (owner
+    :documentation "The definition for the owner of this definition's slot."
+    :initarg :owner :reader owner)
+   (readers
+    :documentation "The list of definitions for this definition's slot readers."
+    :initform nil :accessor readers)
+   (writers
+    :documentation "The list of definitions for this definition's slot writers."
+    :initform nil :accessor writers))
   (:documentation "Abstract root class for slots."))
 
 
@@ -792,12 +794,12 @@ Unless FOREIGN, also compute its slot definitions."
   (:documentation "The class of CLOS slot definitions."))
 
 ;; #### PORTME.
-(defun make-clos-slot-definition (slot definition &optional foreign)
-  "Make a new CLOS SLOT definition for classoid DEFINITION."
+(defun make-clos-slot-definition (slot owner &optional foreign)
+  "Make a new CLOS SLOT definition for classoid OWNER."
   (make-instance 'clos-slot-definition
     :symbol (sb-mop:slot-definition-name slot)
     :slot slot
-    :classoid-definition definition
+    :owner owner
     :foreign foreign))
 
 ;; #### PORTME.
@@ -811,12 +813,12 @@ Unless FOREIGN, also compute its slot definitions."
   (:documentation "The class of typed structure slot definitions."))
 
 ;; #### PORTME.
-(defun make-typed-structure-slot-definition (slot definition &optional foreign)
-  "Make a new typed structure SLOT definition for classoid DEFINITION."
+(defun make-typed-structure-slot-definition (slot owner &optional foreign)
+  "Make a new typed structure SLOT definition for classoid OWNER."
   (make-instance 'typed-structure-slot-definition
     :symbol (sb-kernel:dsd-name slot)
     :slot slot
-    :classoid-definition definition
+    :owner owner
     :foreign foreign))
 
 (defmethod docstring ((definition typed-structure-slot-definition))

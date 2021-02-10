@@ -358,18 +358,18 @@ DEFINITIONS in the process."
 (defun finalize-clos-classoid-slot
     (definition definitions
      &aux (slot (slot definition))
-	  (classoid-definition (classoid-definition definition))
-	  (classoid (classoid classoid-definition)))
+	  (owner (owner definition))
+	  (classoid (classoid owner)))
   "Compute CLOS classoid slot DEFINITION's reader and writer definitions.
 This function is used for regular class and condition slots."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
   ;; and only add what's missing, but I don't think it's worth the trouble.
-  (setf (reader-definitions definition)
+  (setf (readers definition)
 	(mapcan
 	    (lambda (name)
 	      (let* ((generic (fdefinition name))
 		     (reader (find-definition generic definitions)))
-		(unless (or reader (foreignp classoid-definition))
+		(unless (or reader (foreignp owner))
 		  (setq reader (make-generic-definition generic t))
 		  (setq *finalized* nil)
 		  (endpush reader definitions))
@@ -382,7 +382,7 @@ This function is used for regular class and condition slots."
 				     (sb-mop:method-specializers method)))))
 			 (reader-method
 			   (find-definition method (methods reader))))
-		    (unless (or reader-method (foreignp classoid-definition))
+		    (unless (or reader-method (foreignp owner))
 		      (setq reader-method
 			    (make-method-definition method reader t))
 		      (setq *finalized* nil)
@@ -393,12 +393,12 @@ This function is used for regular class and condition slots."
 			:target-slot definition)
 		      (list reader-method))))))
 	  (sb-mop:slot-definition-readers slot)))
-  (setf (writer-definitions definition)
+  (setf (writers definition)
 	(mapcan
 	    (lambda (name)
 	      (let* ((generic (fdefinition name))
 		     (writer (find-definition generic definitions)))
-		(unless (or writer (foreignp classoid-definition))
+		(unless (or writer (foreignp owner))
 		  (setq writer (make-generic-definition generic t))
 		  (setq *finalized* nil)
 		  (endpush writer definitions))
@@ -415,7 +415,7 @@ This function is used for regular class and condition slots."
 				     (sb-mop:method-specializers method)))))
 			 (writer-method
 			   (find-definition method (methods writer))))
-		    (unless (or writer-method (foreignp classoid-definition))
+		    (unless (or writer-method (foreignp owner))
 		      (setq writer-method
 			    (make-method-definition method writer t))
 		      (setq *finalized* nil)
@@ -434,50 +434,46 @@ This function is used for regular class and condition slots."
 (defun finalize-clos-structure-slot
     (definition definitions
      &aux (slot (slot definition))
-	  (structure-definition (classoid-definition definition)))
+	  (owner (owner definition)))
   "Compute CLOS structure slot DEFINITION's reader and writer definitions."
   ;; #### NOTE: in the case of structures, there is only one reader / writer
   ;; per slot, so if it's already there, we can save some time because the
   ;; list of it as a single element doesn't risk being out of date. Also,
   ;; remember that readers and writers share the same status, so we only need
   ;; to perform one test each time.
-  (unless (reader-definitions definition)
+  (unless (readers definition)
     (let* ((accessor-name
 	     (sb-pcl::slot-definition-defstruct-accessor-symbol slot))
 	   (reader-function
 	     (sb-pcl::slot-definition-internal-reader-function slot))
 	   (writer-function
 	     (sb-pcl::slot-definition-internal-writer-function slot))
-	   (reader-definition (find-definition reader-function definitions))
-	   (writer-definition (find-definition writer-function definitions)))
-      (unless (or reader-definition (foreignp structure-definition))
-	(setq reader-definition
-	      (make-function-definition accessor-name reader-function
-		:foreign t))
-	(setq writer-definition
-	      (make-function-definition accessor-name writer-function
-		:setf t :foreign t))
+	   (reader (find-definition reader-function definitions))
+	   (writer (find-definition writer-function definitions)))
+      (unless (or reader (foreignp owner))
+	(setq reader (make-function-definition accessor-name reader-function
+		       :foreign t))
+	(setq writer (make-function-definition accessor-name writer-function
+		       :setf t :foreign t))
 	(setq *finalized* nil)
-	(endpush reader-definition definitions)
-	(endpush writer-definition definitions))
-      (when reader-definition
-	(unless (typep reader-definition 'reader-definition)
-	  (change-class reader-definition 'reader-definition
-	    :target-slot definition))
-	(unless (typep writer-definition 'writer-definition)
-	  (change-class writer-definition 'writer-definition
-	    :target-slot definition)))
+	(endpush reader definitions)
+	(endpush writer definitions))
+      (when reader
+	(unless (typep reader 'reader-definition)
+	  (change-class reader 'reader-definition :target-slot definition))
+	(unless (typep writer 'writer-definition)
+	  (change-class writer 'writer-definition :target-slot definition)))
       ;; See comment on top of the SLOT-DEFINITION class about this.
-      (setf (reader-definitions definition)
-	    (when reader-definition (list reader-definition)))
-      (setf (writer-definitions definition)
-	    (when writer-definition (list writer-definition))))))
+      (setf (readers definition) (when reader (list reader)))
+      (setf (writers definition) (when writer (list writer))))))
 
 (defmethod finalize progn ((definition clos-slot-definition) definitions)
   "Compute CLOS slot DEFINITION's reader and writer definitions."
-  (if (typep (classoid-definition definition) 'clos-structure-definition)
-    (finalize-clos-structure-slot definition definitions)
-    (finalize-clos-classoid-slot definition definitions)))
+  (typecase (owner definition)
+    (clos-structure-definition
+     (finalize-clos-structure-slot definition definitions))
+    (otherwise
+     (finalize-clos-classoid-slot definition definitions))))
 
 
 ;; #### FIXME: we should have more abstaction here. Only the LET* binding code
@@ -487,41 +483,35 @@ This function is used for regular class and condition slots."
 (defmethod finalize progn
     ((definition typed-structure-slot-definition) definitions
      &aux (slot (slot definition))
-	  (structure-definition (classoid-definition definition)))
+	  (owner (owner definition)))
   "Compute typed structure slot DEFINITION's reader and writer definitions."
   ;; #### NOTE: in the case of structures, there is only one reader / writer
   ;; per slot, so if it's already there, we can save some time because the
   ;; list of it as a single element doesn't risk being out of date. Also,
   ;; remember that readers and writers share the same status, so we only need
   ;; to perform one test each time.
-  (unless (reader-definitions definition)
+  (unless (readers definition)
     (let* ((accessor-name (sb-kernel:dsd-accessor-name slot))
 	   (reader-function (fdefinition accessor-name))
 	   (writer-function (fdefinition `(setf ,accessor-name)))
-	   (reader-definition (find-definition reader-function definitions))
-	   (writer-definition (find-definition writer-function definitions)))
-      (unless (or reader-definition (foreignp structure-definition))
-	(setq reader-definition
-	      (make-function-definition accessor-name reader-function
-		:foreign t))
-	(setq writer-definition
-	      (make-function-definition accessor-name writer-function
-		:setf t :foreign t))
+	   (reader (find-definition reader-function definitions))
+	   (writer (find-definition writer-function definitions)))
+      (unless (or reader (foreignp owner))
+	(setq reader (make-function-definition accessor-name reader-function
+		       :foreign t))
+	(setq writer (make-function-definition accessor-name writer-function
+		       :setf t :foreign t))
 	(setq *finalized* nil)
-	(endpush reader-definition definitions)
-	(endpush writer-definition definitions))
-      (when reader-definition
-	(unless (typep reader-definition 'reader-definition)
-	  (change-class reader-definition 'reader-definition
-	    :target-slot definition))
-	(unless (typep writer-definition 'writer-definition)
-	  (change-class writer-definition 'writer-definition
-	    :target-slot definition)))
+	(endpush reader definitions)
+	(endpush writer definitions))
+      (when reader
+	(unless (typep reader 'reader-definition)
+	  (change-class reader 'reader-definition :target-slot definition))
+	(unless (typep writer 'writer-definition)
+	  (change-class writer 'writer-definition :target-slot definition)))
       ;; See comment on top of the SLOT-DEFINITION class about this.
-      (setf (reader-definitions definition)
-	    (when reader-definition (list reader-definition)))
-      (setf (writer-definitions definition)
-	    (when writer-definition (list writer-definition))))))
+      (setf (readers definition) (when reader (list reader)))
+      (setf (writers definition) (when writer (list writer))))))
 
 
 

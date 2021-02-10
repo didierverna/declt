@@ -167,10 +167,10 @@ Documentation is done in a @table environment."
   ;; #### NOTE: generic functions and their methods are documented in a single
   ;; bloc. As a consequence, if a generic function belongs to this file,
   ;; there's no need to also reference (some of) its methods. On the other
-  ;; hand, we need to reference methods for which the generic function is
-  ;; elsewhere (admittedly, and for the same reason, only one would suffice).
-  ;; In the case of classoids, slots don't need to be referenced at all
-  ;; because a slot definition is at the same lexical place as its classoid.
+  ;; hand, we need to reference methods for which the owner is elsewhere
+  ;; (admittedly, and for the same reason, only one would suffice). In the
+  ;; case of classoids, slots don't need to be referenced at all because a
+  ;; slot definition is at the same lexical place as its owner.
   (flet ((organize-definitions (definitions)
 	   (sort (remove-if
 		     (lambda (definition)

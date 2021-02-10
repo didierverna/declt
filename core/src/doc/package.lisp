@@ -58,19 +58,18 @@
     (render-references "Used By List" (used-by-definitions definition) t)
     ;; #### NOTE: classoids and their slots are documented in a single bloc.
     ;; As a consequence, if a classoid belongs to this package, there's no
-    ;; need to also reference (sone of) its slots. On the other hand, we need
-    ;; to reference slots for which the classoid is elsewhere (admittedly, and
+    ;; need to also reference (some of) its slots. On the other hand, we need
+    ;; to reference slots for which the owner is elsewhere (admittedly, and
     ;; for the same reason, only one would suffice). In the case of generic
-    ;; functions, methods don't need to be referenced at all methods share the
-    ;; same name.
+    ;; functions, methods don't need to be referenced at all, because they
+    ;; share the same name.
     (flet ((organize-definitions (definitions)
 	     (sort (remove-if
 		       (lambda (definition)
 			 (or (typep definition 'method-definition)
 			     (and (typep definition 'slot-definition)
 				  (eq (home-package definition)
-				      (home-package
-				       (classoid-definition definition))))))
+				      (home-package (owner definition))))))
 		       definitions)
 		 #'string-lessp ;; #### WARNING: casing policy.
 	       :key #'definition-symbol)))
