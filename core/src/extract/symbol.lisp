@@ -653,11 +653,29 @@ or a condition."))
 
 (defabstract classoid-definition (symbol-definition)
   ((object :initarg :classoid :reader classoid) ;; slot overload
-   (slot-definitions
-    :documentation "The list of corresponding direct slot definitions."
-    :initform nil :accessor slot-definitions))
+   (direct-slots
+    :documentation
+    "The list of direct slot definitions for this definition's classoid."
+    :initform nil :accessor direct-slots))
   (:documentation "Abstract root class for classoid definitions.
 These are conditions, structures, and classes."))
+
+;; #### PORTME.
+(defun make-classoid-definition (symbol classoid &optional foreign)
+  "Make a new CLASSOID definition for SYMBOL, possibly FOREIGN.
+The concrete class of the new definition (structure, class, or condition)
+depends on the kind of CLASSOID."
+  (make-instance
+      (typecase classoid
+	(sb-pcl::condition-class 'condition-definition)
+	(sb-pcl::structure-class 'clos-structure-definition)
+	(sb-kernel:defstruct-description 'typed-structure-definition)
+	(otherwise 'class-definition))
+    :symbol symbol :classoid classoid :foreign foreign))
+
+
+
+;; CLOS classoids
 
 ;; #### FIXME: it should be possible to reconstruct super- and sub-structure
 ;; information even in the case of typed structures. So some of the slots
@@ -680,7 +698,7 @@ These are conditions, ordinary structures, and classes."))
     ((definition clos-classoid-mixin) &key foreign)
   "Create all CLOS classoid DEFINITION's slot definitions, unless FOREIGN."
   (unless foreign
-    (setf (slot-definitions definition)
+    (setf (direct-slots definition)
 	  (mapcar (lambda (slot) (make-clos-slot-definition slot definition))
 	    (sb-mop:class-direct-slots (classoid definition))))))
 
@@ -712,6 +730,10 @@ These are conditions, ordinary structures, and classes."))
     :accessor substructure-definitions))
   (:documentation "The class of CLOS structure definitions."))
 
+
+
+;; Typed structures
+
 (defclass typed-structure-definition (structure-definition)
   ((type :documentation "The structure type, either LIST or VECTOR."
 	 :initarg :type :accessor structure-type)
@@ -730,7 +752,7 @@ Unless FOREIGN, also compute its slot definitions."
   (setf (structure-type definition) (sb-kernel:dd-type structure))
   (setf (element-type definition) (sb-kernel::dd-element-type structure))
   (unless foreign
-    (setf (slot-definitions definition)
+    (setf (direct-slots definition)
 	  (mapcar (lambda (slot)
 		    (make-typed-structure-slot-definition slot definition))
 	    (sb-kernel:dd-slots (definition-structure definition))))))
@@ -739,19 +761,6 @@ Unless FOREIGN, also compute its slot definitions."
 (defmethod docstring ((definition typed-structure-definition))
   "Return typed structure DEFINITION's docstring."
   (sb-kernel::dd-doc (definition-structure definition)))
-
-;; #### PORTME.
-(defun make-classoid-definition (symbol classoid &optional foreign)
-  "Make a new CLASSOID definition for SYMBOL, possibly FOREIGN.
-The concrete class of the new definition (structure, class, or condition)
-depends on the kind of CLASSOID."
-  (make-instance
-      (typecase classoid
-	(sb-pcl::condition-class 'condition-definition)
-	(sb-pcl::structure-class 'clos-structure-definition)
-	(sb-kernel:defstruct-description 'typed-structure-definition)
-	(otherwise 'class-definition))
-    :symbol symbol :classoid classoid :foreign foreign))
 
 
 

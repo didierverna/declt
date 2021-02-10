@@ -710,10 +710,10 @@ providing only basic information."
 	     (sort (method-definitions ,the-definition) #'string-lessp
 	       :key #'definition-symbol)
 	     t)
-	   (when-let (slot-definitions (slot-definitions ,the-definition))
+	   (when-let (direct-slots (direct-slots ,the-definition))
 	     (@tableitem "Direct slots"
-	       (dolist (slot-definition slot-definitions)
-		 (document slot-definition ,the-context))))
+	       (dolist (direct-slot direct-slots)
+		 (document direct-slot ,the-context))))
 	   ,@body)))))
 
 (defmethod document ((definition classoid-definition) context &key)
@@ -752,10 +752,10 @@ which also documents direct default initargs."
 	  ;; #### WARNING: casing policy.
 	  (format t "@t{~(~S~)}~%" (structure-type definition))
 	  (format t "@t{(vector ~(~A~))}~%" (element-type definition))))
-      (when-let (slot-definitions (slot-definitions definition))
+      (when-let (direct-slots (direct-slots definition))
 	(@tableitem "Direct slots"
-	  (dolist (slot-definition slot-definitions)
-	    (document slot-definition context)))))))
+	  (dolist (direct-slot direct-slots)
+	    (document direct-slot context)))))))
 
 
 

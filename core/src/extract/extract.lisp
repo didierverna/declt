@@ -285,15 +285,13 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
 	      (definition (make-classoid-definition symbol classoid)))
     (setq definitions
 	  (append definitions
-		  (cons definition
-			(copy-list (slot-definitions definition))))))
+		  (cons definition (copy-list (direct-slots definition))))))
   ;; Typed structures
   (when-let* ((structure (sb-int:info :typed-structure :info symbol))
 	      (definition (make-classoid-definition symbol structure)))
     (setq definitions
 	  (append definitions
-		  (cons definition
-			(copy-list (slot-definitions definition))))))
+		  (cons definition (copy-list (direct-slots definition))))))
   ;; Types
   (when (eql (sb-int:info :type :kind symbol) :defined)
     (endpush (make-type-definition symbol) definitions))
