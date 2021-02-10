@@ -246,25 +246,25 @@ DEFINITIONS in the process."
 (defmethod finalize progn
   ((definition short-combination-definition) definitions
    &aux (name (sb-pcl::short-combination-operator (combination definition))))
-  "Compute short method combination DEFINITION's operator definition."
-  (unless (operator-definition definition)
-    (setf (operator-definition definition)
+  "Compute short combination DEFINITION's standalone combinator definition."
+  (unless (standalone-combinator definition)
+    (setf (standalone-combinator definition)
 	  (find* name definitions
 	    :pre-test (lambda (candidate)
 			(or (typep candidate 'macro-definition)
 			    (typep candidate 'function-definition)))
 	    :key #'name))) ;; EQ test will filter out setf functions
-  (unless (or (operator-definition definition) (foreignp definition))
-    (let* ((operator-package-definition
+  (unless (or (standalone-combinator definition) (foreignp definition))
+    (let* ((combinator-package
 	     (find-definition (symbol-package name) definitions))
-	   (operator-definition
-	     (unless (and operator-package-definition
-			  (not (foreignp operator-package-definition)))
+	   (standalone-combinator
+	     (unless (and combinator-package
+			  (not (foreignp combinator-package)))
 	       (foreign-funcoid-definition name))))
-      (cond (operator-definition
+      (cond (standalone-combinator
 	     (setq *finalized* nil)
-	     (endpush operator-definition definitions)
-	     (setf (operator-definition definition) operator-definition))
+	     (endpush standalone-combinator definitions)
+	     (setf (standalone-combinator definition) standalone-combinator))
 	    (t
 	     (warn "~S: undefined operator for short method combination ~S."
 		   name (name definition)))))))

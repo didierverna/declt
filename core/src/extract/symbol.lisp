@@ -434,15 +434,13 @@ These are generic functions using this combination."
 ;; #### WARNING: the CLHS specifies that the :operator argument to
 ;; DEFINE-METHOD-COMBINATION is an /operator/, but later on claims that it is
 ;; a /symbol/. Experimentation seems to demonstrate that it must be a symbol.
-;; #### NOTE: even the short form is a funcoid, because of the optional ORDER
-;; option which defaults to :most-specific-first.
 (defclass short-combination-definition (combination-definition)
-  ((operator-definition
-    :documentation "The corresponding operator definition, or NIL.
+  ((standalone-combinator
+    :documentation "The corresponding standalone combinator definition, or NIL.
 This is a function or macro definition. Note that if this definition
 is unavailable, it means that the method combination itself cannot be used
 (yet)."
-    :initform nil :accessor operator-definition))
+    :initform nil :accessor standalone-combinator))
   (:documentation "The class of short method combination definitions."))
 
 (defclass long-combination-definition (combination-definition)

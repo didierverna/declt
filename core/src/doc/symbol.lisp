@@ -448,9 +448,9 @@ providing only basic information."
 (defmethod document ((definition short-combination-definition) context &key)
   "Render short method combination DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
-    (let ((operator-definition (operator-definition definition)))
-      (cond (operator-definition
-	     (@tableitem "Operator" (reference operator-definition)))
+    (let ((standalone-combinator (standalone-combinator definition)))
+      (cond (standalone-combinator
+	     (@tableitem "Operator" (reference standalone-combinator)))
 	    ((not (foreignp definition))
 	     (@tableitem "Operator" (princ "@i{missing}")))))
     (@tableitem "Indentity with one argument"
