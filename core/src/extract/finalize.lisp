@@ -212,9 +212,36 @@ DEFINITIONS in the process."
 
 
 
-;; -------------------
+;; -----------------
+;; Generic functions
+;; -----------------
+
+;; #### NOTE: contrary to the case of short form setf expanders and short form
+;; method combinations, it seems that the method combination object must exist
+;; when a generic function is created (I'm getting errors otherwise). This
+;; means that if we cannot find the combination definition right now, it must
+;; be a foreign one.
+
+;; #### PORTME.
+(defmethod finalize progn
+    ((definition generic-function-definition) definitions
+     &aux (combination
+	   (sb-mop:generic-function-method-combination (generic definition))))
+  "Compute generic function DEFINITION's method combination definition."
+  (unless (combination definition)
+    (setf (combination definition) (find-definition combination definitions)))
+  (unless (or (combination definition) (foreignp definition))
+    (let ((combination-definition
+	    (make-combination-definition
+	     (sb-pcl::method-combination-type-name combination)
+	     combination t)))
+      (setq *finalized* nil)
+      (endpush combination-definition definitions)
+      (setf (combination definition) combination-definition))))
+
+
+
 ;; Method combinations
-;; -------------------
 
 ;; #### NOTE: after Christophe's changes to SBCL following my ELS paper, I
 ;; think we can reliably access the method combination object's hashtable of
@@ -270,37 +297,9 @@ DEFINITIONS in the process."
 
 
 
-;; -----------------
-;; Generic functions
-;; -----------------
-
-;; #### NOTE: contrary to the case of short form setf expanders and short form
-;; method combinations, it seems that the method combination object must exist
-;; when a generic function is created (I'm getting errors otherwise). This
-;; means that if we cannot find the combination definition right now, it must
-;; be a foreign one.
-
-;; #### PORTME.
-(defmethod finalize progn
-    ((definition generic-function-definition) definitions
-     &aux (combination
-	   (sb-mop:generic-function-method-combination (generic definition))))
-  "Compute generic function DEFINITION's method combination definition."
-  (unless (combination definition)
-    (setf (combination definition) (find-definition combination definitions)))
-  (unless (or (combination definition) (foreignp definition))
-    (let ((combination-definition
-	    (make-combination-definition
-	     (sb-pcl::method-combination-type-name combination)
-	     combination t)))
-      (setq *finalized* nil)
-      (endpush combination-definition definitions)
-      (setf (combination definition) combination-definition))))
-
-
-
 ;; Methods
 ;; -------
+
 ;; #### PORTME.
 (defmethod finalize progn
     ((definition method-definition) definitions)
@@ -345,8 +344,77 @@ DEFINITIONS in the process."
 ;; as their names always go hand in hand.
 
 
+;; Classes
+
+;; #### PORTME.
+(defmethod finalize progn
+    ((definition clos-classoid-mixin) definitions &aux classoid-definitions)
+  "Compute classoid DEFINITION's super/sub classoids, and method definitions."
+  ;; #### NOTE: a case could be made to avoid rebuilding the whole lists here,
+  ;; and only add what's missing, but I don't think it's worth the trouble.
+  (flet ((get-classoid-definition (classoid)
+	   (let ((classoid-definition (find-definition classoid definitions)))
+	     (cond (classoid-definition
+		    (push classoid-definition classoid-definitions))
+		   ((not (foreignp definition))
+		    (setq classoid-definition
+			  (make-classoid-definition
+			   (class-name classoid) classoid t))
+		    (setq *finalized* nil)
+		    (endpush classoid-definition definitions)
+		    (endpush classoid-definition classoid-definitions))))))
+    (mapc #'get-classoid-definition
+      (sb-mop:class-direct-superclasses (classoid definition)))
+    (setf (direct-superclassoids definition) classoid-definitions)
+    (setq classoid-definitions nil) ;; yuck.
+    (mapc #'get-classoid-definition
+      (sb-mop:class-direct-subclasses (classoid definition)))
+    (setf (direct-subclassoids definition) classoid-definitions))
+  (setf (direct-methods definition)
+	(mapcan
+	    (lambda (method)
+	      (let* ((generic (sb-mop:method-generic-function method))
+		     (generic-definition (find-definition generic definitions))
+		     (method-definition
+		       (when generic-definition
+			 (find method (methods generic-definition)
+			   :key #'definition-method))))
+		(if method-definition
+		  (list method-definition)
+		  ;; Starting here, that is, if we're missing the method
+		  ;; definition, or the whole generic definition, it means
+		  ;; that we're dealing with a foreign definition.
+		  (unless (foreignp definition)
+		    (cond (generic-definition
+			   (setq method-definition
+				 (make-method-definition
+				  method generic-definition t))
+			   (setq *finalized* nil)
+			   (endpush method-definition definitions)
+			   (endpush method-definition
+				    (methods generic-definition))
+			   (list method-definition))
+			  (t
+			   (setq generic-definition
+				 (make-generic-definition generic t))
+			   (setq method-definition
+				 (make-method-definition
+				  method generic-definition t))
+			   (setq *finalized* nil)
+			   (endpush method-definition definitions)
+			   (endpush method-definition
+				    (methods generic-definition))
+			   (endpush generic-definition definitions)
+			   (list method-definition)))))))
+	  (sb-mop:specializer-direct-methods (classoid definition)))))
+
+
+
 ;; Slots
 ;; -----
+
+;; #### FIXME: this whole section needs factoring.
+
 
 ;; #### NOTE: we can't completely unify the finalization of slot readers and
 ;; writers because structure classes behave differently from condition and
@@ -476,9 +544,6 @@ This function is used for regular class and condition slots."
      (finalize-clos-classoid-slot definition definitions))))
 
 
-;; #### FIXME: we should have more abstaction here. Only the LET* binding code
-;; differ from that of the clos structure code. The rest is the same.
-
 ;; #### PORTME.
 (defmethod finalize progn
     ((definition typed-structure-slot-definition) definitions
@@ -515,76 +580,9 @@ This function is used for regular class and condition slots."
 
 
 
-;; Classes
-;; -------
-
-;; #### PORTME.
-(defmethod finalize progn
-    ((definition clos-classoid-mixin) definitions &aux classoid-definitions)
-  "Compute classoid DEFINITION's super/sub classoids, and method definitions."
-  ;; #### NOTE: a case could be made to avoid rebuilding the whole lists here,
-  ;; and only add what's missing, but I don't think it's worth the trouble.
-  (flet ((get-classoid-definition (classoid)
-	   (let ((classoid-definition (find-definition classoid definitions)))
-	     (cond (classoid-definition
-		    (push classoid-definition classoid-definitions))
-		   ((not (foreignp definition))
-		    (setq classoid-definition
-			  (make-classoid-definition
-			   (class-name classoid) classoid t))
-		    (setq *finalized* nil)
-		    (endpush classoid-definition definitions)
-		    (endpush classoid-definition classoid-definitions))))))
-    (mapc #'get-classoid-definition
-      (sb-mop:class-direct-superclasses (classoid definition)))
-    (setf (direct-superclassoids definition) classoid-definitions)
-    (setq classoid-definitions nil) ;; yuck.
-    (mapc #'get-classoid-definition
-      (sb-mop:class-direct-subclasses (classoid definition)))
-    (setf (direct-subclassoids definition) classoid-definitions))
-  (setf (direct-methods definition)
-	(mapcan
-	    (lambda (method)
-	      (let* ((generic (sb-mop:method-generic-function method))
-		     (generic-definition (find-definition generic definitions))
-		     (method-definition
-		       (when generic-definition
-			 (find method (methods generic-definition)
-			   :key #'definition-method))))
-		(if method-definition
-		  (list method-definition)
-		  ;; Starting here, that is, if we're missing the method
-		  ;; definition, or the whole generic definition, it means
-		  ;; that we're dealing with a foreign definition.
-		  (unless (foreignp definition)
-		    (cond (generic-definition
-			   (setq method-definition
-				 (make-method-definition
-				  method generic-definition t))
-			   (setq *finalized* nil)
-			   (endpush method-definition definitions)
-			   (endpush method-definition
-				    (methods generic-definition))
-			   (list method-definition))
-			  (t
-			   (setq generic-definition
-				 (make-generic-definition generic t))
-			   (setq method-definition
-				 (make-method-definition
-				  method generic-definition t))
-			   (setq *finalized* nil)
-			   (endpush method-definition definitions)
-			   (endpush method-definition
-				    (methods generic-definition))
-			   (endpush generic-definition definitions)
-			   (list method-definition)))))))
-	  (sb-mop:specializer-direct-methods (classoid definition)))))
-
-
-
-;; --------
+;; ==========================================================================
 ;; Packages
-;; --------
+;; ==========================================================================
 
 (defmethod finalize progn
     ((definition package-definition) definitions
@@ -623,7 +621,7 @@ DEFINITIONS in the process."
 
 
 ;; ==========================================================================
-;; Components
+;; ASDF Components
 ;; ==========================================================================
 
 (defun make-component-definition (component &optional foreign)
