@@ -246,6 +246,7 @@ and methods for classes or conditions slots."))
 ;; ---------------
 
 ;; Macros
+
 (defclass macro-definition (funcoid-definition expander-mixin)
   ((object :initarg :macro :reader macro)) ;; slot overload
   (:documentation "The class of macro definitions."))
@@ -258,6 +259,7 @@ and methods for classes or conditions slots."))
 
 
 ;; Compiler macros
+
 (defclass compiler-macro-definition (funcoid-definition)
   ((object ;; slot overload
     :initarg :compiler-macro :reader definition-compiler-macro))
@@ -287,6 +289,7 @@ and methods for classes or conditions slots."))
 
 
 ;; Types
+
 (defclass type-definition (funcoid-definition)
   ()
   (:documentation "The class of type definitions."))
@@ -316,16 +319,16 @@ and methods for classes or conditions slots."))
 
 (defabstract expander-definition (setf-mixin funcoid-definition)
   ((object :initarg :expander :reader expander) ;; slot overload
-   (access-definition
+   (standalone-reader
     :documentation
-    "A corresponding access-fn definition, or NIL.
+    "A standalone reader definition for this definition's expander, or NIL.
 If it exists, it's a definition for a function or macro with the same
 signature as that of the expander's access-fn. Note that the Common Lisp
 standard does not impose any actual relation between the setf expander and its
 access-fn. In fact, the access-fn may not even exist at all. However, if it
 does, it is very likely that it is a reader for the place updated by this setf
 expander."
-    :initform nil :accessor access-definition))
+    :initform nil :accessor standalone-reader))
   (:documentation "Abstract root class for setf expander definitions."))
 
 (defmethod docstring ((definition expander-definition))
@@ -335,11 +338,12 @@ expander."
 
 (defclass short-expander-definition (expander-definition)
   ((object :reader update-fn-name) ;; slot overload
-   (update-definition
-    :documentation "The corresponding update-fn definition, or NIL.
+   (standalone-writer
+    :documentation
+    "A standalone writer definition for this definition's expander, or NIL.
 This is a function or macro definition. Note that if this definition
 is unavailable, it means that the expander itself cannot be used (yet)."
-    :initform nil :accessor update-definition))
+    :initform nil :accessor standalone-writer))
   (:documentation "The class of short form setf expanders definitions.
 Short form setf expanders simply expand to a globally defined function or
 macro."))

@@ -168,15 +168,15 @@ DEFINITIONS in the process."
 (defmethod finalize progn
     ((definition expander-definition) definitions
      &aux (name (definition-symbol definition))) ;; don't want the setf part
-  "Compute setf expander DEFINTIION's access definition."
+  "Compute setf expander DEFINTIION's standalone reader definition."
   ;; #### NOTE: same remark as above when finalizing and expander-for
   ;; definition: if this expander is our own, then we /will/ find a definition
-  ;; for its access-definition if it exists, as it is for the same symbol.
+  ;; for its standalone-reader if it exists, as it is for the same symbol.
   ;; Otherwise, we don't care if we find a definition or not. So we never need
-  ;; to create a foreign access definition.
+  ;; to create a foreign standalone reader definition.
   (multiple-value-bind (lambda-list unavailable) (lambda-list definition)
-    (unless (or (access-definition definition) unavailable)
-      (setf (access-definition definition)
+    (unless (or (standalone-reader definition) unavailable)
+      (setf (standalone-reader definition)
 	    (find-if (lambda (candidate)
 		       (and (or (typep candidate 'macro-definition)
 				(typep candidate 'function-definition))
@@ -188,27 +188,27 @@ DEFINITIONS in the process."
 (defmethod finalize progn
     ((definition short-expander-definition) definitions
      &aux (name (update-fn-name definition)))
-  "Computer short setf expander DEFINITION's update definition."
-  (unless (update-definition definition)
-    (setf (update-definition definition)
+  "Computer short setf expander DEFINITION's standalone writer definition."
+  (unless (standalone-writer definition)
+    (setf (standalone-writer definition)
 	  (find* name definitions
 	    :pre-test (lambda (candidate)
 			(or (typep candidate 'macro-definition)
 			    (typep candidate 'function-definition)))
 	    :key #'name))) ;; EQ test will filter out setf functions.
-  (unless (or (update-definition definition) (foreignp definition))
-    (let* ((update-package-definition
+  (unless (or (standalone-writer definition) (foreignp definition))
+    (let* ((package-definition
 	     (find-definition (symbol-package name) definitions))
-	   (update-definition
-	     (unless (and update-package-definition
-			  (not (foreignp update-package-definition)))
+	   (writer-definition
+	     (unless (and package-definition
+			  (not (foreignp package-definition)))
 	       (foreign-funcoid-definition name))))
-      (cond (update-definition
+      (cond (writer-definition
 	     (setq *finalized* nil)
-	     (endpush update-definition definitions)
-	     (setf (update-definition definition) update-definition))
+	     (endpush writer-definition definitions)
+	     (setf (standalone-writer definition) writer-definition))
 	    (t
-	     (warn "~S: undefined update-fn for short form setf expander ~S."
+	     (warn "~S: undefined writer for short form setf expander ~S."
 		   name (name definition)))))))
 
 

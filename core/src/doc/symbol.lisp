@@ -408,22 +408,22 @@ providing only basic information."
 (defmethod document ((definition short-expander-definition) context &key)
   "Render short setf expander DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
-    (when-let (access-definition (access-definition definition))
+    (when-let (standalone-reader (standalone-reader definition))
       (@tableitem "Reader"
-	(reference access-definition)))
-    (let ((update-definition (update-definition definition)))
-      (cond (update-definition
+	(reference standalone-reader)))
+    (let ((standalone-writer (standalone-writer definition)))
+      (cond (standalone-writer
 	     (@tableitem "Writer"
-	       (reference (update-definition definition))))
+	       (reference (standalone-writer definition))))
 	    ((not (foreignp definition))
 	     (@tableitem "Writer" (princ "@i{missing}")))))))
 
 (defmethod document ((definition long-expander-definition) context &key)
   "Render long setf expander DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
-    (when-let (access-definition (access-definition definition))
+    (when-let (standalone-reader (standalone-reader definition))
       (@tableitem "Reader"
-	(reference access-definition)))))
+	(reference standalone-reader)))))
 
 
 
