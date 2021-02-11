@@ -1,6 +1,6 @@
 ;;; net.didierverna.declt.core.asd --- ASDF system definition, core library
 
-;; Copyright (C) 2015 Didier Verna
+;; Copyright (C) 2015, 2021 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -43,10 +43,9 @@ net.didierverna.declt system."
   :version #.(net.didierverna.declt.setup:version :short)
   :if-feature :sbcl
   :depends-on (:net.didierverna.declt.setup
-	       (:feature :sbcl :sb-introspect)
-	       :named-readtables)
+	       (:feature :sbcl :sb-introspect))
   :serial t
-  :components ((:file "meta")
+  :components ((:file "package")
 	       (:module "src"
 		:serial t
 		:components ((:module "util"

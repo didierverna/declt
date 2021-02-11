@@ -1,4 +1,4 @@
-;;; meta.lisp --- Meta utilities
+;;; package.lisp --- Declt package definition
 
 ;; Copyright (C) 2010-2013, 2015, 2017, 2021 Didier Verna
 
@@ -28,15 +28,9 @@
 (in-package :cl-user)
 
 
-
-;; ==========================================================================
-;; Package Definition
-;; ==========================================================================
 (defpackage :net.didierverna.declt
-  (:documentation
-   "The Documentation Extractor from Common Lisp to Texinfo package.")
+  (:documentation "The Declt library's package.")
   (:use :cl :net.didierverna.declt.setup)
-  (:import-from :named-readtables :in-readtable)
   ;; #### PORTME.
   (:import-from #+sbcl :sb-mop
 		:generic-function-name
@@ -101,58 +95,11 @@
 
 (in-package :net.didierverna.declt)
 
-
-
-;; ------------------
-;; External utilities
-;; ------------------
-
 (defun nickname-package (&optional (nickname :declt))
   "Add NICKNAME (:DECLT by default) to the :NET.DIDIERVERNA.DECLT package."
   (rename-package :net.didierverna.declt
 		  (package-name :net.didierverna.declt)
 		  (adjoin nickname (package-nicknames :net.didierverna.declt)
 			  :test #'string-equal)))
-
-
-
-
-;; ==========================================================================
-;; Readtable Management
-;; ==========================================================================
-
-;; ----------------------------
-;; Code indentation information
-;; ----------------------------
-
-(defun clindent (symbol indent)
-  "Send SYMBOL's INDENTation information to Emacs.
-Emacs will set the 'common-lisp-indent-function property.
-If INDENT is a symbol, use its indentation definition. Otherwise, INDENT is
-considered as an indentation definition."
-  (when (and (member :swank *features*) (configuration :swank-eval-in-emacs))
-    ;; #### NOTE: case portability
-    (funcall (intern (string :eval-in-emacs) :swank)
-      `(put ',symbol 'common-lisp-indent-function
-	    ,(if (symbolp indent)
-	       `(get ',indent 'common-lisp-indent-function)
-	       `',indent))
-      t)))
-
-(defmacro defindent (symbol indent)
-  "Wrapper around `clindent' to avoid quoting SYMBOL and INDENT."
-  `(eval-when (:compile-toplevel :execute :load-toplevel)
-     (clindent ',symbol ',indent)))
-
-(defun i-reader (stream subchar arg)
-  "Construct a call to `defindent' by reading an argument list from STREAM.
-This dispatch macro character function is installed on #i in the
-NET.DIDIERVERNA.DECLT named readtable."
-  (declare (ignore subchar arg))
-  (cons 'defindent (read stream)))
-
-(named-readtables:defreadtable :net.didierverna.declt
-  (:merge :standard)
-  (:dispatch-macro-char #\# #\i #'i-reader))
 
 ;;; meta.lisp ends here

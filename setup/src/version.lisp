@@ -1,6 +1,6 @@
-;;; setup.lisp --- Declt setup
+;;; version.lisp --- Declt version management
 
-;; Copyright (C) 2015, 2017, 2019 Didier Verna
+;; Copyright (C) 2015, 2017, 2019, 2021 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -26,22 +26,11 @@
 
 ;;; Code:
 
-(defpackage :net.didierverna.declt.setup
-  (:documentation "Documentation Extractor from Common Lisp to Texinfo.")
-  (:use :cl)
-  (:export
-   :*release-major-level* :*release-minor-level* :*release-status*
-   :*release-status-level* :*release-name*
-   :version
-   :configuration
-   :configure))
-
 (in-package :net.didierverna.declt.setup)
 
 
-;; ----------
-;; Versioning
-;; ----------
+
+;; Version specifiers
 
 (defparameter *release-major-level* 3
   "The major level of this release.")
@@ -58,6 +47,10 @@
 (defparameter *release-name* "Montgomery Scott"
   "The name of this release.
 The general naming theme for Declt is \"Star Trek characters\".")
+
+
+
+;; Internal utilities
 
 (defun release-status-number (release-status)
   (ecase release-status
@@ -104,6 +97,10 @@ The general naming theme for Declt is \"Star Trek characters\".")
        level
        name))))
 
+
+
+;; Entry point
+
 (defun version (&optional (type :number))
   "Return the current version of Declt.
 TYPE can be one of :number, :short or :long.
@@ -123,25 +120,4 @@ the short version, a patchlevel of 0 is ignored in the output."
 	    *release-status* *release-status-level*
 	    *release-name*))
 
-
-;; -------------
-;; Configuration
-;; -------------
-
-(defvar *configuration* nil
-  "The Declt configuration settings.
-This variable contains a property list of configuration options.
-Current options are:
-- :swank-eval-in-emacs (Boolean)
-
-See section A.1 of the user manual for more information.")
-
-(defun configuration (key)
-  "Return KEY's value in the current Declt configuration."
-  (getf *configuration* key))
-
-(defun configure (key value)
-  "Set KEY to VALUE in the current Declt configuration."
-  (setf (getf *configuration* key) value))
-
-;;; setup.lisp ends here
+;;; version.lisp ends here

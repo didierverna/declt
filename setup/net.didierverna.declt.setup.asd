@@ -1,6 +1,6 @@
 ;;; net.didierverna.setup.setup.asd --- ASDF system definition
 
-;; Copyright (C) 2015 Didier Verna
+;; Copyright (C) 2015, 2021 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -31,14 +31,21 @@
   "Documentation Extractor from Common Lisp to Texinfo, setup library"
   :description "Declt's preload setup library"
   :long-description "\
-Declt's setup library provides support for various preload configuration
-parameters. For a more complete description of Declt, see the
-net.didierverna.declt system."
+The Declt setup library provides support for various preload configuration
+parameters and meta-utilities. For a more complete description of Declt,
+see the `net.didierverna.declt' system."
   :author "Didier Verna"
   :mailto "didier@didierverna.net"
   :homepage "http://www.lrde.epita.fr/~didier/software/lisp/misc.php#declt"
   :source-control "https://github.com/didierverna/declt"
   :license "BSD"
-  :components ((:file "setup")))
+  :depends-on (:named-readtables)
+  :serial t
+  :components ((:file "package")
+	       (:module "src"
+		:components ((:file "version")
+			     (:file "configuration")
+			     (:file "readtable"
+			      :depends-on ("configuration"))))))
 
 ;;; net.didierverna.declt.setup.asd ends here
