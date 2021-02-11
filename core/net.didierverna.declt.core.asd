@@ -43,7 +43,8 @@ net.didierverna.declt system."
   :version #.(net.didierverna.declt.setup:version :short)
   :if-feature :sbcl
   :depends-on (:net.didierverna.declt.setup
-	       (:feature :sbcl :sb-introspect))
+	       (:feature :sbcl :sb-introspect)
+	       :named-readtables)
   :serial t
   :components ((:file "meta")
 	       (:module "src"

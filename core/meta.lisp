@@ -1,6 +1,6 @@
 ;;; meta.lisp --- Meta utilities
 
-;; Copyright (C) 2010-2013, 2015, 2017 Didier Verna
+;; Copyright (C) 2010-2013, 2015, 2017, 2021 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -27,11 +27,16 @@
 
 (in-package :cl-user)
 
+
+
+;; ==========================================================================
+;; Package Definition
+;; ==========================================================================
 (defpackage :net.didierverna.declt
   (:documentation
    "The Documentation Extractor from Common Lisp to Texinfo package.")
   (:use :cl :net.didierverna.declt.setup)
-  (:shadow :*readtable*)
+  (:import-from :named-readtables :in-readtable)
   ;; #### PORTME.
   (:import-from #+sbcl :sb-mop
 		:generic-function-name
@@ -97,9 +102,10 @@
 (in-package :net.didierverna.declt)
 
 
-;; -------------------
-;; External utilities:
-;; -------------------
+
+;; ------------------
+;; External utilities
+;; ------------------
 
 (defun nickname-package (&optional (nickname :declt))
   "Add NICKNAME (:DECLT by default) to the :NET.DIDIERVERNA.DECLT package."
@@ -109,78 +115,44 @@
 			  :test #'string-equal)))
 
 
-;; -------------------
-;; Internal utilities:
-;; -------------------
 
-(defvar *readtable* (copy-readtable)
-  "The Declt readtable.")
+
+;; ==========================================================================
+;; Readtable Management
+;; ==========================================================================
 
+;; ----------------------------
+;; Code indentation information
+;; ----------------------------
 
-;; String concatenation
-;; --------------------
-(defun tilde-reader (stream char)
-  "Read a series of ~\"string\" to be concatenated together."
-  (declare (ignore char))
-  (flet ((read-string (&aux (string (read stream t nil t)))
-	   (check-type string string "a string")
-	   string))
-    (apply #'concatenate 'string
-	   (read-string)
-	   (loop :while (char= (peek-char t stream nil nil t) #\~)
-		 :do (read-char stream t nil t)
-		 :collect (read-string)))))
-
-(set-macro-character #\~ #'tilde-reader nil *readtable*)
-
-;; Emacs indentation
-;; -----------------
 (defun clindent (symbol indent)
-  "Set SYMBOL's indentation to INDENT in (X)Emacs.
-This function sets SYMBOL's common-lisp-indent-function property.
-If INDENT is a symbol, use its indentation definition.
-Otherwise, INDENT is considered as an indentation definition."
-  (when (and (member :swank *features*)
-	     (configuration :swank-eval-in-emacs))
-    (funcall (intern "EVAL-IN-EMACS" :swank)
-	     `(put ',symbol 'common-lisp-indent-function
-		   ,(if (symbolp indent)
-			`(get ',indent 'common-lisp-indent-function)
-		      `',indent))
-	     t)))
+  "Send SYMBOL's INDENTation information to Emacs.
+Emacs will set the 'common-lisp-indent-function property.
+If INDENT is a symbol, use its indentation definition. Otherwise, INDENT is
+considered as an indentation definition."
+  (when (and (member :swank *features*) (configuration :swank-eval-in-emacs))
+    ;; #### NOTE: case portability
+    (funcall (intern (string :eval-in-emacs) :swank)
+      `(put ',symbol 'common-lisp-indent-function
+	    ,(if (symbolp indent)
+	       `(get ',indent 'common-lisp-indent-function)
+	       `',indent))
+      t)))
 
 (defmacro defindent (symbol indent)
-  "Set SYMBOL's indentation to INDENT in (X)Emacs.
-SYMBOL and INDENT need not be quoted.
-See CLINDENT for more information."
+  "Wrapper around `clindent' to avoid quoting SYMBOL and INDENT."
   `(eval-when (:compile-toplevel :execute :load-toplevel)
      (clindent ',symbol ',indent)))
 
 (defun i-reader (stream subchar arg)
-  "Read an argument list for the DEFINDENT macro."
+  "Construct a call to `defindent' by reading an argument list from STREAM.
+This dispatch macro character function is installed on #i in the
+NET.DIDIERVERNA.DECLT named readtable."
   (declare (ignore subchar arg))
   (cons 'defindent (read stream)))
 
-(set-dispatch-macro-character #\# #\i #'i-reader *readtable*)
-
-
-(defmacro in-readtable (name)
-  "Set the current readtable to the value of NAME::*READTABLE*."
-  `(eval-when (:compile-toplevel :load-toplevel :execute)
-     (setf cl:*readtable* (symbol-value (find-symbol "*READTABLE*" ,name)))))
-
-
-;; --------------------
-;; Very early utilities
-;; --------------------
-
-;; Quickutil
-(defun generate-quickutils ()
-  "Generate the offline quickutil file."
-  (funcall (intern "SAVE-UTILS-AS" :quickutil-client)
-	   (merge-pathnames (make-pathname :name "quickutil" :type "lisp")
-			    (asdf:system-source-directory
-			     :net.didierverna.declt.core))
-	   :when-let))
+(named-readtables:defreadtable :net.didierverna.declt
+  (:merge :standard)
+  (:dispatch-macro-char #\# #\i #'i-reader))
 
 ;;; meta.lisp ends here
