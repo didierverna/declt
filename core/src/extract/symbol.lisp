@@ -788,6 +788,9 @@ Unless FOREIGN, also compute its slot definitions."
     :initform nil :accessor writers))
   (:documentation "Abstract root class for slots."))
 
+(defgeneric value-type (definition)
+  (:documentation "Return slot DEFINITION's value type."))
+
 
 (defclass clos-slot-definition (slot-definition)
   ()
@@ -804,8 +807,13 @@ Unless FOREIGN, also compute its slot definitions."
 
 ;; #### PORTME.
 (defmethod docstring ((definition clos-slot-definition))
-  "Return slot DEFINITION's docstring."
+  "Return CLOS slot DEFINITION's docstring."
   (sb-pcl::%slot-definition-documentation (slot definition)))
+
+;; #### PORTME.
+(defmethod value-type ((definition clos-slot-definition))
+  "Return CLOS slot DEFINITION's value type."
+  (sb-mop:slot-definition-type (slot definition)))
 
 
 (defclass typed-structure-slot-definition (slot-definition)
@@ -824,5 +832,10 @@ Unless FOREIGN, also compute its slot definitions."
 (defmethod docstring ((definition typed-structure-slot-definition))
   "Return NIL."
   nil)
+
+;; #### PORTME.
+(defmethod value-type ((definition typed-structure-slot-definition))
+  "Return typed structure slot DEFINITION's value type."
+  (sb-kernel:dsd-type (slot definition)))
 
 ;;; symbol.lisp ends here

@@ -208,7 +208,13 @@ providing only basic information."
   (render-varoid definition context
     (unless (eq (home-package definition) (home-package (owner definition)))
       (@tableitem "Package" (reference (home-package definition) t)))
-    (render-slot-property slot :type)
+    ;; #### FIXME: not rendering standard / default values should be a context
+    ;; choice.
+    (unless (eq (value-type definition) t)
+      (@tableitem "Type"
+	(format t "@t{~A}~%"
+	  ;; #### WARNING: casing policy.
+	  (escape (format nil "~(~S~)" (value-type definition))))))
     (render-slot-property slot :allocation)
     (render-slot-property slot :initform)
     (render-slot-property slot :initargs
@@ -230,9 +236,7 @@ providing only basic information."
 
 ;; #### PORTME.
 (defmethod document
-    ((definition typed-structure-slot-definition) context
-     &key
-     &aux (slot (slot definition)))
+    ((definition typed-structure-slot-definition) context &key)
   "Render typed structure slot DEFINITION's documentation in CONTEXT.
 - The source file is unavailable, but not documented at all anyway, since it
   is lexically the same as that of the parent classoid.
@@ -243,11 +247,11 @@ providing only basic information."
       (@tableitem "Package" (reference (home-package definition) t)))
     ;; #### FIXME: not rendering standard / default values should be a context
     ;; choice.
-    (unless (eq (sb-kernel:dsd-type slot) t)
+    (unless (eq (value-type definition) t)
       (@tableitem "Type"
 	(format t "@t{~A}~%"
 	  ;; #### WARNING: casing policy.
-	  (escape (format nil "~(~S~)" (sb-kernel:dsd-type slot))))))
+	  (escape (format nil "~(~S~)" (value-type definition))))))
     (render-references "Readers" (readers definition))
     (render-references "Writers" (writers definition))))
 
