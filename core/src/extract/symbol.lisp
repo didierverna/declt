@@ -815,6 +815,21 @@ Unless FOREIGN, also compute its slot definitions."
   "Return CLOS slot DEFINITION's value type."
   (sb-mop:slot-definition-type (slot definition)))
 
+;; #### PORTME.
+(defun allocation (definition)
+  "Return CLOS slot DEFINITION's allocation type."
+  (sb-mop:slot-definition-allocation (slot definition)))
+
+;; #### PORTME.
+(defun initform (definition)
+  "Return CLOS slot DEFINITION's initform."
+  (sb-mop:slot-definition-initform (slot definition)))
+
+;; #### PORTME.
+(defun initargs (definition)
+  "Return CLOS slot DEFINITION's initargs."
+  (sb-mop:slot-definition-initargs (slot definition)))
+
 
 (defclass typed-structure-slot-definition (slot-definition)
   ()

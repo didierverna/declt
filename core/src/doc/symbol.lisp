@@ -171,35 +171,7 @@ providing only basic information."
   "Return \"slotsubindex\"."
   "slotsubindex")
 
-;; #### PORTME.
-(defun slot-property (slot property)
-  "Return SLOT's PROPERTY value."
-  (funcall (intern (concatenate 'string "SLOT-DEFINITION-"
-				(symbol-name property))
-		   :sb-mop)
-    slot))
-
-;; #### FIXME: not rendering standard / default values should be a context
-;; choice.
-#i(render-slot-property 2)
-(defun render-slot-property
-    (slot property
-     &key (renderer (lambda (value)
-		      (format t "@t{~A}~%"
-			;; #### WARNING: casing policy.
-			(escape (format nil "~(~S~)" value)))))
-     &aux (value (slot-property slot property)))
-  "Render SLOT's PROPERTY value as a table item on *standard-output*."
-  (when (and value
-	     (not (and (eq property :type) (eq value t)))
-	     (not (and (eq property :allocation) (eq value :instance))))
-    (@tableitem (format nil "~@(~A~)" property)
-      (funcall renderer value))))
-
-(defmethod document
-    ((definition clos-slot-definition) context
-     &key
-     &aux (slot (slot definition)))
+(defmethod document ((definition clos-slot-definition) context &key)
   "Render CLOS slot DEFINITION's documentation in CONTEXT.
 - The source file is not documented at all, since it is lexically the same as
   that of the parent classoid.
@@ -208,25 +180,30 @@ providing only basic information."
   (render-varoid definition context
     (unless (eq (home-package definition) (home-package (owner definition)))
       (@tableitem "Package" (reference (home-package definition) t)))
-    ;; #### FIXME: not rendering standard / default values should be a context
-    ;; choice.
-    (unless (eq (value-type definition) t)
-      (@tableitem "Type"
-	(format t "@t{~A}~%"
-	  ;; #### WARNING: casing policy.
-	  (escape (format nil "~(~S~)" (value-type definition))))))
-    (render-slot-property slot :allocation)
-    (render-slot-property slot :initform)
-    (render-slot-property slot :initargs
-      ;; #### FIXME: format mess. There's gotta be a better way.
-      :renderer (lambda (value)
-		  (let ((values (mapcar (lambda (val)
-					  ;; #### WARNING: casing policy.
-					  (escape (format nil "~(~S~)" val)))
-				  value)))
-		    (format t "@t{~A}~{, @t{~A}~}"
-		      (first values)
-		      (rest values)))))
+    (flet ((render (value)
+	     (format t "@t{~A}~%"
+	       ;; #### WARNING: casing policy.
+	       (escape (format nil "~(~S~)" value)))))
+      ;; #### FIXME: not rendering standard / default values should be a
+      ;; context choice.
+      (when-let (value-type (value-type definition))
+	(unless (eq value-type t)
+	  (@tableitem "Type" (render value-type))))
+      (when-let (allocation (allocation definition))
+	(unless (eq allocation :instance)
+	  (@tableitem "Allocation" (render allocation))))
+      (when-let (initform (initform definition))
+	(@tableitem "Initform" (render initform)))
+      (when-let (initargs (initargs definition))
+	(@tableitem "Initargs"
+	  ;; #### FIXME: format mess. There's gotta be a better way.
+	  (let ((values (mapcar (lambda (val)
+				  ;; #### WARNING: casing policy.
+				  (escape (format nil "~(~S~)" val)))
+			  initargs)))
+	    (format t "@t{~A}~{, @t{~A}~}"
+	      (first values)
+	      (rest values))))))
     (render-references "Readers"
       ;; #### WARNING: casing policy.
       (sort (readers definition) #'string-lessp :key #'definition-symbol)
@@ -238,7 +215,6 @@ providing only basic information."
 	(sort (writers definition) #'string-lessp :key #'definition-symbol)
 	t))))
 
-;; #### PORTME.
 (defmethod document
     ((definition typed-structure-slot-definition) context &key)
   "Render typed structure slot DEFINITION's documentation in CONTEXT.
