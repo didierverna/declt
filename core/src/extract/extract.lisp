@@ -278,7 +278,7 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
 	     ;; DOCUMENTATION here. Also, NIL options don't matter because
 	     ;; they are not advertised as part of the method combination, but
 	     ;; as part of the generic functions that use them.
-	     (sb-mop:find-method-combination #'documentation symbol nil))
+	     (find-method-combination #'documentation symbol nil))
     (endpush (make-combination-definition symbol combination) definitions))
   ;; Structures, classes, and conditions,
   (when-let* ((classoid (find-class symbol nil))

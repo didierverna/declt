@@ -33,7 +33,28 @@
   (:use :cl :net.didierverna.declt.setup)
   (:shadow :*readtable*)
   ;; #### PORTME.
-  (:import-from #+sbcl :sb-mop :validate-superclass)
+  (:import-from #+sbcl :sb-mop
+		:generic-function-name
+		:generic-function-methods
+		:generic-function-method-combination
+		:eql-specializer
+		:specializer-direct-methods
+		:method-generic-function
+		:method-lambda-list
+		:method-specializers
+		:class-direct-superclasses
+		:class-direct-subclasses
+		:class-direct-slots
+		:class-direct-default-initargs
+		:slot-definition-name
+		:slot-definition-type
+		:slot-definition-allocation
+		:slot-definition-initform
+		:slot-definition-initargs
+		:slot-definition-readers
+		:slot-definition-writers
+		:find-method-combination
+		:validate-superclass)
   (:import-from :asdf
     :component-name
     :component-version

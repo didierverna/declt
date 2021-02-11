@@ -497,13 +497,13 @@ structure."))
     (setf (methods definition)
 	  (mapcar (lambda (method)
 		    (make-method-definition method definition))
-	    (sb-mop:generic-function-methods (generic definition))))))
+	    (generic-function-methods (generic definition))))))
 
 ;; #### PORTME.
 (defun combination-options (definition)
   "Return generic function DEFINITION's method combination options."
   (sb-pcl::method-combination-options
-   (sb-mop:generic-function-method-combination (generic definition))))
+   (generic-function-method-combination (generic definition))))
 
 
 (defclass simple-generic-definition
@@ -589,10 +589,9 @@ or raw EQL specializers."
 		 :accessor specializers))
   (:documentation "Abstract root class for method definitions."))
 
-;; #### PORTME.
 (defmethod lambda-list ((definition method-definition))
   "Return method DEFINITION's method lambda-list."
-  (sb-mop:method-lambda-list (definition-method definition)))
+  (method-lambda-list (definition-method definition)))
 
 
 (defclass simple-method-definition (method-definition)
@@ -603,10 +602,9 @@ or raw EQL specializers."
   ()
   (:documentation "The class of setf method definitions."))
 
-;; #### PORTME.
-(defun method-name (method
-		    &aux (name (sb-mop:generic-function-name
-				(sb-mop:method-generic-function method))))
+(defun method-name
+    (method
+     &aux (name (generic-function-name (method-generic-function method))))
   "Return METHOD's canonical name.
 Return a second value of T if METHOD is in fact a SETF one."
   (if (listp name)
@@ -717,11 +715,11 @@ These are conditions, ordinary structures, and classes."))
   (unless foreign
     (setf (direct-slots definition)
 	  (mapcar (lambda (slot) (make-clos-slot-definition slot definition))
-	    (sb-mop:class-direct-slots (classoid definition))))))
+	    (class-direct-slots (classoid definition))))))
 
 (defun direct-default-initargs (definition)
   "Return CLOS classoid mixin DEFINITION's direct default initargs."
-  (sb-mop:class-direct-default-initargs (classoid definition)))
+  (class-direct-default-initargs (classoid definition)))
 
 
 (defclass condition-definition (classoid-definition clos-classoid-mixin)
@@ -815,11 +813,10 @@ Unless FOREIGN, also compute its slot definitions."
   ()
   (:documentation "The class of CLOS slot definitions."))
 
-;; #### PORTME.
 (defun make-clos-slot-definition (slot owner &optional foreign)
   "Make a new CLOS SLOT definition for classoid OWNER."
   (make-instance 'clos-slot-definition
-    :symbol (sb-mop:slot-definition-name slot)
+    :symbol (slot-definition-name slot)
     :slot slot
     :owner owner
     :foreign foreign))
@@ -829,25 +826,21 @@ Unless FOREIGN, also compute its slot definitions."
   "Return CLOS slot DEFINITION's docstring."
   (sb-pcl::%slot-definition-documentation (slot definition)))
 
-;; #### PORTME.
 (defmethod value-type ((definition clos-slot-definition))
   "Return CLOS slot DEFINITION's value type."
-  (sb-mop:slot-definition-type (slot definition)))
+  (slot-definition-type (slot definition)))
 
-;; #### PORTME.
 (defun allocation (definition)
   "Return CLOS slot DEFINITION's allocation type."
-  (sb-mop:slot-definition-allocation (slot definition)))
+  (slot-definition-allocation (slot definition)))
 
-;; #### PORTME.
 (defun initform (definition)
   "Return CLOS slot DEFINITION's initform."
-  (sb-mop:slot-definition-initform (slot definition)))
+  (slot-definition-initform (slot definition)))
 
-;; #### PORTME.
 (defun initargs (definition)
   "Return CLOS slot DEFINITION's initargs."
-  (sb-mop:slot-definition-initargs (slot definition)))
+  (slot-definition-initargs (slot definition)))
 
 
 (defclass typed-structure-slot-definition (slot-definition)

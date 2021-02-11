@@ -56,7 +56,7 @@ and over again until nothing moves anymore.")
 
 (defun make-generic-definition (generic &optional foreign)
   "Make a new GENERIC function definition, possibly FOREIGN."
-  (let* ((name (sb-mop:generic-function-name generic))
+  (let* ((name (generic-function-name generic))
 	 (setf (consp name))
 	 (symbol (if setf (second name) name)))
     (make-instance (if setf 'generic-setf-definition 'simple-generic-definition)
@@ -226,7 +226,7 @@ DEFINITIONS in the process."
 (defmethod finalize progn
     ((definition generic-function-definition) definitions
      &aux (combination
-	   (sb-mop:generic-function-method-combination (generic definition))))
+	   (generic-function-method-combination (generic definition))))
   "Compute generic function DEFINITION's method combination definition."
   (unless (combination definition)
     (setf (combination definition) (find-definition combination definitions)))
@@ -300,7 +300,6 @@ DEFINITIONS in the process."
 ;; Methods
 ;; -------
 
-;; #### PORTME.
 (defmethod finalize progn
     ((definition method-definition) definitions)
   "Computer method DEFINITION's specializer references."
@@ -311,7 +310,7 @@ DEFINITIONS in the process."
 		  ;; complicated than just EQL or class specializers. Let's
 		  ;; just see until this breaks on a concrete case.
 		  (typecase specializer
-		    (sb-mop:eql-specializer specializer)
+		    (eql-specializer specializer)
 		    (otherwise
 		     (let ((class-specializer
 			     (find-definition specializer definitions)))
@@ -324,7 +323,7 @@ DEFINITIONS in the process."
 			 (setq *finalized* nil)
 			 (endpush class-specializer definitions))
 		       class-specializer))))
-	  (sb-mop:method-specializers (definition-method definition)))))
+	  (method-specializers (definition-method definition)))))
 
 
 
@@ -346,7 +345,6 @@ DEFINITIONS in the process."
 
 ;; Classes
 
-;; #### PORTME.
 (defmethod finalize progn
     ((definition clos-classoid-mixin) definitions &aux classoid-definitions)
   "Compute classoid DEFINITION's super/sub classoids, and method definitions."
@@ -364,16 +362,16 @@ DEFINITIONS in the process."
 		    (endpush classoid-definition definitions)
 		    (endpush classoid-definition classoid-definitions))))))
     (mapc #'get-classoid-definition
-      (sb-mop:class-direct-superclasses (classoid definition)))
+      (class-direct-superclasses (classoid definition)))
     (setf (direct-superclassoids definition) classoid-definitions)
     (setq classoid-definitions nil) ;; yuck.
     (mapc #'get-classoid-definition
-      (sb-mop:class-direct-subclasses (classoid definition)))
+      (class-direct-subclasses (classoid definition)))
     (setf (direct-subclassoids definition) classoid-definitions))
   (setf (direct-methods definition)
 	(mapcan
 	    (lambda (method)
-	      (let* ((generic (sb-mop:method-generic-function method))
+	      (let* ((generic (method-generic-function method))
 		     (generic-definition (find-definition generic definitions))
 		     (method-definition
 		       (when generic-definition
@@ -406,7 +404,7 @@ DEFINITIONS in the process."
 				    (methods generic-definition))
 			   (endpush generic-definition definitions)
 			   (list method-definition)))))))
-	  (sb-mop:specializer-direct-methods (classoid definition)))))
+	  (specializer-direct-methods (classoid definition)))))
 
 
 
@@ -422,7 +420,6 @@ DEFINITIONS in the process."
 ;; two). That's why we have 3 methods below, two of them actually using the
 ;; same helper function.
 
-;; #### PORTME.
 (defun finalize-clos-classoid-slot
     (definition definitions
      &aux (slot (slot definition))
@@ -443,11 +440,9 @@ This function is used for regular class and condition slots."
 		  (endpush reader definitions))
 		(when reader
 		  (let* ((method
-			   (find classoid
-			       (sb-mop:generic-function-methods generic)
+			   (find classoid (generic-function-methods generic)
 			     :key (lambda (method)
-				    (first
-				     (sb-mop:method-specializers method)))))
+				    (first (method-specializers method)))))
 			 (reader-method
 			   (find-definition method (methods reader))))
 		    (unless (or reader-method (foreignp owner))
@@ -460,7 +455,7 @@ This function is used for regular class and condition slots."
 		      (change-class reader-method 'reader-method-definition
 			:target-slot definition)
 		      (list reader-method))))))
-	  (sb-mop:slot-definition-readers slot)))
+	  (slot-definition-readers slot)))
   (setf (writers definition)
 	(mapcan
 	    (lambda (name)
@@ -472,15 +467,13 @@ This function is used for regular class and condition slots."
 		  (endpush writer definitions))
 		(when writer
 		  (let* ((method
-			   (find classoid
-			       (sb-mop:generic-function-methods generic)
+			   (find classoid (generic-function-methods generic)
 			     :key (lambda (method)
 				    ;; #### NOTE: whatever the kind of writer,
 				    ;; that is, whether it is defined with
 				    ;; :writer or :accessor, the argument list
 				    ;; is always (NEW-VALUE OBJECT).
-				    (second
-				     (sb-mop:method-specializers method)))))
+				    (second (method-specializers method)))))
 			 (writer-method
 			   (find-definition method (methods writer))))
 		    (unless (or writer-method (foreignp owner))
@@ -496,7 +489,7 @@ This function is used for regular class and condition slots."
 			    'simple-writer-method-definition)
 			:target-slot definition)
 		      (list writer-method))))))
-	  (sb-mop:slot-definition-writers slot))))
+	  (slot-definition-writers slot))))
 
 ;; #### PORTME: SBCL defines writers as setf functions, but the standard
 ;; explicitly allows the use of setf expanders instead. Also, beware of this
