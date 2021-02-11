@@ -252,8 +252,10 @@ providing only basic information."
 	(format t "@t{~A}~%"
 	  ;; #### WARNING: casing policy.
 	  (escape (format nil "~(~S~)" (value-type definition))))))
-    (render-references "Readers" (readers definition))
-    (render-references "Writers" (writers definition))))
+    (render-references "Reader" (readers definition) t)
+    (if (and (readers definition) (not (writers definition)))
+      (@tableitem "Writer" (format t "@i{This slot is read-only.}~%"))
+      (render-references "Writer" (writers definition) t))))
 
 
 

@@ -544,7 +544,8 @@ This function is used for regular class and condition slots."
      (finalize-clos-classoid-slot definition definitions))))
 
 
-;; #### PORTME.
+;; #### PORTME. Note that SBCL defines writers as setf functions, but the
+;; standard explicitly allows the use of setf expanders instead.
 (defmethod finalize progn
     ((definition typed-structure-slot-definition) definitions
      &aux (slot (slot definition))
@@ -554,29 +555,37 @@ This function is used for regular class and condition slots."
   ;; per slot, so if it's already there, we can save some time because the
   ;; list of it as a single element doesn't risk being out of date. Also,
   ;; remember that readers and writers share the same status, so we only need
-  ;; to perform one test each time.
+  ;; to perform one test each time (on the reader, though, because a slot may
+  ;; be read-only).
   (unless (readers definition)
-    (let* ((accessor-name (sb-kernel:dsd-accessor-name slot))
-	   (reader-function (fdefinition accessor-name))
-	   (writer-function (fdefinition `(setf ,accessor-name)))
+    (let* ((reader-name (sb-kernel:dsd-accessor-name slot))
+	   (writer-name `(setf ,reader-name))
+	   (reader-function (fdefinition reader-name))
+	   (writer-function (when (fboundp writer-name)
+			      (fdefinition writer-name)))
 	   (reader (find-definition reader-function definitions))
-	   (writer (find-definition writer-function definitions)))
+	   (writer (when writer-function
+		     (find-definition writer-function definitions))))
       (unless (or reader (foreignp owner))
-	(setq reader (make-function-definition accessor-name reader-function
+	(setq reader (make-function-definition reader-name reader-function
 		       :foreign t))
-	(setq writer (make-function-definition accessor-name writer-function
-		       :setf t :foreign t))
+	(when writer-function
+	  (setq writer (make-function-definition reader-name writer-function
+			 :setf t :foreign t)))
 	(setq *finalized* nil)
 	(endpush reader definitions)
-	(endpush writer definitions))
+	(when writer
+	  (endpush writer definitions)))
       (when reader
 	(unless (typep reader 'reader-definition)
 	  (change-class reader 'reader-definition :target-slot definition))
-	(unless (typep writer 'writer-definition)
-	  (change-class writer 'writer-definition :target-slot definition)))
+	(when writer
+	  (unless (typep writer 'writer-definition)
+	    (change-class writer 'writer-definition :target-slot definition))))
       ;; See comment on top of the SLOT-DEFINITION class about this.
       (setf (readers definition) (when reader (list reader)))
       (setf (writers definition) (when writer (list writer))))))
+
 
 
 
