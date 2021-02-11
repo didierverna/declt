@@ -412,7 +412,6 @@ providing only basic information."
       (sort (clients definition) #'string-lessp :key #'definition-symbol)
       t)))
 
-;; #### PORTME.
 (defmethod document ((definition short-combination-definition) context &key)
   "Render short method combination DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
