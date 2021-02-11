@@ -36,17 +36,8 @@
 
 (defabstract definition ()
   ((object
-    ;; #### FIXME: it is unclear to me why symbol macros don't provide access
-    ;; to the corresponding expansion function in a way similar to regular
-    ;; macros do. In other words, I'm not sure why there's no
-    ;; SYMBOL-MACRO-FUNCTION in the standard. Probably for the same reason
-    ;; they don't have docstrings (late addition notably, according to Kent;
-    ;; Cf. the Twitter exchange). Also, it is probably possible to get an
-    ;; object for types (look into sb-introspec), and why not symbol macro
-    ;; expanders after all.
     :documentation "The corresponding Lisp object, or NIL.
-Only constants, special variables, symbol macros, and types do not have an
-associated Lisp object."
+Only constants, special variables, and symbol macros lack such an object."
     :initform nil :initarg :object :reader object)
    (source-file
     :documentation "The source file definition for this definition's object."

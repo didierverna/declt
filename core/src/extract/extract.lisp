@@ -293,8 +293,8 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
 	  (append definitions
 		  (cons definition (copy-list (direct-slots definition))))))
   ;; Types
-  (when (eql (sb-int:info :type :kind symbol) :defined)
-    (endpush (make-type-definition symbol) definitions))
+  (when-let (expander (sb-int:info :type :expander symbol))
+    (endpush (make-type-definition symbol expander) definitions))
 
   definitions)
 

@@ -291,12 +291,12 @@ and methods for classes or conditions slots."))
 ;; Types
 
 (defclass type-definition (funcoid-definition)
-  ()
+  ((object :initarg :expander :reader expander)) ;; slot overload
   (:documentation "The class of type definitions."))
 
-(defun make-type-definition (symbol)
+(defun make-type-definition (symbol expander)
   "Make a new type definition for SYMBOL."
-  (make-instance 'type-definition :symbol symbol))
+  (make-instance 'type-definition :symbol symbol :expander expander))
 
 (defmethod source-pathname ((definition type-definition))
   "Return type DEFINITION's source pathname."
