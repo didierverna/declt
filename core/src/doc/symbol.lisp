@@ -229,10 +229,14 @@ providing only basic information."
 		      (rest values)))))
     (render-references "Readers"
       ;; #### WARNING: casing policy.
-      (sort (readers definition) #'string-lessp :key #'definition-symbol))
-    (render-references "Writers"
-      ;; #### WARNING: casing policy.
-      (sort (writers definition) #'string-lessp :key #'definition-symbol))))
+      (sort (readers definition) #'string-lessp :key #'definition-symbol)
+      t)
+    (if (and (readers definition) (not (writers definition)))
+      (@tableitem "Writers" (format t "@i{This slot is read-only.}~%"))
+      (render-references "Writers"
+	;; #### WARNING: casing policy.
+	(sort (writers definition) #'string-lessp :key #'definition-symbol)
+	t))))
 
 ;; #### PORTME.
 (defmethod document

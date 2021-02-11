@@ -498,7 +498,12 @@ This function is used for regular class and condition slots."
 		      (list writer-method))))))
 	  (sb-mop:slot-definition-writers slot))))
 
-;; #### PORTME.
+;; #### PORTME: SBCL defines writers as setf functions, but the standard
+;; explicitly allows the use of setf expanders instead. Also, beware of this
+;; trap! When a slot is read-only, SBCL still has an internal writer function
+;; (for initialization, I suppose), but it's not a setf function; it's an
+;; internal closure. As a consequence, we /will/ find a writer-function below,
+;; but not a definition for it.
 (defun finalize-clos-structure-slot
     (definition definitions
      &aux (slot (slot definition))
@@ -518,19 +523,23 @@ This function is used for regular class and condition slots."
 	     (sb-pcl::slot-definition-internal-writer-function slot))
 	   (reader (find-definition reader-function definitions))
 	   (writer (find-definition writer-function definitions)))
+      ;; See PORTME comment above the function about this.
+      (when (and reader (not writer)) (setq writer-function nil))
       (unless (or reader (foreignp owner))
 	(setq reader (make-function-definition accessor-name reader-function
 		       :foreign t))
-	(setq writer (make-function-definition accessor-name writer-function
-		       :setf t :foreign t))
+	(when writer-function
+	  (setq writer (make-function-definition accessor-name writer-function
+			 :setf t :foreign t)))
 	(setq *finalized* nil)
 	(endpush reader definitions)
-	(endpush writer definitions))
+	(when writer (endpush writer definitions)))
       (when reader
 	(unless (typep reader 'reader-definition)
 	  (change-class reader 'reader-definition :target-slot definition))
-	(unless (typep writer 'writer-definition)
-	  (change-class writer 'writer-definition :target-slot definition)))
+	(when writer
+	  (unless (typep writer 'writer-definition)
+	    (change-class writer 'writer-definition :target-slot definition))))
       ;; See comment on top of the SLOT-DEFINITION class about this.
       (setf (readers definition) (when reader (list reader)))
       (setf (writers definition) (when writer (list writer))))))
@@ -544,8 +553,8 @@ This function is used for regular class and condition slots."
      (finalize-clos-classoid-slot definition definitions))))
 
 
-;; #### PORTME. Note that SBCL defines writers as setf functions, but the
-;; standard explicitly allows the use of setf expanders instead.
+;; #### PORTME: SBCL defines writers as setf functions, but the standard
+;; explicitly allows the use of setf expanders instead.
 (defmethod finalize progn
     ((definition typed-structure-slot-definition) definitions
      &aux (slot (slot definition))
@@ -574,8 +583,7 @@ This function is used for regular class and condition slots."
 			 :setf t :foreign t)))
 	(setq *finalized* nil)
 	(endpush reader definitions)
-	(when writer
-	  (endpush writer definitions)))
+	(when writer (endpush writer definitions)))
       (when reader
 	(unless (typep reader 'reader-definition)
 	  (change-class reader 'reader-definition :target-slot definition))
