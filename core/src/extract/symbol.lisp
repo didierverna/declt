@@ -499,6 +499,13 @@ structure."))
 		    (make-method-definition method definition))
 	    (sb-mop:generic-function-methods (generic definition))))))
 
+;; #### PORTME.
+(defun combination-options (definition)
+  "Return generic function DEFINITION's method combination options."
+  (sb-pcl::method-combination-options
+   (sb-mop:generic-function-method-combination (generic definition))))
+
+
 (defclass simple-generic-definition
     (generic-function-definition expander-mixin)
   ()

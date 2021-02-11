@@ -585,7 +585,6 @@ providing only basic information."
   "Return \"genericsubindex\"."
   "genericsubindex")
 
-;; #### PORTME.
 (defun render-method-combination (definition)
   "Render generic function DEFINITION's method combination documentation."
   (@tableitem "Method Combination"
@@ -593,10 +592,9 @@ providing only basic information."
     (terpri)
     (when-let (options (mapcar (lambda (option)
 				 ;; #### FIXME: see TODO on format-tables.
+				 ;; #### WARNING: casing policy.
 				 (escape (format nil "~(~S~)" option)))
-			 (sb-pcl::method-combination-options
-			  (sb-mop:generic-function-method-combination
-			   (generic definition)))))
+			 (combination-options definition)))
       (@table ()
 	(@tableitem "Options"
 	  (format t "~{@t{~A}~^, ~}" options))))))
