@@ -561,7 +561,14 @@ providing only basic information."
   "Render function DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
     (@tableitem "Target Slot"
-      (reference (target-slot definition) t))))
+      (reference (target-slot definition) t))
+    (when-let (expander-for (expander-for definition))
+      (@tableitem "Setf expander for this function"
+	(reference expander-for t)))
+    (when-let (expanders-to (expanders-to definition))
+      (render-references "Setf expanders to this function"
+	;; #### WARNING: casing policy.
+	(sort expanders-to #'string-lessp :key #'definition-symbol) t))))
 
 
 (defmethod category-name ((definition writer-definition))
