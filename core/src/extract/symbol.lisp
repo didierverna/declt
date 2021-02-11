@@ -542,6 +542,13 @@ is unavailable, it means that the method combination itself cannot be used
     :initform nil :accessor standalone-combinator))
   (:documentation "The class of short method combination definitions."))
 
+;; #### PORTME.
+(defun identity-with-one-argument (definition)
+  "Return short combination DEFINITION's :identity-with-one-argument option."
+  (sb-pcl::short-combination-identity-with-one-argument
+   (combination definition)))
+
+
 (defclass long-combination-definition (combination-definition)
   ()
   (:documentation "Class for long method combination definitions."))

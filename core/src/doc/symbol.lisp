@@ -421,10 +421,8 @@ providing only basic information."
 	     (@tableitem "Operator" (reference standalone-combinator)))
 	    ((not (foreignp definition))
 	     (@tableitem "Operator" (princ "@i{missing}")))))
-    (@tableitem "Indentity with one argument"
-      (format t "@t{~(~A~)}"
-	(sb-pcl::short-combination-identity-with-one-argument
-	 (combination definition))))
+    (@tableitem "Identity with one argument"
+      (format t "@t{~(~A~)}" (identity-with-one-argument definition)))
     (render-references "Client Functions"
       ;; #### WARNING: casing policy.
       (sort (clients definition) #'string-lessp :key #'definition-symbol)
