@@ -291,7 +291,7 @@ converted to revealed strings, and initform / supplied-p data is removed."
 	      (string-downcase (safe-name ,the-definition))
 	      (safe-lambda-list (lambda-list ,the-definition)))
 	 (anchor-and-index ,the-definition)
-       ,@(mapcar #'render-headline
+       ,@(mapcar (lambda (funcoid) `(render-headline ,funcoid))
 	   (when (consp |definition(s)|) (cdr |definition(s)|)))
        (render-docstring ,the-definition)
        (@table ()
@@ -553,22 +553,38 @@ providing only basic information."
 	(sort expanders-to #'string-lessp :key #'definition-symbol) t))))
 
 
+(defun merge-accessors-p (reader writer)
+  "Return T if READER and WRITER definitions can be documented jointly."
+  ;; #### NOTE: structure accessors necessarily share the same package and
+  ;; source. The rest needs to be checked.
+  (and reader writer
+       (not (expander-for reader))
+       (not (expanders-to reader))
+       (equal (docstring reader) (docstring writer))))
+
 (defmethod category-name ((definition reader-definition))
   "Return \"reader\"."
   "reader")
 
-(defmethod document ((definition reader-definition) context &key)
+(defmethod document
+    ((definition reader-definition) context
+     &key
+     &aux (writer (first (writers (target-slot definition)))))
   "Render function DEFINITION's documentation in CONTEXT."
-  (render-funcoid definition context
-    (@tableitem "Target Slot"
-      (reference (target-slot definition) t))
-    (when-let (expander-for (expander-for definition))
-      (@tableitem "Setf expander for this function"
-	(reference expander-for t)))
-    (when-let (expanders-to (expanders-to definition))
-      (render-references "Setf expanders to this function"
-	;; #### WARNING: casing policy.
-	(sort expanders-to #'string-lessp :key #'definition-symbol) t))))
+  (if (merge-accessors-p definition writer)
+    (render-funcoid (definition writer) context
+      (@tableitem "Target Slot"
+	(reference (target-slot definition) t)))
+    (render-funcoid definition context
+      (@tableitem "Target Slot"
+	(reference (target-slot definition) t))
+      (when-let (expander-for (expander-for definition))
+	(@tableitem "Setf expander for this function"
+	  (reference expander-for t)))
+      (when-let (expanders-to (expanders-to definition))
+	(render-references "Setf expanders to this function"
+	  ;; #### WARNING: casing policy.
+	  (sort expanders-to #'string-lessp :key #'definition-symbol) t)))))
 
 
 (defmethod category-name ((definition writer-definition))
@@ -577,9 +593,11 @@ providing only basic information."
 
 (defmethod document ((definition writer-definition) context &key)
   "Render writer DEFINITION's documentation in CONTEXT."
-  (render-funcoid definition context
-    (@tableitem "Target Slot"
-      (reference (target-slot definition) t))))
+  (unless (merge-accessors-p (first (readers (target-slot definition)))
+			     definition)
+    (render-funcoid definition context
+      (@tableitem "Target Slot"
+	(reference (target-slot definition) t)))))
 
 
 
@@ -751,199 +769,6 @@ which also documents direct default initargs."
 (defmethod index-command-name ((definition class-definition))
   "Return \"classsubindex\"."
   "classsubindex")
-
-
-#+()(defmethod document
-    ((accessor accessor-definition) context
-     &key
-     &aux (access-expander (access-expander-definition accessor))
-	  (update-expander (update-expander-definition accessor))
-	  (writer (writer-definition accessor))
-	  (merge-expander
-	   (and access-expander
-		(functionp (update access-expander))
-		(equal (source accessor) (source access-expander))
-		(equal (docstring accessor) (docstring access-expander))))
-	  (merge-writer
-	   (and (writer-definition-p writer)
-		(equal (source accessor) (source writer))
-		(equal (docstring accessor) (docstring writer))))
-	  (merge-setters
-	   (and access-expander
-		(functionp (update access-expander))
-		(writer-definition-p writer)
-		(equal (source access-expander) (source writer))
-		(equal (docstring access-expander) (docstring writer)))))
-  "Render ACCESSOR's documentation in CONTEXT."
-  (cond ((and merge-writer merge-expander)
-	 (render-funcoid :un (accessor access-expander writer) context
-	   (when update-expander
-	     (@tableitem "Setf Expander"
-	       (reference update-expander)))))
-	(merge-setters
-	 (render-funcoid :un accessor context
-	   (when update-expander
-	     (@tableitem "Setf Expander"
-	       (reference update-expander)))
-	   (@tableitem "Setf Expander" (reference access-expander))
-	   (@tableitem "Writer" (reference writer)))
-	 (render-funcoid :setf (access-expander writer) context
-	   (@tableitem "Reader"
-	     (reference (access-definition access-expander)))))
-	(merge-expander
-	 (render-funcoid :un (accessor access-expander) context
-	   (when update-expander
-	     (@tableitem "Setf Expander"
-	       (reference update-expander)))
-	   (when writer
-	     (@tableitem "Writer"
-	       (reference writer))))
-	 (when (writer-definition-p writer)
-	   (document writer context)))
-	(merge-writer
-	 (render-funcoid :un (accessor writer) context
-	   (when update-expander
-	     (@tableitem "Setf Expander"
-	       (reference update-expander)))
-	   (when access-expander
-	     (@tableitem "Setf Expander"
-	       (reference access-expander))))
-	 (when access-expander
-	   (document access-expander context)))
-	(t
-	 (render-funcoid :un accessor context
-	   (when update-expander
-	     (@tableitem "Setf Expander"
-	       (reference update-expander)))
-	   (when access-expander
-	     (@tableitem "Setf Expander"
-	       (reference access-expander)))
-	   (when writer
-	     (@tableitem "Writer"
-	       (reference writer))))
-	 (when access-expander
-	   (document access-expander context))
-	 (when (writer-definition-p writer)
-	   (document writer context)))))
-
-#+()(defmethod document ((method accessor-method-definition) context
-		     &key (document-writers t) generic-source)
-  "Render accessor METHOD's documentation in CONTEXT."
-  (cond ((and (equal (source method)
-		     (source (writer-definition method)))
-	      (equal (docstring method)
-		     (docstring (writer-definition method)))
-	      document-writers)
-	 (render-method (method (writer-definition method))
-			context
-			generic-source))
-	(t
-	 (call-next-method)
-	 (when document-writers
-	   ;; #### NOTE: if DOCUMENT-WRITERS, it means that we're merging the
-	   ;; defintions for the reader and the writer, and hence the generic
-	   ;; sources are the same. It's thus ok to use GENERIC-SOURCE here.
-	   (document (writer-definition method) context
-		     :generic-source generic-source)))))
-
-#+()(defmethod document
-    ((writer generic-writer-definition) context &key additional-methods)
-  "Render generic WRITER's documentation in CONTEXT."
-  (render-funcoid :generic writer context
-    (when-let (reader (reader-definition writer))
-      (@tableitem "Reader"
-	(reference reader)))
-    (render-method-combination writer)
-    (when-let (methods (append additional-methods
-			       (method-definitions writer)))
-      (@tableitem "Methods"
-	(dolist (method methods)
-	  (document method context :generic-source (source writer)))))))
-
-#+()(defmethod document
-    ((accessor generic-accessor-definition) context
-     &key
-     &aux (access-expander (access-expander-definition accessor))
-	  (update-expander (update-expander-definition accessor))
-	  (writer (writer-definition accessor)))
-  "Render generic ACCESSOR's documentation in CONTEXT."
-  ;; #### NOTE: contrary to the case of ordinary functions, setf expanders can
-  ;; never be merged with generic definitions. The reason is that even if a
-  ;; setf expander is in long form, the corresponding lambda function is not
-  ;; generic, and we don't mix heterogeneous definitions. One consequence of
-  ;; this is that such long form setf expanders will be listed below the
-  ;; corresponding generic accessor definition, that is, ni the "Generic
-  ;; Functions" section whereas they are ordinary ones. But I still think it's
-  ;; better to put them here. Besides, these heterogeneous cases should be
-  ;; extremely rare anyway.
-  (cond ((and (generic-writer-definition-p writer)
-	      (equal (source accessor) (source writer))
-		(equal (docstring accessor) (docstring writer))
-		(eq (definition-symbol (combination-definition accessor))
-		    (definition-symbol (combination-definition writer)))
-		(equal (sb-pcl::method-combination-options
-			(sb-mop:generic-function-method-combination
-			 (generic accessor)))
-		       (sb-pcl::method-combination-options
-			(sb-mop:generic-function-method-combination
-			 (generic writer)))))
-	 (render-funcoid :generic (accessor writer) context
-	   (when update-expander
-	     (@tableitem "Setf Expander"
-	       (reference update-expander)))
-	   (when access-expander
-	     (@tableitem "Setf Expander"
-	       (reference access-expander)))
-	   (render-method-combination accessor)
-	   (let ((accessor-and-reader-methods (method-definitions accessor))
-		 (writer-methods (method-definitions writer)))
-	     (when (or accessor-and-reader-methods writer-methods)
-	       (@tableitem "Methods"
-		 (dolist (method accessor-and-reader-methods)
-		   (document method context
-		     :generic-source (source accessor)))
-		 (dolist (method writer-methods)
-		   (document method context
-		     :generic-source (source accessor)))))))
-	 (when access-expander
-	   (document access-expander context)))
-	(t
-	 (render-funcoid :generic accessor context
-	   (when update-expander
-	     (@tableitem "Setf Expander"
-	       (reference update-expander)))
-	   (when access-expander
-	     (@tableitem "Setf Expander"
-	       (reference access-expander)))
-	   (when writer
-	     (@tableitem "Writer"
-	       (reference writer)))
-	   (render-method-combination accessor)
-	   (when-let (methods (method-definitions accessor))
-	     (@tableitem "Methods"
-		(dolist (method methods)
-		  (document method context
-		    :document-writers nil
-		    :generic-source (source accessor))))))
-	 (when access-expander
-	   (document access-expander context))
-	 (when (generic-writer-definition-p writer)
-	   (document writer context
-		     :additional-methods
-		     (mapcar #'writer-definition
-			     (remove-if-not
-			      #'accessor-method-definition-p
-			      (method-definitions accessor))))))))
-
-#+()(defmethod document ((expander setf-expander-definition) context &key)
-  "Render setf EXPANDER's documentation in CONTEXT."
-  (render-funcoid :setf expander context
-    (@tableitem "Reader"
-      (reference (access-definition expander)))
-    (when (symbol-definition-p (update expander))
-      (@tableitem "Writer"
-	(reference (update expander))))))
-
 
 
 
