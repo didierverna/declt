@@ -719,6 +719,11 @@ These are conditions, ordinary structures, and classes."))
 	  (mapcar (lambda (slot) (make-clos-slot-definition slot definition))
 	    (sb-mop:class-direct-slots (classoid definition))))))
 
+(defun direct-default-initargs (definition)
+  "Return CLOS classoid mixin DEFINITION's direct default initargs."
+  (sb-mop:class-direct-default-initargs (classoid definition)))
+
+
 (defclass condition-definition (classoid-definition clos-classoid-mixin)
   ((object :reader definition-condition) ;; slot overload
    (direct-superclassoids ;; slot overload

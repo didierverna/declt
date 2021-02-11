@@ -631,11 +631,9 @@ providing only basic information."
 ;; Classoids
 ;; ---------
 
-;; #### PORTME.
 (defun render-initargs (definition context)
   "Render classoid DEFINITION's direct default initargs in CONTEXT."
-  (when-let (initargs
-	     (sb-mop:class-direct-default-initargs (classoid definition)))
+  (when-let (initargs (direct-default-initargs definition))
     (@tableitem "Direct Default Initargs"
       ;; #### FIXME: we should rather compute the longest initarg name and use
       ;; that as a template size for the @headitem specification.
