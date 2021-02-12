@@ -207,6 +207,15 @@ This mixin should be put before the funcoid superclass."))
   "Return the list (setf <setf mixin DEFINITION's symbol>)."
   (list 'setf (definition-symbol definition)))
 
+;; #### WARNING: setf expanders are setf mixins, but behave differently. Thus
+;; they get more specific methods. It's fortunate that those methods need to
+;; be defined differently, for both concrete classes. Otherwise, we would risk
+;; a precedence problem with the setf mixin, which must appear first.
+(defmethod lambda-list ((definition setf-mixin))
+    "Return the CDR of setf mixin DEFINITION's function lambda-list.
+This is because setf funcoids take the new value as their first argument."
+  (cdr (sb-introspect:function-lambda-list (funcoid definition))))
+
 
 (defabstract expander-mixin ()
   ((expander-for
