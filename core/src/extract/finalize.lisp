@@ -128,8 +128,8 @@ DEFINITIONS in the process."
   ;; #### NOTE: this definition and a potential expander-for share the same
   ;; symbol. Consequently, if this symbol is one of our own, we /will/ find an
   ;; expander-for in the already existing definitions, if it exists. If, on
-  ;; the other hand, DEFINITION is foreign, then so will the expander-for, and
-  ;; thus we don't care if it's not found. To put it differently, we never
+  ;; the other hand, if DEFINITION is foreign, then so will the expander-for,
+  ;; and thus we don't care if it's not found. To put it differently, we never
   ;; need to create a foreign expander definition here.
   (unless (expander-for definition)
     (setf (expander-for definition)
