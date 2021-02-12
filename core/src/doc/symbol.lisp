@@ -243,6 +243,17 @@ providing only basic information."
 ;; Funcoids
 ;; --------
 
+(defun merge-expander-p (definition expander)
+  "Return T if function DEFINITION and setf EXPANDER can be documented jointly."
+  ;; #### NOTE: a function and its expander share the same symbol, hence
+  ;; package. The rest needs to be checked. Also, we don't want to merge short
+  ;; form setf expanders because we have additional implementation details to
+  ;; advertise (the writer operator).
+  (and definition expander
+       (typep expander 'long-expander-definition)
+       (equal (source-file definition) (source-file expander))
+       (equal (docstring definition) (docstring expander))))
+
 ;; #### TODO: there's the question of offering the option to qualify symbols.
 (defun safe-lambda-list (lambda-list)
   "Return a safe LAMBDA-LIST, suitable to pass to Texinfo.
@@ -315,18 +326,27 @@ providing only basic information."
   "Return \"macrosubindex\"."
   "macrosubindex")
 
-;; #### FIXME: rethink the possibilities of merging with the expander-for.
-(defmethod document ((definition macro-definition) context &key)
+(defmethod document
+    ((definition macro-definition) context
+     &key
+     &aux (expander-for (expander-for definition)))
   "Render macro DEFINITION's documentation in CONTEXT."
-  (render-funcoid definition context
-    (when-let (expander-for (expander-for definition))
-      (@tableitem "Setf expander for this macro"
-	(reference expander-for t)))
-    (when-let (expanders-to (expanders-to definition))
-      (render-references "Setf expanders to this macro"
-	;; #### WARNING: casing policy.
-	(sort expanders-to #'string-lessp :key #'definition-symbol)
-	t))))
+  (if (merge-expander-p definition expander-for)
+    (render-funcoid (definition expander-for) context
+      (when-let (expanders-to (expanders-to definition))
+	(render-references "Setf expanders to this macro"
+	  ;; #### WARNING: casing policy.
+	  (sort expanders-to #'string-lessp :key #'definition-symbol)
+	  t)))
+    (render-funcoid definition context
+      (when-let (expander-for (expander-for definition))
+	(@tableitem "Setf expander for this macro"
+	  (reference expander-for t)))
+      (when-let (expanders-to (expanders-to definition))
+	(render-references "Setf expanders to this macro"
+	  ;; #### WARNING: casing policy.
+	  (sort expanders-to #'string-lessp :key #'definition-symbol)
+	  t)))))
 
 
 
@@ -386,12 +406,16 @@ providing only basic information."
 	    ((not (foreignp definition))
 	     (@tableitem "Writer" (princ "@i{missing}")))))))
 
-(defmethod document ((definition long-expander-definition) context &key)
+(defmethod document
+    ((definition long-expander-definition) context
+     &key
+     &aux (standalone-reader (standalone-reader definition)))
   "Render long setf expander DEFINITION's documentation in CONTEXT."
-  (render-funcoid definition context
-    (when-let (standalone-reader (standalone-reader definition))
-      (@tableitem "Reader"
-	(reference standalone-reader)))))
+  (unless (merge-expander-p standalone-reader definition)
+    (render-funcoid definition context
+      (when-let (standalone-reader (standalone-reader definition))
+	(@tableitem "Reader"
+	  (reference standalone-reader))))))
 
 
 
@@ -541,16 +565,25 @@ providing only basic information."
   "Return \"functionsubindex\"."
   "functionsubindex")
 
-(defmethod document ((definition simple-function-definition) context &key)
+(defmethod document
+    ((definition simple-function-definition) context
+     &key
+     &aux (expander-for (expander-for definition)))
   "Render simple function DEFINITION's documentation in CONTEXT."
-  (render-funcoid definition context
-    (when-let (expander-for (expander-for definition))
-      (@tableitem "Setf expander for this function"
-	(reference expander-for t)))
-    (when-let (expanders-to (expanders-to definition))
-      (render-references "Setf expanders to this function"
-	;; #### WARNING: casing policy.
-	(sort expanders-to #'string-lessp :key #'definition-symbol) t))))
+  (if (merge-expander-p definition expander-for)
+    (render-funcoid (definition expander-for)
+	(when-let (expanders-to (expanders-to definition))
+	  (render-references "Setf expanders to this function"
+	    ;; #### WARNING: casing policy.
+	    (sort expanders-to #'string-lessp :key #'definition-symbol) t)))
+    (render-funcoid definition context
+      (when-let (expander-for (expander-for definition))
+	(@tableitem "Setf expander for this function"
+	  (reference expander-for t)))
+      (when-let (expanders-to (expanders-to definition))
+	(render-references "Setf expanders to this function"
+	  ;; #### WARNING: casing policy.
+	  (sort expanders-to #'string-lessp :key #'definition-symbol) t)))))
 
 
 (defun merge-accessors-p (reader writer)
@@ -819,8 +852,18 @@ Each category is of type (TYPE DESCRIPTION-STRING).")
 	       (remove-if-not (lambda (definition)
 				(typep definition (first category)))
 		   definitions))
-      (add-category-node parent context status (second category)
-			 type-definitions))))
+      ;; #### WARNING: hack alert. A setf expander merged with its reader
+      ;; funcoid will disappear from the Setf Expanders section. So we need to
+      ;; filter those out as well here.
+      (when (eq (first category) 'expander-definition)
+	(setq type-definitions
+	      (remove-if (lambda (definition)
+			   (merge-expander-p (standalone-reader definition)
+					     definition))
+		  type-definitions)))
+      (when type-definitions
+	(add-category-node parent context status (second category)
+			   type-definitions)))))
 
 (defun add-definitions-node
     (parent extract context
