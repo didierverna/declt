@@ -2,7 +2,7 @@
 
 @c user.texi --- User manual
 
-@c Copyright (C) 2013, 2015-2020 Didier Verna
+@c Copyright (C) 2013, 2015-2021 Didier Verna
 
 @c Author: Didier Verna <didier@didierverna.net>
 
@@ -41,7 +41,7 @@
 @c Settings
 @c ====================================================================
 @set VERSION 3.0 "Montgomery Scott"
-@set COPYRIGHT_DATE 2010--2013, 2015--2020
+@set COPYRIGHT_DATE 2010--2013, 2015--2021
 @setchapternewpage odd
 @documentdescription
 The Declt User Manual for version @value{VERSION}.
@@ -849,11 +849,11 @@ Now, go my friend. Go document the whole Lisp world!
 @node Supported Platforms, Indexes, Conclusion, Top
 @appendix Supported Platforms
 @sysindex{sb-introspect}
-@declt{} is an ASDF 3 library. It currently works with SBCL only. Other
-Lisp implementations are not currently supported, as @declt{} relies on
-SBCL's @t{sb-introspect} contrib. The Texinfo code that @declt{}
-generates requires Makeinfo 6.7, and contains extended Unicode
-characters (so even for reading Info, Unicode support is necessary).
+@declt{} requires ASDF 3 and SBCL 2.1.1 or later. Other Lisp
+implementations are not currently supported, but may be in the future.
+The Texinfo code that @declt{} generates requires Makeinfo 6.7, and
+contains extended Unicode characters (so even for reading Info, Unicode
+support is necessary).
 
 
 
