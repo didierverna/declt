@@ -154,7 +154,7 @@ providing only basic information."
 
 
 ;; Slots
-(defmethod safe-name
+(defmethod safe-name :around
     ((definition slot-definition)
      &optional qualified
      &aux (safe-name (call-next-method)))
@@ -454,7 +454,7 @@ providing only basic information."
 
 
 ;; Methods
-(defmethod safe-name
+(defmethod safe-name :around
     ((definition method-definition)
      &optional qualified
      &aux (safe-name (call-next-method)))
