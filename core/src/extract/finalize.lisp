@@ -148,7 +148,8 @@ DEFINITIONS in the process."
   ;; and only add what's missing, but I don't think it's worth the trouble.
   (setf (expanders-to definition)
 	(retain name definitions
-	  :pre-test #'short-expander-definition-p :key #'update-fn-name)))
+	  :pre-test #'short-expander-definition-p
+	  :key (lambda (definition) (car (expander definition))))))
 
 ;; #### WARNING: there is no finalization method for the accessor mixin. This
 ;; is handled by the sot finalization methods. Slot readers and writers are
@@ -187,7 +188,7 @@ DEFINITIONS in the process."
 
 (defmethod finalize progn
     ((definition short-expander-definition) definitions
-     &aux (name (update-fn-name definition)))
+     &aux (name (car (expander definition))))
   "Computer short setf expander DEFINITION's standalone writer definition."
   (unless (standalone-writer definition)
     (setf (standalone-writer definition)

@@ -326,6 +326,12 @@ and methods for classes or conditions slots."))
 ;; Setf expanders
 ;; --------------
 
+;; #### NOTE: as of SBCL 2.1.1.89-83ca2ecec (following Doug's patch upon my
+;; request; commit 1b24715a004ba3f3f74bfa58abd4d90968b86949), the expander
+;; object now has 3 possible forms:
+;; 1. (operator-symbol documentation . source-location) ;; short defsetf
+;; 2. (integer . function) ;; long defsetf
+;; 3. function ;; define-setf-expander
 (defabstract expander-definition (setf-mixin funcoid-definition)
   ((object :initarg :expander :reader expander) ;; slot overload
    (standalone-reader
@@ -340,14 +346,17 @@ expander."
     :initform nil :accessor standalone-reader))
   (:documentation "Abstract root class for setf expander definitions."))
 
+(defmethod source-pathname ((definition expander-definition))
+  "Return setf expander DEFINITION's source pathname."
+  (definition-source-by-name definition :setf-expander))
+
 (defmethod docstring ((definition expander-definition))
   "Return setf expander DEFINITION's docstring."
   (documentation (definition-symbol definition) 'setf))
 
 
 (defclass short-expander-definition (expander-definition)
-  ((object :reader update-fn-name) ;; slot overload
-   (standalone-writer
+  ((standalone-writer
     :documentation
     "A standalone writer definition for this definition's expander, or NIL.
 This is a function or macro definition. Note that if this definition
@@ -361,20 +370,10 @@ macro."))
   "Return T if DEFINITION is a short expander definition."
   (typep definition 'short-expander-definition))
 
-(defmethod source-pathname ((definition short-expander-definition))
-  "Return the source pathname of short setf expander DEFINITION's update-fn."
-  ;; #### FIXME: looking at how sb-introspect does it, it seems that the
-  ;; "source" of a setf expander is the source of the function object. For
-  ;; long forms, this should be OK. For short forms however, what we get is
-  ;; the source of the update function, which may be different from where
-  ;; DEFSETF was called, hence incorrect.
-  (when (fboundp (update-fn-name definition))
-    (object-source-pathname (fdefinition (update-fn-name definition)))))
-
 ;; #### PORTME.
 (defmethod lambda-list
     ((definition short-expander-definition)
-     &aux (update-fn-name (update-fn-name definition))
+     &aux (update-fn-name (car (expander definition)))
 	  (fdefinition (when (fboundp update-fn-name)
 			 (fdefinition update-fn-name))))
   "Return the \"butlast\" lambda-list of setf expander DEFINITION's update-fn.
@@ -392,14 +391,6 @@ If the expander's update-fn is not defined, return two values: NIL and T."
 This class is shared by expanders created with either the long form of
 DEFSETF, or DEFINE-SETF-EXPANDER."))
 
-(defmethod source-pathname ((definition long-expander-definition)
-			    &aux (expander (expander definition)))
-  "Return the source pathname of long setf expander DEFINITION's function."
-  (object-source-pathname
-   (etypecase expander
-     (list (cdr expander))
-     (function expander))))
-
 ;; #### PORTME.
 (defmethod lambda-list ((definition long-expander-definition)
 			&aux (expander (expander definition)))
@@ -411,9 +402,9 @@ DEFSETF, or DEFINE-SETF-EXPANDER."))
 
 (defun make-expander-definition (symbol expander)
   "Make a new setf EXPANDER definition for SYMBOL."
-  (make-instance (if (symbolp expander)
-		   'short-expander-definition
-		   'long-expander-definition)
+  (make-instance (typecase expander
+		   ((cons symbol) 'short-expander-definition)
+		   (otherwise 'long-expander-definition))
     :symbol symbol :expander expander))
 
 
