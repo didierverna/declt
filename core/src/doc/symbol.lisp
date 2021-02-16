@@ -262,7 +262,10 @@ converted to revealed strings, and initform / supplied-p data is removed."
   (loop :with post-mandatory
 	:for rest :on lambda-list
 	:for element := (if (and (listp (car rest)) post-mandatory)
-			  (first (car rest))
+			  (if (listp (first (car rest)))
+			    ;; keywords may also have an associated var
+			    (first (first (car rest)))
+			    (first (car rest)))
 			  (car rest))
 	:if (listp element)
 	  :collect (safe-lambda-list element) :into safe-lambda-list
