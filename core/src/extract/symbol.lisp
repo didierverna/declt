@@ -376,12 +376,23 @@ macro."))
      &aux (update-fn-name (car (expander definition)))
 	  (fdefinition (when (fboundp update-fn-name)
 			 (fdefinition update-fn-name))))
-  "Return the \"butlast\" lambda-list of setf expander DEFINITION's update-fn.
-This is because short form setf expanders pass the new value as the last
-argument to their update-fn.
+  "Return short setf expander DEFINITION's lambda-list.
+This lambda-list is computed as the shortened version of DEFINITION's
+update-fn lambda-list, because setf expanders pass the new value as the last
+argument to their operator.
 If the expander's update-fn is not defined, return two values: NIL and T."
   (if fdefinition
-    (butlast (sb-introspect:function-lambda-list fdefinition))
+    (let ((lambda-list (sb-introspect:function-lambda-list fdefinition)))
+      (when-let (&aux (position '&aux lambda-list))
+	(setq lambda-list (subseq lambda-list 0 &aux)))
+      (when-let (&key (position '&key lambda-list))
+	(setq lambda-list (subseq lambda-list 0 &key)))
+      (cond ((null (cdr lambda-list))
+	     ())
+	    ((member (nth (- (length lambda-list) 2) lambda-list)
+		     '(&optional &rest))
+	     lambda-list)
+	    (t (butlast lambda-list))))
     (values nil t)))
 
 
