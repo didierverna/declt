@@ -646,6 +646,14 @@ providing only basic information."
   "Return \"genericsubindex\"."
   "genericsubindex")
 
+(defmethod category-name ((definition generic-reader-definition))
+  "Return \"generic reader\"."
+  "generic reader")
+
+(defmethod category-name ((definition generic-writer-mixin))
+  "Return \"generic writer\"."
+  "generic writer")
+
 (defun render-method-combination (definition)
   "Render generic function DEFINITION's method combination documentation."
   (@tableitem "Method Combination"

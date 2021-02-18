@@ -485,10 +485,6 @@ structure."))
 
 ;; Generic functions
 
-;; #### TODO: we could think of creating classes of reader and writer generic
-;; functions. The condition to upgrade the class would be that all methods are
-;; indeed readers / writers.
-
 (defabstract generic-function-definition (function-definition)
   ((object :initarg :generic :reader generic) ;; slot overload
    (methods
@@ -524,7 +520,36 @@ structure."))
 
 (defclass generic-setf-definition (setf-mixin generic-function-definition)
   ()
-  (:documentation "The class of ordinary setf function definitions."))
+  (:documentation "The class of generic setf function definitions."))
+
+
+;; #### NOTE: only basic method definitions are created. Reader and writer
+;; definitions are created during the finalization process by upgrading the
+;; class of the concerned definitions.
+
+(defclass generic-reader-definition (simple-generic-definition)
+  ()
+  (:documentation "The class of generic reader function definitions.
+A generic function is considered to be a reader function when all its mehtods
+are reader methods."))
+
+(defabstract generic-writer-mixin ()
+  ()
+  (:documentation
+   "Abstract root mixin for generic writer function definitions.
+A generic function is considered to be a writer function when all its mehtods
+are writer methods."))
+
+(defclass simple-generic-writer-definition
+    (generic-writer-mixin simple-generic-definition)
+  ()
+  (:documentation "The class of simple generic writer function definitions.
+These are non-setf writer generic functions."))
+
+(defclass generic-setf-writer-definition
+    (generic-writer-mixin generic-setf-definition)
+  ()
+  (:documentation "The class of generic setf writer function definitions."))
 
 
 
@@ -653,10 +678,37 @@ The concrete class of the new definition depends on whether it is a SETF one."
   (:documentation "The class of reader method definitions.
 A reader method is a method that reads a slot in a class or condition."))
 
+(defun reader-method-definition-p (definition)
+  "Return T if DEFINITION is a reader method definition."
+  (typep definition 'reader-method-definition))
+
+(defmethod update-instance-for-different-class :after
+    (old (new reader-method-definition) &key &aux (owner (owner new)))
+  "Maybe upgrade NEW reader method definition's owner to a generic reader.
+This class upgrade is possible if every owner's method is a reader method."
+  (when (every #'reader-method-definition-p (methods owner))
+    (change-class owner 'generic-reader-definition)))
+
 
 (defabstract writer-method-definition (method-definition accessor-mixin)
   ()
   (:documentation "Abstract root class for writer method definitions."))
+
+(defun writer-method-definition-p (definition)
+  "Return T if DEFINITION is a writer method definition."
+  (typep definition 'writer-method-definition))
+
+(defmethod update-instance-for-different-class :after
+    (old (new writer-method-definition) &key &aux (owner (owner new)))
+  "Maybe upgrade NEW writer method definition's owner to a generic writer.
+This class upgrade is possible if every owner's method is a writer method."
+  (when (every #'writer-method-definition-p (methods owner))
+    (change-class owner
+		  (etypecase owner
+		    (simple-generic-definition
+		     'simple-generic-writer-definition)
+		    (generic-setf-definition
+		     'generic-setf-writer-definition)))))
 
 (defclass simple-writer-method-definition (writer-method-definition)
   ()
