@@ -613,6 +613,13 @@ or raw EQL specializers."
   ()
   (:documentation "The class of setf method definitions."))
 
+;; #### WARNING: we need this because the default method on setf-mixins would
+;; break (it calls function-lambda-list). This whole thing is very fragile.
+(defmethod lambda-list ((definition setf-method-definition))
+  "Return method DEFINITION's method lambda-list's CDR.
+This is because setf methods take the new value as their first argument."
+  (cdr (method-lambda-list (definition-method definition))))
+
 (defun method-name
     (method
      &aux (name (generic-function-name (method-generic-function method))))
@@ -662,6 +669,14 @@ or a condition."))
   (:documentation "The class of setf writer method definitions.
 A setf writer method is a setf method that writes a slot in a class
 or a condition."))
+
+;; #### WARNING: we need this /again/ because the default method on
+;; setf-mixins would break (it calls function-lambda-list). This whole thing
+;; is very fragile.
+(defmethod lambda-list ((definition setf-writer-method-definition))
+  "Return method DEFINITION's method lambda-list's CDR.
+This is because setf methods take the new value as their first argument."
+  (cdr (method-lambda-list (definition-method definition))))
 
 
 
