@@ -492,7 +492,22 @@ providing only basic information."
   "Return \"methodsubindex\"."
   "methodsubindex")
 
-(defun safe-specializers (specializers)
+;; #### WARNING: in theory, it is possible to specialize the first argument of
+;; a setf method implemented explicitly (I'm not sure what happens for
+;; accessors generated automatically on typed slots), so when we use only the
+;; specializers rest below, we may loose information. I don't think this is a
+;; serious issue, tho. But perhaps it's a design choice that would gain being
+;; customizable.
+(defun safe-specializers
+    (definition &aux (specializers (specializers definition)))
+  "Return a list of safe specializers for method DEFINITION.
+A safe specializer is the printed form of either a reference to a class
+definition, or a raw EQL specializer. For setf and writer definitions,
+only the specializers rest is used, as these methods get the new value as
+their first argument."
+  (when (or (typep definition 'setf-method-definition)
+	    (typep definition 'writer-method-definition))
+    (setq specializers (cdr specializers)))
   (loop :for rest :on specializers
 	:for specializer := (car rest)
 	:collect (typecase specializer
@@ -516,7 +531,7 @@ providing only basic information."
        (when-let (qualifiers
 		  (method-qualifiers (definition-method ,the-definition)))
 	 (format nil "~(~{~S~^ ~}~)" qualifiers))
-       (safe-specializers (specializers ,the-definition))
+       (safe-specializers ,the-definition)
        (anchor-and-index ,the-definition)
        ,@(mapcar (lambda (definition)
 		   (let ((the-definition (gensym "definition")))
@@ -529,7 +544,7 @@ providing only basic information."
 				     (method-qualifiers
 				      (definition-method ,the-definition)))
 			    (format nil "~(~{~S~^ ~}~)" qualifiers))
-			  (safe-specializers (specializers ,the-definition)))
+			  (safe-specializers ,the-definition))
 			(anchor-and-index ,the-definition))))
 	   (when (consp |definition(s)|) (cdr |definition(s)|)))
        (render-docstring ,the-definition)
