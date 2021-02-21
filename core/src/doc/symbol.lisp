@@ -457,6 +457,10 @@ providing only basic information."
 
 
 ;; Methods
+(defun qualifiers (definition)
+  "Return method DEFINITION's method qualifiers."
+  (method-qualifiers (definition-method definition)))
+
 (defmethod safe-name :around
     ((definition method-definition)
      &optional qualified
@@ -468,7 +472,7 @@ providing only basic information."
       ;; #### NOTE: I'm using an S for qualifiers, assuming they'll always be
       ;; symbols, in order to distinguish keywords from the rest.
       (format nil "~{ ~S~} (~{~A~^ ~})"
-	(method-qualifiers (definition-method definition))
+	(qualifiers definition)
 	(mapcar (lambda (specializer)
 		  (typecase specializer
 		    (definition (safe-name specializer t))
@@ -528,8 +532,7 @@ their first argument."
      (@defmethod (string-capitalize (category-name ,the-definition))
 	 ;; #### WARNING: casing policy.
 	 (string-downcase (safe-name ,the-definition))
-       (when-let (qualifiers
-		  (method-qualifiers (definition-method ,the-definition)))
+       (when-let (qualifiers (qualifiers ,the-definition))
 	 (format nil "~(~{~S~^ ~}~)" qualifiers))
        (safe-specializers ,the-definition)
        (anchor-and-index ,the-definition)
@@ -540,9 +543,7 @@ their first argument."
 			    (string-capitalize (category-name ,the-definition))
 			    ;; #### WARNING: casing policy.
 			    (string-downcase (safe-name ,the-definition))
-			  (when-let (qualifiers
-				     (method-qualifiers
-				      (definition-method ,the-definition)))
+			  (when-let (qualifiers (qualifiers ,the-definition))
 			    (format nil "~(~{~S~^ ~}~)" qualifiers))
 			  (safe-specializers ,the-definition))
 			(anchor-and-index ,the-definition))))
@@ -661,14 +662,6 @@ their first argument."
   "Return \"genericsubindex\"."
   "genericsubindex")
 
-(defmethod category-name ((definition generic-reader-definition))
-  "Return \"generic reader\"."
-  "generic reader")
-
-(defmethod category-name ((definition generic-writer-mixin))
-  "Return \"generic writer\"."
-  "generic writer")
-
 (defun render-method-combination (definition)
   "Render generic function DEFINITION's method combination documentation."
   (@tableitem "Method Combination"
@@ -708,6 +701,114 @@ their first argument."
       (@tableitem "Methods"
 	(dolist (method methods)
 	  (document method context))))))
+
+
+;; #### NOTE: for generic accessors merging, we don't try to be extremely
+;; clever, because it's probably pointless. For example, there's no merging
+;; between explicit :reader and :writer definitions when they are separate.
+;; The only thing that's attempted is to merge :accessor definitions, that is
+;; foo and (setf foo).
+(defun merge-methods
+    (reader writer
+     &aux (reader-methods (methods reader))
+	  (writer-methods (methods writer))
+	  accessors readers reader-method writer-method)
+  "Attempt to merge READER and WRITER generic definitions methods. See
+`merge-generic-accessors-p' for the exact conditions under which merging may
+occur. If merging is possible, return a list of 3 lists:
+1. a list of the form ((READER-METHOD . WRITER-METHOD) ...) for associated
+   reader and writer methods,
+2. a list of standalone readers, if any,
+3. a list of standalone writers, if any.
+Otherwise, return NIL."
+  (while (setq reader-method (pop reader-methods))
+    (setq writer-method (find (target-slot reader-method) writer-methods
+			      :key #'target-slot))
+    (if writer-method
+      (cond ((and (equal (docstring reader-method) (docstring writer-method))
+		  (eq (source-file reader-method) (source-file writer-method)))
+	     (setq writer-methods (remove writer-method writer-methods))
+	     (endpush (cons reader-method writer-method) accessors))
+	    (t (return-from merge-methods)))
+      (endpush reader-method readers)))
+  (list accessors readers writer-methods))
+
+(defun merge-generic-accessors-p (reader writer)
+  "Check if READER and WRITER generic definitions can be documented jointly.
+If so, return the generalized Boolean value of `merge-methods', which see.
+
+Merging is only attempted on generic functions defined exclusively via slot
+:accessor keywords. For merging to actually occur, there must not exist any
+property specific to only one definition, or different between the two (no
+related expander information, same method combination, same docstring, etc.).
+The only exception is their lambda lists.
+
+The same conditions apply to methods, which definitions are also merged. Only
+unqualified methods must exist. Standalone reader and writer methods are still
+permitted."
+  ;; #### NOTE: since we constraint WRITER to be of the form (SETF READER),
+  ;; there's no need to check for package equality between the two.
+  (and reader writer
+       (typep reader 'generic-reader-definition)
+       (typep writer 'generic-setf-writer-definition)
+       (not (expander-for reader))
+       (not (expanders-to reader))
+       (eq (combination reader) (combination writer))
+       (equal (docstring reader) (docstring writer))
+       (eq (source-file reader) (source-file writer))
+       (notany #'qualifiers (methods reader))
+       (notany #'qualifiers (methods writer))
+       (merge-methods reader writer)))
+
+(defmethod category-name ((definition generic-reader-definition))
+  "Return \"generic reader\"."
+  "generic reader")
+
+(defmethod document
+    ((definition generic-reader-definition) context
+     &key
+     &aux (writer (find (list 'setf (name definition))
+			(mapcar #'owner
+			  (mapcan #'writers
+			    (mapcar #'target-slot (methods definition))))
+			:key #'name :test #'equal))
+	  (merged-methods (merge-generic-accessors-p definition writer)))
+  "Render generic reader function DEFINITION's documentation in CONTEXT.
+Possibly merge documentation with a corresponding writer."
+  (if merged-methods
+    (render-funcoid (definition writer) context
+      (render-method-combination definition)
+      (when (or (first merged-methods)
+		(second merged-methods)
+		(third merged-methods))
+	(@tableitem "Methods"
+	  (dolist (accessors (first merged-methods))
+	    (render-method ((car accessors) (cdr accessors)) context
+	      (@table ()
+		(@tableitem "Target Slot"
+		  (reference (target-slot (car accessors)) t)))))
+	  (dolist (reader-method (second merged-methods))
+	    (document reader-method context))
+	  (dolist (writer-method (third merged-methods))
+	    (document writer-method context)))))
+    (call-next-method)))
+
+(defmethod category-name ((definition generic-writer-mixin))
+  "Return \"generic writer\"."
+  "generic writer")
+
+(defmethod document
+  ((definition generic-setf-writer-definition) context
+   &key
+   &aux (reader (find (cadr (name definition))
+		      (mapcar #'owner
+			(mapcan #'readers
+			  (mapcar #'target-slot (methods definition))))
+		      :key #'name)))
+  "Render generic writer function DEFINITION's documentation in CONTEXT.
+This is done only when merging with a corresponding reader is not possible."
+  (unless (merge-generic-accessors-p reader definition)
+    (call-next-method)))
 
 
 
