@@ -102,4 +102,4 @@
 		  (adjoin nickname (package-nicknames :net.didierverna.declt)
 			  :test #'string-equal)))
 
-;;; meta.lisp ends here
+;;; package.lisp ends here
