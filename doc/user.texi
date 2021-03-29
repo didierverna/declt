@@ -41,7 +41,7 @@
 @c Settings
 @c ====================================================================
 @set VERSION 3.0 "Montgomery Scott"
-@set COPYRIGHT_YEARS 2010--2013, 205--2021
+@set COPYRIGHT_YEARS 2010--2013, 2015--2021
 @setchapternewpage odd
 @documentdescription
 The Declt User Manual for version @value{VERSION}.
