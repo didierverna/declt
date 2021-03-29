@@ -74,9 +74,9 @@ specific options with the following function.
 Appendix A Supported Platforms
 ******************************
 
-Declt is an ASDF 3 library.  It currently works with SBCL only.  Other
-Lisp implementations are not currently supported, as Declt relies on
-SBCL’s sb-introspect contrib.  The Texinfo code that Declt generates
-requires Makeinfo 6.7, and contains extended Unicode characters (so even
-for reading Info, Unicode support is necessary).
+Declt requires ASDF 3 and SBCL 2.1.1.89-83ca2ecec or later.  Other Lisp
+implementations are not currently supported, but may be in the future.
+The Texinfo code that Declt generates requires Makeinfo 6.7, and
+contains extended Unicode characters (so even for reading Info, Unicode
+support is necessary).
 

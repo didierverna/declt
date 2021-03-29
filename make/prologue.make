@@ -1,4 +1,4 @@
-### config.make --- Configuration part
+### prologue.make --- Prologue Makefile
 
 ## Copyright (C) 2010-2012, 2015, 2021 Didier Verna
 
@@ -21,30 +21,30 @@
 
 ### Commentary:
 
-## Contents management by FCM version 0.1.
 
 
 ### Code:
 
-## Installation prefix. This is used for installing Declt as follows:
-# - $(PREFIX)/share/doc/declt/ for the PDF documentation
-# - $(PREFIX)/share/info/ for the info documentation
-# If any of these are unsatisfactory, you will need to edit the Makefiles, or
-# do the installation by hand.
-PREFIX := /usr/local
+PROJECT   := declt
+PACKAGE   := net.didierverna.$(PROJECT)
+ASDF_FILE := $(PACKAGE).asd
 
-## Currently, only SBCL is supported.
-LISP := SBCL
+TYPESET_COPYRIGHT_YEARS := $(subst -,--,$(COPYRIGHT_YEARS))
 
-## Global Common Lisp binary cache location.
-BINLOC_CACHE := ${HOME}/.cache/common-lisp
+PERL := perl
 
-SBCL_PATH  := sbcl
+SHARE := $(PREFIX)/share
 
-## Programs for generating the documentation:
-MAKEINFO = makeinfo
-TEXI2DVI = texi2dvi
-DVIPS    = dvips
-CONVERT  = convert
+W3DIR := $(HOME)/www/software/lisp/$(PROJECT)
 
-### config.make ends here
+SBCL_CACHE  := sbcl
+SBCL_BINLOC := sbcl
+SBCL_LOAD   := --load
+SBCL_EVAL   := --eval
+SBCL_DUMP   := $(SBCL_LOAD)
+
+BINLOC := $($(LISP)_BINLOC)
+
+EVAL_CONFIG :=
+
+### proogue.make ends here

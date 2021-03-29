@@ -1,6 +1,6 @@
 ### Makefile --- Doc directory
 
-## Copyright (C) 2010, 2011, 2013, 2015, 2017 Didier Verna
+## Copyright (C) 2010, 2011, 2013, 2015, 2017, 2021 Didier Verna
 
 ## Author: Didier Verna <didier@didierverna.net>
 
@@ -27,108 +27,66 @@
 ### Code:
 
 TOP_DIR := ..
+
 include $(TOP_DIR)/make/config.make
-hack: all
-include $(TOP_DIR)/make/include.make
-ifeq ($(LISP),CLISP)
-  include $(TOP_DIR)/make/clisp.make
-endif
-ifneq ($(SBCL_PATH),)
-  include declt.make
-endif
 include $(TOP_DIR)/make/version.make
+include $(TOP_DIR)/make/prologue.make
 
 INFO_DIR        := $(PREFIX)/share/info
-DOC_DIR		:= $(SHARE)/doc
+DOC_DIR	:= $(SHARE)/doc
 PROJECT_DOC_DIR := $(DOC_DIR)/$(PROJECT)
-TEXI_MAN	:= user.texi # enduser.texi
-TEXI_FILES      := $(TEXI_MAN) $(TEXI_REF)
 
-INFO_FILES     := $(TEXI_FILES:%.texi=$(PROJECT)-%.info)
-PDF_FILES      := $(TEXI_FILES:%.texi=%.pdf)
+USR_MAN := user
+REF_MAN := reference
+MANUALS := $(USR_MAN) $(REF_MAN)
+
+TEXI_FILES     := $(MANUALS:%=%.texi)
+INFO_FILES     := $(MANUALS:%=$(PROJECT)-%.info)
 ALL_INFO_FILES := $(INFO_FILES:%.info=%.info*)
-DVI_FILES      := $(TEXI_FILES:%.texi=%.dvi)
-PS_FILES       := $(TEXI_FILES:%.texi=%.ps)
-HTML_DIRS      := $(TEXI_FILES:%.texi=%)
+PDF_FILES      := $(MANUALS:%=%.pdf)
+HTML_DIRS      := $(MANUALS)
+DVI_FILES      := $(MANUALS:%=%.dvi)
+PS_FILES       := $(MANUALS:%=%.ps)
 
-INFO_REF       := $(PROJECT)-reference.info
-
-CSS := https://sirgazil.bitbucket.io/static/docs/css/texinfo/tip/document.css
+CSS := texinfo-klare
 
 
 all: info pdf html
-
-webref: pdf-webref html-webref
-
 all-formats: all dvi ps
 
+# Auxiliary target to factor out some common installation for install and
+# install-www. Needs a $(LOCATION) to install to.
 install-at: $(PDF_FILES) $(HTML_DIRS)
 	install -d "$(LOCATION)"
-	install -m 644 $(PDF_FILES) "$(LOCATION)/"
-	install -d -m 755 "$(LOCATION)/user"
-	install -m 644 user/* "$(LOCATION)/user/"
-#	install -d -m 755 "$(LOCATION)/enduser"
-#	install -m 644 enduser/* "$(LOCATION)/enduser/"
+	install -m 644 $(PDF_FILES) "$(LOCATION)"/
+	for i in $(HTML_DIRS); do			\
+	  install -d -m 755 "$(LOCATION)"/$$i;		\
+	  install -m 644 $$i/* "$(LOCATION)"/$$i/;	\
+	done
 
-install: $(INFO_FILES)
+install: $(INFO_FILES) $(PDF_FILES) $(HTML_DIRS)
 	install -d "$(INFO_DIR)"
-	install -m 644 $(ALL_INFO_FILES) "$(INFO_DIR)/"
+	install -m 644 $(ALL_INFO_FILES) "$(INFO_DIR)"/
 	for i in $(INFO_FILES); do					\
 	  install-info --info-dir="$(INFO_DIR)" $$i;			\
 	done
 	$(MAKE) install-at LOCATION="$(PROJECT_DOC_DIR)"
-	-for i in $(DVI_FILES) $(PS_FILES); do				\
-	  test -f $$i && install -m 644 $$i "$(PROJECT_DOC_DIR)";	\
-	done
-	-if test -f $(INFO_REF); then					\
-	  install -m 644 $(INFO_REF)* "$(INFO_DIR)/" ;			\
-	  install-info --info-dir="$(INFO_DIR)" $(INFO_REF) ;		\
-	fi
-	-if test -f reference.pdf ; then				\
-	  install -m 644 reference.pdf "$(PROJECT_DOC_DIR)/" ;		\
-	fi
-	-if test -f reference ; then					\
-	  install -d -m 755 "$(PROJECT_DOC_DIR)/reference" ;		\
-	  install -m 644 reference/* "$(PROJECT_DOC_DIR)/reference/" ;	\
-	fi
-	-for i in reference.dvi reference.ps; do			\
-	  test -f $$i && install -m 644 $$i "$(PROJECT_DOC_DIR)";	\
+	for i in $(DVI_FILES) $(PS_FILES); do				\
+	  test -f $$i && install -m 644 $$i "$(PROJECT_DOC_DIR)"/;	\
 	done
 
 uninstall:
-	-rm -fr "$(PROJECT_DOC_DIR)"
-	for i in $(INFO_FILES) $(INFO_REF); do				\
+	rm -fr "$(PROJECT_DOC_DIR)"
+	for i in $(INFO_FILES); do					\
 	  install-info --remove --info-dir="$(INFO_DIR)" $$i;		\
 	done
-	cd "$(INFO_DIR)" && rm -f $(ALL_INFO_FILES) $(INFO_REF)*
+	cd "$(INFO_DIR)" && rm -f $(ALL_INFO_FILES)
 
 info: $(INFO_FILES)
-
-pdf: $(PDF_FILES) # splash.jpg
-pdf-webref: webreference.pdf # splash.jpg
-
+pdf: $(PDF_FILES)
 html: $(HTML_DIRS)
-html-webref: webreference
-
-dvi: $(DVI_FILES) # splash.eps
-
-ps: $(PS_FILES) # splash.eps
-
-# SPLASH_INSERT := 's/^\@author/\@vskip 2cm\n\@image\{splash,16cm\}\n\@author/'
-
-ifeq ($(CONFIG),)
-EVAL_CONFIG :=
-else
-EVAL_CONFIG := $(SBCL_EVAL) $(CONFIG)
-endif
-
-reference.texi: generate.cl
-	$(SBCL_PATH) $(EVAL_CONFIG) $(SBCL_LOAD) ./generate.cl
-#	$(PERL) -pi -e $(SPLASH_INSERT) $@
-
-webreference.texi: generate.cl
-	$(SBCL_PATH) $(EVAL_CONFIG) $(SBCL_LOAD) ./generate.cl --web
-#	$(PERL) -pi -e $(SPLASH_INSERT) $@
+dvi: $(DVI_FILES)
+ps: $(PS_FILES)
 
 $(PROJECT)-%.info: %.texi
 	$(MAKEINFO) $<
@@ -136,8 +94,8 @@ $(PROJECT)-%.info: %.texi
 %.pdf: %.texi
 	$(TEXI2DVI) -p $<
 
-$(HTML_DIRS) webreference: %: %.texi
-	$(MAKEINFO) --css-ref=$(CSS) --html -o $@ $<
+$(HTML_DIRS): %: %.texi
+	$(MAKEINFO) --css-include=$(CSS).css --html -o $@ $<
 	touch $@
 
 %.dvi: %.texi
@@ -153,32 +111,29 @@ clean:
 	-rm *.tmp *.fn* *.vr* *.ky* *.tp* *.cp* *.pg *.toc *.aux *.log *~
 
 distclean: clean
-	-rm -fr declt.make webreference* $(TEXI_REF)			\
-		$(HTML_DIRS)						\
+	-rm -fr $(HTML_DIRS)						\
 		$(ALL_INFO_FILES) $(PDF_FILES) $(DVI_FILES) $(PS_FILES)
-#               splash.eps
 
-$(TEXI_MAN): $(TOP_DIR)/make/version.make
+$(USR_MAN:%=%.texi): $(TOP_DIR)/make/version.make
 	$(PERL) -pi -e 's/@set VERSION .*/@set VERSION $(LONG_VERSION)/' $@
+	$(PERL) -pi -e 's/@set COPYRIGHT_YEARS .*/@set COPYRIGHT_YEARS $(TYPESET_COPYRIGHT_YEARS)/' $@
 
-install-www: webref
+localref:
+	$(MAKE) generate GENERATE_FLAGS=--hyperlinks
+
+generate:
+	$(SBCL_PATH) $(EVAL_CONFIG) $(SBCL_LOAD) ./generate.cl $(GENERATE_FLAGS)
+
+install-www: $(PDF_FILES) $(HTML_DIRS)
 	$(MAKE) install-at LOCATION="$(W3DIR)"
-	install -m 644 webreference.pdf "$(W3DIR)/reference.pdf"
-	install -d -m 755 "$(W3DIR)/reference"
-	install -m 644 webreference/* "$(W3DIR)/reference/"
 
-declt.make: $(TOP_DIR)/make/config.make
-	$(SBCL_PATH) $(SBCL_LOAD) ./declt.cl
+include $(TOP_DIR)/make/epilogue.make
 
-.PHONY: all webref all-formats		\
+.PHONY: all all-formats		\
 	install-at install uninstall	\
-	info				\
-	pdf pdf-webref			\
-	html html-webref		\
-	dvi				\
-	ps				\
+	info pdf html dvi ps		\
+	localref generate		\
 	clean distclean		\
 	install-www
-
 
 ### Makefile ends here

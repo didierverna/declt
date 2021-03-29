@@ -1,6 +1,6 @@
-### config.make --- Configuration part
+### epilogue.make --- Epilogue Makefile
 
-## Copyright (C) 2010-2012, 2015, 2021 Didier Verna
+## Copyright (C) 2021 Didier Verna
 
 ## Author: Didier Verna <didier@didierverna.net>
 
@@ -21,30 +21,16 @@
 
 ### Commentary:
 
-## Contents management by FCM version 0.1.
 
 
 ### Code:
 
-## Installation prefix. This is used for installing Declt as follows:
-# - $(PREFIX)/share/doc/declt/ for the PDF documentation
-# - $(PREFIX)/share/info/ for the info documentation
-# If any of these are unsatisfactory, you will need to edit the Makefiles, or
-# do the installation by hand.
-PREFIX := /usr/local
+$(TOP_DIR)/make/version.make: \
+  $(TOP_DIR)/make/epilogue.make $(TOP_DIR)/make/version.cl \
+  $(TOP_DIR)/setup/src/version.lisp
+	$($(LISP)_PATH) $(EVAL_CONFIG)		     \
+	  $($(LISP)_LOAD) $(TOP_DIR)/make/version.cl \
+	  | tail -3 > $@.new
+	mv $@.new $@
 
-## Currently, only SBCL is supported.
-LISP := SBCL
-
-## Global Common Lisp binary cache location.
-BINLOC_CACHE := ${HOME}/.cache/common-lisp
-
-SBCL_PATH  := sbcl
-
-## Programs for generating the documentation:
-MAKEINFO = makeinfo
-TEXI2DVI = texi2dvi
-DVIPS    = dvips
-CONVERT  = convert
-
-### config.make ends here
+### epilogue.make ends here

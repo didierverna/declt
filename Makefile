@@ -21,23 +21,16 @@
 
 ### Commentary:
 
-## Contents management by FCM version 0.1.
-
 ## Please use GNU Make with this makefile.
 
 
 ### Code:
 
-# Needed in include.make
 TOP_DIR := .
 
 include make/config.make
-hack: all
-include make/include.make
-ifeq ($(LISP),CLISP)
-  include make/clisp.make
-endif
 include make/version.make
+include make/prologue.make
 
 SUBDIRS   := doc
 DIST_NAME := $(PROJECT)-$(SHORT_VERSION)
@@ -53,7 +46,7 @@ all-formats dvi ps ref all-formats-ref dvi-ref ps-ref:
 	cd doc && $(MAKE) $@
 
 # Needed because we have an INSTALL file which fucks up the gen mechanism
-# (remember that Mac OSX is case-insensitive).
+# on case-insensitive OSX platforms.
 install:
 	$(MAKE) gen TARGET=install
 
@@ -66,7 +59,6 @@ clean:
 
 distclean: clean
 	$(MAKE) gen TARGET=distclean
-	-rm -f .clisp.cnf
 	-rm *.tar.gz *.tar.gz.asc
 	-rm -fr $($(LISP)_BINLOC)-*
 	-rm -fr "${HOME}"/.cache/common-lisp/$($(LISP)_CACHE)-*"`pwd`"
@@ -119,15 +111,16 @@ $(TARBALL):
 $(SIGNATURE): $(TARBALL)
 	gpg -b -a $<
 
+include make/epilogue.make
+
 .DEFAULT:
 	$(MAKE) gen TARGET=$@
 
-.PHONY: hack all						\
-	all-formats dvi ps ref all-formats-ref dvi-ref ps-ref	\
-	install install-ref uninstall				\
+.PHONY: all							\
+	all-formats info pdf html dvi ps localref generate	\
+	install uninstall					\
 	clean distclean					\
 	tag tar gpg dist install-www				\
 	gen
-
 
 ### Makefile ends here

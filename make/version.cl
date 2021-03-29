@@ -1,6 +1,6 @@
 ;;; version.cl --- Declt version extractor script
 
-;; Copyright (C) 2010-2012, 2015 Didier Verna
+;; Copyright (C) 2010-2012, 2015, 2021 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -21,7 +21,6 @@
 
 ;;; Commentary:
 
-;; Contents management by FCM version 0.1.
 
 
 ;;; Code:
@@ -32,10 +31,12 @@
 
 (asdf:load-system :net.didierverna.declt.setup)
 
-(format t "LONG_VERSION  := ~A~%~
-	   SHORT_VERSION := ~A~%"
+(format t "LONG_VERSION    := ~A~%~
+	   SHORT_VERSION   := ~A~%~
+	   COPYRIGHT_YEARS := ~A~%"
   (net.didierverna.declt.setup:version :long)
-  (net.didierverna.declt.setup:version :short))
+  (net.didierverna.declt.setup:version :short)
+  net.didierverna.declt.setup:*copyright-years*)
 
 (uiop:quit)
 

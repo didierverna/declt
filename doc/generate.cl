@@ -1,6 +1,6 @@
 ;;; generate.cl --- Declt reference manual generation script
 
-;; Copyright (C) 2010-2013, 2015-2020 Didier Verna
+;; Copyright (C) 2010-2013, 2015-2021 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -26,8 +26,6 @@
 ;;; Code:
 
 (require "asdf")
-
-(defconstant +copyright-years+ "2010--2013, 2015--2020")
 
 (defconstant +introduction+
   "@macro declt
@@ -97,28 +95,22 @@ for a more human-readable guide to using @declt{}."
 (asdf:load-system :net.didierverna.declt)
 (net.didierverna.declt:nickname-package)
 
-;; ASDF doesn't understand my version numbering scheme. That will change
-;; soon, but in the meantime, I have to provide my version number explicitly
-;; here.
-(if (and (second sb-ext:*posix-argv*)
-	 (string= (second sb-ext:*posix-argv*) "--web"))
-    (declt:declt :net.didierverna.declt
-		 :library-name "Declt"
-		 :library-version (declt:version :long)
-		 :copyright-years +copyright-years+
-		 :license :bsd
-		 :introduction +introduction+
-		 :file-name "webreference"
-		 :info-name "declt-webreference") ; but we don't care
-    (declt:declt :net.didierverna.declt
-		 :library-name "Declt"
-		 :library-version (declt:version :long)
-		 :copyright-years +copyright-years+
-		 :license :bsd
-		 :introduction +introduction+
-		 :file-name "reference"
-		 :info-name "declt-reference"
-		 :hyperlinks t))
+(defvar *hyperlinks* nil)
+(when (and (second sb-ext:*posix-argv*)
+	   (string= (second sb-ext:*posix-argv*) "--hyperlinks"))
+  (setq *hyperlinks* t))
+
+;; ASDF doesn't understand my version numbering scheme. That will change soon,
+;; but in the meantime, I have to provide my version number explicitly here.
+(declt:declt :net.didierverna.declt
+	     :library-name "Declt"
+	     :library-version (declt:version :long)
+	     :copyright-years declt:*copyright-years*
+	     :license :bsd
+	     :introduction +introduction+
+	     :file-name "reference"
+	     :info-name "declt-reference"
+	     :hyperlinks *hyperlinks*)
 
 (uiop:quit)
 

@@ -41,7 +41,7 @@
 @c Settings
 @c ====================================================================
 @set VERSION 3.0 "Montgomery Scott"
-@set COPYRIGHT_DATE 2010--2013, 2015--2021
+@set COPYRIGHT_YEARS 2010--2013, 205--2021
 @setchapternewpage odd
 @documentdescription
 The Declt User Manual for version @value{VERSION}.
@@ -163,7 +163,7 @@ Common Lisp
 @c ====================================================================
 @copying
 @quotation
-Copyright @copyright{} @value{COPYRIGHT_DATE} Didier Verna
+Copyright @copyright{} @value{COPYRIGHT_YEARS} Didier Verna
 
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are

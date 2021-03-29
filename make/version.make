@@ -1,2 +1,3 @@
-LONG_VERSION  := 3.0 "Montgomery Scott"
-SHORT_VERSION := 3.0
+LONG_VERSION    := 3.0 "Montgomery Scott"
+SHORT_VERSION   := 3.0
+COPYRIGHT_YEARS := 2010-2013, 205-2021
