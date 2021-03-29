@@ -25,10 +25,8 @@
 
 ;;; Code:
 
-(asdf:load-system :net.didierverna.declt.setup)
-
 ;; #### PORTME.
-(asdf:defsystem :net.didierverna.declt.core
+(defsystem :net.didierverna.declt.core
   :long-name
   "Documentation Extractor from Common Lisp to Texinfo, core library"
   :description "A reference manual generator for Common Lisp libraries"
@@ -40,10 +38,11 @@ net.didierverna.declt system."
   :homepage "http://www.lrde.epita.fr/~didier/software/lisp/misc.php#declt"
   :source-control "https://github.com/didierverna/declt"
   :license "BSD"
-  :version #.(net.didierverna.declt.setup:version :short)
+   :version (:read-file-line #p"../make/version.make"
+	     :at (1 (lambda (str) (subseq str 19))))
   :if-feature :sbcl
-  :depends-on (:net.didierverna.declt.setup
-	       (:feature :sbcl :sb-introspect))
+  :depends-on ((:feature :sbcl (:require :sb-introspect))
+	       :net.didierverna.declt.setup)
   :serial t
   :components ((:file "package")
 	       (:module "src"

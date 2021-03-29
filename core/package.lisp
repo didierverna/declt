@@ -81,6 +81,7 @@
     :system-source-file)
   (:export
     ;; From the :net.didierverna.declt.setup package:
+    :*copyright-years*
     :*release-major-level*
     :*release-minor-level*
     :*release-status*
