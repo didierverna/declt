@@ -21,12 +21,11 @@
 
 ;;; Commentary:
 
-;; Contents management by FCM version 0.1.
 
 
 ;;; Code:
 
-(asdf:defsystem :net.didierverna.declt.setup
+(defsystem :net.didierverna.declt.setup
   :long-name
   "Documentation Extractor from Common Lisp to Texinfo, setup library"
   :description "Declt's preload setup library"
@@ -39,6 +38,8 @@ see the `net.didierverna.declt' system."
   :homepage "http://www.lrde.epita.fr/~didier/software/lisp/misc.php#declt"
   :source-control "https://github.com/didierverna/declt"
   :license "BSD"
+  :version (:read-file-line #p"../make/version.make"
+	     :at (1 (lambda (str) (subseq str 19))))
   :depends-on (:named-readtables)
   :serial t
   :components ((:file "package")

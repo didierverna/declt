@@ -21,7 +21,6 @@
 
 ;;; Commentary:
 
-;; Contents management by FCM version 0.1.
 
 
 ;;; Code:
@@ -35,7 +34,7 @@ This variable contains a property list of configuration options.
 Current options are:
 - :swank-eval-in-emacs (Boolean)
 
-See section A.1 of the user manual for more information.")
+See Section 4.1 of the user manual for more information.")
 
 (defun configuration (key)
   "Return KEY's value in the current Declt configuration."

@@ -21,7 +21,6 @@
 
 ;;; Commentary:
 
-;; Contents management by FCM version 0.1.
 
 
 ;;; Code:
@@ -56,7 +55,7 @@ NET.DIDIERVERNA.DECLT named readtable."
   (cons 'defindent (read stream)))
 
 (defreadtable :net.didierverna.declt
-  (:merge :standard)
+  (:merge :current)
   (:dispatch-macro-char #\# #\i #'i-reader))
 
 ;;; readtable.lisp ends here

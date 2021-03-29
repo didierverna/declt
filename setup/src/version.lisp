@@ -21,12 +21,17 @@
 
 ;;; Commentary:
 
-;; Contents management by FCM version 0.1.
 
 
 ;;; Code:
 
 (in-package :net.didierverna.declt.setup)
+
+
+
+;; Copyright years
+(defvar *copyright-years* "2010-2013, 205-2021"
+  "A string denoting the copyright years for the whole project.")
 
 
 

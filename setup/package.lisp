@@ -21,7 +21,6 @@
 
 ;;; Commentary:
 
-;; Contents management by FCM version 0.1.
 
 
 ;;; Code:
@@ -34,11 +33,12 @@
   (:import-from :named-readtables :defreadtable :in-readtable)
   (:export
     :in-readtable
-    ;; from src/version.lisp:
+    ;; From src/version.lisp:
+    :*copyright-years*
     :*release-major-level* :*release-minor-level* :*release-status*
     :*release-status-level* :*release-name*
     :version
-    ;; from src/configuration.lisp:
+    ;; From src/configuration.lisp:
     :configuration :configure))
 
 ;;; package.lisp ends here
