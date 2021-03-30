@@ -30,15 +30,23 @@
 (defpackage :net.didierverna.declt.setup
   (:documentation "The Declt setup library's package.")
   (:use :cl)
-  (:import-from :named-readtables :defreadtable :in-readtable)
+  ;; #### PORTME.
+  (:import-from #+sbcl :sb-mop
+    :validate-superclass)
+  (:import-from :named-readtables
+    :defreadtable :in-readtable)
   (:export
     :in-readtable
+    ;; From src/configuration.lisp:
+    :configuration :configure
     ;; From src/version.lisp:
     :*copyright-years*
     :*release-major-level* :*release-minor-level* :*release-status*
     :*release-status-level* :*release-name*
     :version
-    ;; From src/configuration.lisp:
-    :configuration :configure))
+    ;; From src/util.lisp:
+    :while :endpush :retain :find* :when-let :when-let*
+    :declare-valid-superclass :abstract-class :defabstract
+    :non-empty-string-p :non-empty-string))
 
 ;;; package.lisp ends here

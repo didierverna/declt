@@ -44,9 +44,9 @@ see the `net.didierverna.declt' system."
   :serial t
   :components ((:file "package")
 	       (:module "src"
-		:components ((:file "version")
-			     (:file "configuration")
-			     (:file "readtable"
-			      :depends-on ("configuration"))))))
+		:components ((:file "configuration")
+			     (:file "readtable" :depends-on ("configuration"))
+			     (:file "version" :depends-on ("readtable"))
+			     (:file "util" :depends-on ("readtable"))))))
 
 ;;; net.didierverna.declt.setup.asd ends here

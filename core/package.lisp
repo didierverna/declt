@@ -52,8 +52,7 @@
 		:slot-definition-initargs
 		:slot-definition-readers
 		:slot-definition-writers
-		:find-method-combination
-		:validate-superclass)
+		:find-method-combination)
   (:import-from :asdf
     :component-name
     :component-version

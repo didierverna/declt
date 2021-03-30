@@ -26,6 +26,7 @@
 ;;; Code:
 
 (in-package :net.didierverna.declt.setup)
+(in-readtable :net.didierverna.declt)
 
 
 
