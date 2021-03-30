@@ -34,7 +34,7 @@
 
 ;;; Code:
 
-(in-package :net.didierverna.declt)
+(in-package :net.didierverna.declt.extract)
 (in-readtable :net.didierverna.declt)
 
 

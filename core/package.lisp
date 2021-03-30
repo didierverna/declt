@@ -30,54 +30,7 @@
 
 (defpackage :net.didierverna.declt
   (:documentation "The Declt library's package.")
-  (:use :cl :net.didierverna.declt.setup)
-  ;; #### PORTME.
-  (:import-from #+sbcl :sb-mop
-		:generic-function-name
-		:generic-function-methods
-		:generic-function-method-combination
-		:eql-specializer
-		:specializer-direct-methods
-		:method-generic-function
-		:method-lambda-list
-		:method-specializers
-		:class-direct-superclasses
-		:class-direct-subclasses
-		:class-direct-slots
-		:class-direct-default-initargs
-		:slot-definition-name
-		:slot-definition-type
-		:slot-definition-allocation
-		:slot-definition-initform
-		:slot-definition-initargs
-		:slot-definition-readers
-		:slot-definition-writers
-		:find-method-combination)
-  (:import-from :asdf
-    :component-name
-    :component-version
-    :component-description
-    :component-long-description
-    :component-parent
-    :component-children
-    :component-pathname
-    :component-relative-pathname
-    :component-if-feature
-    :component-sideway-dependencies
-    :component-find-path
-    :find-system
-    :resolve-dependency-name
-    :system-defsystem-depends-on
-    :system-long-name
-    :system-author
-    :system-maintainer
-    :system-mailto
-    :system-homepage
-    :system-source-control
-    :system-bug-tracker
-    :system-license
-    :system-source-directory
-    :system-source-file)
+  (:use :cl :net.didierverna.declt.setup :net.didierverna.declt.extract)
   (:export
     ;; From the :net.didierverna.declt.setup package:
     :*copyright-years*

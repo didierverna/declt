@@ -1,6 +1,6 @@
-;;; net.didierverna.declt.core.asd --- ASDF system definition, core library
+;;; net.didierverna.declt.extract.asd --- Declt extract library, ASDF system
 
-;; Copyright (C) 2015, 2021 Didier Verna
+;; Copyright (C) 2021 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -26,13 +26,16 @@
 ;;; Code:
 
 ;; #### PORTME.
-(defsystem :net.didierverna.declt.core
+(defsystem :net.didierverna.declt.extract
   :long-name
-  "Documentation Extractor from Common Lisp to Texinfo, core library"
-  :description "A reference manual generator for Common Lisp libraries"
-  :long-description "\
-Declt's core functionality. For a more complete description of Declt, see the
-net.didierverna.declt system."
+  "Documentation Extractor from Common Lisp to Texinfo, extract library"
+  :description
+  "Declt library for extracting information from ASDF systems"
+  :long-description
+  "The Declt library that collects information from ASDF systems by
+introspection, and produces an abstract representation, independent from both
+the final manual's organization, or the output format. For a more complete
+description of Declt, see the `net.didierverna.declt' system."
   :author "Didier Verna"
   :mailto "didier@didierverna.net"
   :homepage "http://www.lrde.epita.fr/~didier/software/lisp/misc.php#declt"
@@ -42,21 +45,18 @@ net.didierverna.declt system."
 	     :at (1 (lambda (str) (subseq str 19))))
   :if-feature :sbcl
   :depends-on ((:feature :sbcl (:require :sb-introspect))
-	       :net.didierverna.declt.setup :net.didierverna.declt.extract)
+	       :net.didierverna.declt.setup)
   :serial t
   :components ((:file "package")
 	       (:module "src"
-		:serial t
-		:components ((:module "util"
-			      :serial t
-			      :components ((:file "misc")))
-			     (:module "doc"
-			      :serial t
-			      :components ((:file "texi")
-					   (:file "doc")
-					   (:file "symbol")
-					   (:file "package")
-					   (:file "asdf")))
-			     (:file "declt")))))
+		:serial t ;; not really, but who cares
+		:components ((:file "util")
+			     (:file "definition")
+			     (:file "license")
+			     (:file "symbol")
+			     (:file "package")
+			     (:file "asdf")
+			     (:file "finalize")
+			     (:file "extract")))))
 
-;;; net.didierverna.declt.core.asd ends here
+;;; net.didierverna.declt.extract.asd ends here

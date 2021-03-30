@@ -41,6 +41,7 @@ Rendering is done on *standard-output*."
     ;; that the file does exist, so that it can actually be linked properly,
     ;; and dereferencing an (ASDF 1) installed system file symlink (what we
     ;; get) in order to link the actual file (what we want).
+    ;; #### FIXME: not abstract enough. Access to the definition's object.
     (let* ((pathname  (component-pathname (component definition)))
 	   (probed-pathname (probe-file pathname))
 	   (probed-namestring
@@ -140,6 +141,7 @@ Documentation is done in a @table environment."
     ((definition file-definition)
      &optional qualify
      &aux (name (call-next-method))
+     ;; #### FIXME: not abstract enough. Access to the definition's object.
 	  (extension (reveal (asdf:file-type (file definition)))))
   "Append DEFINITION's file extension at the end."
   (declare (ignore qualify))
