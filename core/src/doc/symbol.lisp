@@ -457,11 +457,6 @@ providing only basic information."
 
 
 ;; Methods
-(defun qualifiers (definition)
-  "Return method DEFINITION's method qualifiers."
-  ;; #### FIXME: not abstract enough. Access to the definition's object.
-  (method-qualifiers (definition-method definition)))
-
 (defmethod safe-name :around
     ((definition method-definition)
      &optional qualified

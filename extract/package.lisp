@@ -109,8 +109,7 @@
     :short-combination-definition :standalone-combinator
     :identity-with-one-argument
     :long-combination-definition
-    :method-definition :owner :specializers
-    :definition-method ;; #### FIXME: see qualifiers.
+    :method-definition :owner :specializers :qualifiers
     :simple-method-definition :setf-method-definition
     :reader-method-definition
     :writer-method-definition

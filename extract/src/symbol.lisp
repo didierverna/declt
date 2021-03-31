@@ -623,11 +623,17 @@ The concrete class of the new definition depends on the COMBINATION type."
 This is a list of either class definitions (for regular specializers),
 or raw EQL specializers."
 		 :accessor specializers))
-  (:documentation "Abstract root class for method definitions."))
+  (:documentation "Abstract root class for method definitions.
+All method definitions respond to the following public protocols, which see:
+- `qualifiers'."))
 
 (defmethod lambda-list ((definition method-definition))
   "Return method DEFINITION's method lambda-list."
   (method-lambda-list (definition-method definition)))
+
+(defun qualifiers (definition)
+  "Return method DEFINITION's method qualifiers."
+  (method-qualifiers (definition-method definition)))
 
 
 (defclass simple-method-definition (method-definition)
