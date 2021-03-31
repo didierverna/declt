@@ -54,10 +54,12 @@ Each element in this list is of the form (#\BLANK . #\REPLACEMENT).")
 
 (defun reveal
     ;; #### NOTE: make sure that we can have Unicode in the string.
+    ;; Incidentally, this line also turns a NIL string into an empty one.
     (string &aux (string (coerce string '(simple-array character (*)))))
   "Return a copy of STRING with blanks revealed.
-Each blank character is replaced with a visible Unicode representation.
-See `*blanks*' for more information."
+If STRING is empty or null, use the empty set symbol. Otherwise, each blank
+character is replaced with a visible Unicode representation. See `*blanks*'
+for more information."
   (if (zerop (length string))
     "∅"
     (loop :for i :from 0 :upto (1- (length string))
