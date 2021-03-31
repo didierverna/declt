@@ -142,10 +142,11 @@ Documentation is done in a @table environment."
      &optional qualify
      &aux (name (call-next-method))
      ;; #### FIXME: not abstract enough. Access to the definition's object.
-	  (extension (reveal (asdf:file-type (file definition)))))
-  "Append DEFINITION's file extension at the end."
+	  (extension (asdf:file-type (file definition))))
+  "Append DEFINITION's file extension at the end, when applicable."
   (declare (ignore qualify))
-  (when extension (setq name (concatenate 'string name "." extension)))
+  (when extension
+    (setq name (concatenate 'string name "." (reveal extension))))
   name)
 
 (defmethod category-name ((definition file-definition))
