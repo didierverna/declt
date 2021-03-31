@@ -85,7 +85,7 @@ character and ALT is an alternative Unicode character.")
 In addition to regular escaping, periods, commas, colons, and parenthesis are
 replaced with alternative Unicode characters."
   (escape (apply #'concatenate 'string
-		 (loop :for char :across (escape string)
+		 (loop :for char :across string
 		       :for fragile := (assoc char *fragile-characters*)
 		       :if fragile
 			 :collect (string (cdr fragile))
@@ -100,7 +100,7 @@ In addition to regular escaping, colons are replaced with alternative Unicode
 characters."
   (escape
    (apply #'concatenate 'string
-	  (loop :for char :across (escape string)
+	  (loop :for char :across string
 		:if (member char '(#\:))
 		  :collect (string (cdr (assoc char *fragile-characters*)))
 		:else

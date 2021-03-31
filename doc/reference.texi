@@ -22,7 +22,7 @@
 @c Commentary:
 
 @c Generated automatically by Declt version 3.0 "Montgomery Scott"
-@c on Tue Mar 30 21:39:11 2021 GMT+1.
+@c on Wed Mar 31 10:22:38 2021 GMT+1.
 
 
 @c ====================================================================
@@ -270,7 +270,7 @@ except that this permission notice may be translated as well.
 
 @page
 @quotation
-This manual was generated automatically by Declt 3.0 "Montgomery Scott" on Tue Mar 30 21:39:11 2021 GMT+1.
+This manual was generated automatically by Declt 3.0 "Montgomery Scott" on Wed Mar 31 10:22:38 2021 GMT+1.
 @end quotation
 @vskip 0pt plus 1filll
 @insertcopying
@@ -293,7 +293,7 @@ This manual was generated automatically by Declt 3.0 "Montgomery Scott" on Tue M
 @top The Declt Reference Manual
 This is the Declt Reference Manual, version 3.0 "Montgomery Scott",
 generated automatically by Declt version 3.0 "Montgomery Scott"
-on Tue Mar 30 21:39:11 2021 GMT+1.
+on Wed Mar 31 10:22:38 2021 GMT+1.
 
 @menu
 * Copying:: The BSD License
@@ -1083,37 +1083,37 @@ components trees.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶*SPECIAL-CHARACTERS* special variable, , @t{*special-characters*}} special variable
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}ANCHOR function, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}anchor}} function
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}ANCHOR function, , @t{@atchar{}anchor}} function
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFCOMBINATION macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}defcombination}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFCOMBINATION macro, , @t{@atchar{}defcombination}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFFN macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}deffn}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFFN macro, , @t{@atchar{}deffn}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFFNX function, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}deffnx}} function
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFFNX function, , @t{@atchar{}deffnx}} function
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFMETHOD macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}defmethod}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFMETHOD macro, , @t{@atchar{}defmethod}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFMETHODX function, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}defmethodx}} function
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFMETHODX function, , @t{@atchar{}defmethodx}} function
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFTP macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}deftp}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFTP macro, , @t{@atchar{}deftp}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFTYPE macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}deftype}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFTYPE macro, , @t{@atchar{}deftype}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFVR macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}defvr}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFVR macro, , @t{@atchar{}defvr}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}ITEM macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}item}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}ITEM macro, , @t{@atchar{}item}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}ITEMIZE macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}itemize}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}ITEMIZE macro, , @t{@atchar{}itemize}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}ITEMIZE-LIST function, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}itemize-list}} function
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}ITEMIZE-LIST function, , @t{@atchar{}itemize-list}} function
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}MULTITABLE macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}multitable}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}MULTITABLE macro, , @t{@atchar{}multitable}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}REF function, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}ref}} function
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}REF function, , @t{@atchar{}ref}} function
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}TABLE macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}table}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}TABLE macro, , @t{@atchar{}table}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}TABLEITEM macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}tableitem}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}TABLEITEM macro, , @t{@atchar{}tableitem}} macro
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶ADD-CHILD function, , @t{add-child}} function
 @item
@@ -3020,37 +3020,37 @@ The Declt library's package.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶*SPECIAL-CHARACTERS* special variable, , @t{*special-characters*}} special variable
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}ANCHOR function, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}anchor}} function
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}ANCHOR function, , @t{@atchar{}anchor}} function
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFCOMBINATION macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}defcombination}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFCOMBINATION macro, , @t{@atchar{}defcombination}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFFN macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}deffn}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFFN macro, , @t{@atchar{}deffn}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFFNX function, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}deffnx}} function
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFFNX function, , @t{@atchar{}deffnx}} function
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFMETHOD macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}defmethod}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFMETHOD macro, , @t{@atchar{}defmethod}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFMETHODX function, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}defmethodx}} function
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFMETHODX function, , @t{@atchar{}defmethodx}} function
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFTP macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}deftp}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFTP macro, , @t{@atchar{}deftp}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFTYPE macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}deftype}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFTYPE macro, , @t{@atchar{}deftype}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFVR macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}defvr}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFVR macro, , @t{@atchar{}defvr}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}ITEM macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}item}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}ITEM macro, , @t{@atchar{}item}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}ITEMIZE macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}itemize}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}ITEMIZE macro, , @t{@atchar{}itemize}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}ITEMIZE-LIST function, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}itemize-list}} function
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}ITEMIZE-LIST function, , @t{@atchar{}itemize-list}} function
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}MULTITABLE macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}multitable}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}MULTITABLE macro, , @t{@atchar{}multitable}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}REF function, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}ref}} function
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}REF function, , @t{@atchar{}ref}} function
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}TABLE macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}table}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}TABLE macro, , @t{@atchar{}table}} macro
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}TABLEITEM macro, , @t{@atchar{}atchar@lbracechar{}@rbracechar{}tableitem}} macro
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}TABLEITEM macro, , @t{@atchar{}tableitem}} macro
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶ADD-CATEGORIES-NODE function, , @t{add-categories-node}} function
 @item
@@ -9608,7 +9608,7 @@ COMMAND is the name of the corresponding Texinfo alphabetic command.
 @node Private macros, Private ordinary functions, Private special variables, Internals
 @subsection Macros
 @deffn {Macro} {@atchar{}defcombination} (name lambda-list &body body)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFCOMBINATION macro}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFCOMBINATION macro}@c
 @macrosubindex{@atchar{}defcombination}@c
 Execute BODY within a @atchar{}deftp @lbracechar{}KIND Method Combination@rbracechar{} NAME environment.
 NAME is escaped for Texinfo prior to rendering.@*
@@ -9621,7 +9621,7 @@ BODY should render on *standard-output*.
 @end table
 @end deffn
 @deffn {Macro} {@atchar{}deffn} ((category name lambda-list &optional qualifiers) &body body)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFFN macro}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFFN macro}@c
 @macrosubindex{@atchar{}deffn}@c
 Execute BODY under @atchar{}deffn CATEGORY NAME [QUALIFIERS] LAMBDA-LIST.
 CATEGORY@comma{} NAME@comma{} QUALIFIERS@comma{} and LAMBDA-LIST are escaped for Texinfo prior to
@@ -9635,7 +9635,7 @@ BODY should render on *standard-output*.
 @end table
 @end deffn
 @deffn {Macro} {@atchar{}defmethod} (category name qualifiers lambda-list &body body)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFMETHOD macro}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFMETHOD macro}@c
 @macrosubindex{@atchar{}defmethod}@c
 Execute BODY under @atchar{}deffn CATEGORY NAME QUALIFIERS LAMBDA-LIST.
 CATEGORY@comma{} NAME@comma{} and LAMBDA-LIST are escaped for Texinfo prior to rendering.
@@ -9649,7 +9649,7 @@ BODY should render on *standard-output*.
 @end table
 @end deffn
 @deffn {Macro} {@atchar{}deftp} ((category name &optional lambda-list) &body body)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFTP macro}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFTP macro}@c
 @macrosubindex{@atchar{}deftp}@c
 Execute BODY within a @atchar{}deftp CATEGORY NAME [LAMBDA-LIST] environment.
 CATEGORY@comma{} NAME@comma{} and LAMBDA-LIST are escaped for Texinfo prior to rendering.
@@ -9663,7 +9663,7 @@ BODY should render on *standard-output*.
 @end table
 @end deffn
 @deffn {Macro} {@atchar{}deftype} (name lambda-list &body body)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFTYPE macro}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFTYPE macro}@c
 @macrosubindex{@atchar{}deftype}@c
 Execute BODY within a @atchar{}deftp Type NAME LAMBDA-LIST environment.
 NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
@@ -9676,7 +9676,7 @@ BODY should render on *standard-output*.
 @end table
 @end deffn
 @deffn {Macro} {@atchar{}defvr} (category name &body body)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFVR macro}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFVR macro}@c
 @macrosubindex{@atchar{}defvr}@c
 Execute BODY within a @atchar{}defvr @lbracechar{}CATEGORY@rbracechar{} NAME environment.
 CATEGORY and NAME are escaped for Texinfo prior to rendering.
@@ -9689,7 +9689,7 @@ BODY should render on *standard-output*.
 @end table
 @end deffn
 @deffn {Macro} {@atchar{}item} (&body body)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}ITEM macro}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}ITEM macro}@c
 @macrosubindex{@atchar{}item}@c
 Execute BODY within an itemize @atchar{}item.
 BODY should render on *standard-output*.
@@ -9701,7 +9701,7 @@ BODY should render on *standard-output*.
 @end table
 @end deffn
 @deffn {Macro} {@atchar{}itemize} ((&optional kind) &body body)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}ITEMIZE macro}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}ITEMIZE macro}@c
 @macrosubindex{@atchar{}itemize}@c
 Execute BODY within an @atchar{}itemize KIND environment.
 BODY should render on *standard-output*.
@@ -9713,7 +9713,7 @@ BODY should render on *standard-output*.
 @end table
 @end deffn
 @deffn {Macro} {@atchar{}multitable} ((&rest fractions) &body body)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}MULTITABLE macro}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}MULTITABLE macro}@c
 @macrosubindex{@atchar{}multitable}@c
 Execute BODY within a @atchar{}multitable environment.
 FRACTIONS is the list of column fractions to use.
@@ -9726,7 +9726,7 @@ BODY should render on *standard-output*.
 @end table
 @end deffn
 @deffn {Macro} {@atchar{}table} ((&optional kind) &body body)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}TABLE macro}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}TABLE macro}@c
 @macrosubindex{@atchar{}table}@c
 Execute BODY within a @atchar{}table KIND environment.
 BODY should render on *standard-output*.
@@ -9738,7 +9738,7 @@ BODY should render on *standard-output*.
 @end table
 @end deffn
 @deffn {Macro} {@atchar{}tableitem} (title &body body)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}TABLEITEM macro}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}TABLEITEM macro}@c
 @macrosubindex{@atchar{}tableitem}@c
 Execute BODY within a table @atchar{}item TITLE.
 BODY should render on *standard-output*.
@@ -9831,7 +9831,7 @@ BODY is executed within a @atchar{}table environement.
 @end table
 @end deffn
 @deffn {Function} {@atchar{}anchor} (anchor)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}ANCHOR function}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}ANCHOR function}@c
 @functionsubindex{@atchar{}anchor}@c
 Render ANCHOR as an @atchar{}anchor.@*
 ANCHOR is escaped for Texinfo prior to rendering.
@@ -9844,7 +9844,7 @@ Rendering is done on *standard-output*.
 @end table
 @end deffn
 @deffn {Function} {@atchar{}deffnx} (category name lambda-list &optional qualifiers)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFFNX function}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFFNX function}@c
 @functionsubindex{@atchar{}deffnx}@c
 Render @atchar{}deffnx CATEGORY NAME [QUALIFIERS] LAMBDA-LIST on *standard-output*.
 CATEGORY@comma{} NAME@comma{} QUALIFIERS@comma{} and LAMBDA-LIST are escaped for Texinfo prior to
@@ -9857,7 +9857,7 @@ rendering. LAMBDA-LIST should be provided by `safe-lambda-list'@comma{} which se
 @end table
 @end deffn
 @deffn {Function} {@atchar{}defmethodx} (category name qualifiers lambda-list)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}DEFMETHODX function}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}DEFMETHODX function}@c
 @functionsubindex{@atchar{}defmethodx}@c
 Render @atchar{}deffnx CATEGORY NAME QUALIFIERS LAMBDA-LIST on *standard-output*.
 CATEGORY@comma{} NAME@comma{} QUALIFIERS@comma{} and LAMBDA-LIST are escaped for Texinfo prior to
@@ -9870,7 +9870,7 @@ rendering. LAMBDA-LIST should be provided by `safe-lambda-list'@comma{} which se
 @end table
 @end deffn
 @deffn {Function} {@atchar{}itemize-list} (list &key renderer kind format key)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}ITEMIZE-LIST function}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}ITEMIZE-LIST function}@c
 @functionsubindex{@atchar{}itemize-list}@c
 Render a LIST of items within an @atchar{}itemize KIND environment.@*
 If RENDERER is non-nil@comma{} it must be a function of one argument (every LIST
@@ -9889,7 +9889,7 @@ the rendering is done by calling format@comma{} as explained below.@*
 @end table
 @end deffn
 @deffn {Function} {@atchar{}ref} (anchor label)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}atchar@lbracechar{}@rbracechar{}REF function}@c
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶@atchar{}REF function}@c
 @functionsubindex{@atchar{}ref}@c
 Render ANCHOR as an @atchar{}ref with online and printed LABEL.@*
 Both ANCHOR and LABEL are escaped for Texinfo prior to rendering.
