@@ -141,8 +141,7 @@ Documentation is done in a @table environment."
     ((definition file-definition)
      &optional qualify
      &aux (name (call-next-method))
-     ;; #### FIXME: not abstract enough. Access to the definition's object.
-	  (extension (asdf:file-type (file definition))))
+	  (extension (extension definition)))
   "Append DEFINITION's file extension at the end, when applicable."
   (declare (ignore qualify))
   (when extension

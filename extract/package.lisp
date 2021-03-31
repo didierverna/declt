@@ -62,6 +62,7 @@
     :component-pathname
     :component-if-feature
     :component-sideway-dependencies
+    :file-type
     :find-system
     :resolve-dependency-name
     :system-defsystem-depends-on
@@ -132,8 +133,7 @@
     :component-definition :parent :dependencies
     :component ;; #### FIXME: see render-pathname.
     :description :long-description :definition-version :if-feature
-    :file-definition :file-definition-p
-    :file ;; #### FIXME: see safe-name :around (file-definition)
+    :file-definition :file-definition-p :extension
     :source-file-definition
     :lisp-file-definition :definitions
     :c-file-definition

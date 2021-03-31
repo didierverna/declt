@@ -116,11 +116,17 @@ This actually is the corresponding system's source file."
 
 (defclass file-definition (component-definition)
   ((object :initarg :file :reader file)) ;; slot overload
-  (:documentation "The class of ASDF file definitions."))
+  (:documentation "The class of ASDF file definitions.
+All file definitions respond to the following public protocols, which see:
+- `extension'."))
 
 (defun file-definition-p (definition)
   "Return T if DEFINITION is a file definition."
   (typep definition 'file-definition))
+
+(defun extension (definition)
+  "Return file DEFINITION's file extension, if any."
+  (file-type (file definition)))
 
 (defclass source-file-definition (file-definition)
   ()

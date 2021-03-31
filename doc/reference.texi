@@ -22,7 +22,7 @@
 @c Commentary:
 
 @c Generated automatically by Declt version 3.0 "Montgomery Scott"
-@c on Wed Mar 31 10:22:38 2021 GMT+1.
+@c on Wed Mar 31 12:18:52 2021 GMT+1.
 
 
 @c ====================================================================
@@ -270,7 +270,7 @@ except that this permission notice may be translated as well.
 
 @page
 @quotation
-This manual was generated automatically by Declt 3.0 "Montgomery Scott" on Wed Mar 31 10:22:38 2021 GMT+1.
+This manual was generated automatically by Declt 3.0 "Montgomery Scott" on Wed Mar 31 12:18:52 2021 GMT+1.
 @end quotation
 @vskip 0pt plus 1filll
 @insertcopying
@@ -293,7 +293,7 @@ This manual was generated automatically by Declt 3.0 "Montgomery Scott" on Wed M
 @top The Declt Reference Manual
 This is the Declt Reference Manual, version 3.0 "Montgomery Scott",
 generated automatically by Declt version 3.0 "Montgomery Scott"
-on Wed Mar 31 10:22:38 2021 GMT+1.
+on Wed Mar 31 12:18:52 2021 GMT+1.
 
 @menu
 * Copying:: The BSD License
@@ -1387,8 +1387,6 @@ components trees.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶MERGE-METHODS function, , @t{merge-methods}} function
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶QUALIFIERS function, , @t{qualifiers}} function
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶RENDER-CLOS-CLASSOID macro, , @t{render-clos-classoid}} macro
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶RENDER-DEFINITION-CORE function, , @t{render-definition-core}} function
@@ -1663,8 +1661,6 @@ components trees.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶CONSTANT-DEFINITION class, , @t{constant-definition}} class
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION-METHOD ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION❩ reader method, , @t{definition-method}} reader method
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION-SYMBOL ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION❩ reader method, , @t{definition-symbol}} reader method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DIRECT-DEFAULT-INITARGS function, , @t{direct-default-initargs}} function
@@ -1799,6 +1795,8 @@ components trees.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶PUBLICP function, , @t{publicp}} function
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶QUALIFIERS function, , @t{qualifiers}} function
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶READER-DEFINITION class, , @t{reader-definition}} class
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶READER-METHOD-DEFINITION class, , @t{reader-method-definition}} class
@@ -1899,6 +1897,8 @@ components trees.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-CONDITION ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CONDITION-DEFINITION❩ reader method, , @t{definition-condition}} reader method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-FUNCTION ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-DEFINITION❩ reader method, , @t{definition-function}} reader method
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-METHOD ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION❩ reader method, , @t{definition-method}} reader method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-SOURCE-BY-NAME function, , @t{definition-source-by-name}} function
 @item
@@ -2081,7 +2081,7 @@ components trees.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION❩ method, , @t{docstring}} method
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION❩ reader method, , @t{file}} reader method
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXTENSION function, , @t{extension}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION class, , @t{file-definition}} class
 @item
@@ -2143,6 +2143,8 @@ components trees.
 @itemize @bullet
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶COMPONENT-DEFINITION-P function, , @t{component-definition-p}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FILE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION❩ reader method, , @t{file}} reader method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶LISP-FILE-DEFINITION-P function, , @t{lisp-file-definition-p}} function
 @item
@@ -2492,8 +2494,6 @@ The Declt extract library's package.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION class, , @t{definition}} class
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION-METHOD generic reader, , @t{definition-method}} generic reader
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION-SYMBOL generic reader, , @t{definition-symbol}} generic reader
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION-VERSION function, , @t{definition-version}} function
@@ -2574,11 +2574,11 @@ The Declt extract library's package.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDERS-TO❩ generic writer, , @t{(setf expanders-to)}} generic writer
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXTENSION function, , @t{extension}} function
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXTRACT function, , @t{extract}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXTRACT class, , @t{extract}} class
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE generic reader, , @t{file}} generic reader
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION class, , @t{file-definition}} class
 @item
@@ -2693,6 +2693,8 @@ The Declt extract library's package.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶PUBLIC-DEFINITIONS generic function, , @t{public-definitions}} generic function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶PUBLICP function, , @t{publicp}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶QUALIFIERS function, , @t{qualifiers}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶READER-DEFINITION class, , @t{reader-definition}} class
 @item
@@ -2827,6 +2829,8 @@ The Declt extract library's package.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-FUNCTION generic reader, , @t{definition-function}} generic reader
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-METHOD generic reader, , @t{definition-method}} generic reader
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-PACKAGE generic reader, , @t{definition-package}} generic reader
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-SOURCE-BY-NAME function, , @t{definition-source-by-name}} function
@@ -2838,6 +2842,8 @@ The Declt extract library's package.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶EXTERNAL-SYMBOLS generic reader, , @t{external-symbols}} generic reader
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶∶EXTERNAL-SYMBOLS❩ generic writer, , @t{(setf external-symbols)}} generic writer
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FILE generic reader, , @t{file}} generic reader
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FILE-COMPONENTS function, , @t{file-components}} function
 @item
@@ -3161,8 +3167,6 @@ The Declt library's package.
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶NODE-UP reader, , @t{node-up}} reader
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT∶∶NODE-UP❩ writer, , @t{(setf node-up)}} writer
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT∶∶QUALIFIERS function, , @t{qualifiers}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶READ-NEXT-LINE function, , @t{read-next-line}} function
 @item
@@ -3596,6 +3600,17 @@ Return CLOS classoid mixin DEFINITION's direct default initargs.
 @ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
 @end table
 @end deffn
+@deffn {Function} {extension} (definition)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXTENSION function}@c
+@functionsubindex{extension}@c
+Return file DEFINITION's file extension@comma{} if any.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/asdf․lisp file, , @t{asdf.lisp}}.
+@end table
+@end deffn
 @deffn {Function} {extract} (system-name &key library-name tagline library-version contact copyright-years license introduction conclusion &allow-other-keys &aux system contact-names contact-emails extract)
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXTRACT function}@c
 @functionsubindex{extract}@c
@@ -3813,6 +3828,17 @@ Return T if DEFINITION is a package definition.
 Return T is DEFINITION is public.@*
 A definition is public when the symbol naming it is exported from its home
 package.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@end deffn
+@deffn {Function} {qualifiers} (definition)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶QUALIFIERS function}@c
+@functionsubindex{qualifiers}@c
+Return method DEFINITION's method qualifiers.
 @table @strong
 @item Package
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
@@ -4187,30 +4213,6 @@ A copyright years string.
 @table @strong
 @item Target Slot
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXTRACT->NET․DIDIERVERNA․DECLT․EXTRACT∶COPYRIGHT-YEARS slot, , @t{copyright-years}}.
-@end table
-@end deffn
-@end table
-@end deffn
-@deffn {Generic Reader} {definition-method} (object)
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION-METHOD generic reader}@c
-@genericsubindex{definition-method}@c
-@table @strong
-@item Package
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
-@item Method Combination
-@ref{go to the COMMON-LISP∶STANDARD method combination, , @t{standard}}.
-@item Methods
-@deffn {Reader Method} {definition-method} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION class, , @t{method-definition}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION-METHOD ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION❩ reader method}@c
-@methodsubindex{definition-method}@c
-automatically generated reader method
-@table @strong
-@item Source
-@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
-@end table
-@table @strong
-@item Target Slot
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION->NET․DIDIERVERNA․DECLT․EXTRACT∶∶OBJECT slot, , @t{object}}.
 @end table
 @end deffn
 @end table
@@ -4975,30 +4977,6 @@ funcoid as their update-fn. There might be more than one.
 @table @strong
 @item Target Slot
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-MIXIN->NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDERS-TO slot, , @t{expanders-to}}.
-@end table
-@end deffn
-@end table
-@end deffn
-@deffn {Generic Reader} {file} (object)
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE generic reader}@c
-@genericsubindex{file}@c
-@table @strong
-@item Package
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
-@item Method Combination
-@ref{go to the COMMON-LISP∶STANDARD method combination, , @t{standard}}.
-@item Methods
-@deffn {Reader Method} {file} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION class, , @t{file-definition}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION❩ reader method}@c
-@methodsubindex{file}@c
-automatically generated reader method
-@table @strong
-@item Source
-@ref{go to the net․didierverna․declt․extract/src/asdf․lisp file, , @t{asdf.lisp}}.
-@end table
-@table @strong
-@item Target Slot
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION->NET․DIDIERVERNA․DECLT․EXTRACT∶∶OBJECT slot, , @t{object}}.
 @end table
 @end deffn
 @end table
@@ -6150,7 +6128,7 @@ The standard method combination.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-FUNCTION generic reader, , @t{definition-function}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION-METHOD generic reader, , @t{definition-method}}.
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-METHOD generic reader, , @t{definition-method}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-PACKAGE generic reader, , @t{definition-package}}.
 @item
@@ -6232,7 +6210,7 @@ The standard method combination.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶∶EXTERNAL-SYMBOLS❩ generic writer, , @t{(setf external-symbols)}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE generic reader, , @t{file}}.
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FILE generic reader, , @t{file}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FOREIGNP generic reader, , @t{foreignp}}.
 @item
@@ -7465,7 +7443,9 @@ The list of definitions.
 @deftp {Class} {file-definition}
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION class}@c
 @classsubindex{file-definition}@c
-The class of ASDF file definitions.
+The class of ASDF file definitions.@*
+All file definitions respond to the following public protocols@comma{} which see:
+- `extension'.
 @table @strong
 @item Package
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
@@ -7480,7 +7460,7 @@ The class of ASDF file definitions.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶CATEGORY-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION❩ method, , @t{category-name}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION❩ reader method, , @t{file}}.
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FILE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION❩ reader method, , @t{file}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION❩ method, , @t{index-command-name}}.
 @item
@@ -7494,7 +7474,7 @@ The class of ASDF file definitions.
 @item Initargs
 @t{:file}
 @item Readers
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION❩ reader method, , @t{file}}.
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FILE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION❩ reader method, , @t{file}}.
 @item Writers
 @i{This slot is read-only.}
 @end table
@@ -7908,7 +7888,9 @@ The class of macro definitions.
 @deftp {Class} {method-definition}
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION class}@c
 @classsubindex{method-definition}@c
-Abstract root class for method definitions.
+Abstract root class for method definitions.@*
+All method definitions respond to the following public protocols@comma{} which see:
+- `qualifiers'.
 @table @strong
 @item Package
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
@@ -7930,7 +7912,7 @@ Abstract root class for method definitions.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶CATEGORY-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION❩ method, , @t{category-name}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION-METHOD ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION❩ reader method, , @t{definition-method}}.
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-METHOD ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION❩ reader method, , @t{definition-method}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
@@ -7956,7 +7938,7 @@ Abstract root class for method definitions.
 @item Initargs
 @t{:method}
 @item Readers
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION-METHOD ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION❩ reader method, , @t{definition-method}}.
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-METHOD ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION❩ reader method, , @t{definition-method}}.
 @item Writers
 @i{This slot is read-only.}
 @end table
@@ -10970,17 +10952,6 @@ values.
 @ref{go to the net․didierverna․declt․extract/src/util․lisp file, , @t{util.lisp}}.
 @end table
 @end deffn
-@deffn {Function} {qualifiers} (definition)
-@anchor{go to the NET․DIDIERVERNA․DECLT∶∶QUALIFIERS function}@c
-@functionsubindex{qualifiers}@c
-Return method DEFINITION's method qualifiers.
-@table @strong
-@item Package
-@ref{go to the NET․DIDIERVERNA․DECLT package, , @t{net.didierverna.declt}}.
-@item Source
-@ref{go to the net․didierverna․declt․core/src/doc/symbol․lisp file, , @t{symbol.lisp}}.
-@end table
-@end deffn
 @deffn {Function} {read-next-line} (stream)
 @anchor{go to the NET․DIDIERVERNA․DECLT∶∶READ-NEXT-LINE function}@c
 @functionsubindex{read-next-line}@c
@@ -11242,8 +11213,9 @@ return a list of the updated specification (suitable to MAPCAN).
 @anchor{go to the NET․DIDIERVERNA․DECLT∶∶REVEAL function}@c
 @functionsubindex{reveal}@c
 Return a copy of STRING with blanks revealed.@*
-Each blank character is replaced with a visible Unicode representation.
-See `*blanks*' for more information.
+If STRING is empty or null@comma{} use the empty set symbol. Otherwise@comma{} each blank
+character is replaced with a visible Unicode representation. See `*blanks*'
+for more information.
 @table @strong
 @item Package
 @ref{go to the NET․DIDIERVERNA․DECLT package, , @t{net.didierverna.declt}}.
@@ -11733,6 +11705,30 @@ automatically generated reader method
 @end deffn
 @end table
 @end deffn
+@deffn {Generic Reader} {definition-method} (object)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-METHOD generic reader}@c
+@genericsubindex{definition-method}@c
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Method Combination
+@ref{go to the COMMON-LISP∶STANDARD method combination, , @t{standard}}.
+@item Methods
+@deffn {Reader Method} {definition-method} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION class, , @t{method-definition}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-METHOD ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION❩ reader method}@c
+@methodsubindex{definition-method}@c
+automatically generated reader method
+@table @strong
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@table @strong
+@item Target Slot
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION->NET․DIDIERVERNA․DECLT․EXTRACT∶∶OBJECT slot, , @t{object}}.
+@end table
+@end deffn
+@end table
+@end deffn
 @deffn {Generic Reader} {definition-package} (object)
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-PACKAGE generic reader}@c
 @genericsubindex{definition-package}@c
@@ -12136,6 +12132,30 @@ The list of corresponding external symbols.
 @table @strong
 @item Target Slot
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION->NET․DIDIERVERNA․DECLT․EXTRACT∶∶EXTERNAL-SYMBOLS slot, , @t{external-symbols}}.
+@end table
+@end deffn
+@end table
+@end deffn
+@deffn {Generic Reader} {file} (object)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FILE generic reader}@c
+@genericsubindex{file}@c
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Method Combination
+@ref{go to the COMMON-LISP∶STANDARD method combination, , @t{standard}}.
+@item Methods
+@deffn {Reader Method} {file} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION class, , @t{file-definition}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FILE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION❩ reader method}@c
+@methodsubindex{file}@c
+automatically generated reader method
+@table @strong
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/asdf․lisp file, , @t{asdf.lisp}}.
+@end table
+@table @strong
+@item Target Slot
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION->NET․DIDIERVERNA․DECLT․EXTRACT∶∶OBJECT slot, , @t{object}}.
 @end table
 @end deffn
 @end table
@@ -12634,7 +12654,7 @@ See `reveal' for more information.
 @deffn {Method} {safe-name} :around (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION class, , @t{file-definition}})
 @anchor{go to the NET․DIDIERVERNA․DECLT∶∶SAFE-NAME ∶AROUND ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FILE-DEFINITION❩ method}@c
 @methodsubindex{safe-name}@c
-Append DEFINITION's file extension at the end.
+Append DEFINITION's file extension at the end@comma{} when applicable.
 @table @strong
 @item Source
 @ref{go to the net․didierverna․declt․core/src/doc/asdf․lisp file, , @t{asdf.lisp}}.
