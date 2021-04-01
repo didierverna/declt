@@ -764,10 +764,10 @@ permitted."
     ((definition generic-reader-definition) context
      &key
      &aux (writer (find (list 'setf (name definition))
-			(mapcar #'owner
-			  (mapcan #'writers
-			    (mapcar #'target-slot (methods definition))))
-			:key #'name :test #'equal))
+		      (mapcar #'owner
+			(mapcat #'writers
+			  (mapcar #'target-slot (methods definition))))
+		    :key #'name :test #'equal))
 	  (merged-methods (merge-generic-accessors-p definition writer)))
   "Render generic reader function DEFINITION's documentation in CONTEXT.
 Possibly merge documentation with a corresponding writer."
@@ -798,7 +798,7 @@ Possibly merge documentation with a corresponding writer."
    &key
    &aux (reader (find (cadr (name definition))
 		      (mapcar #'owner
-			(mapcan #'readers
+			(mapcat #'readers
 			  (mapcar #'target-slot (methods definition))))
 		      :key #'name)))
   "Render generic writer function DEFINITION's documentation in CONTEXT.

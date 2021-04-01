@@ -101,6 +101,11 @@ BODY is executed as an implicit PROGN."
        (when ,(caar bindings)
 	 ,@(bind (cdr bindings) body)))))
 
+(defun mapcat (function &rest lists)
+  "Short for \"mapconcat\": non destructive version of MAPCAN.
+That is, concatenate the results with APPEND rather than NCONC."
+  (loop :for list :in (apply #'mapcar function lists) :append list))
+
 
 
 

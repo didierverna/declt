@@ -45,7 +45,7 @@
     :*release-status-level* :*release-name*
     :version
     ;; From src/util.lisp:
-    :while :endpush :retain :find* :when-let :when-let*
+    :while :endpush :retain :find* :when-let :when-let* :mapcat
     :declare-valid-superclass :abstract-class :defabstract
     :non-empty-string-p :non-empty-string))
 
