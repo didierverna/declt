@@ -479,21 +479,7 @@ allow to specify or override some bits of information.
 	  (append system-definitions module-definitions file-definitions
 		  package-definitions symbol-definitions)))
 
-  ;; #### NOTE: the Common Lisp standard doesn't specify what happens when an
-  ;; object being traversed is modified (see Section 3.6 of the CLHS). So I
-  ;; can't reliably use DOLIST here, even though I'm only pushing new
-  ;; definitions at the end of the list. I believe however that the code below
-  ;; is reliable. Also, note that the finalization process traverses ALL
-  ;; definitions, including the foreign ones added during the process. This
-  ;; means that we end up with a potentially large number of definitions that
-  ;; will probably not be documented. But again, you never know what people
-  ;; will want to do with that.
-  (setq *finalized* nil)
-  (while (not *finalized*)
-    (setq *finalized* t)
-    (do ((definitions (definitions extract) (cdr definitions)))
-	((endp definitions))
-      (finalize (first definitions) (definitions extract))))
+  (finalize (definitions extract))
 
   extract)
 

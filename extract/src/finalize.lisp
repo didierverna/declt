@@ -21,15 +21,28 @@
 
 ;;; Commentary:
 
+;; The finalization step is in charge of completing all the definitions that
+;; have been created and collected by the initial introspection process.
+;; Finalization occurs in two phases.
+;; 1. Phase one is called "stabilization". The purpose of stabilization is
+;;    primarily to compute cross-references between definitions. During
+;;    stabilization, new definitions may be created (foreign ones, notably).
+;;    When this happens, the previously computed cross-references may turn out
+;;    to become incomplete. Because of that, stabilization is run over and
+;;    over again until no new definition is created.
+;; 2. Phase two is called "freezing". The purpose of freezing is to finish
+;;    updating the definitions, with information that cannot be computed
+;;    unless we know for sure that no new definition will ever be created.
+
 ;; #### WARNING: as a general rule of thumb, never assume anything about the
 ;; finalization state of the other definitions you access when finalizing a
-;; definition. There are many small methods here and there that are executed
-;; and it's too error-prone to even try to rely on their execution order
-;; (scattered behavior, that's the drawback of OO).
-;; For example, this is guaranteed to work all the time:
-;; (symbol-package (definition-symbol definition)
-;; whereas this might fail if the definition has not been finalized yet:
-;; (definition-package (home-package definition)).
+;; definition (in particular, when stabilizing it). There are many small
+;; methods here and there that are executed and it's too error-prone to even
+;; try to rely on their execution order (scattered behavior, that's the
+;; drawback of OO). For example, this is guaranteed to work all the time:
+;; (symbol-package (definition-symbol definition) whereas this might fail if
+;; the definition has not been stabilized yet: (definition-package
+;; (home-package definition)).
 
 
 ;;; Code:
@@ -38,21 +51,26 @@
 (in-readtable :net.didierverna.declt)
 
 
-(defvar *finalized* nil
-  "Whether the finalization process is over.
-This variable is dynamically set to NIL whenever new definitions are
-created during the finalization process. The finalization process is run over
-and over again until nothing moves anymore.")
+
+;; ==========================================================================
+;; Stabilization
+;; ==========================================================================
 
-(defgeneric finalize (definition definitions)
-  (:documentation "Finalize DEFINITION in DEFINITIONS.")
+(defvar *stabilized* nil
+  "Whether the stabilization process is over.
+This variable is set to NIL whenever new definitions are created during the
+process. Stabilization is run over and over again until nothing moves
+anymore.")
+
+(defgeneric stabilize (definition definitions)
+  (:documentation "Stabilize DEFINITION in DEFINITIONS.")
   (:method-combination progn))
 
 
 
-;; ==========================================================================
+;; ---------
 ;; Utilities
-;; ==========================================================================
+;; ---------
 
 (defun make-generic-definition (generic &optional foreign)
   "Make a new GENERIC function definition, possibly FOREIGN."
@@ -74,13 +92,12 @@ and over again until nothing moves anymore.")
   (when (fboundp name) (make-foreign-funcoid-definition name)))
 
 
-
 
-;; ==========================================================================
+;; ---------------
 ;; All Definitions
-;; ==========================================================================
+;; ---------------
 
-(defmethod finalize progn ((definition definition) definitions)
+(defmethod stabilize progn ((definition definition) definitions)
   "Compute DEFINITION's source file definition."
   (unless (source-file definition)
     (when-let (source-pathname (source-pathname definition))
@@ -92,13 +109,12 @@ and over again until nothing moves anymore.")
 		   :test #'equal)))))
 
 
-
 
-;; ==========================================================================
+;; ------------------
 ;; Symbol Definitions
-;; ==========================================================================
+;; ------------------
 
-(defmethod finalize progn
+(defmethod stabilize progn
     ((definition symbol-definition) definitions
      &aux (package (symbol-package (definition-symbol definition))))
   "Compute symbol DEFINITION's home package definition.
@@ -111,16 +127,15 @@ DEFINITIONS in the process."
 	  (or (find-definition package definitions)
 	      (let ((package-definition (make-package-definition package t)))
 		(endpush package-definition definitions)
-		(setq *finalized* nil)
+		(setq *stabilized* nil)
 		package-definition)))))
 
 
 
-;; --------------------
 ;; Setf expander mixins
 ;; --------------------
 
-(defmethod finalize progn
+(defmethod stabilize progn
     ((definition expander-mixin) definitions
      &aux (name (name definition)) ;; always a symbol here
 	  (lambda-list (lambda-list definition)))
@@ -151,14 +166,13 @@ DEFINITIONS in the process."
 	  :pre-test #'short-expander-definition-p
 	  :key (lambda (definition) (car (expander definition))))))
 
-;; #### WARNING: there is no finalization method for the accessor mixin. This
-;; is handled by the sot finalization methods. Slot readers and writers are
+;; #### WARNING: there is no stabilization method for the accessor mixin. This
+;; is handled by the slot stabilization methods. Slot readers and writers are
 ;; searched for as regular functions, and when they are found, their
 ;; respective classes are upgraded.
 
 
 
-;; --------------
 ;; Setf expanders
 ;; --------------
 
@@ -166,11 +180,11 @@ DEFINITIONS in the process."
 ;; salt. Especially because of the way we handle expanders-to above, we
 ;; actually don't currently create foreign expanders, ever...
 
-(defmethod finalize progn
+(defmethod stabilize progn
     ((definition expander-definition) definitions
      &aux (name (definition-symbol definition))) ;; don't want the setf part
   "Compute setf expander DEFINTIION's standalone reader definition."
-  ;; #### NOTE: same remark as above when finalizing and expander-for
+  ;; #### NOTE: same remark as above when stabilizing and expander-for
   ;; definition: if this expander is our own, then we /will/ find a definition
   ;; for its standalone-reader if it exists, as it is for the same symbol.
   ;; Otherwise, we don't care if we find a definition or not. So we never need
@@ -186,7 +200,7 @@ DEFINITIONS in the process."
 			    (equal (lambda-list candidate) lambda-list)))
 		     definitions)))))
 
-(defmethod finalize progn
+(defmethod stabilize progn
     ((definition short-expander-definition) definitions
      &aux (name (car (expander definition))))
   "Computer short setf expander DEFINITION's standalone writer definition."
@@ -204,7 +218,7 @@ DEFINITIONS in the process."
 	     (unless (and writer-package (not (foreignp writer-package)))
 	       (foreign-funcoid-definition name))))
       (cond (writer
-	     (setq *finalized* nil)
+	     (setq *stabilized* nil)
 	     (endpush writer definitions)
 	     (setf (standalone-writer definition) writer))
 	    (t
@@ -213,7 +227,6 @@ DEFINITIONS in the process."
 
 
 
-;; -----------------
 ;; Generic functions
 ;; -----------------
 
@@ -224,7 +237,7 @@ DEFINITIONS in the process."
 ;; be a foreign one.
 
 ;; #### PORTME.
-(defmethod finalize progn
+(defmethod stabilize progn
     ((definition generic-function-definition) definitions
      &aux (combination
 	   (generic-function-method-combination (generic definition))))
@@ -236,13 +249,14 @@ DEFINITIONS in the process."
 	    (make-combination-definition
 	     (sb-pcl::method-combination-type-name combination)
 	     combination t)))
-      (setq *finalized* nil)
+      (setq *stabilized* nil)
       (endpush combination-definition definitions)
       (setf (combination definition) combination-definition))))
 
 
 
 ;; Method combinations
+;; -------------------
 
 ;; #### NOTE: after Christophe's changes to SBCL following my ELS paper, I
 ;; think we can reliably access the method combination object's hashtable of
@@ -251,7 +265,7 @@ DEFINITIONS in the process."
 ;; combination.
 
 ;; #### PORTME.
-(defmethod finalize progn
+(defmethod stabilize progn
     ((definition combination-definition) definitions &aux clients)
   "Compute method combination DEFINITION's users."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
@@ -263,14 +277,14 @@ DEFINITIONS in the process."
 		      (endpush client clients))
 		     ((not (foreignp definition))
 		      (setq client (make-generic-definition function t))
-		      (setq *finalized* nil)
+		      (setq *stabilized* nil)
 		      (endpush client definitions)
 		      (endpush client clients)))))
 	   (sb-pcl::method-combination-%generic-functions
 	    (combination definition)))
   (setf (clients definition) clients))
 
-(defmethod finalize progn
+(defmethod stabilize progn
   ((definition short-combination-definition) definitions
    &aux (name (sb-pcl::short-combination-operator (combination definition))))
   "Compute short combination DEFINITION's standalone combinator definition."
@@ -289,7 +303,7 @@ DEFINITIONS in the process."
 			  (not (foreignp combinator-package)))
 	       (foreign-funcoid-definition name))))
       (cond (combinator
-	     (setq *finalized* nil)
+	     (setq *stabilized* nil)
 	     (endpush combinator definitions)
 	     (setf (standalone-combinator definition) combinator))
 	    (t
@@ -301,7 +315,7 @@ DEFINITIONS in the process."
 ;; Methods
 ;; -------
 
-(defmethod finalize progn
+(defmethod stabilize progn
     ((definition method-definition) definitions)
   "Computer method DEFINITION's specializer references."
   (setf (specializers definition)
@@ -321,14 +335,13 @@ DEFINITIONS in the process."
 				(class-name specializer)
 				specializer
 				t))
-			 (setq *finalized* nil)
+			 (setq *stabilized* nil)
 			 (endpush class-specializer definitions))
 		       class-specializer))))
 	  (method-specializers (definition-method definition)))))
 
 
 
-;; ---------
 ;; Classoids
 ;; ---------
 
@@ -343,10 +356,7 @@ DEFINITIONS in the process."
 ;; constraint, which is that both readers and writers share the same status,
 ;; as their names always go hand in hand.
 
-
-;; Classes
-
-(defmethod finalize progn
+(defmethod stabilize progn
     ((definition clos-classoid-mixin) definitions &aux classoid-definitions)
   "Compute classoid DEFINITION's super/sub classoids, and method definitions."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole lists here,
@@ -359,7 +369,7 @@ DEFINITIONS in the process."
 		    (setq classoid-definition
 			  (make-classoid-definition
 			   (class-name classoid) classoid t))
-		    (setq *finalized* nil)
+		    (setq *stabilized* nil)
 		    (endpush classoid-definition definitions)
 		    (endpush classoid-definition classoid-definitions))))))
     (mapc #'get-classoid-definition
@@ -388,7 +398,7 @@ DEFINITIONS in the process."
 			   (setq method-definition
 				 (make-method-definition
 				  method generic-definition t))
-			   (setq *finalized* nil)
+			   (setq *stabilized* nil)
 			   (endpush method-definition definitions)
 			   (endpush method-definition
 				    (methods generic-definition))
@@ -399,7 +409,7 @@ DEFINITIONS in the process."
 			   (setq method-definition
 				 (make-method-definition
 				  method generic-definition t))
-			   (setq *finalized* nil)
+			   (setq *stabilized* nil)
 			   (endpush method-definition definitions)
 			   (endpush method-definition
 				    (methods generic-definition))
@@ -414,14 +424,13 @@ DEFINITIONS in the process."
 
 ;; #### FIXME: this whole section needs factoring.
 
-
-;; #### NOTE: we can't completely unify the finalization of slot readers and
+;; #### NOTE: we can't completely unify the stabilization of slot readers and
 ;; writers because structure classes behave differently from condition and
 ;; regular ones (or, we would need an additional super-class for only these
 ;; two). That's why we have 3 methods below, two of them actually using the
 ;; same helper function.
 
-(defun finalize-clos-classoid-slot
+(defun stabilize-clos-classoid-slot
     (definition definitions
      &aux (slot (slot definition))
 	  (owner (owner definition))
@@ -437,7 +446,7 @@ This function is used for regular class and condition slots."
 		     (reader (find-definition generic definitions)))
 		(unless (or reader (foreignp owner))
 		  (setq reader (make-generic-definition generic t))
-		  (setq *finalized* nil)
+		  (setq *stabilized* nil)
 		  (endpush reader definitions))
 		(when reader
 		  (let* ((method
@@ -449,7 +458,7 @@ This function is used for regular class and condition slots."
 		    (unless (or reader-method (foreignp owner))
 		      (setq reader-method
 			    (make-method-definition method reader t))
-		      (setq *finalized* nil)
+		      (setq *stabilized* nil)
 		      (endpush reader-method definitions)
 		      (endpush reader-method (methods reader)))
 		    (when reader-method
@@ -464,7 +473,7 @@ This function is used for regular class and condition slots."
 		     (writer (find-definition generic definitions)))
 		(unless (or writer (foreignp owner))
 		  (setq writer (make-generic-definition generic t))
-		  (setq *finalized* nil)
+		  (setq *stabilized* nil)
 		  (endpush writer definitions))
 		(when writer
 		  (let* ((method
@@ -480,7 +489,7 @@ This function is used for regular class and condition slots."
 		    (unless (or writer-method (foreignp owner))
 		      (setq writer-method
 			    (make-method-definition method writer t))
-		      (setq *finalized* nil)
+		      (setq *stabilized* nil)
 		      (endpush writer-method definitions)
 		      (endpush writer-method (methods writer)))
 		    (when writer-method
@@ -498,7 +507,7 @@ This function is used for regular class and condition slots."
 ;; (for initialization, I suppose), but it's not a setf function; it's an
 ;; internal closure. As a consequence, we /will/ find a writer-function below,
 ;; but not a definition for it.
-(defun finalize-clos-structure-slot
+(defun stabilize-clos-structure-slot
     (definition definitions
      &aux (slot (slot definition))
 	  (owner (owner definition)))
@@ -525,7 +534,7 @@ This function is used for regular class and condition slots."
 	(when writer-function
 	  (setq writer (make-function-definition accessor-name writer-function
 			 :setf t :foreign t)))
-	(setq *finalized* nil)
+	(setq *stabilized* nil)
 	(endpush reader definitions)
 	(when writer (endpush writer definitions)))
       (when reader
@@ -538,18 +547,18 @@ This function is used for regular class and condition slots."
       (setf (readers definition) (when reader (list reader)))
       (setf (writers definition) (when writer (list writer))))))
 
-(defmethod finalize progn ((definition clos-slot-definition) definitions)
+(defmethod stabilize progn ((definition clos-slot-definition) definitions)
   "Compute CLOS slot DEFINITION's reader and writer definitions."
   (typecase (owner definition)
     (clos-structure-definition
-     (finalize-clos-structure-slot definition definitions))
+     (stabilize-clos-structure-slot definition definitions))
     (otherwise
-     (finalize-clos-classoid-slot definition definitions))))
+     (stabilize-clos-classoid-slot definition definitions))))
 
 
 ;; #### PORTME: SBCL defines writers as setf functions, but the standard
 ;; explicitly allows the use of setf expanders instead.
-(defmethod finalize progn
+(defmethod stabilize progn
     ((definition typed-structure-slot-definition) definitions
      &aux (slot (slot definition))
 	  (owner (owner definition)))
@@ -575,7 +584,7 @@ This function is used for regular class and condition slots."
 	(when writer-function
 	  (setq writer (make-function-definition reader-name writer-function
 			 :setf t :foreign t)))
-	(setq *finalized* nil)
+	(setq *stabilized* nil)
 	(endpush reader definitions)
 	(when writer (endpush writer definitions)))
       (when reader
@@ -589,13 +598,12 @@ This function is used for regular class and condition slots."
       (setf (writers definition) (when writer (list writer))))))
 
 
-
 
-;; ==========================================================================
+;; --------
 ;; Packages
-;; ==========================================================================
+;; --------
 
-(defmethod finalize progn
+(defmethod stabilize progn
     ((definition package-definition) definitions
      &aux (package (definition-package definition))
 	  package-definitions)
@@ -611,7 +619,7 @@ DEFINITIONS in the process."
 		   ((not (foreignp definition))
 		    (setq package-definition
 			  (make-package-definition package t))
-		    (setq *finalized* nil)
+		    (setq *stabilized* nil)
 		    (endpush package-definition definitions)
 		    (endpush package-definition package-definitions))))))
     ;; 1. Use list.
@@ -629,11 +637,10 @@ DEFINITIONS in the process."
 		 (symbol-package (definition-symbol definition))))))
 
 
-
 
-;; ==========================================================================
+;; ---------------
 ;; ASDF Components
-;; ==========================================================================
+;; ---------------
 
 (defun make-component-definition (component &optional foreign)
   "Make a new COMPONENT definition of the appropriate class, possibly FOREIGN."
@@ -659,13 +666,13 @@ return a list of the updated specification (suitable to MAPCAN)."
 	 (definition (find-definition dependency definitions)))
     (unless (or definition foreign)
       (setq definition (make-component-definition dependency t))
-      (setq *finalized* nil)
+      (setq *stabilized* nil)
       (endpush definition definitions))
     (when definition
       (rplaca inner definition)
       (list specification))))
 
-(defmethod finalize progn
+(defmethod stabilize progn
     ((definition component-definition) definitions
      &aux (foreign (foreignp definition))
 	  (component (component definition)))
@@ -692,11 +699,10 @@ Those definitions are guaranteed to be in the original component's order."
 
 
 
-;; -----
 ;; Files
 ;; -----
 
-(defmethod finalize progn
+(defmethod stabilize progn
     ((definition lisp-file-definition) definitions
      &aux (pathname (component-pathname (file definition))))
   "Compute Lisp file DEFINITION's definitions list."
@@ -705,11 +711,10 @@ Those definitions are guaranteed to be in the original component's order."
 
 
 
-;; -------
 ;; Modules
 ;; -------
 
-(defmethod finalize progn ((definition module-definition) definitions)
+(defmethod stabilize progn ((definition module-definition) definitions)
   "Compute module DEFINITION's child definitions.
 Those definitions are guaranteed to be in the module's original order."
   (setf (children definition)
@@ -724,11 +729,10 @@ Those definitions are guaranteed to be in the module's original order."
 
 
 
-;; -------
 ;; Systems
 ;; -------
 
-(defmethod finalize progn
+(defmethod stabilize progn
     ((definition system-definition) definitions
      &aux (foreign (foreignp definition))
 	  (system (system definition)))
@@ -742,5 +746,58 @@ Those definitions are guaranteed to be in the original system's order."
 		   dependency system definitions foreign))
 	  (mapcar #'reorder-dependency-def
 	    (system-defsystem-depends-on system)))))
+
+
+
+
+;; ==========================================================================
+;; Freezing
+;; ==========================================================================
+
+(defun freeze (definitions)
+  "Freeze DEFINITIONS.
+Currently, this means potentially upgrading generic definitions to reader or
+ writer definitions."
+  ;; #### NOTE: we can't upgrade regular generic functions to reader or writer
+  ;; ones until we're sure to have all the methods around. That's why the
+  ;; freezing step was introduced.
+  (mapc (lambda (definition)
+	  (when (typep definition 'generic-function-definition)
+	    (cond ((every #'reader-method-definition-p (methods definition))
+		   (change-class definition 'generic-reader-definition))
+		  ((every #'writer-method-definition-p (methods definition))
+		   (change-class definition
+		       (etypecase definition
+			 (simple-generic-definition
+			  'simple-generic-writer-definition)
+			 (generic-setf-definition
+			  'generic-setf-writer-definition)))))))
+    definitions))
+
+
+
+
+;; ==========================================================================
+;; Finalization Entry Point
+;; ==========================================================================
+
+(defun finalize (definitions)
+  "Finalize DEFINITIONS.
+For more information, see `stabilize' and `freeze'."
+  ;; #### NOTE: the Common Lisp standard doesn't specify what happens when an
+  ;; object being traversed is modified (see Section 3.6 of the CLHS). So I
+  ;; can't reliably use DOLIST here, even though I'm only pushing new
+  ;; definitions at the end of the list. I believe however that the code below
+  ;; is reliable. Also, note that the finalization process traverses ALL
+  ;; definitions, including the foreign ones added during the process. This
+  ;; means that we end up with a potentially large number of definitions that
+  ;; will probably not be documented. But again, you never know what people
+  ;; will want to do with that.
+  (setq *stabilized* nil)
+  (while (not *stabilized*)
+    (setq *stabilized* t)
+    (do ((remaining definitions (cdr remaining))) ((endp remaining))
+      (stabilize (first remaining) definitions)))
+  (freeze definitions))
 
 ;; finalize.lisp ends here

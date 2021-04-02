@@ -523,9 +523,9 @@ structure."))
   (:documentation "The class of generic setf function definitions."))
 
 
-;; #### NOTE: only basic method definitions are created. Reader and writer
-;; definitions are created during the finalization process by upgrading the
-;; class of the concerned definitions.
+;; #### NOTE: only basic generic definitions are created. Reader and writer
+;; definitions are created during the freezing process by upgrading the class
+;; of the concerned definitions.
 
 (defclass generic-reader-definition (simple-generic-definition)
   ()
@@ -688,13 +688,6 @@ A reader method is a method that reads a slot in a class or condition."))
   "Return T if DEFINITION is a reader method definition."
   (typep definition 'reader-method-definition))
 
-(defmethod update-instance-for-different-class :after
-    (old (new reader-method-definition) &key &aux (owner (owner new)))
-  "Maybe upgrade NEW reader method definition's owner to a generic reader.
-This class upgrade is possible if every owner's method is a reader method."
-  (when (every #'reader-method-definition-p (methods owner))
-    (change-class owner 'generic-reader-definition)))
-
 
 (defabstract writer-method-definition (method-definition accessor-mixin)
   ()
@@ -704,17 +697,6 @@ This class upgrade is possible if every owner's method is a reader method."
   "Return T if DEFINITION is a writer method definition."
   (typep definition 'writer-method-definition))
 
-(defmethod update-instance-for-different-class :after
-    (old (new writer-method-definition) &key &aux (owner (owner new)))
-  "Maybe upgrade NEW writer method definition's owner to a generic writer.
-This class upgrade is possible if every owner's method is a writer method."
-  (when (every #'writer-method-definition-p (methods owner))
-    (change-class owner
-		  (etypecase owner
-		    (simple-generic-definition
-		     'simple-generic-writer-definition)
-		    (generic-setf-definition
-		     'generic-setf-writer-definition)))))
 
 (defclass simple-writer-method-definition (writer-method-definition)
   ()
