@@ -291,8 +291,8 @@ and methods for classes or conditions slots."))
 (defun make-compiler-macro-definition (symbol compiler-macro &optional setf)
   "Make a new COMPILER-MACRO definition for SYMBOL."
   (make-instance (if setf
-		   'compiler-macro-definition
-		   'setf-compiler-macro-definition)
+		   'setf-compiler-macro-definition
+		   'compiler-macro-definition)
     :symbol symbol :compiler-macro compiler-macro))
 
 
