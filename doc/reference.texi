@@ -22,7 +22,7 @@
 @c Commentary:
 
 @c Generated automatically by Declt version 3.0 "Montgomery Scott"
-@c on Wed Mar 31 12:18:52 2021 GMT+1.
+@c on Fri Apr 02 17:19:13 2021 GMT+1.
 
 
 @c ====================================================================
@@ -270,7 +270,7 @@ except that this permission notice may be translated as well.
 
 @page
 @quotation
-This manual was generated automatically by Declt 3.0 "Montgomery Scott" on Wed Mar 31 12:18:52 2021 GMT+1.
+This manual was generated automatically by Declt 3.0 "Montgomery Scott" on Fri Apr 02 17:19:13 2021 GMT+1.
 @end quotation
 @vskip 0pt plus 1filll
 @insertcopying
@@ -293,7 +293,7 @@ This manual was generated automatically by Declt 3.0 "Montgomery Scott" on Wed M
 @top The Declt Reference Manual
 This is the Declt Reference Manual, version 3.0 "Montgomery Scott",
 generated automatically by Declt version 3.0 "Montgomery Scott"
-on Wed Mar 31 12:18:52 2021 GMT+1.
+on Fri Apr 02 17:19:13 2021 GMT+1.
 
 @menu
 * Copying:: The BSD License
@@ -1018,6 +1018,8 @@ components trees.
 @ref{go to the NET․DIDIERVERNA․DECLT․SETUP∶FIND* function, , @t{find*}} function
 @item
 @ref{go to the COMMON-LISP∶MAKE-INSTANCE ❨NET․DIDIERVERNA․DECLT․SETUP∶ABSTRACT-CLASS❩ method, , @t{make-instance}} method
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․SETUP∶MAPCAT function, , @t{mapcat}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․SETUP∶NON-EMPTY-STRING type, , @t{non-empty-string}} type
 @item
@@ -1867,10 +1869,6 @@ components trees.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION class, , @t{typed-structure-slot-definition}} class
 @item
-@ref{go to the COMMON-LISP∶UPDATE-INSTANCE-FOR-DIFFERENT-CLASS ∶AFTER ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶WRITER-METHOD-DEFINITION❩ method, , @t{update-instance-for-different-class}} method
-@item
-@ref{go to the COMMON-LISP∶UPDATE-INSTANCE-FOR-DIFFERENT-CLASS ∶AFTER ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶READER-METHOD-DEFINITION❩ method, , @t{update-instance-for-different-class}} method
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶VALUE-TYPE generic function, , @t{value-type}} generic function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶VARIABLE-DEFINITION class, , @t{variable-definition}} class
@@ -2180,15 +2178,13 @@ components trees.
 @item Internals
 @itemize @bullet
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶*FINALIZED* special variable, , @t{*finalized*}} special variable
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶*STABILIZED* special variable, , @t{*stabilized*}} special variable
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE generic function, , @t{finalize}} generic function
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE-CLOS-CLASSOID-SLOT function, , @t{finalize-clos-classoid-slot}} function
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE-CLOS-STRUCTURE-SLOT function, , @t{finalize-clos-structure-slot}} function
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE function, , @t{finalize}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FOREIGN-FUNCOID-DEFINITION function, , @t{foreign-funcoid-definition}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FREEZE function, , @t{freeze}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-COMPONENT-DEFINITION function, , @t{make-component-definition}} function
 @item
@@ -2197,6 +2193,12 @@ components trees.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-GENERIC-DEFINITION function, , @t{make-generic-definition}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶RESOLVE-DEPENDENCY-SPECIFICATION function, , @t{resolve-dependency-specification}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE generic function, , @t{stabilize}} generic function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE-CLOS-CLASSOID-SLOT function, , @t{stabilize-clos-classoid-slot}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE-CLOS-STRUCTURE-SLOT function, , @t{stabilize-clos-structure-slot}} function
 @end itemize
 @end table
 
@@ -2364,6 +2366,8 @@ The Declt setup library's package.
 @ref{go to the NET․DIDIERVERNA․DECLT․SETUP∶ENDPUSH macro, , @t{endpush}} macro
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․SETUP∶FIND* function, , @t{find*}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․SETUP∶MAPCAT function, , @t{mapcat}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․SETUP∶NON-EMPTY-STRING type, , @t{non-empty-string}} type
 @item
@@ -2811,9 +2815,9 @@ The Declt extract library's package.
 @item Internals
 @itemize @bullet
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶*FINALIZED* special variable, , @t{*finalized*}} special variable
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶*LICENSES* special variable, , @t{*licenses*}} special variable
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶*STABILIZED* special variable, , @t{*stabilized*}} special variable
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶CLASSOID generic reader, , @t{classoid}} generic reader
 @item
@@ -2847,15 +2851,13 @@ The Declt extract library's package.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FILE-COMPONENTS function, , @t{file-components}} function
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE generic function, , @t{finalize}} generic function
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE-CLOS-CLASSOID-SLOT function, , @t{finalize-clos-classoid-slot}} function
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE-CLOS-STRUCTURE-SLOT function, , @t{finalize-clos-structure-slot}} function
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE function, , @t{finalize}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FIND-DEFINITION function, , @t{find-definition}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FOREIGN-FUNCOID-DEFINITION function, , @t{foreign-funcoid-definition}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FREEZE function, , @t{freeze}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FUNCOID generic reader, , @t{funcoid}} generic reader
 @item
@@ -2964,6 +2966,12 @@ The Declt extract library's package.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SLOT generic reader, , @t{slot}} generic reader
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SOURCE-PATHNAME generic function, , @t{source-pathname}} generic function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE generic function, , @t{stabilize}} generic function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE-CLOS-CLASSOID-SLOT function, , @t{stabilize-clos-classoid-slot}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE-CLOS-STRUCTURE-SLOT function, , @t{stabilize-clos-structure-slot}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SUB-COMPONENT-P function, , @t{sub-component-p}} function
 @item
@@ -3267,8 +3275,6 @@ public: home of symbols defined by the ANSI language specification
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-DEFINITION->COMMON-LISP∶TYPE slot, , @t{type}} slot
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶CL-SOURCE-FILE․ASD->COMMON-LISP∶TYPE slot, , @t{type}} slot
-@item
-@ref{go to the COMMON-LISP∶UPDATE-INSTANCE-FOR-DIFFERENT-CLASS generic function, , @t{update-instance-for-different-class}} generic function
 @end itemize
 @end table
 
@@ -3765,6 +3771,18 @@ Return system DEFINITION's mailto@comma{} or NIL.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
 @item Source
 @ref{go to the net․didierverna․declt․extract/src/asdf․lisp file, , @t{asdf.lisp}}.
+@end table
+@end deffn
+@deffn {Function} {mapcat} (function &rest lists)
+@anchor{go to the NET․DIDIERVERNA․DECLT․SETUP∶MAPCAT function}@c
+@functionsubindex{mapcat}@c
+Short for "mapconcat": non destructive version of MAPCAN.
+That is@comma{} concatenate the results with APPEND rather than NCONC.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․SETUP package, , @t{net.didierverna.declt.setup}}.
+@item Source
+@ref{go to the net․didierverna․declt․setup/src/util․lisp file, , @t{util.lisp}}.
 @end table
 @end deffn
 @deffn {Function} {module-definition-p} (definition)
@@ -5881,37 +5899,6 @@ The target slot definition for this definition's accessor.
 @end deffn
 @end table
 @end deffn
-@deffn {Generic Function} {update-instance-for-different-class} (previous current &rest initargs &key)
-@anchor{go to the COMMON-LISP∶UPDATE-INSTANCE-FOR-DIFFERENT-CLASS generic function}@c
-@genericsubindex{update-instance-for-different-class}@c
-@table @strong
-@item Package
-@ref{go to the COMMON-LISP package, , @t{common-lisp}}.
-@item Method Combination
-@ref{go to the COMMON-LISP∶STANDARD method combination, , @t{standard}}.
-@item Methods
-@deffn {Method} {update-instance-for-different-class} :after (@ref{go to the COMMON-LISP∶T class, , @t{t}}, @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶WRITER-METHOD-DEFINITION class, , @t{writer-method-definition}})
-@anchor{go to the COMMON-LISP∶UPDATE-INSTANCE-FOR-DIFFERENT-CLASS ∶AFTER ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶WRITER-METHOD-DEFINITION❩ method}@c
-@methodsubindex{update-instance-for-different-class}@c
-Maybe upgrade NEW writer method definition's owner to a generic writer.
-This class upgrade is possible if every owner's method is a writer method.
-@table @strong
-@item Source
-@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
-@end table
-@end deffn
-@deffn {Method} {update-instance-for-different-class} :after (@ref{go to the COMMON-LISP∶T class, , @t{t}}, @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶READER-METHOD-DEFINITION class, , @t{reader-method-definition}})
-@anchor{go to the COMMON-LISP∶UPDATE-INSTANCE-FOR-DIFFERENT-CLASS ∶AFTER ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶READER-METHOD-DEFINITION❩ method}@c
-@methodsubindex{update-instance-for-different-class}@c
-Maybe upgrade NEW reader method definition's owner to a generic reader.
-This class upgrade is possible if every owner's method is a reader method.
-@table @strong
-@item Source
-@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
-@end table
-@end deffn
-@end table
-@end deffn
 @deffn {Generic Reader} {use-list} (object)
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶USE-LIST generic reader}@c
 @genericsubindex{use-list}@c
@@ -6065,7 +6052,7 @@ The list of definitions for this definition's slot writers.
 @item Identity with one argument
 @t{t}
 @item Client Functions
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE generic function, , @t{finalize}}.
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE generic function, , @t{stabilize}}.
 @end table
 @end deffn
 @deffn {Method Combination} {standard} ()
@@ -6629,9 +6616,9 @@ These are conditions@comma{} ordinary structures@comma{} and classes.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DIRECT-SUPERCLASSOIDS ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-CLASSOID-MIXIN❩ reader method, , @t{direct-superclassoids}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-CLASSOID-MIXIN COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
 @ref{go to the COMMON-LISP∶INITIALIZE-INSTANCE ∶AFTER ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-CLASSOID-MIXIN❩ method, , @t{initialize-instance}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-CLASSOID-MIXIN COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} direct-superclassoids
@@ -6687,7 +6674,7 @@ The class of CLOS slot definitions.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-SLOT-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-SLOT-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-SLOT-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶VALUE-TYPE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-SLOT-DEFINITION❩ method, , @t{value-type}}.
 @end itemize
@@ -6776,11 +6763,11 @@ Root class for method combination definitions.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION❩ method, , @t{index-command-name}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶LAMBDA-LIST ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION❩ method, , @t{lambda-list}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} object
@@ -6881,8 +6868,6 @@ Abstract root class for ASDF components.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ∶AROUND ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION❩ method, , @t{name}}.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶PARENT❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION❩ writer method, , @t{(setf parent)}}.
@@ -6892,6 +6877,8 @@ Abstract root class for ASDF components.
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶SAFE-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION❩ method, , @t{safe-name}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SOURCE-PATHNAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION❩ method, , @t{source-pathname}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} object
@@ -7042,8 +7029,6 @@ All definitions respond to the following public protocols@comma{} which see:
 @item Direct methods
 @itemize @bullet
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FOREIGNP ❨NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION❩ reader method, , @t{foreignp}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶OBJECT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION❩ reader method, , @t{object}}.
@@ -7055,6 +7040,8 @@ All definitions respond to the following public protocols@comma{} which see:
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶SOURCE-FILE❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION❩ writer method, , @t{(setf source-file)}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SOURCE-FILE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION❩ reader method, , @t{source-file}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} object
@@ -7144,11 +7131,11 @@ Abstract root class for setf expander definitions.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶EXPANDER ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION❩ reader method, , @t{expander}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION❩ method, , @t{index-command-name}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SOURCE-PATHNAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION❩ method, , @t{source-pathname}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶STANDALONE-READER❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION❩ writer method, , @t{(setf standalone-reader)}}.
 @item
@@ -7221,7 +7208,7 @@ update-fn).
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDERS-TO ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-MIXIN❩ reader method, , @t{expanders-to}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-MIXIN COMMON-LISP∶T❩ method, , @t{finalize}}.
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-MIXIN COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} expander-for
@@ -7419,23 +7406,9 @@ Contents for a conclusion chapter.
 The list of definitions.
 @table @strong
 @item Readers
-@itemize @bullet
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITIONS ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXTRACT❩ reader method, , @t{definitions}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITIONS ❨NET․DIDIERVERNA․DECLT․EXTRACT∶LISP-FILE-DEFINITION❩ reader method, , @t{definitions}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITIONS ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION❩ reader method, , @t{definitions}}.
-@end itemize
 @item Writers
-@itemize @bullet
-@item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITIONS❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶EXTRACT❩ writer method, , @t{(setf definitions)}}.
-@item
-@ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITIONS❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶LISP-FILE-DEFINITION❩ writer method, , @t{(setf definitions)}}.
-@item
-@ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITIONS❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION❩ writer method, , @t{(setf definitions)}}.
-@end itemize
 @end table
 @end defvr
 @end table
@@ -7597,8 +7570,6 @@ Abstract root class for generic function definitions.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION ❨NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-FUNCTION-DEFINITION❩ reader method, , @t{combination}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-FUNCTION-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶GENERIC ❨NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-FUNCTION-DEFINITION❩ reader method, , @t{generic}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-FUNCTION-DEFINITION❩ method, , @t{index-command-name}}.
@@ -7608,6 +7579,8 @@ Abstract root class for generic function definitions.
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶METHODS❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-FUNCTION-DEFINITION❩ writer method, , @t{(setf methods)}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶METHODS ❨NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-FUNCTION-DEFINITION❩ reader method, , @t{methods}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-FUNCTION-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} object
@@ -7782,7 +7755,7 @@ The class of ASDF Lisp file definitions.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶LISP-FILE-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶LISP-FILE-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶LISP-FILE-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} definitions
@@ -7791,19 +7764,9 @@ The class of ASDF Lisp file definitions.
 The list of definitions for this definition's file.
 @table @strong
 @item Readers
-@itemize @bullet
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITIONS ❨NET․DIDIERVERNA․DECLT․EXTRACT∶LISP-FILE-DEFINITION❩ reader method, , @t{definitions}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITIONS ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION❩ reader method, , @t{definitions}}.
-@end itemize
 @item Writers
-@itemize @bullet
-@item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITIONS❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶LISP-FILE-DEFINITION❩ writer method, , @t{(setf definitions)}}.
-@item
-@ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITIONS❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION❩ writer method, , @t{(setf definitions)}}.
-@end itemize
 @end table
 @end defvr
 @end table
@@ -7916,8 +7879,6 @@ All method definitions respond to the following public protocols@comma{} which s
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION❩ method, , @t{index-command-name}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶LAMBDA-LIST ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION❩ method, , @t{lambda-list}}.
@@ -7929,6 +7890,8 @@ All method definitions respond to the following public protocols@comma{} which s
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶SPECIALIZERS❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION❩ writer method, , @t{(setf specializers)}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SPECIALIZERS ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION❩ reader method, , @t{specializers}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} object
@@ -7995,11 +7958,11 @@ The class of ASDF module definitions.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MODULE-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MODULE-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MODULE-DEFINITION❩ method, , @t{index-command-name}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MODULE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MODULE-DEFINITION❩ reader method, , @t{module}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MODULE-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} object
@@ -8082,8 +8045,6 @@ The class of package definitions.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶EXTERNAL-SYMBOLS ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION❩ reader method, , @t{external-symbols}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION❩ method, , @t{index-command-name}}.
 @item
 @ref{go to the COMMON-LISP∶INITIALIZE-INSTANCE ∶AFTER ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION❩ method, , @t{initialize-instance}}.
@@ -8097,6 +8058,8 @@ The class of package definitions.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶PRIVATE-DEFINITIONS ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION❩ method, , @t{private-definitions}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶PUBLIC-DEFINITIONS ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION❩ method, , @t{public-definitions}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶USE-LIST❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION❩ writer method, , @t{(setf use-list)}}.
 @item
@@ -8226,8 +8189,6 @@ A reader method is a method that reads a slot in a class or condition.
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶CATEGORY-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶READER-METHOD-DEFINITION❩ method, , @t{category-name}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶READER-METHOD-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
-@item
-@ref{go to the COMMON-LISP∶UPDATE-INSTANCE-FOR-DIFFERENT-CLASS ∶AFTER ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶READER-METHOD-DEFINITION❩ method, , @t{update-instance-for-different-class}}.
 @end itemize
 @end table
 @end deftp
@@ -8367,7 +8328,7 @@ The class of short method combination definitions.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-COMBINATION-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-COMBINATION-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-COMBINATION-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶STANDALONE-COMBINATOR❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-COMBINATION-DEFINITION❩ writer method, , @t{(setf standalone-combinator)}}.
 @item
@@ -8408,9 +8369,9 @@ macro.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-EXPANDER-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-EXPANDER-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶LAMBDA-LIST ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-EXPANDER-DEFINITION❩ method, , @t{lambda-list}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-EXPANDER-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶STANDALONE-WRITER❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-EXPANDER-DEFINITION❩ writer method, , @t{(setf standalone-writer)}}.
 @item
@@ -8797,8 +8758,6 @@ All symbol definitions respond to the following public protocols@comma{} which s
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION-SYMBOL ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION❩ reader method, , @t{definition-symbol}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶HOME-PACKAGE❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION❩ writer method, , @t{(setf home-package)}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶HOME-PACKAGE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION❩ reader method, , @t{home-package}}.
@@ -8806,6 +8765,8 @@ All symbol definitions respond to the following public protocols@comma{} which s
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION❩ method, , @t{name}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶SAFE-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION❩ method, , @t{safe-name}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} symbol
@@ -8890,8 +8851,6 @@ The class of ASDF system definitions.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYSTEM-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYSTEM-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYSTEM-DEFINITION❩ method, , @t{index-command-name}}.
 @item
 @ref{go to the COMMON-LISP∶INITIALIZE-INSTANCE ∶AFTER ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYSTEM-DEFINITION❩ method, , @t{initialize-instance}}.
@@ -8903,6 +8862,8 @@ The class of ASDF system definitions.
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶MAINTAINER-NAMES❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶SYSTEM-DEFINITION❩ writer method, , @t{(setf maintainer-names)}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶MAINTAINER-NAMES ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYSTEM-DEFINITION❩ reader method, , @t{maintainer-names}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYSTEM-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SYSTEM ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYSTEM-DEFINITION❩ reader method, , @t{system}}.
 @end itemize
@@ -9125,40 +9086,6 @@ are not components@comma{} we use an ad-hoc fake component class for them@comma{
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶∶EXTERNAL-SYMBOLS❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION❩ writer method, , @t{(setf external-symbols)}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYSTEM-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MODULE-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶LISP-FILE-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-SLOT-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-CLASSOID-MIXIN COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-COMBINATION-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-FUNCTION-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-EXPANDER-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-MIXIN COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
-@item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶HOME-PACKAGE❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION❩ writer method, , @t{(setf home-package)}}.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT∶∶HYPERLINKS❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT∶∶CONTEXT❩ writer method, , @t{(setf hyperlinks)}}.
@@ -9197,6 +9124,40 @@ are not components@comma{} we use an ad-hoc fake component class for them@comma{
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶SPECIALIZERS❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION❩ writer method, , @t{(setf specializers)}}.
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYSTEM-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MODULE-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶LISP-FILE-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-SLOT-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-CLASSOID-MIXIN COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-COMBINATION-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-FUNCTION-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-EXPANDER-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-MIXIN COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶STANDALONE-COMBINATOR❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-COMBINATION-DEFINITION❩ writer method, , @t{(setf standalone-combinator)}}.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶STANDALONE-READER❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION❩ writer method, , @t{(setf standalone-reader)}}.
@@ -9206,10 +9167,6 @@ are not components@comma{} we use an ad-hoc fake component class for them@comma{
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶STRUCTURE-TYPE❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-DEFINITION❩ writer method, , @t{(setf structure-type)}}.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶TAGLINE❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶EXTRACT❩ writer method, , @t{(setf tagline)}}.
-@item
-@ref{go to the COMMON-LISP∶UPDATE-INSTANCE-FOR-DIFFERENT-CLASS ∶AFTER ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶WRITER-METHOD-DEFINITION❩ method, , @t{update-instance-for-different-class}}.
-@item
-@ref{go to the COMMON-LISP∶UPDATE-INSTANCE-FOR-DIFFERENT-CLASS ∶AFTER ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶READER-METHOD-DEFINITION❩ method, , @t{update-instance-for-different-class}}.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶USE-LIST❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION❩ writer method, , @t{(setf use-list)}}.
 @item
@@ -9340,7 +9297,7 @@ The class of typed structure slot definitions.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION COMMON-LISP∶T❩ method, , @t{finalize}}.
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶VALUE-TYPE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION❩ method, , @t{value-type}}.
 @end itemize
@@ -9449,8 +9406,6 @@ Abstract root class for writer method definitions.
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶CATEGORY-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶WRITER-METHOD-DEFINITION❩ method, , @t{category-name}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶WRITER-METHOD-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
-@item
-@ref{go to the COMMON-LISP∶UPDATE-INSTANCE-FOR-DIFFERENT-CLASS ∶AFTER ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶WRITER-METHOD-DEFINITION❩ method, , @t{update-instance-for-different-class}}.
 @end itemize
 @end table
 @end deftp
@@ -9525,20 +9480,6 @@ See Section 4.1 of the user manual for more information.
 @ref{go to the net․didierverna․declt․setup/src/configuration․lisp file, , @t{configuration.lisp}}.
 @end table
 @end defvr
-@defvr {Special Variable} *finalized*
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶*FINALIZED* special variable}@c
-@specialsubindex{*finalized*}@c
-Whether the finalization process is over.@*
-This variable is dynamically set to NIL whenever new definitions are
-created during the finalization process. The finalization process is run over
-and over again until nothing moves anymore.
-@table @strong
-@item Package
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
-@item Source
-@ref{go to the net․didierverna․declt․extract/src/finalize․lisp file, , @t{finalize.lisp}}.
-@end table
-@end defvr
 @defvr {Special Variable} *fragile-characters*
 @anchor{go to the NET․DIDIERVERNA․DECLT∶∶*FRAGILE-CHARACTERS* special variable}@c
 @specialsubindex{*fragile-characters*}@c
@@ -9584,6 +9525,20 @@ COMMAND is the name of the corresponding Texinfo alphabetic command.
 @ref{go to the NET․DIDIERVERNA․DECLT package, , @t{net.didierverna.declt}}.
 @item Source
 @ref{go to the net․didierverna․declt․core/src/doc/texi․lisp file, , @t{texi.lisp}}.
+@end table
+@end defvr
+@defvr {Special Variable} *stabilized*
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶*STABILIZED* special variable}@c
+@specialsubindex{*stabilized*}@c
+Whether the stabilization process is over.@*
+This variable is set to NIL whenever new definitions are created during the
+process. Stabilization is run over and over again until nothing moves
+anymore.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/finalize․lisp file, , @t{finalize.lisp}}.
 @end table
 @end defvr
 
@@ -10148,22 +10103,11 @@ Create and return a file DEFINITION node in EXTRACT.
 @ref{go to the net․didierverna․declt․core/src/doc/asdf․lisp file, , @t{asdf.lisp}}.
 @end table
 @end deffn
-@deffn {Function} {finalize-clos-classoid-slot} (definition definitions &aux slot owner classoid)
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE-CLOS-CLASSOID-SLOT function}@c
-@functionsubindex{finalize-clos-classoid-slot}@c
-Compute CLOS classoid slot DEFINITION's reader and writer definitions.
-This function is used for regular class and condition slots.
-@table @strong
-@item Package
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
-@item Source
-@ref{go to the net․didierverna․declt․extract/src/finalize․lisp file, , @t{finalize.lisp}}.
-@end table
-@end deffn
-@deffn {Function} {finalize-clos-structure-slot} (definition definitions &aux slot owner)
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE-CLOS-STRUCTURE-SLOT function}@c
-@functionsubindex{finalize-clos-structure-slot}@c
-Compute CLOS structure slot DEFINITION's reader and writer definitions.
+@deffn {Function} {finalize} (definitions)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE function}@c
+@functionsubindex{finalize}@c
+Finalize DEFINITIONS.@*
+For more information@comma{} see `stabilize' and `freeze'.
 @table @strong
 @item Package
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
@@ -10198,6 +10142,19 @@ Initial whitespace characters are skipped.
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FOREIGN-FUNCOID-DEFINITION function}@c
 @functionsubindex{foreign-funcoid-definition}@c
 Return a new foreign macro or function definition for NAME@comma{} or NIL.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/finalize․lisp file, , @t{finalize.lisp}}.
+@end table
+@end deffn
+@deffn {Function} {freeze} (definitions)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FREEZE function}@c
+@functionsubindex{freeze}@c
+Freeze DEFINITIONS.@*
+Currently@comma{} this means potentially upgrading generic definitions to reader or
+ writer definitions.
 @table @strong
 @item Package
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
@@ -11085,7 +11042,7 @@ Render classoid DEFINITION's direct default initargs in CONTEXT.
 @ref{go to the net․didierverna․declt․core/src/doc/symbol․lisp file, , @t{symbol.lisp}}.
 @end table
 @end deffn
-@deffn {Function} {render-method-combination} (definition)
+@deffn {Function} {render-method-combination} (definition &aux combination)
 @anchor{go to the NET․DIDIERVERNA․DECLT∶∶RENDER-METHOD-COMBINATION function}@c
 @functionsubindex{render-method-combination}@c
 Render generic function DEFINITION's method combination documentation.
@@ -11260,6 +11217,29 @@ Return T if DEFINITION is a short expander definition.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
 @item Source
 @ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@end deffn
+@deffn {Function} {stabilize-clos-classoid-slot} (definition definitions &aux slot owner classoid)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE-CLOS-CLASSOID-SLOT function}@c
+@functionsubindex{stabilize-clos-classoid-slot}@c
+Compute CLOS classoid slot DEFINITION's reader and writer definitions.
+This function is used for regular class and condition slots.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/finalize․lisp file, , @t{finalize.lisp}}.
+@end table
+@end deffn
+@deffn {Function} {stabilize-clos-structure-slot} (definition definitions &aux slot owner)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE-CLOS-STRUCTURE-SLOT function}@c
+@functionsubindex{stabilize-clos-structure-slot}@c
+Compute CLOS structure slot DEFINITION's reader and writer definitions.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/finalize․lisp file, , @t{finalize.lisp}}.
 @end table
 @end deffn
 @deffn {Function} {sub-component-p} (component directory &aux component-pathname)
@@ -12160,116 +12140,6 @@ automatically generated reader method
 @end deffn
 @end table
 @end deffn
-@deffn {Generic Function} {finalize} (definition definitions)
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE generic function}@c
-@genericsubindex{finalize}@c
-Finalize DEFINITION in DEFINITIONS.
-@table @strong
-@item Package
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
-@item Source
-@ref{go to the net․didierverna․declt․extract/src/finalize․lisp file, , @t{finalize.lisp}}.
-@item Method Combination
-@ref{go to the COMMON-LISP∶PROGN method combination, , @t{progn}}.
-@table @strong
-@item Options
-@t{:most-specific-first}
-@end table
-@item Methods
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SYSTEM-DEFINITION class, , @t{system-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYSTEM-DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute system DEFINITION's defsystem dependency definitions.
-Those definitions are guaranteed to be in the original system's order.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶MODULE-DEFINITION class, , @t{module-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MODULE-DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute module DEFINITION's child definitions.@*
-Those definitions are guaranteed to be in the module's original order.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶LISP-FILE-DEFINITION class, , @t{lisp-file-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶LISP-FILE-DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute Lisp file DEFINITION's definitions list.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION class, , @t{component-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute component DEFINITION's parent and dependency definitions.
-Those definitions are guaranteed to be in the original component's order.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION class, , @t{package-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute package DEFINITION's use@comma{} used-by@comma{} and definitions lists.
-New foreign package definitions may be created and added at the end of
-DEFINITIONS in the process.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION class, , @t{typed-structure-slot-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute typed structure slot DEFINITION's reader and writer definitions.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-SLOT-DEFINITION class, , @t{clos-slot-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-SLOT-DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute CLOS slot DEFINITION's reader and writer definitions.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-CLASSOID-MIXIN class, , @t{clos-classoid-mixin}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-CLASSOID-MIXIN COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute classoid DEFINITION's super/sub classoids@comma{} and method definitions.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION class, , @t{method-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Computer method DEFINITION's specializer references.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-COMBINATION-DEFINITION class, , @t{short-combination-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-COMBINATION-DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute short combination DEFINITION's standalone combinator definition.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION class, , @t{combination-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute method combination DEFINITION's users.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-FUNCTION-DEFINITION class, , @t{generic-function-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-FUNCTION-DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute generic function DEFINITION's method combination definition.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-EXPANDER-DEFINITION class, , @t{short-expander-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-EXPANDER-DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Computer short setf expander DEFINITION's standalone writer definition.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION class, , @t{expander-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute setf expander DEFINTIION's standalone reader definition.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-MIXIN class, , @t{expander-mixin}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-MIXIN COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute DEFINITION's expander-for and expanders-to references.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION class, , @t{symbol-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute symbol DEFINITION's home package definition.@*
-New foreign package definitions may be created and added at the end of
-DEFINITIONS in the process.
-@end deffn
-@deffn {Method} {finalize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION class, , @t{definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FINALIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION COMMON-LISP∶T❩ method}@c
-@methodsubindex{finalize}@c
-Compute DEFINITION's source file definition.
-@end deffn
-@end table
-@end deffn
 @deffn {Generic Reader} {funcoid} (object)
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶FUNCOID generic reader}@c
 @genericsubindex{funcoid}@c
@@ -12811,6 +12681,116 @@ Return constant DEFINITION's source pathname.
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SOURCE-PATHNAME ❨COMMON-LISP∶T❩ method}@c
 @methodsubindex{source-pathname}@c
 Return DEFINITION's object source pathname (this is the default method).
+@end deffn
+@end table
+@end deffn
+@deffn {Generic Function} {stabilize} (definition definitions)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE generic function}@c
+@genericsubindex{stabilize}@c
+Stabilize DEFINITION in DEFINITIONS.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/finalize․lisp file, , @t{finalize.lisp}}.
+@item Method Combination
+@ref{go to the COMMON-LISP∶PROGN method combination, , @t{progn}}.
+@table @strong
+@item Options
+@t{:most-specific-first}
+@end table
+@item Methods
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SYSTEM-DEFINITION class, , @t{system-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYSTEM-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute system DEFINITION's defsystem dependency definitions.
+Those definitions are guaranteed to be in the original system's order.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶MODULE-DEFINITION class, , @t{module-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MODULE-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute module DEFINITION's child definitions.@*
+Those definitions are guaranteed to be in the module's original order.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶LISP-FILE-DEFINITION class, , @t{lisp-file-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶LISP-FILE-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute Lisp file DEFINITION's definitions list.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION class, , @t{component-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute component DEFINITION's parent and dependency definitions.
+Those definitions are guaranteed to be in the original component's order.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION class, , @t{package-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute package DEFINITION's use@comma{} used-by@comma{} and definitions lists.
+New foreign package definitions may be created and added at the end of
+DEFINITIONS in the process.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION class, , @t{typed-structure-slot-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute typed structure slot DEFINITION's reader and writer definitions.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-SLOT-DEFINITION class, , @t{clos-slot-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-SLOT-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute CLOS slot DEFINITION's reader and writer definitions.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-CLASSOID-MIXIN class, , @t{clos-classoid-mixin}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-CLASSOID-MIXIN COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute classoid DEFINITION's super/sub classoids@comma{} and method definitions.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION class, , @t{method-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Computer method DEFINITION's specializer references.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-COMBINATION-DEFINITION class, , @t{short-combination-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-COMBINATION-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute short combination DEFINITION's standalone combinator definition.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION class, , @t{combination-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute method combination DEFINITION's users.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-FUNCTION-DEFINITION class, , @t{generic-function-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-FUNCTION-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute generic function DEFINITION's method combination definition.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-EXPANDER-DEFINITION class, , @t{short-expander-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SHORT-EXPANDER-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Computer short setf expander DEFINITION's standalone writer definition.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION class, , @t{expander-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute setf expander DEFINTIION's standalone reader definition.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-MIXIN class, , @t{expander-mixin}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-MIXIN COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute DEFINITION's expander-for and expanders-to references.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION class, , @t{symbol-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute symbol DEFINITION's home package definition.@*
+New foreign package definitions may be created and added at the end of
+DEFINITIONS in the process.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION class, , @t{definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute DEFINITION's source file definition.
 @end deffn
 @end table
 @end deffn
