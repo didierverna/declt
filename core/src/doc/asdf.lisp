@@ -361,8 +361,10 @@ Modules are listed depth-first from the system components tree.")))))
 	 (format t "@t{~A}~%" source-control)))))
   (when-let (bug-tracker (bug-tracker definition))
     (@tableitem "Bug Tracker" (format t "@uref{~A}~%" (escape bug-tracker))))
+  ;; #### WARNING: this ASDF slot is not well defined, hence the STRING
+  ;; coercion.
   (when-let (license-name (license-name definition))
-    (@tableitem "License" (format t "~A~%" (escape license-name))))
+    (@tableitem "License" (format t "~A~%" (escape (string license-name)))))
   (call-next-method))
 
 
