@@ -658,19 +658,22 @@ their first argument."
   "Return \"genericsubindex\"."
   "genericsubindex")
 
-(defun render-method-combination (definition)
+(defun render-method-combination
+    (definition &aux (combination (combination definition)))
   "Render generic function DEFINITION's method combination documentation."
-  (@tableitem "Method Combination"
-    (reference (combination definition) t)
-    (terpri)
-    (when-let (options (mapcar (lambda (option)
-				 ;; #### FIXME: see TODO on format-tables.
-				 ;; #### WARNING: casing policy.
-				 (escape (format nil "~(~S~)" option)))
-			 (combination-options definition)))
-      (@table ()
-	(@tableitem "Options"
-	  (format t "~{@t{~A}~^, ~}" options))))))
+  ;; #### NOTE: Foreign definitions may lack a combination definition.
+  (when combination
+    (@tableitem "Method Combination"
+      (reference combination t)
+      (terpri)
+      (when-let (options (mapcar (lambda (option)
+				   ;; #### FIXME: see TODO on format-tables.
+				   ;; #### WARNING: casing policy.
+				   (escape (format nil "~(~S~)" option)))
+			   (combination-options definition)))
+	(@table ()
+	  (@tableitem "Options"
+	    (format t "~{@t{~A}~^, ~}" options)))))))
 
 (defmethod document ((definition simple-generic-definition) context &key)
   "Render simple generic function DEFINITION's documentation in CONTEXT."
