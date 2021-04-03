@@ -37,12 +37,14 @@
      &optional qualified
      &aux (name (reveal (princ-to-string (name definition)))))
   "Reveal symbol DEFINITION's name, possibly QUALIFIED.
-A QUALIFIED name is of the form \"package:[:]symbol\"."
+A QUALIFIED name is of the form \"package:[:]symbol\". Uninterned symbols are
+denoted by the ∅ package."
   (when qualified
-    (setq name (concatenate 'string
-		 (reveal (name (home-package definition)))
-		 (if (publicp definition) ":" "::")
-		 name)))
+    (let ((home-package (home-package definition)))
+      (setq name (concatenate 'string
+		   (reveal (if home-package (name home-package) ""))
+		   (if (publicp definition) ":" "::")
+		   name))))
   name)
 
 ;; #### NOTE: spaces in symbol names are revealed (see above), but not the
@@ -55,12 +57,14 @@ A QUALIFIED name is of the form \"package:[:]symbol\"."
      &optional qualified
      &aux (name (reveal (princ-to-string (second (name definition))))))
   "Reveal setf DEFINITION's name, possibly QUALIFIED.
-A QUALIFIED name is of the form \"(setf package:[:]symbol)\"."
+A QUALIFIED name is of the form \"(setf package:[:]symbol)\". Uninterned
+symbols are denoted by the ∅ package."
   (when qualified
-    (setq name (concatenate 'string
-		 (reveal (name (home-package definition)))
-		 (if (publicp definition) ":" "::")
-		 name)))
+    (let ((home-package (home-package definition)))
+      (setq name (concatenate 'string
+		   (reveal (if home-package (name home-package) ""))
+		   (if (publicp definition) ":" "::")
+		   name))))
   ;; Hack for future case-preserving implementation.
   (format nil "(~A ~A)" 'setf name))
 
@@ -70,6 +74,16 @@ A QUALIFIED name is of the form \"(setf package:[:]symbol)\"."
 ;; Utilities
 ;; ==========================================================================
 
+(defun render-package-reference (definition)
+  "Render a reference to DEFINITION's home package definition.
+Possibly render an \"uninterned\" mention instead of an actual reference,
+when there is no home package to reference."
+  (@tableitem "Package"
+    (let ((home-package (home-package definition)))
+      (if home-package
+	(reference home-package t)
+	(format t "@i{none (uninterned)}.~%")))))
+
 (defun render-definition-core (definition context)
   "Render DEFINITION's documentation core in CONTEXT.
 The documentation core includes all common definition attributes:
@@ -77,8 +91,7 @@ The documentation core includes all common definition attributes:
   - source location.
 
 Each element is rendered as a table item."
-  (@tableitem "Package"
-    (reference (home-package definition) t))
+  (render-package-reference definition)
   (when-let (source (source-file definition))
     (@tableitem "Source" (reference source t))))
 
@@ -179,7 +192,7 @@ providing only basic information."
   classoid."
   (render-varoid definition context
     (unless (eq (home-package definition) (home-package (owner definition)))
-      (@tableitem "Package" (reference (home-package definition) t)))
+      (render-package-reference definition))
     (flet ((render (value)
 	     (format t "@t{~A}~%"
 	       ;; #### WARNING: casing policy.
@@ -224,7 +237,7 @@ providing only basic information."
   classoid."
   (render-varoid definition context
     (unless (eq (home-package definition) (home-package (owner definition)))
-      (@tableitem "Package" (reference (home-package definition) t)))
+      (render-package-reference definition))
     ;; #### FIXME: not rendering standard / default values should be a context
     ;; choice.
     (unless (eq (value-type definition) t)

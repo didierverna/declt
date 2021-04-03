@@ -120,15 +120,17 @@ anymore.")
   "Compute symbol DEFINITION's home package definition.
 New foreign package definitions may be created and added at the end of
 DEFINITIONS in the process."
-  ;; #### NOTE: every symbol definition gets a working package definition;
-  ;; even the foreign ones.
-  (unless (home-package definition)
-    (setf (home-package definition)
-	  (or (find-definition package definitions)
-	      (let ((package-definition (make-package-definition package t)))
-		(endpush package-definition definitions)
-		(setq *stabilized* nil)
-		package-definition)))))
+  ;; #### WARNING: we may encounter uninterned symbols. This happens for
+  ;; example in trivialib.bdd which creates structures with uninterned slot
+  ;; names to prevent slot direct access.
+  (when package
+    (unless (home-package definition)
+      (setf (home-package definition)
+	    (or (find-definition package definitions)
+		(let ((package-definition (make-package-definition package t)))
+		  (endpush package-definition definitions)
+		  (setq *stabilized* nil)
+		  package-definition))))))
 
 
 

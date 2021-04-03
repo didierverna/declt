@@ -63,7 +63,9 @@
   ((symbol :documentation "The symbol naming this definition."
 	   :initarg :symbol :reader definition-symbol)
    (home-package
-    :documentation "The home package definition for this definition's symbol."
+    :documentation "The home package definition for this definition's symbol.
+Every definition gets a home package, even foreign ones. A home package can
+only be null when the definition's symbol is uninterned."
     :initform nil :accessor home-package))
   (:documentation "Abstract root class for all definitions named by symbols.
 All symbol definitions respond to the following public protocols, which see:
@@ -83,12 +85,21 @@ All symbol definitions respond to the following public protocols, which see:
   "Return symbol DEFINITION's symbol."
   (definition-symbol definition))
 
-(defun publicp (definition)
+;; #### NOTE: in theory, a definition named by an uninterned symbol is neither
+;; public, nor private. Having to choose, I'd say it makes more sense to
+;; consider such definitions as private. Currently, the only situation in
+;; which I encountered uninterned symbols is in trivialib.bdd, which has
+;; structures with uninterned slot names, precisely in order to prevent slot
+;; direct access. In the current (and probably most future) organizations of
+;; documentation, slots don't appear as toplevel items, so they are not split
+;; into public / private categories anyway.
+(defun publicp (definition &aux (home-package (home-package definition)))
   "Return T is DEFINITION is public.
-A definition is public when the symbol naming it is exported from its home
-package."
-  (member (definition-symbol definition)
-	  (external-symbols (home-package definition))))
+A definition is public when the symbol naming it has a home package,
+and is exported from it."
+  (and home-package
+       (member (definition-symbol definition)
+	       (external-symbols home-package))))
 
 
 
