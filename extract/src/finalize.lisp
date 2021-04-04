@@ -765,15 +765,16 @@ Currently, this means potentially upgrading generic definitions to reader or
   ;; freezing step was introduced.
   (mapc (lambda (definition)
 	  (when (typep definition 'generic-function-definition)
-	    (cond ((every #'reader-method-definition-p (methods definition))
-		   (change-class definition 'generic-reader-definition))
-		  ((every #'writer-method-definition-p (methods definition))
-		   (change-class definition
-		       (etypecase definition
-			 (simple-generic-definition
-			  'simple-generic-writer-definition)
-			 (generic-setf-definition
-			  'generic-setf-writer-definition)))))))
+	    (when-let (methods (methods definition))
+	      (cond ((every #'reader-method-definition-p methods)
+		     (change-class definition 'generic-reader-definition))
+		    ((every #'writer-method-definition-p methods)
+		     (change-class definition
+			 (etypecase definition
+			   (simple-generic-definition
+			    'simple-generic-writer-definition)
+			   (generic-setf-definition
+			    'generic-setf-writer-definition))))))))
     definitions))
 
 
