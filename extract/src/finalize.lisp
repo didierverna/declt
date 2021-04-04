@@ -651,6 +651,10 @@ DEFINITIONS in the process."
     (asdf:module (make-module-definition component foreign))
     (asdf:file-component (make-file-definition component foreign))))
 
+;; #### TODO: RESOLVE-DEPENDENCY-NAME can fail on components that are not
+;; loaded (e.g. with a missing :feature). Currently, we simply ignore the
+;; error, but this raises the general question of representing unloaded
+;; components.
 (defun resolve-dependency-specification
     (specification component definitions foreign &aux inner)
   "Resolve dependency SPECIFICATION for (FOREIGN) COMPONENT in DEFINITIONS.
@@ -664,9 +668,10 @@ return a list of the updated specification (suitable to MAPCAN)."
   (setq inner specification)
   (while (listp (car inner)) (setq inner (car inner)))
   (let* ((name (car inner))
-	 (dependency (resolve-dependency-name component name))
-	 (definition (find-definition dependency definitions)))
-    (unless (or definition foreign)
+	 (dependency (ignore-errors (resolve-dependency-name component name)))
+	 (definition
+	   (when dependency (find-definition dependency definitions))))
+    (unless (or definition foreign (null dependency))
       (setq definition (make-component-definition dependency t))
       (setq *stabilized* nil)
       (endpush definition definitions))
