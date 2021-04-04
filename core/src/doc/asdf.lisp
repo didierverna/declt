@@ -358,7 +358,7 @@ Modules are listed depth-first from the system components tree.")))))
 	(t
 	 ;; #### FIXME: why this before ?
 	 ;; (escape (format nil "~(~S~)" source-control))
-	 (format t "@t{~A}~%" source-control)))))
+	 (format t "@t{~A}~%" (escape (format nil "~A" source-control)))))))
   (when-let (bug-tracker (bug-tracker definition))
     (@tableitem "Bug Tracker" (format t "@uref{~A}~%" (escape bug-tracker))))
   ;; #### WARNING: this ASDF slot is not well defined, hence the STRING
