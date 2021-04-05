@@ -258,9 +258,11 @@ which are already properly set."
 				:test #'string-equal) ;; case-insensitive test
 			;; #### WARNING: I'll be damned in we ever fall on a
 			;; specifier called @ref{... !
-			(when-let (pos (search "@ref{" element))
-			  (zerop pos)))
+			(when-let (pos (search "@ref{" element)) (zerop pos)))
 		  :collect element :into escaped-lambda-list
+	  :else :if (when-let (pos (search "(eql " element)) (zerop pos))
+		  :collect (format nil "@t{~A}" (escape element))
+		    :into escaped-lambda-list
 	  :else :collect (escape element) :into escaped-lambda-list
 	  :finally (progn (when rest ;; dotted list
 			    (setf (cdr (last escaped-lambda-list))
