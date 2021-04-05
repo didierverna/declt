@@ -161,7 +161,14 @@ See `subsystems' for more information."
   "Return a list of all file definitions for system DEFINITIONS."
   (append (make-system-file-definitions systems)
 	  (mapcar #'make-file-definition
-	    (mapcan #'file-components systems))))
+	    ;; #### WARNING: some systems (e.g. Arnesi) list their system
+	    ;; files explicitly, for example as static files. We want to
+	    ;; filter those out here, since they are already created as pseudo
+	    ;; Lisp files by MAKE-SYSTEM-FILE-DEFINITIONS.
+	    (remove-if
+		(lambda (file)
+		  (string= (pathname-type (component-pathname file)) "asd"))
+		(mapcan #'file-components systems)))))
 
 
 
