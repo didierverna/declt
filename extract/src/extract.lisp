@@ -263,8 +263,8 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
   ;; Method combinations.
   ;; #### WARNING: method combinations are ill-defined in the Common Lisp
   ;; standard. In particular, they are not necessarily global objects and
-  ;; don't have an actual namespace. This has been explained in a blog first
-  ;; (https://cutt.ly/AjIJXwA) and then in a ELS paper
+  ;; don't have an actual namespace. This has been explained, first in a blog
+  ;; (https://cutt.ly/AjIJXwA), and then in a ELS paper
   ;; (http://www.doi.org/10.5281/zenodo.3247610). As a consequence, in order
   ;; to be 100% correct (and also 200% pedantic), we should normally document
   ;; every single generic function's method combination as a local object. We
@@ -273,12 +273,17 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
   ;; will be documented like the other ones, and generic functions using it
   ;; will provide a cross-reference to it, also advertising the options in
   ;; use.
-  (when-let (combination
-	     ;; #### NOTE: we could use any generic function instead of
-	     ;; DOCUMENTATION here. Also, NIL options don't matter because
-	     ;; they are not advertised as part of the method combination, but
-	     ;; as part of the generic functions that use them.
-	     (find-method-combination #'documentation symbol nil))
+  ;;
+  ;; After my ELS paper, Christophe made some changes to SBCL that
+  ;; considerably sanitized the situation. Method combinations are now reified
+  ;; in the SB-PCL::**METHOD-COMBINATIONS** hash table. Each entry is in fact
+  ;; an SB-PCL::METHOD-COMBINATION-INFO structure, which contains, among other
+  ;; things, a cache associating method combination options with actual method
+  ;; combination objects. Thus, a method combination, as a general entity, and
+  ;; as opposed to every single instantiation of it, is adequately and
+  ;; uniquely represented by the entry in SB-PCL::**METHOD-COMBINATIONS**. See
+  ;; also the comment about generic function stabilization in finalize.lisp.
+  (when-let (combination (gethash symbol sb-pcl::**method-combinations**))
     (endpush (make-combination-definition symbol combination) definitions))
   ;; Structures, classes, and conditions,
   (when-let* ((classoid (find-class symbol nil))

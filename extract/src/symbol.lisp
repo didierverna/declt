@@ -579,9 +579,23 @@ These are generic functions using this combination."
   (:documentation "Root class for method combination definitions."))
 
 ;; #### PORTME.
+(defmethod docstring ((definition combination-definition))
+  "Return method combination DEFINITION's docstring."
+  ;; #### WARNING: gross hack 1. The method combination's docstring is not
+  ;; immediately obvious in the method combination info structure. However,
+  ;; since we have made sure that there is at least one actual combination
+  ;; object in the cache, in MAKE-COMBINATION-DEFINITION, we can just look
+  ;; into that one.
+  (documentation
+   (cdr
+    (first
+     (sb-pcl::method-combination-info-cache (combination definition))))
+   t))
+
+;; #### PORTME.
 (defmethod lambda-list ((definition combination-definition))
   "Return method combination DEFINITION's lambda-list."
-  (sb-introspect:method-combination-lambda-list (combination definition)))
+  (sb-pcl::method-combination-info-lambda-list (combination definition)))
 
 
 ;; #### WARNING: the CLHS specifies that the :operator argument to
@@ -599,8 +613,14 @@ is unavailable, it means that the method combination itself cannot be used
 ;; #### PORTME.
 (defun identity-with-one-argument (definition)
   "Return short combination DEFINITION's :identity-with-one-argument option."
+  ;; #### WARNING: gross hack 2. The value of that option is not immediately
+  ;; obvious in the method combination info structure. However, since we have
+  ;; make sure that there is at least one actual combination object in the
+  ;; cache, in MAKE-COMBINATION-DEFINITION, we can just look into that one.
   (sb-pcl::short-combination-identity-with-one-argument
-   (combination definition)))
+   (cdr
+    (first
+     (sb-pcl::method-combination-info-cache (combination definition))))))
 
 
 (defclass long-combination-definition (combination-definition)
@@ -608,11 +628,22 @@ is unavailable, it means that the method combination itself cannot be used
   (:documentation "Class for long method combination definitions."))
 
 ;; #### PORTME.
-(defun make-combination-definition (symbol combination &optional foreign)
+(defun make-combination-definition
+    (symbol combination
+     &optional foreign
+     ;; #### WARNING: gross hack 0. The method combination type is not
+     ;; immediately obvious in the method combination info structure. What we
+     ;; do here is force the instantiation of an actual method combination
+     ;; object (no arguments; any generic function would do) in the
+     ;; combination object's cache, and grab the type from there. Note that
+     ;; this may cause an unfortunate but harmless side effect just for the
+     ;; sake of documentation, if the cache was missing that new entry until
+     ;; now.
+     &aux (instance (find-method-combination #'documentation symbol nil)))
   "Make a new method COMBINATION definition for SYMBOL, possibly FOREIGN.
 The concrete class of the new definition depends on the COMBINATION type."
   (make-instance
-      (etypecase combination
+      (etypecase instance
 	(sb-pcl::short-method-combination 'short-combination-definition)
 	(sb-pcl::long-method-combination 'long-combination-definition)
 	;; this one had better be foreign...

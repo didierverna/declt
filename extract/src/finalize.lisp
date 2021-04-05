@@ -238,19 +238,30 @@ DEFINITIONS in the process."
 ;; means that if we cannot find the combination definition right now, it must
 ;; be a foreign one.
 
+;; #### WARNING: see comment about method combination objects in extract.lisp.
+;; Remember that a method combination definition is actually only a template
+;; (much like a macro) that serves to create actual method combination objects
+;; once a set of options has been decided on, at the level of the generic
+;; function. This means, in particular, that a generic function's method
+;; combination object is *not* the same as the one representing a method
+;; combination in general (meaning that we cannot use FIND-DEFINITION
+;; directly). Rather, it's an entry in the association cache of one of the
+;; values in the SB-PCL::**METHOD-COMBINATIONS** hash table.
+
 ;; #### PORTME.
 (defmethod stabilize progn
     ((definition generic-function-definition) definitions
-     &aux (combination
-	   (generic-function-method-combination (generic definition))))
+     &aux (combination-type-name
+	   (sb-pcl::method-combination-type-name
+	    (generic-function-method-combination (generic definition))))
+	  (combination
+	   (gethash combination-type-name sb-pcl::**method-combinations**)))
   "Compute generic function DEFINITION's method combination definition."
   (unless (combination definition)
     (setf (combination definition) (find-definition combination definitions)))
   (unless (or (combination definition) (foreignp definition))
     (let ((combination-definition
-	    (make-combination-definition
-	     (sb-pcl::method-combination-type-name combination)
-	     combination t)))
+	    (make-combination-definition combination-type-name combination t)))
       (setq *stabilized* nil)
       (endpush combination-definition definitions)
       (setf (combination definition) combination-definition))))
@@ -261,9 +272,9 @@ DEFINITIONS in the process."
 ;; -------------------
 
 ;; #### NOTE: after Christophe's changes to SBCL following my ELS paper, I
-;; think we can reliably access the method combination object's hashtable of
-;; generic functions to compute its users. This is better than than the old
-;; way, which was to scan all known generic functions and look at their method
+;; think we can reliably access the method combination objects' hashtable of
+;; generic functions to compute its users. This is better than the old way,
+;; which was to scan all known generic functions and look at their method
 ;; combination.
 
 ;; #### PORTME.
@@ -272,18 +283,21 @@ DEFINITIONS in the process."
   "Compute method combination DEFINITION's users."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
   ;; and only add what's missing, but I don't think it's worth the trouble.
-  (maphash (lambda (function unused)
-	     (declare (ignore unused))
-	     (let ((client (find-definition function definitions)))
-	       (cond (client
-		      (endpush client clients))
-		     ((not (foreignp definition))
-		      (setq client (make-generic-definition function t))
-		      (setq *stabilized* nil)
-		      (endpush client definitions)
-		      (endpush client clients)))))
-	   (sb-pcl::method-combination-%generic-functions
-	    (combination definition)))
+  (mapc
+      (lambda (cache-entry)
+	(maphash (lambda (function unused)
+		   (declare (ignore unused))
+		   (let ((client (find-definition function definitions)))
+		     (cond (client
+			    (endpush client clients))
+			   ((not (foreignp definition))
+			    (setq client (make-generic-definition function t))
+			    (setq *stabilized* nil)
+			    (endpush client definitions)
+			    (endpush client clients)))))
+		 (sb-pcl::method-combination-%generic-functions
+		  (cdr cache-entry))))
+    (sb-pcl::method-combination-info-cache (combination definition)))
   (setf (clients definition) clients))
 
 (defmethod stabilize progn
