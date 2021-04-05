@@ -314,7 +314,9 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
   "Return the list of symbols from home PACKAGE."
   (do-symbols (symbol package symbols)
     (when (eq (symbol-package symbol) package)
-      (push symbol symbols))))
+      ;; #### WARNING: we may encounter the same symbol several times. Hence
+      ;; the need to PUSHNEW here.
+      (pushnew symbol symbols))))
 
 (defun make-all-symbol-definitions (definitions)
   "Return a list of all symbol definitions for package DEFINITIONS."
