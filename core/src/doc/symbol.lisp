@@ -529,8 +529,9 @@ value as their first argument."
 		    (with-output-to-string (*standard-output*)
 		      (reference specializer t (when (cdr rest) #\,))))
 		   ;; #### WARNING: casing policy.
-		   (otherwise (format nil "~(~S~)"
-				(sb-pcl::specializer-type specializer))))))
+		   (otherwise (format nil "~(~S~)~:[~;, ~]"
+				(sb-pcl::specializer-type specializer)
+				(cdr rest))))))
 
 (defmacro render-method
     (|definition(s)| context
