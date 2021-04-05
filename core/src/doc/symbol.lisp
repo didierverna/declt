@@ -511,13 +511,14 @@ providing only basic information."
 ;; specializers rest below, we may loose information. I don't think this is a
 ;; serious issue, tho. But perhaps it's a design choice that would gain being
 ;; customizable.
+;; #### PORTME.
 (defun safe-specializers
     (definition &aux (specializers (specializers definition)))
   "Return a list of safe specializers for method DEFINITION.
 A safe specializer is the printed form of either a reference to a class
-definition, or a raw EQL specializer. For setf and writer definitions,
-only the specializers rest is used, as these methods get the new value as
-their first argument."
+definition, or an EQL specializer's type name. For setf and writer
+definitions, only the specializers rest is used, as these methods get the new
+value as their first argument."
   (when (or (typep definition 'setf-method-definition)
 	    (typep definition 'writer-method-definition))
     (setq specializers (cdr specializers)))
@@ -528,7 +529,8 @@ their first argument."
 		    (with-output-to-string (*standard-output*)
 		      (reference specializer t (when (cdr rest) #\,))))
 		   ;; #### WARNING: casing policy.
-		   (otherwise (format nil "~(~A~)" specializer)))))
+		   (otherwise (format nil "~(~S~)"
+				(sb-pcl::specializer-type specializer))))))
 
 (defmacro render-method
     (|definition(s)| context
