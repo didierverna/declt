@@ -300,9 +300,18 @@ DEFINITIONS in the process."
     (sb-pcl::method-combination-info-cache (combination definition)))
   (setf (clients definition) clients))
 
+;; #### PORTME.
 (defmethod stabilize progn
   ((definition short-combination-definition) definitions
-   &aux (name (sb-pcl::short-combination-operator (combination definition))))
+   ;; #### WARNING: gross hack 3. The operator is not immediately obvious in
+  ;; the method combination info structure. However, since we have made sure
+  ;; that there is at least one actual combination object in the cache, in
+  ;; MAKE-COMBINATION-DEFINITION, we can just look into that one.
+   &aux (name (sb-pcl::short-combination-operator
+	       (cdr
+		(first
+		 (sb-pcl::method-combination-info-cache
+		  (combination definition)))))))
   "Compute short combination DEFINITION's standalone combinator definition."
   (unless (standalone-combinator definition)
     (setf (standalone-combinator definition)

@@ -615,7 +615,7 @@ is unavailable, it means that the method combination itself cannot be used
   "Return short combination DEFINITION's :identity-with-one-argument option."
   ;; #### WARNING: gross hack 2. The value of that option is not immediately
   ;; obvious in the method combination info structure. However, since we have
-  ;; make sure that there is at least one actual combination object in the
+  ;; made sure that there is at least one actual combination object in the
   ;; cache, in MAKE-COMBINATION-DEFINITION, we can just look into that one.
   (sb-pcl::short-combination-identity-with-one-argument
    (cdr
