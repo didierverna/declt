@@ -480,7 +480,7 @@ providing only basic information."
       safe-name
       ;; #### NOTE: I'm using an S for qualifiers, assuming they'll always be
       ;; symbols, in order to distinguish keywords from the rest.
-      (format nil "~{ ~S~} (~{~A~^ ~})"
+      (format nil "~{ ~S~} (~{~S~^ ~})"
 	(qualifiers definition)
 	(mapcar (lambda (specializer)
 		  (typecase specializer
