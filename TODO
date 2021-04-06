@@ -103,3 +103,11 @@ repo !
 It may be nice to do it at some point. For example, I wonder if the abundance
 of STRING-CAPITALIZE on category names is costly, in which case we could
 change the protocol to provide both versions as premade compile-time strings.
+
+** Memory address problems
+I have trouble with EQL specializers on things that are probably created
+dynamically at load-time. This happens in mcclim and
+com.clearly-useful.generic-collection-interface. There are references to
+things like #<EQLSPECIALIZER ... {address}>, but later on (in method
+definitions), the hexadecimal address seems to have changed. I don't know what
+to do about this. In fact, I don't fully understand the problem.
