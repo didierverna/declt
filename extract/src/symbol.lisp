@@ -285,19 +285,9 @@ and methods for classes or conditions slots."))
     :initarg :compiler-macro :reader definition-compiler-macro))
   (:documentation "The class of compiler macro definitions."))
 
-(defmethod docstring ((definition compiler-macro-definition))
-  "Return compiler macro DEFINITION's docstring."
-  (documentation (definition-symbol definition) 'compiler-macro))
-
-
 (defclass setf-compiler-macro-definition (setf-mixin compiler-macro-definition)
   ()
   (:documentation "The class of setf compiler macro definitions."))
-
-(defmethod docstring ((definition setf-compiler-macro-definition))
-  "Return setf compiler macro DEFINITION's docstring."
-  (documentation `(setf ,(definition-symbol definition)) 'compiler-macro))
-
 
 (defun make-compiler-macro-definition (symbol compiler-macro &optional setf)
   "Make a new COMPILER-MACRO definition for SYMBOL."
