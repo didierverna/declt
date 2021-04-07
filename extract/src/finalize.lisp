@@ -698,8 +698,8 @@ return a list of the updated specification (suitable to MAPCAN)."
 		;; #### WARNING: again, this is a hack to prevent explicitly
 		;; defined system file components to appear (here, as a
 		;; dependency), because we treat them in a special way.
-		(let ((extension
-			(pathname-type (component-pathname dependency))))
+		(let* ((pathname (component-pathname dependency))
+		       (extension (when pathname (pathname-type pathname))))
 		  (when extension (string= extension "asd"))))
       (setq definition (make-component-definition dependency t))
       (setq *stabilized* nil)
