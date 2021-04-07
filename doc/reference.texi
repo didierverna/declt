@@ -22,7 +22,7 @@
 @c Commentary:
 
 @c Generated automatically by Declt version 3.0 "Montgomery Scott"
-@c on Fri Apr 02 17:19:13 2021 GMT+1.
+@c on Wed Apr 07 20:13:53 2021 GMT+1.
 
 
 @c ====================================================================
@@ -270,7 +270,7 @@ except that this permission notice may be translated as well.
 
 @page
 @quotation
-This manual was generated automatically by Declt 3.0 "Montgomery Scott" on Fri Apr 02 17:19:13 2021 GMT+1.
+This manual was generated automatically by Declt 3.0 "Montgomery Scott" on Wed Apr 07 20:13:53 2021 GMT+1.
 @end quotation
 @vskip 0pt plus 1filll
 @insertcopying
@@ -293,7 +293,7 @@ This manual was generated automatically by Declt 3.0 "Montgomery Scott" on Fri A
 @top The Declt Reference Manual
 This is the Declt Reference Manual, version 3.0 "Montgomery Scott",
 generated automatically by Declt version 3.0 "Montgomery Scott"
-on Fri Apr 02 17:19:13 2021 GMT+1.
+on Wed Apr 07 20:13:53 2021 GMT+1.
 
 @menu
 * Copying:: The BSD License
@@ -410,10 +410,10 @@ for a more human-readable guide to using @declt{}.
 The main system appears first, followed by any subsystem dependency.
 
 @menu
-* The net.didierverna.declt system: The net․didierverna․declt system.
-* The net.didierverna.declt.setup system: The net․didierverna․declt․setup system.
-* The net.didierverna.declt.core system: The net․didierverna․declt․core system.
-* The net.didierverna.declt.extract system: The net․didierverna․declt․extract system.
+* The net․didierverna․declt system::
+* The net․didierverna․declt․setup system::
+* The net․didierverna․declt․core system::
+* The net․didierverna․declt․extract system::
 * The named-readtables system::
 * The sb-introspect system::
 @end menu
@@ -656,11 +656,11 @@ BSD@comma{} see LICENSE
 Modules are listed depth-first from the system components tree.
 
 @menu
-* The net.didierverna.declt.setup/src module: The net․didierverna․declt․setup/src module.
-* The net.didierverna.declt.core/src module: The net․didierverna․declt․core/src module.
-* The net.didierverna.declt.core/src/util module: The net․didierverna․declt․core/src/util module.
-* The net.didierverna.declt.core/src/doc module: The net․didierverna․declt․core/src/doc module.
-* The net.didierverna.declt.extract/src module: The net․didierverna․declt․extract/src module.
+* The net․didierverna․declt․setup/src module::
+* The net․didierverna․declt․core/src module::
+* The net․didierverna․declt․core/src/util module::
+* The net․didierverna․declt․core/src/doc module::
+* The net․didierverna․declt․extract/src module::
 @end menu
 
 
@@ -821,32 +821,32 @@ components trees.
 @node Lisp files, , Files, Files
 @section Lisp
 @menu
-* The net.didierverna.declt/net.didierverna.declt.asd file: The net․didierverna․declt/net․didierverna․declt․asd file.
-* The net.didierverna.declt.setup/net.didierverna.declt.setup.asd file: The net․didierverna․declt․setup/net․didierverna․declt․setup․asd file.
-* The net.didierverna.declt.core/net.didierverna.declt.core.asd file: The net․didierverna․declt․core/net․didierverna․declt․core․asd file.
-* The net.didierverna.declt.extract/net.didierverna.declt.extract.asd file: The net․didierverna․declt․extract/net․didierverna․declt․extract․asd file.
-* The net.didierverna.declt.setup/package.lisp file: The net․didierverna․declt․setup/package․lisp file.
-* The net.didierverna.declt.setup/src/configuration.lisp file: The net․didierverna․declt․setup/src/configuration․lisp file.
-* The net.didierverna.declt.setup/src/readtable.lisp file: The net․didierverna․declt․setup/src/readtable․lisp file.
-* The net.didierverna.declt.setup/src/version.lisp file: The net․didierverna․declt․setup/src/version․lisp file.
-* The net.didierverna.declt.setup/src/util.lisp file: The net․didierverna․declt․setup/src/util․lisp file.
-* The net.didierverna.declt.core/package.lisp file: The net․didierverna․declt․core/package․lisp file.
-* The net.didierverna.declt.core/src/util/misc.lisp file: The net․didierverna․declt․core/src/util/misc․lisp file.
-* The net.didierverna.declt.core/src/doc/texi.lisp file: The net․didierverna․declt․core/src/doc/texi․lisp file.
-* The net.didierverna.declt.core/src/doc/doc.lisp file: The net․didierverna․declt․core/src/doc/doc․lisp file.
-* The net.didierverna.declt.core/src/doc/symbol.lisp file: The net․didierverna․declt․core/src/doc/symbol․lisp file.
-* The net.didierverna.declt.core/src/doc/package.lisp file: The net․didierverna․declt․core/src/doc/package․lisp file.
-* The net.didierverna.declt.core/src/doc/asdf.lisp file: The net․didierverna․declt․core/src/doc/asdf․lisp file.
-* The net.didierverna.declt.core/src/declt.lisp file: The net․didierverna․declt․core/src/declt․lisp file.
-* The net.didierverna.declt.extract/package.lisp file: The net․didierverna․declt․extract/package․lisp file.
-* The net.didierverna.declt.extract/src/util.lisp file: The net․didierverna․declt․extract/src/util․lisp file.
-* The net.didierverna.declt.extract/src/definition.lisp file: The net․didierverna․declt․extract/src/definition․lisp file.
-* The net.didierverna.declt.extract/src/license.lisp file: The net․didierverna․declt․extract/src/license․lisp file.
-* The net.didierverna.declt.extract/src/symbol.lisp file: The net․didierverna․declt․extract/src/symbol․lisp file.
-* The net.didierverna.declt.extract/src/package.lisp file: The net․didierverna․declt․extract/src/package․lisp file.
-* The net.didierverna.declt.extract/src/asdf.lisp file: The net․didierverna․declt․extract/src/asdf․lisp file.
-* The net.didierverna.declt.extract/src/finalize.lisp file: The net․didierverna․declt․extract/src/finalize․lisp file.
-* The net.didierverna.declt.extract/src/extract.lisp file: The net․didierverna․declt․extract/src/extract․lisp file.
+* The net․didierverna․declt/net․didierverna․declt․asd file::
+* The net․didierverna․declt․setup/net․didierverna․declt․setup․asd file::
+* The net․didierverna․declt․core/net․didierverna․declt․core․asd file::
+* The net․didierverna․declt․extract/net․didierverna․declt․extract․asd file::
+* The net․didierverna․declt․setup/package․lisp file::
+* The net․didierverna․declt․setup/src/configuration․lisp file::
+* The net․didierverna․declt․setup/src/readtable․lisp file::
+* The net․didierverna․declt․setup/src/version․lisp file::
+* The net․didierverna․declt․setup/src/util․lisp file::
+* The net․didierverna․declt․core/package․lisp file::
+* The net․didierverna․declt․core/src/util/misc․lisp file::
+* The net․didierverna․declt․core/src/doc/texi․lisp file::
+* The net․didierverna․declt․core/src/doc/doc․lisp file::
+* The net․didierverna․declt․core/src/doc/symbol․lisp file::
+* The net․didierverna․declt․core/src/doc/package․lisp file::
+* The net․didierverna․declt․core/src/doc/asdf․lisp file::
+* The net․didierverna․declt․core/src/declt․lisp file::
+* The net․didierverna․declt․extract/package․lisp file::
+* The net․didierverna․declt․extract/src/util․lisp file::
+* The net․didierverna․declt․extract/src/definition․lisp file::
+* The net․didierverna․declt․extract/src/license․lisp file::
+* The net․didierverna․declt․extract/src/symbol․lisp file::
+* The net․didierverna․declt․extract/src/package․lisp file::
+* The net․didierverna․declt․extract/src/asdf․lisp file::
+* The net․didierverna․declt․extract/src/finalize․lisp file::
+* The net․didierverna․declt․extract/src/extract․lisp file::
 @end menu
 
 @node The net․didierverna․declt/net․didierverna․declt․asd file, The net․didierverna․declt․setup/net․didierverna․declt․setup․asd file, Lisp files, Lisp files
@@ -1263,6 +1263,8 @@ components trees.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶ADD-DEFINITIONS-NODE function, , @t{add-definitions-node}} function
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶CATEGORY-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ method, , @t{category-name}} method
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶CATEGORY-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLASS-DEFINITION❩ method, , @t{category-name}} method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶CATEGORY-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CONDITION-DEFINITION❩ method, , @t{category-name}} method
@@ -1304,6 +1306,8 @@ components trees.
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶CATEGORY-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SPECIAL-DEFINITION❩ method, , @t{category-name}} method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶CATEGORY-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CONSTANT-DEFINITION❩ method, , @t{category-name}} method
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION COMMON-LISP∶T❩ method, , @t{document}} method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-DEFINITION COMMON-LISP∶T❩ method, , @t{document}} method
 @item
@@ -1350,6 +1354,8 @@ components trees.
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-SLOT-DEFINITION COMMON-LISP∶T❩ method, , @t{document}} method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶VAROID-DEFINITION COMMON-LISP∶T❩ method, , @t{document}} method
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ method, , @t{index-command-name}} method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLASS-DEFINITION❩ method, , @t{index-command-name}} method
 @item
@@ -1402,6 +1408,8 @@ components trees.
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶RENDER-METHOD macro, , @t{render-method}} macro
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶RENDER-METHOD-COMBINATION function, , @t{render-method-combination}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶RENDER-PACKAGE-REFERENCE function, , @t{render-package-reference}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶RENDER-VAROID macro, , @t{render-varoid}} macro
 @item
@@ -1631,6 +1639,8 @@ components trees.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ACCESSOR-MIXIN class, , @t{accessor-mixin}} class
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION class, , @t{alias-definition}} class
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALLOCATION function, , @t{allocation}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶CLASS-DEFINITION class, , @t{class-definition}} class
@@ -1656,6 +1666,8 @@ components trees.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION class, , @t{combination-definition}} class
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-OPTIONS function, , @t{combination-options}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-ALIAS-DEFINITION class, , @t{compiler-macro-alias-definition}} class
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-DEFINITION class, , @t{compiler-macro-definition}} class
 @item
@@ -1707,19 +1719,27 @@ components trees.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶DIRECT-SUPERSTRUCTURES❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-STRUCTURE-DEFINITION❩ writer method, , @t{(setf direct-superstructures)}} writer method
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-ALIAS-DEFINITION❩ method, , @t{docstring}} method
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-ALIAS-DEFINITION❩ method, , @t{docstring}} method
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-ALIAS-DEFINITION❩ method, , @t{docstring}} method
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-ALIAS-DEFINITION❩ method, , @t{docstring}} method
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MACRO-ALIAS-DEFINITION❩ method, , @t{docstring}} method
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION❩ method, , @t{docstring}} method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-SLOT-DEFINITION❩ method, , @t{docstring}} method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-DEFINITION❩ method, , @t{docstring}} method
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION❩ method, , @t{docstring}} method
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION❩ method, , @t{docstring}} method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPE-DEFINITION❩ method, , @t{docstring}} method
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-DEFINITION❩ method, , @t{docstring}} method
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-DEFINITION❩ method, , @t{docstring}} method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-MACRO-DEFINITION❩ method, , @t{docstring}} method
 @item
@@ -1742,6 +1762,8 @@ components trees.
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDERS-TO❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-MIXIN❩ writer method, , @t{(setf expanders-to)}} writer method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCOID-DEFINITION class, , @t{funcoid-definition}} class
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-ALIAS-DEFINITION class, , @t{function-alias-definition}} class
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-DEFINITION class, , @t{function-definition}} class
 @item
@@ -1777,6 +1799,8 @@ components trees.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶LONG-EXPANDER-DEFINITION class, , @t{long-expander-definition}} class
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶MACRO-ALIAS-DEFINITION class, , @t{macro-alias-definition}} class
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶MACRO-DEFINITION class, , @t{macro-definition}} class
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶METHOD-DEFINITION class, , @t{method-definition}} class
@@ -1807,7 +1831,15 @@ components trees.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶READERS❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶SLOT-DEFINITION❩ writer method, , @t{(setf readers)}} writer method
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ reader method, , @t{referee}} reader method
+@item
+@ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ writer method, , @t{(setf referee)}} writer method
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-ALIAS-DEFINITION class, , @t{setf-compiler-macro-alias-definition}} class
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-DEFINITION class, , @t{setf-compiler-macro-definition}} class
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-ALIAS-DEFINITION class, , @t{setf-function-alias-definition}} class
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-DEFINITION class, , @t{setf-function-definition}} class
 @item
@@ -1918,17 +1950,27 @@ components trees.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-COMBINATION-DEFINITION function, , @t{make-combination-definition}} function
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-COMPILER-MACRO-ALIAS-DEFINITION function, , @t{make-compiler-macro-alias-definition}} function
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-COMPILER-MACRO-DEFINITION function, , @t{make-compiler-macro-definition}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-CONSTANT-DEFINITION function, , @t{make-constant-definition}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-EXPANDER-DEFINITION function, , @t{make-expander-definition}} function
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-FUNCTION-ALIAS-DEFINITION function, , @t{make-function-alias-definition}} function
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-FUNCTION-DEFINITION function, , @t{make-function-definition}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-MACRO-ALIAS-DEFINITION function, , @t{make-macro-alias-definition}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-MACRO-DEFINITION function, , @t{make-macro-definition}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-METHOD-DEFINITION function, , @t{make-method-definition}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-SETF-COMPILER-MACRO-ALIAS-DEFINITION function, , @t{make-setf-compiler-macro-alias-definition}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-SETF-FUNCTION-ALIAS-DEFINITION function, , @t{make-setf-function-alias-definition}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-SPECIAL-DEFINITION function, , @t{make-special-definition}} function
 @item
@@ -1945,6 +1987,8 @@ components trees.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SHORT-EXPANDER-DEFINITION-P function, , @t{short-expander-definition-p}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SLOT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SLOT-DEFINITION❩ reader method, , @t{slot}} reader method
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SOURCE-PATHNAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ method, , @t{source-pathname}} method
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SOURCE-PATHNAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION❩ method, , @t{source-pathname}} method
 @item
@@ -2287,6 +2331,8 @@ components trees.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MODULE-COMPONENTS function, , @t{module-components}} function
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶ORIGINAL-NAME function, , @t{original-name}} function
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶PACKAGE-SYMBOLS function, , @t{package-symbols}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SUB-COMPONENT-P function, , @t{sub-component-p}} function
@@ -2309,9 +2355,9 @@ components trees.
 Packages are listed by definition order.
 
 @menu
-* The net.didierverna.declt.setup package: The net․didierverna․declt․setup package.
-* The net.didierverna.declt.extract package: The net․didierverna․declt․extract package.
-* The net.didierverna.declt package: The net․didierverna․declt package.
+* The net․didierverna․declt․setup package::
+* The net․didierverna․declt․extract package::
+* The net․didierverna․declt package::
 * The common-lisp package::
 * The sb-mop package::
 * The asdf/lisp-action package::
@@ -2426,6 +2472,8 @@ The Declt extract library's package.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ACCESSOR-MIXIN class, , @t{accessor-mixin}} class
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION class, , @t{alias-definition}} class
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALLOCATION function, , @t{allocation}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶AUTHOR-EMAILS generic reader, , @t{author-emails}} generic reader
@@ -2469,6 +2517,8 @@ The Declt extract library's package.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION class, , @t{combination-definition}} class
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-OPTIONS function, , @t{combination-options}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-ALIAS-DEFINITION class, , @t{compiler-macro-alias-definition}} class
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-DEFINITION class, , @t{compiler-macro-definition}} class
 @item
@@ -2592,6 +2642,8 @@ The Declt extract library's package.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCOID-DEFINITION class, , @t{funcoid-definition}} class
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-ALIAS-DEFINITION class, , @t{function-alias-definition}} class
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-DEFINITION class, , @t{function-definition}} class
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-FUNCTION-DEFINITION class, , @t{generic-function-definition}} class
@@ -2652,6 +2704,8 @@ The Declt extract library's package.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶LONG-NAME function, , @t{long-name}} function
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶MACRO-ALIAS-DEFINITION class, , @t{macro-alias-definition}} class
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶MACRO-DEFINITION class, , @t{macro-definition}} class
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶MAILTO function, , @t{mailto}} function
@@ -2708,7 +2762,15 @@ The Declt extract library's package.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶READERS❩ generic writer, , @t{(setf readers)}} generic writer
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE generic reader, , @t{referee}} generic reader
+@item
+@ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE❩ generic writer, , @t{(setf referee)}} generic writer
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-ALIAS-DEFINITION class, , @t{setf-compiler-macro-alias-definition}} class
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-DEFINITION class, , @t{setf-compiler-macro-definition}} class
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-ALIAS-DEFINITION class, , @t{setf-function-alias-definition}} class
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-DEFINITION class, , @t{setf-function-definition}} class
 @item
@@ -2889,6 +2951,8 @@ The Declt extract library's package.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-COMBINATION-DEFINITION function, , @t{make-combination-definition}} function
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-COMPILER-MACRO-ALIAS-DEFINITION function, , @t{make-compiler-macro-alias-definition}} function
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-COMPILER-MACRO-DEFINITION function, , @t{make-compiler-macro-definition}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-COMPONENT-DEFINITION function, , @t{make-component-definition}} function
@@ -2903,9 +2967,13 @@ The Declt extract library's package.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-FOREIGN-FUNCOID-DEFINITION function, , @t{make-foreign-funcoid-definition}} function
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-FUNCTION-ALIAS-DEFINITION function, , @t{make-function-alias-definition}} function
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-FUNCTION-DEFINITION function, , @t{make-function-definition}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-GENERIC-DEFINITION function, , @t{make-generic-definition}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-MACRO-ALIAS-DEFINITION function, , @t{make-macro-alias-definition}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-MACRO-DEFINITION function, , @t{make-macro-definition}} function
 @item
@@ -2914,6 +2982,10 @@ The Declt extract library's package.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-MODULE-DEFINITION function, , @t{make-module-definition}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-PACKAGE-DEFINITION function, , @t{make-package-definition}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-SETF-COMPILER-MACRO-ALIAS-DEFINITION function, , @t{make-setf-compiler-macro-alias-definition}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-SETF-FUNCTION-ALIAS-DEFINITION function, , @t{make-setf-function-alias-definition}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-SPECIAL-DEFINITION function, , @t{make-special-definition}} function
 @item
@@ -2942,6 +3014,8 @@ The Declt extract library's package.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶OBJECT-SOURCE-PATHNAME function, , @t{object-source-pathname}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶ONE-LINER-P function, , @t{one-liner-p}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶ORIGINAL-NAME function, , @t{original-name}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶PACKAGE-EXTERNAL-SYMBOLS function, , @t{package-external-symbols}} function
 @item
@@ -3203,6 +3277,8 @@ The Declt library's package.
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶RENDER-METHOD-COMBINATION function, , @t{render-method-combination}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶RENDER-NODE function, , @t{render-node}} function
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶RENDER-PACKAGE-REFERENCE function, , @t{render-package-reference}} function
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶RENDER-PATHNAME function, , @t{render-pathname}} function
 @item
@@ -3840,12 +3916,12 @@ Return T if DEFINITION is a package definition.
 @ref{go to the net․didierverna․declt․extract/src/package․lisp file, , @t{package.lisp}}.
 @end table
 @end deffn
-@deffn {Function} {publicp} (definition)
+@deffn {Function} {publicp} (definition &aux home-package)
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶PUBLICP function}@c
 @functionsubindex{publicp}@c
 Return T is DEFINITION is public.@*
-A definition is public when the symbol naming it is exported from its home
-package.
+A definition is public when the symbol naming it has a home package@comma{}
+and is exported from it.
 @table @strong
 @item Package
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
@@ -4811,6 +4887,61 @@ This is the same as the `description' function.
 @ref{go to the net․didierverna․declt․extract/src/asdf․lisp file, , @t{asdf.lisp}}.
 @end table
 @end deffn
+@deffn {Method} {docstring} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-ALIAS-DEFINITION class, , @t{setf-function-alias-definition}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-ALIAS-DEFINITION❩ method}@c
+@methodsubindex{docstring}@c
+Return setf function alias DEFINITION's docstring.@*
+This is the docstring attached to DEFINITION's '(SETF SYMBOL)@comma{}
+rather than the one attached to the function.
+@table @strong
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@end deffn
+@deffn {Method} {docstring} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-ALIAS-DEFINITION class, , @t{function-alias-definition}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-ALIAS-DEFINITION❩ method}@c
+@methodsubindex{docstring}@c
+Return function alias DEFINITION's docstring.@*
+This is the docstring attached to DEFINITION's symbol@comma{}
+rather than the one attached to the function.
+@table @strong
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@end deffn
+@deffn {Method} {docstring} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-ALIAS-DEFINITION class, , @t{setf-compiler-macro-alias-definition}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-ALIAS-DEFINITION❩ method}@c
+@methodsubindex{docstring}@c
+Return setf compiler macro alias DEFINITION's docstring.
+This is the docstring attached to DEFINITION's '(SETF SYMBOL)@comma{}
+rather than the one attached to the compiler macro function.
+@table @strong
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@end deffn
+@deffn {Method} {docstring} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-ALIAS-DEFINITION class, , @t{compiler-macro-alias-definition}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-ALIAS-DEFINITION❩ method}@c
+@methodsubindex{docstring}@c
+Return compiler macro alias DEFINITION's docstring.@*
+This is the docstring attached to DEFINITION's symbol@comma{}
+rather than the one attached to the compiler macro function.
+@table @strong
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@end deffn
+@deffn {Method} {docstring} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶MACRO-ALIAS-DEFINITION class, , @t{macro-alias-definition}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MACRO-ALIAS-DEFINITION❩ method}@c
+@methodsubindex{docstring}@c
+Return macro alias DEFINITION's docstring.@*
+This is the docstring attached to DEFINITION's symbol@comma{}
+rather than the one attached to the macro function.
+@table @strong
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@end deffn
 @deffn {Method} {docstring} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION class, , @t{typed-structure-slot-definition}})
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION❩ method}@c
 @methodsubindex{docstring}@c
@@ -4838,6 +4969,15 @@ Return typed structure DEFINITION's docstring.
 @ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
 @end table
 @end deffn
+@deffn {Method} {docstring} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION class, , @t{combination-definition}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION❩ method}@c
+@methodsubindex{docstring}@c
+Return method combination DEFINITION's docstring.
+@table @strong
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@end deffn
 @deffn {Method} {docstring} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION class, , @t{expander-definition}})
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION❩ method}@c
 @methodsubindex{docstring}@c
@@ -4851,24 +4991,6 @@ Return setf expander DEFINITION's docstring.
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPE-DEFINITION❩ method}@c
 @methodsubindex{docstring}@c
 Return type DEFINITION's docstring.
-@table @strong
-@item Source
-@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
-@end table
-@end deffn
-@deffn {Method} {docstring} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-DEFINITION class, , @t{setf-compiler-macro-definition}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-DEFINITION❩ method}@c
-@methodsubindex{docstring}@c
-Return setf compiler macro DEFINITION's docstring.
-@table @strong
-@item Source
-@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
-@end table
-@end deffn
-@deffn {Method} {docstring} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-DEFINITION class, , @t{compiler-macro-definition}})
-@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-DEFINITION❩ method}@c
-@methodsubindex{docstring}@c
-Return compiler macro DEFINITION's docstring.
 @table @strong
 @item Source
 @ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
@@ -5041,7 +5163,9 @@ Whether this definition is foreign.
 @deffnx {Writer Method} {(setf home-package)} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION class, , @t{symbol-definition}})
 @anchor{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶HOME-PACKAGE❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION❩ writer method}@c
 @methodsubindex{(setf home-package)}@c
-The home package definition for this definition's symbol.
+The home package definition for this definition's symbol.@*
+Every definition gets a home package@comma{} even foreign ones. A home package can
+only be null when the definition's symbol is uninterned.
 @table @strong
 @item Source
 @ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
@@ -5161,6 +5285,11 @@ Return DEFINITION's lambda-list.
 @item Method Combination
 @ref{go to the COMMON-LISP∶STANDARD method combination, , @t{standard}}.
 @item Methods
+@deffn {Method} {lambda-list} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION class, , @t{alias-definition}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶LAMBDA-LIST ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ method}@c
+@methodsubindex{lambda-list}@c
+Return the lambda-list of alias DEFINITION's referee.
+@end deffn
 @deffn {Method} {lambda-list} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-WRITER-METHOD-DEFINITION class, , @t{setf-writer-method-definition}})
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶LAMBDA-LIST ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-WRITER-METHOD-DEFINITION❩ method}@c
 @methodsubindex{lambda-list}@c
@@ -5648,6 +5777,36 @@ The list of definitions for this definition's slot readers.
 @table @strong
 @item Target Slot
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SLOT-DEFINITION->NET․DIDIERVERNA․DECLT․EXTRACT∶READERS slot, , @t{readers}}.
+@end table
+@end deffn
+@end table
+@end deffn
+@deffn {Generic Reader} {referee} (object)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE generic reader}@c
+@genericsubindex{referee}@c
+@deffnx {Generic Writer} {(setf referee)} (object)
+@anchor{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE❩ generic writer}@c
+@genericsubindex{(setf referee)}@c
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Method Combination
+@ref{go to the COMMON-LISP∶STANDARD method combination, , @t{standard}}.
+@item Methods
+@deffn {Reader Method} {referee} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION class, , @t{alias-definition}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ reader method}@c
+@methodsubindex{referee}@c
+@deffnx {Writer Method} {(setf referee)} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION class, , @t{alias-definition}})
+@anchor{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ writer method}@c
+@methodsubindex{(setf referee)}@c
+The original definition this definition aliases.
+@table @strong
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@table @strong
+@item Target Slot
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION->NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE slot, , @t{referee}}.
 @end table
 @end deffn
 @end table
@@ -6273,6 +6432,10 @@ The standard method combination.
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶READERS❩ generic writer, , @t{(setf readers)}}.
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE generic reader, , @t{referee}}.
+@item
+@ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE❩ generic writer, , @t{(setf referee)}}.
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶SAFE-NAME generic function, , @t{safe-name}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SLOT generic reader, , @t{slot}}.
@@ -6404,6 +6567,57 @@ The target slot definition for this definition's accessor.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶TARGET-SLOT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ACCESSOR-MIXIN❩ reader method, , @t{target-slot}}.
 @item Writers
 @i{This slot is read-only.}
+@end table
+@end defvr
+@end table
+@end deftp
+@deftp {Class} {alias-definition}
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION class}@c
+@classsubindex{alias-definition}@c
+Abstract root class for alias definitions.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@item Direct superclasses
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION class, , @t{symbol-definition}}.
+@item Direct subclasses
+@itemize @bullet
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-ALIAS-DEFINITION class, , @t{compiler-macro-alias-definition}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-ALIAS-DEFINITION class, , @t{function-alias-definition}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶MACRO-ALIAS-DEFINITION class, , @t{macro-alias-definition}}.
+@end itemize
+@item Direct methods
+@itemize @bullet
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶CATEGORY-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ method, , @t{category-name}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ method, , @t{index-command-name}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶LAMBDA-LIST ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ method, , @t{lambda-list}}.
+@item
+@ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ writer method, , @t{(setf referee)}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ reader method, , @t{referee}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SOURCE-PATHNAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ method, , @t{source-pathname}}.
+@end itemize
+@item Direct slots
+@defvr {Slot} referee
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION->NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE slot}@c
+@slotsubindex{referee}@c
+The original definition this definition aliases.
+@table @strong
+@item Readers
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ reader method, , @t{referee}}.
+@item Writers
+@ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ writer method, , @t{(setf referee)}}.
 @end table
 @end defvr
 @end table
@@ -6761,6 +6975,8 @@ Root class for method combination definitions.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION❩ reader method, , @t{combination}}.
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION❩ method, , @t{docstring}}.
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMBINATION-DEFINITION❩ method, , @t{index-command-name}}.
@@ -6796,6 +7012,28 @@ These are generic functions using this combination.
 @end defvr
 @end table
 @end deftp
+@deftp {Class} {compiler-macro-alias-definition}
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-ALIAS-DEFINITION class}@c
+@classsubindex{compiler-macro-alias-definition}@c
+The class of compiler macro alias definitions.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@item Direct superclasses
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION class, , @t{alias-definition}}.
+@item Direct subclasses
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-ALIAS-DEFINITION class, , @t{setf-compiler-macro-alias-definition}}.
+@item Direct methods
+@itemize @bullet
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-ALIAS-DEFINITION❩ method, , @t{docstring}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-ALIAS-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@end itemize
+@end table
+@end deftp
 @deftp {Class} {compiler-macro-definition}
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-DEFINITION class}@c
 @classsubindex{compiler-macro-definition}@c
@@ -6815,8 +7053,6 @@ The class of compiler macro definitions.
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶CATEGORY-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-DEFINITION❩ method, , @t{category-name}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶DEFINITION-COMPILER-MACRO ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-DEFINITION❩ reader method, , @t{definition-compiler-macro}}.
-@item
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-DEFINITION❩ method, , @t{docstring}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-DEFINITION❩ method, , @t{index-command-name}}.
 @end itemize
@@ -7048,7 +7284,8 @@ All definitions respond to the following public protocols@comma{} which see:
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION->NET․DIDIERVERNA․DECLT․EXTRACT∶∶OBJECT slot}@c
 @slotsubindex{object}@c
 The corresponding Lisp object@comma{} or NIL.@*
-Only constants@comma{} special variables@comma{} and symbol macros lack such an object.
+Only constants@comma{} special variables@comma{} symbol macros@comma{} and aliases lack such an
+object.
 @table @strong
 @item Initargs
 @t{:object}
@@ -7508,6 +7745,28 @@ All funcoid definitions respond to the following public protocols@comma{} which 
 @end defvr
 @end table
 @end deftp
+@deftp {Class} {function-alias-definition}
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-ALIAS-DEFINITION class}@c
+@classsubindex{function-alias-definition}@c
+The class of non-setf function alias definitions.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@item Direct superclasses
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION class, , @t{alias-definition}}.
+@item Direct subclasses
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-ALIAS-DEFINITION class, , @t{setf-function-alias-definition}}.
+@item Direct methods
+@itemize @bullet
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-ALIAS-DEFINITION❩ method, , @t{docstring}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-ALIAS-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@end itemize
+@end table
+@end deftp
 @deftp {Class} {function-definition}
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-DEFINITION class}@c
 @classsubindex{function-definition}@c
@@ -7803,6 +8062,26 @@ DEFSETF@comma{} or DEFINE-SETF-EXPANDER.
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶LONG-EXPANDER-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶LAMBDA-LIST ❨NET․DIDIERVERNA․DECLT․EXTRACT∶LONG-EXPANDER-DEFINITION❩ method, , @t{lambda-list}}.
+@end itemize
+@end table
+@end deftp
+@deftp {Class} {macro-alias-definition}
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶MACRO-ALIAS-DEFINITION class}@c
+@classsubindex{macro-alias-definition}@c
+The class of macro alias definitions.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@item Direct superclasses
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION class, , @t{alias-definition}}.
+@item Direct methods
+@itemize @bullet
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MACRO-ALIAS-DEFINITION❩ method, , @t{docstring}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MACRO-ALIAS-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @end itemize
 @end table
 @end deftp
@@ -8192,6 +8471,31 @@ A reader method is a method that reads a slot in a class or condition.
 @end itemize
 @end table
 @end deftp
+@deftp {Class} {setf-compiler-macro-alias-definition}
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-ALIAS-DEFINITION class}@c
+@classsubindex{setf-compiler-macro-alias-definition}@c
+The class of setf compiler macro alias definitions.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@item Direct superclasses
+@itemize @bullet
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-ALIAS-DEFINITION class, , @t{compiler-macro-alias-definition}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-MIXIN class, , @t{setf-mixin}}.
+@end itemize
+@item Direct methods
+@itemize @bullet
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-ALIAS-DEFINITION❩ method, , @t{docstring}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-ALIAS-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@end itemize
+@end table
+@end deftp
 @deftp {Class} {setf-compiler-macro-definition}
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-DEFINITION class}@c
 @classsubindex{setf-compiler-macro-definition}@c
@@ -8208,8 +8512,31 @@ The class of setf compiler macro definitions.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-MIXIN class, , @t{setf-mixin}}.
 @end itemize
+@end table
+@end deftp
+@deftp {Class} {setf-function-alias-definition}
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-ALIAS-DEFINITION class}@c
+@classsubindex{setf-function-alias-definition}@c
+The class of setf function alias definitions.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@item Direct superclasses
+@itemize @bullet
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-ALIAS-DEFINITION class, , @t{function-alias-definition}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-MIXIN class, , @t{setf-mixin}}.
+@end itemize
 @item Direct methods
-@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-DEFINITION❩ method, , @t{docstring}}.
+@itemize @bullet
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DOCSTRING ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-ALIAS-DEFINITION❩ method, , @t{docstring}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-ALIAS-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@end itemize
 @end table
 @end deftp
 @deftp {Class} {setf-function-definition}
@@ -8271,7 +8598,11 @@ This mixin should be put before the funcoid superclass.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶GENERIC-SETF-DEFINITION class, , @t{generic-setf-definition}}.
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-ALIAS-DEFINITION class, , @t{setf-compiler-macro-alias-definition}}.
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-DEFINITION class, , @t{setf-compiler-macro-definition}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-ALIAS-DEFINITION class, , @t{setf-function-alias-definition}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-DEFINITION class, , @t{setf-function-definition}}.
 @item
@@ -8734,7 +9065,7 @@ Abstract root class for structures.
 @deftp {Class} {symbol-definition}
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION class}@c
 @classsubindex{symbol-definition}@c
-Abstract root class for all definitions named by symbols.@*
+Abstract root class for definitions named by symbols.@*
 All symbol definitions respond to the following public protocols@comma{} which see:
 - `publicp'.
 @table @strong
@@ -8746,6 +9077,8 @@ All symbol definitions respond to the following public protocols@comma{} which s
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION class, , @t{definition}}.
 @item Direct subclasses
 @itemize @bullet
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION class, , @t{alias-definition}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶CLASSOID-DEFINITION class, , @t{classoid-definition}}.
 @item
@@ -8787,7 +9120,9 @@ The symbol naming this definition.
 @defvr {Slot} home-package
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION->NET․DIDIERVERNA․DECLT․EXTRACT∶HOME-PACKAGE slot}@c
 @slotsubindex{home-package}@c
-The home package definition for this definition's symbol.
+The home package definition for this definition's symbol.@*
+Every definition gets a home package@comma{} even foreign ones. A home package can
+only be null when the definition's symbol is uninterned.
 @table @strong
 @item Readers
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶HOME-PACKAGE ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION❩ reader method, , @t{home-package}}.
@@ -9032,6 +9367,8 @@ are not components@comma{} we use an ad-hoc fake component class for them@comma{
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
+@ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
+@item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLOS-STRUCTURE-DEFINITION COMMON-LISP∶T❩ method, , @t{document}}.
@@ -9118,6 +9455,8 @@ are not components@comma{} we use an ad-hoc fake component class for them@comma{
 @item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶READERS❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶SLOT-DEFINITION❩ writer method, , @t{(setf readers)}}.
 @item
+@ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶REFEREE❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ writer method, , @t{(setf referee)}}.
+@item
 @ref{go to the ❨SETF NET․DIDIERVERNA․DECLT․EXTRACT∶SOURCE-FILE❩ ❨COMMON-LISP∶T NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION❩ writer method, , @t{(setf source-file)}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SOURCE-PATHNAME ❨COMMON-LISP∶T❩ method, , @t{source-pathname}}.
@@ -9133,6 +9472,16 @@ are not components@comma{} we use an ad-hoc fake component class for them@comma{
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPONENT-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶PACKAGE-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-ALIAS-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-ALIAS-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-ALIAS-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-ALIAS-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
+@item
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MACRO-ALIAS-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @item
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION COMMON-LISP∶T❩ method, , @t{stabilize}}.
 @item
@@ -10308,7 +10657,7 @@ Make a new CLOS SLOT definition for classoid OWNER.
 @ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
 @end table
 @end deffn
-@deffn {Function} {make-combination-definition} (symbol combination &optional foreign)
+@deffn {Function} {make-combination-definition} (symbol combination &optional foreign &aux instance)
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-COMBINATION-DEFINITION function}@c
 @functionsubindex{make-combination-definition}@c
 Make a new method COMBINATION definition for SYMBOL@comma{} possibly FOREIGN.
@@ -10320,7 +10669,18 @@ The concrete class of the new definition depends on the COMBINATION type.
 @ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
 @end table
 @end deffn
-@deffn {Function} {make-compiler-macro-definition} (symbol compiler-macro &optional setf)
+@deffn {Function} {make-compiler-macro-alias-definition} (symbol)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-COMPILER-MACRO-ALIAS-DEFINITION function}@c
+@functionsubindex{make-compiler-macro-alias-definition}@c
+Make a new compiler macro alias definition for SYMBOL.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@end deffn
+@deffn {Function} {make-compiler-macro-definition} (symbol compiler-macro &key setf foreign)
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-COMPILER-MACRO-DEFINITION function}@c
 @functionsubindex{make-compiler-macro-definition}@c
 Make a new COMPILER-MACRO definition for SYMBOL.
@@ -10408,6 +10768,17 @@ Make a new foreign macro or function definition for NAME.
 @ref{go to the net․didierverna․declt․extract/src/finalize․lisp file, , @t{finalize.lisp}}.
 @end table
 @end deffn
+@deffn {Function} {make-function-alias-definition} (symbol)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-FUNCTION-ALIAS-DEFINITION function}@c
+@functionsubindex{make-function-alias-definition}@c
+make a new function alias definition for SYMBOL.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@end deffn
 @deffn {Function} {make-function-definition} (symbol function &key setf foreign)
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-FUNCTION-DEFINITION function}@c
 @functionsubindex{make-function-definition}@c
@@ -10430,6 +10801,17 @@ Make a new GENERIC function definition@comma{} possibly FOREIGN.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
 @item Source
 @ref{go to the net․didierverna․declt․extract/src/finalize․lisp file, , @t{finalize.lisp}}.
+@end table
+@end deffn
+@deffn {Function} {make-macro-alias-definition} (symbol)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-MACRO-ALIAS-DEFINITION function}@c
+@functionsubindex{make-macro-alias-definition}@c
+Make a new macro alias definition for SYMBOL.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
 @end table
 @end deffn
 @deffn {Function} {make-macro-definition} (symbol macro &optional foreign)
@@ -10485,6 +10867,28 @@ Make a new PACKAGE definition@comma{} possibly FOREIGN.
 @ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
 @item Source
 @ref{go to the net․didierverna․declt․extract/src/package․lisp file, , @t{package.lisp}}.
+@end table
+@end deffn
+@deffn {Function} {make-setf-compiler-macro-alias-definition} (symbol)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-SETF-COMPILER-MACRO-ALIAS-DEFINITION function}@c
+@functionsubindex{make-setf-compiler-macro-alias-definition}@c
+Make a new setf compiler macro alias definition for SYMBOL.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@end deffn
+@deffn {Function} {make-setf-function-alias-definition} (symbol)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶MAKE-SETF-FUNCTION-ALIAS-DEFINITION function}@c
+@functionsubindex{make-setf-function-alias-definition}@c
+Make a new setf function alias definition for SYMBOL.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
 @end table
 @end deffn
 @deffn {Function} {make-special-definition} (symbol)
@@ -10844,6 +11248,19 @@ Return T if STRING is non empty and does not span multiple lines.
 @ref{go to the net․didierverna․declt․extract/src/util․lisp file, , @t{util.lisp}}.
 @end table
 @end deffn
+@deffn {Function} {original-name} (funcoid)
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶ORIGINAL-NAME function}@c
+@functionsubindex{original-name}@c
+Return FUNCOID's original name@comma{} or NIL.@*
+When available@comma{} this is the name extracted from a call to
+FUNCTION-LAMBDA-EXPRESSION.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT package, , @t{net.didierverna.declt.extract}}.
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/extract․lisp file, , @t{extract.lisp}}.
+@end table
+@end deffn
 @deffn {Function} {package-external-symbols} (package &aux external-symbols)
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶PACKAGE-EXTERNAL-SYMBOLS function}@c
 @functionsubindex{package-external-symbols}@c
@@ -11064,6 +11481,19 @@ Render NODE at LEVEL and all its children at LEVEL+1.
 @ref{go to the net․didierverna․declt․core/src/doc/texi․lisp file, , @t{texi.lisp}}.
 @end table
 @end deffn
+@deffn {Function} {render-package-reference} (definition)
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶RENDER-PACKAGE-REFERENCE function}@c
+@functionsubindex{render-package-reference}@c
+Render a reference to DEFINITION's home package definition.
+Possibly render an "uninterned" mention instead of an actual reference@comma{}
+when there is no home package to reference.
+@table @strong
+@item Package
+@ref{go to the NET․DIDIERVERNA․DECLT package, , @t{net.didierverna.declt}}.
+@item Source
+@ref{go to the net․didierverna․declt․core/src/doc/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@end deffn
 @deffn {Function} {render-pathname} (definition context &optional title)
 @anchor{go to the NET․DIDIERVERNA․DECLT∶∶RENDER-PATHNAME function}@c
 @functionsubindex{render-pathname}@c
@@ -11198,9 +11628,9 @@ converted to revealed strings@comma{} and initform / supplied-p data is removed.
 @functionsubindex{safe-specializers}@c
 Return a list of safe specializers for method DEFINITION.@*
 A safe specializer is the printed form of either a reference to a class
-definition@comma{} or a raw EQL specializer. For setf and writer definitions@comma{}
-only the specializers rest is used@comma{} as these methods get the new value as
-their first argument.
+definition@comma{} or an EQL specializer's type name. For setf and writer
+definitions@comma{} only the specializers rest is used@comma{} as these methods get the new
+value as their first argument.
 @table @strong
 @item Package
 @ref{go to the NET․DIDIERVERNA․DECLT package, , @t{net.didierverna.declt}}.
@@ -11372,6 +11802,15 @@ Return "package".
 @table @strong
 @item Source
 @ref{go to the net․didierverna․declt․core/src/doc/package․lisp file, , @t{package.lisp}}.
+@end table
+@end deffn
+@deffn {Method} {category-name} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION class, , @t{alias-definition}})
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶CATEGORY-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ method}@c
+@methodsubindex{category-name}@c
+Return the category name of alias DEFINITION's referee.
+@table @strong
+@item Source
+@ref{go to the net․didierverna․declt․core/src/doc/symbol․lisp file, , @t{symbol.lisp}}.
 @end table
 @end deffn
 @deffn {Method} {category-name} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶CLASS-DEFINITION class, , @t{class-definition}})
@@ -11824,6 +12263,15 @@ Render package DEFINITION's documentation in context.
 @ref{go to the net․didierverna․declt․core/src/doc/package․lisp file, , @t{package.lisp}}.
 @end table
 @end deffn
+@deffn {Method} {document} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION class, , @t{alias-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{document}@c
+Render alias DEFINITION's documentation in CONTEXT.
+@table @strong
+@item Source
+@ref{go to the net․didierverna․declt․core/src/doc/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@end deffn
 @deffn {Method} {document} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-DEFINITION class, , @t{typed-structure-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
 @anchor{go to the NET․DIDIERVERNA․DECLT∶∶DOCUMENT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-DEFINITION COMMON-LISP∶T❩ method}@c
 @methodsubindex{document}@c
@@ -12267,6 +12715,15 @@ Return "packageindex".
 @ref{go to the net․didierverna․declt․core/src/doc/package․lisp file, , @t{package.lisp}}.
 @end table
 @end deffn
+@deffn {Method} {index-command-name} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION class, , @t{alias-definition}})
+@anchor{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ method}@c
+@methodsubindex{index-command-name}@c
+Return the index command name of alias DEFINITION's referee.
+@table @strong
+@item Source
+@ref{go to the net․didierverna․declt․core/src/doc/symbol․lisp file, , @t{symbol.lisp}}.
+@end table
+@end deffn
 @deffn {Method} {index-command-name} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶CLASS-DEFINITION class, , @t{class-definition}})
 @anchor{go to the NET․DIDIERVERNA․DECLT∶∶INDEX-COMMAND-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶CLASS-DEFINITION❩ method}@c
 @methodsubindex{index-command-name}@c
@@ -12495,7 +12952,8 @@ automatically generated reader method
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶OBJECT ❨NET․DIDIERVERNA․DECLT․EXTRACT∶DEFINITION❩ reader method}@c
 @methodsubindex{object}@c
 The corresponding Lisp object@comma{} or NIL.@*
-Only constants@comma{} special variables@comma{} and symbol macros lack such an object.
+Only constants@comma{} special variables@comma{} symbol macros@comma{} and aliases lack such an
+object.
 @table @strong
 @item Source
 @ref{go to the net․didierverna․declt․extract/src/definition․lisp file, , @t{definition.lisp}}.
@@ -12563,7 +13021,8 @@ When QUALIFIED@comma{} prepend slot DEFINITION's classoid safe name.
 @anchor{go to the NET․DIDIERVERNA․DECLT∶∶SAFE-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-MIXIN❩ method}@c
 @methodsubindex{safe-name}@c
 Reveal setf DEFINITION's name@comma{} possibly QUALIFIED.@*
-A QUALIFIED name is of the form "(setf package:[:]symbol)".
+A QUALIFIED name is of the form "(setf package:[:]symbol)". Uninterned
+symbols are denoted by the ∅ package.
 @table @strong
 @item Source
 @ref{go to the net․didierverna․declt․core/src/doc/symbol․lisp file, , @t{symbol.lisp}}.
@@ -12572,8 +13031,9 @@ A QUALIFIED name is of the form "(setf package:[:]symbol)".
 @deffn {Method} {safe-name} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION class, , @t{symbol-definition}})
 @anchor{go to the NET․DIDIERVERNA․DECLT∶∶SAFE-NAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SYMBOL-DEFINITION❩ method}@c
 @methodsubindex{safe-name}@c
-Reveal symbol DEFINITION's name@comma{} possibly QUALIFIED.
-A QUALIFIED name is of the form "package:[:]symbol".
+Reveal symbol DEFINITION's name@comma{} possibly QUALIFIED.@*
+A QUALIFIED name is of the form "package:[:]symbol". Uninterned symbols are
+denoted by the ∅ package.
 @table @strong
 @item Source
 @ref{go to the net․didierverna․declt․core/src/doc/symbol․lisp file, , @t{symbol.lisp}}.
@@ -12630,6 +13090,17 @@ This actually is the corresponding system's source file.
 @table @strong
 @item Source
 @ref{go to the net․didierverna․declt․extract/src/asdf․lisp file, , @t{asdf.lisp}}.
+@end table
+@end deffn
+@deffn {Method} {source-pathname} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION class, , @t{alias-definition}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶SOURCE-PATHNAME ❨NET․DIDIERVERNA․DECLT․EXTRACT∶ALIAS-DEFINITION❩ method}@c
+@methodsubindex{source-pathname}@c
+Return NIL.@*
+Aliases are defined dynamically so it's impossible to locate the code
+being executed.
+@table @strong
+@item Source
+@ref{go to the net․didierverna․declt․extract/src/symbol․lisp file, , @t{symbol.lisp}}.
 @end table
 @end deffn
 @deffn {Method} {source-pathname} (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶EXPANDER-DEFINITION class, , @t{expander-definition}})
@@ -12729,6 +13200,31 @@ Those definitions are guaranteed to be in the original component's order.
 Compute package DEFINITION's use@comma{} used-by@comma{} and definitions lists.
 New foreign package definitions may be created and added at the end of
 DEFINITIONS in the process.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-ALIAS-DEFINITION class, , @t{setf-function-alias-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-FUNCTION-ALIAS-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute simple function alias DEFINITION's referee.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-ALIAS-DEFINITION class, , @t{function-alias-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶FUNCTION-ALIAS-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute simple function alias DEFINITION's referee.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-ALIAS-DEFINITION class, , @t{setf-compiler-macro-alias-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶SETF-COMPILER-MACRO-ALIAS-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute setf compiler macro alias DEFINITION's referee.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-ALIAS-DEFINITION class, , @t{compiler-macro-alias-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶COMPILER-MACRO-ALIAS-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute compiler macro alias DEFINITION's referee.
+@end deffn
+@deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶MACRO-ALIAS-DEFINITION class, , @t{macro-alias-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
+@anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶MACRO-ALIAS-DEFINITION COMMON-LISP∶T❩ method}@c
+@methodsubindex{stabilize}@c
+Compute macro alias DEFINITION's referee.
 @end deffn
 @deffn {Method} {stabilize} progn (@ref{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION class, , @t{typed-structure-slot-definition}}, @ref{go to the COMMON-LISP∶T class, , @t{t}})
 @anchor{go to the NET․DIDIERVERNA․DECLT․EXTRACT∶∶STABILIZE PROGN ❨NET․DIDIERVERNA․DECLT․EXTRACT∶TYPED-STRUCTURE-SLOT-DEFINITION COMMON-LISP∶T❩ method}@c
