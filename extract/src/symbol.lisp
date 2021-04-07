@@ -67,7 +67,7 @@
 Every definition gets a home package, even foreign ones. A home package can
 only be null when the definition's symbol is uninterned."
     :initform nil :accessor home-package))
-  (:documentation "Abstract root class for all definitions named by symbols.
+  (:documentation "Abstract root class for definitions named by symbols.
 All symbol definitions respond to the following public protocols, which see:
 - `publicp'."))
 
@@ -289,12 +289,12 @@ and methods for classes or conditions slots."))
   ()
   (:documentation "The class of setf compiler macro definitions."))
 
-(defun make-compiler-macro-definition (symbol compiler-macro &optional setf)
+(defun make-compiler-macro-definition (symbol compiler-macro &key setf foreign)
   "Make a new COMPILER-MACRO definition for SYMBOL."
   (make-instance (if setf
 		   'setf-compiler-macro-definition
 		   'compiler-macro-definition)
-    :symbol symbol :compiler-macro compiler-macro))
+    :symbol symbol :compiler-macro compiler-macro :foreign foreign))
 
 
 
@@ -962,5 +962,146 @@ Unless FOREIGN, also compute its slot definitions."
 (defmethod value-type ((definition typed-structure-slot-definition))
   "Return typed structure slot DEFINITION's value type."
   (sb-kernel:dsd-type (slot definition)))
+
+
+
+
+;; ==========================================================================
+;; Aliases
+;; ==========================================================================
+
+;; Some funcoids can be "aliased", meaning that a functional value is manually
+;; attached to another symbol (function, macro-function, etc.). We need to
+;; understand those situations because 1. it's an information worthy of being
+;; documented, and 2. it could cause duplication problems. For instance, if a
+;; generic function is manually set as the fdefinition for another symbol, we
+;; don't want to document the generic function twice (we also would en up with
+;; duplicate anchor names).
+
+;; Aliases are not /only/ a matter of pointing to the original definition
+;; however. There are a couple of quirks that we need to pay attention to.
+;; 1. We don't want to keep the original object in the alias definition,
+;;    because the object in question acts as a UID to find the original
+;;    definition (cf. FIND-DEFINITION). This means that some protocols need to
+;;    be extended to redirect towards the referee.
+;; 2. It is possible to attach a documentation string to a functional object,
+;;    and a /different/ one to the symbol, with the appropriate category, so
+;;    the DOCSTRING protocol needs to be extended to aliases in a specific
+;;    way.
+;; 3. As strange as it may sound, it is possible to mix simple names and setf
+;;    names when aliasing. There are cases where it could even make sense.
+;; 4. Partly because of that, and partly because it is probably useless, we
+;;    don't try to define any fancy class upgrading semantics to readers or
+;;    writers for aliases. We also don't make a distinction between aliases
+;;    to ordinary vs. generic functions (they can't be both at the same time
+;;    anyway).
+
+
+(defabstract alias-definition (symbol-definition)
+  ((referee :documentation "The original definition this definition aliases."
+	    :accessor referee))
+  (:documentation "Abstract root class for alias definitions."))
+
+(defmethod source-pathname ((definition alias-definition))
+  "Return NIL.
+Aliases are defined dynamically so it's impossible to locate the code
+being executed."
+  nil)
+
+(defmethod lambda-list ((definition alias-definition))
+  "Return the lambda-list of alias DEFINITION's referee."
+  (lambda-list (referee definition)))
+
+
+
+;; ------
+;; Macros
+;; ------
+
+(defclass macro-alias-definition (alias-definition)
+  ()
+  (:documentation "The class of macro alias definitions."))
+
+(defmethod docstring ((definition macro-alias-definition))
+  "Return macro alias DEFINITION's docstring.
+This is the docstring attached to DEFINITION's symbol,
+rather than the one attached to the macro function."
+  (documentation (definition-symbol definition) 'function))
+
+(defun make-macro-alias-definition (symbol)
+  "Make a new macro alias definition for SYMBOL."
+  (make-instance 'macro-alias-definition :symbol symbol))
+
+
+
+;; ---------------
+;; Compiler Macros
+;; ---------------
+
+(defclass compiler-macro-alias-definition (alias-definition)
+  ()
+  (:documentation "The class of compiler macro alias definitions."))
+
+(defmethod docstring ((definition compiler-macro-alias-definition))
+  "Return compiler macro alias DEFINITION's docstring.
+This is the docstring attached to DEFINITION's symbol,
+rather than the one attached to the compiler macro function."
+  (documentation (definition-symbol definition) 'compiler-macro))
+
+(defun make-compiler-macro-alias-definition (symbol)
+  "Make a new compiler macro alias definition for SYMBOL."
+  (make-instance 'compiler-macro-alias-definition :symbol symbol))
+
+
+(defclass setf-compiler-macro-alias-definition
+    (setf-mixin compiler-macro-alias-definition)
+  ()
+  (:documentation "The class of setf compiler macro alias definitions."))
+
+(defmethod docstring ((definition setf-compiler-macro-alias-definition))
+  "Return setf compiler macro alias DEFINITION's docstring.
+This is the docstring attached to DEFINITION's '(SETF SYMBOL),
+rather than the one attached to the compiler macro function."
+  (documentation `(setf ,(definition-symbol definition)) 'compiler-macro))
+
+(defun make-setf-compiler-macro-alias-definition (symbol)
+  "Make a new setf compiler macro alias definition for SYMBOL."
+  (make-instance 'setf-compiler-macro-alias-definition :symbol symbol))
+
+
+
+;;----------
+;; Functions
+;;----------
+
+(defclass function-alias-definition (alias-definition)
+  ()
+  (:documentation
+   "The class of non-setf function alias definitions."))
+
+(defmethod docstring ((definition function-alias-definition))
+  "Return function alias DEFINITION's docstring.
+This is the docstring attached to DEFINITION's symbol,
+rather than the one attached to the function."
+  (documentation (definition-symbol definition) 'function))
+
+(defun make-function-alias-definition (symbol)
+  "make a new function alias definition for SYMBOL."
+  (make-instance 'function-alias-definition :symbol symbol))
+
+
+(defclass setf-function-alias-definition (setf-mixin function-alias-definition)
+  ()
+  (:documentation "The class of setf function alias definitions."))
+
+(defmethod docstring ((definition setf-function-alias-definition))
+  "Return setf function alias DEFINITION's docstring.
+This is the docstring attached to DEFINITION's '(SETF SYMBOL),
+rather than the one attached to the function."
+  (documentation `(setf ,(definition-symbol definition)) 'function))
+
+(defun make-setf-function-alias-definition (symbol)
+  "Make a new setf function alias definition for SYMBOL."
+  (make-instance 'setf-function-alias-definition :symbol symbol))
 
 ;;; symbol.lisp ends here

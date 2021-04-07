@@ -947,7 +947,27 @@ which also documents direct default initargs."
   "classsubindex")
 
 
+
+;; -------
+;; Aliases
+;; -------
 
+(defmethod category-name ((definition alias-definition))
+  "Return the category name of alias DEFINITION's referee."
+  (category-name (referee definition)))
+
+(defmethod index-command-name ((definition alias-definition))
+  "Return the index command name of alias DEFINITION's referee."
+  (index-command-name (referee definition)))
+
+(defmethod document ((definition alias-definition) context &key)
+  "Render alias DEFINITION's documentation in CONTEXT."
+  (render-funcoid definition context
+    (@tableitem "Alias for" (reference (referee definition) t))))
+
+
+
+
 ;; ==========================================================================
 ;; Definition Nodes
 ;; ==========================================================================
@@ -961,14 +981,28 @@ which also documents direct default initargs."
 ;; definitions in the generated manual.
 
 (defparameter *categories*
-  '((constant-definition          "constants")
+  `((constant-definition          "constants")
     (special-definition           "special variables")
     (symbol-macro-definition      "symbol macros")
-    (macro-definition             "macros")
-    (compiler-macro-definition    "compiler macros")
+    (,(lambda (definition)
+	(or (typep definition 'macro-definition)
+	    (typep definition 'macro-alias-definition)))
+     "macros")
+    (,(lambda (definition)
+	(or (typep definition 'compiler-macro-definition)
+	    (typep definition 'compiler-macro-alias-definition)))
+     "compiler macros")
     (expander-definition          "setf expanders")
-    (ordinary-function-definition "ordinary functions")
-    (generic-function-definition  "generic functions")
+    (,(lambda (definition)
+	(or (typep definition 'ordinary-function-definition)
+	    (and (typep definition 'function-alias-definition)
+		 (typep (referee definition) 'ordinary-function-definition))))
+     "ordinary functions")
+    (,(lambda (definition)
+	(or (typep definition 'generic-function-definition)
+	    (and (typep definition 'function-alias-definition)
+		 (typep (referee definition) 'generic-function-definition))))
+     "generic functions")
     (combination-definition       "method combinations")
     (condition-definition         "conditions")
     (structure-definition         "structures")
@@ -991,22 +1025,23 @@ Each category is of type (TYPE DESCRIPTION-STRING).")
 (defun add-categories-node (parent context status definitions)
   "Add the STATUS DEFINITIONS categories nodes to PARENT in CONTEXT."
   (dolist (category *categories*)
-    (when-let (type-definitions
-	       (remove-if-not (lambda (definition)
-				(typep definition (first category)))
-		   definitions))
-      ;; #### WARNING: hack alert. A setf expander merged with its reader
-      ;; funcoid will disappear from the Setf Expanders section. So we need to
-      ;; filter those out as well here.
-      (when (eq (first category) 'expander-definition)
-	(setq type-definitions
-	      (remove-if (lambda (definition)
-			   (merge-expander-p (standalone-reader definition)
-					     definition))
-		  type-definitions)))
-      (when type-definitions
-	(add-category-node parent context status (second category)
-			   type-definitions)))))
+    (let ((filter (etypecase (first category)
+		    (symbol (lambda (definition)
+			      (typep definition (first category))))
+		    (function (first category)))))
+      (when-let* (type-definitions (remove-if-not filter definitions))
+	;; #### WARNING: hack alert. A setf expander merged with its reader
+	;; funcoid will disappear from the Setf Expanders section. So we need
+	;; to filter those out as well here.
+	(when (eq (first category) 'expander-definition)
+	  (setq type-definitions
+		(remove-if (lambda (definition)
+			     (merge-expander-p (standalone-reader definition)
+					       definition))
+		    type-definitions)))
+	(when type-definitions
+	  (add-category-node parent context status (second category)
+			     type-definitions))))))
 
 (defun add-definitions-node
     (parent extract context

@@ -126,6 +126,10 @@
     :slot-definition :owner :readers :writers :value-type
     :clos-slot-definition :allocation :initform :initargs
     :typed-structure-slot-definition
+    :alias-definition :referee
+    :macro-alias-definition
+    :compiler-macro-alias-definition :setf-compiler-macro-alias-definition
+    :function-alias-definition :setf-function-alias-definition
     ;; From src/package.lisp:
     :package-definition :use-list :used-by-list :definitions :nicknames
     :package-definition-p

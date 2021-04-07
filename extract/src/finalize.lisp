@@ -624,6 +624,87 @@ This function is used for regular class and condition slots."
 
 
 
+;; Aliases
+;; -------
+
+(defmethod stabilize progn
+    ((definition macro-alias-definition) definitions
+     &aux (macro (macro-function (definition-symbol definition)))
+	  (referee (find-definition macro definitions)))
+  "Compute macro alias DEFINITION's referee."
+  (unless definition
+    (setq referee
+	  (make-macro-definition (second (original-name macro)) macro t))
+    (endpush referee definitions)
+    (setq *stabilized* nil))
+  (setf (referee definition) referee))
+
+
+(defmethod stabilize progn
+    ((definition compiler-macro-alias-definition) definitions
+     &aux (compiler-macro
+	   (compiler-macro-function (definition-symbol definition)))
+	  (referee (find-definition compiler-macro definitions)))
+  "Compute compiler macro alias DEFINITION's referee."
+  (unless definition
+    (let* ((original-name (second (original-name compiler-macro)))
+	   (setfp (listp original-name))
+	   (original-symbol (if setfp (second original-name) original-name)))
+      (setq referee (make-compiler-macro-definition
+		     original-symbol compiler-macro :setf setfp :foreign t))
+      (endpush referee definitions)
+      (setq *stabilized* nil)))
+  (setf (referee definition) referee))
+
+(defmethod stabilize progn
+    ((definition setf-compiler-macro-alias-definition) definitions
+     &aux (compiler-macro
+	   (compiler-macro-function `(setf ,(definition-symbol definition))))
+	  (referee (find-definition compiler-macro definitions)))
+  "Compute setf compiler macro alias DEFINITION's referee."
+  (unless definition
+    (let* ((original-name (second (original-name compiler-macro)))
+	   (setfp (listp original-name))
+	   (original-symbol (if setfp (second original-name) original-name)))
+      (setq referee (make-compiler-macro-definition
+		     original-symbol compiler-macro :setf setfp :foreign t))
+      (endpush referee definitions)
+      (setq *stabilized* nil)))
+  (setf (referee definition) referee))
+
+
+(defmethod stabilize progn
+    ((definition function-alias-definition) definitions
+     &aux (function (fdefinition (definition-symbol definition)))
+	  (referee (find-definition function definitions)))
+  "Compute simple function alias DEFINITION's referee."
+  (unless definition
+    (let* ((original-name (original-name function))
+	   (setfp (listp original-name))
+	   (original-symbol (if setfp (second original-name) original-name)))
+      (setq referee (make-function-definition
+			original-symbol function :setf setfp :foreign t))
+      (endpush referee definitions)
+      (setq *stabilized* nil)))
+  (setf (referee definition) referee))
+
+(defmethod stabilize progn
+    ((definition setf-function-alias-definition) definitions
+     &aux (function (fdefinition `(setf ,(definition-symbol definition))))
+	  (referee (find-definition function definitions)))
+  "Compute simple function alias DEFINITION's referee."
+  (unless definition
+    (let* ((original-name (original-name function))
+	   (setfp (listp original-name))
+	   (original-symbol (if setfp (second original-name) original-name)))
+      (setq referee (make-function-definition
+			original-symbol function :setf setfp :foreign t))
+      (endpush referee definitions)
+      (setq *stabilized* nil)))
+  (setf (referee definition) referee))
+
+
+
 ;; --------
 ;; Packages
 ;; --------

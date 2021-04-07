@@ -37,7 +37,8 @@
 (defabstract definition ()
   ((object
     :documentation "The corresponding Lisp object, or NIL.
-Only constants, special variables, and symbol macros lack such an object."
+Only constants, special variables, symbol macros, and aliases lack such an
+object."
     :initform nil :initarg :object :reader object)
    (source-file
     :documentation "The source file definition for this definition's object."

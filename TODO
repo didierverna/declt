@@ -11,10 +11,6 @@ notice and this notice are preserved.
 ** Packages and symbols
 - See what to do about shadowings, imports etc.
 
-** Aliases
-We have problems when multiple symbols have the same fdefinition. We need to
-implement the concept of alias.
-
 ** Docstrings
 In theory, it is possible for a symbol/doc-type and a corresponding object to
 have different docstrings attached (one would be manually overridden after the
