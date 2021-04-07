@@ -1,6 +1,6 @@
 ;;; texi.lisp --- Texinfo format utilities
 
-;; Copyright (C) 2010-2013, 2015-2017, 2019 Didier Verna
+;; Copyright (C) 2010-2013, 2015-2017, 2019, 2021 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
