@@ -15,6 +15,11 @@ notice and this notice are preserved.
 We have problems when multiple symbols have the same fdefinition. We need to
 implement the concept of alias.
 
+** Docstrings
+In theory, it is possible for a symbol/doc-type and a corresponding object to
+have different docstrings attached (one would be manually overridden after the
+original assignment). We could check that and advertise both.
+
 ** String downcasing
 Abstract it so that we may provide an option for case behavior.
 
