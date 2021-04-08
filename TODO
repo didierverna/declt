@@ -112,3 +112,11 @@ com.clearly-useful.generic-collection-interface. There are references to
 things like #<EQLSPECIALIZER ... {address}>, but later on (in method
 definitions), the hexadecimal address seems to have changed. I don't know what
 to do about this. In fact, I don't fully understand the problem.
+
+** Duplicate anchor problems
+There are still some of those, due to very similar objects, such as different
+classes with identical names (e.g. gendl:remote-object). I'm not sure about
+the purpose of those. I probably have to implement a simpler anchoring
+mechanism, sacrificing readability of anchors (that was for Info) by using
+an auto-incrementing counter of some sort. There will still be a problem left:
+the documentation will have different items looking *very* similar.
