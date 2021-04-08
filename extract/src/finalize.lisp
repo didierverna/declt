@@ -632,7 +632,7 @@ This function is used for regular class and condition slots."
      &aux (macro (macro-function (definition-symbol definition)))
 	  (referee (find-definition macro definitions)))
   "Compute macro alias DEFINITION's referee."
-  (unless definition
+  (unless referee
     (setq referee
 	  (make-macro-definition (second (original-name macro)) macro t))
     (endpush referee definitions)
@@ -646,7 +646,7 @@ This function is used for regular class and condition slots."
 	   (compiler-macro-function (definition-symbol definition)))
 	  (referee (find-definition compiler-macro definitions)))
   "Compute compiler macro alias DEFINITION's referee."
-  (unless definition
+  (unless referee
     (let* ((original-name (second (original-name compiler-macro)))
 	   (setfp (listp original-name))
 	   (original-symbol (if setfp (second original-name) original-name)))
@@ -662,7 +662,7 @@ This function is used for regular class and condition slots."
 	   (compiler-macro-function `(setf ,(definition-symbol definition))))
 	  (referee (find-definition compiler-macro definitions)))
   "Compute setf compiler macro alias DEFINITION's referee."
-  (unless definition
+  (unless referee
     (let* ((original-name (second (original-name compiler-macro)))
 	   (setfp (listp original-name))
 	   (original-symbol (if setfp (second original-name) original-name)))
@@ -678,7 +678,7 @@ This function is used for regular class and condition slots."
      &aux (function (fdefinition (definition-symbol definition)))
 	  (referee (find-definition function definitions)))
   "Compute simple function alias DEFINITION's referee."
-  (unless definition
+  (unless referee
     (let* ((original-name (original-name function))
 	   (setfp (listp original-name))
 	   (original-symbol (if setfp (second original-name) original-name)))
@@ -693,7 +693,7 @@ This function is used for regular class and condition slots."
      &aux (function (fdefinition `(setf ,(definition-symbol definition))))
 	  (referee (find-definition function definitions)))
   "Compute simple function alias DEFINITION's referee."
-  (unless definition
+  (unless referee
     (let* ((original-name (original-name function))
 	   (setfp (listp original-name))
 	   (original-symbol (if setfp (second original-name) original-name)))
