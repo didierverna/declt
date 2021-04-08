@@ -1064,6 +1064,12 @@ This is the docstring attached to DEFINITION's '(SETF SYMBOL),
 rather than the one attached to the compiler macro function."
   (documentation `(setf ,(definition-symbol definition)) 'compiler-macro))
 
+;; #### FIXME: we need this because otherwise, the setf-mixin method would
+;; take precedence. Setf-mixin is a wrong idea anyway.
+(defmethod lambda-list ((definition setf-compiler-macro-alias-definition))
+  "Return the lambda-list of setf compiler macro alias DEFINITION's referee."
+  (lambda-list (referee definition)))
+
 (defun make-setf-compiler-macro-alias-definition (symbol)
   "Make a new setf compiler macro alias definition for SYMBOL."
   (make-instance 'setf-compiler-macro-alias-definition :symbol symbol))
@@ -1099,6 +1105,12 @@ rather than the one attached to the function."
 This is the docstring attached to DEFINITION's '(SETF SYMBOL),
 rather than the one attached to the function."
   (documentation `(setf ,(definition-symbol definition)) 'function))
+
+;; #### FIXME: we need this because otherwise, the setf-mixin method would
+;; take precedence. Setf-mixin is a wrong idea anyway.
+(defmethod lambda-list ((definition setf-function-alias-definition))
+  "Return the lambda-list of setf function alias DEFINITION's referee."
+  (lambda-list (referee definition)))
 
 (defun make-setf-function-alias-definition (symbol)
   "Make a new setf function alias definition for SYMBOL."
