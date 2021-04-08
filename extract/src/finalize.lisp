@@ -627,14 +627,18 @@ This function is used for regular class and condition slots."
 ;; Aliases
 ;; -------
 
+;; #### FIXME: if we need to create foreign referees, nasty things will happen
+;; if the funcoid has no original name. The correct solution would be to scan
+;; ALL the symbols in order to find an original definition, or maybe to come
+;; up with generated UIDs instead.
+
 (defmethod stabilize progn
     ((definition macro-alias-definition) definitions
      &aux (macro (macro-function (definition-symbol definition)))
 	  (referee (find-definition macro definitions)))
   "Compute macro alias DEFINITION's referee."
   (unless referee
-    (setq referee
-	  (make-macro-definition (second (original-name macro)) macro t))
+    (setq referee (make-macro-definition (funcoid-name macro) macro t))
     (endpush referee definitions)
     (setq *stabilized* nil))
   (setf (referee definition) referee))
@@ -647,8 +651,8 @@ This function is used for regular class and condition slots."
 	  (referee (find-definition compiler-macro definitions)))
   "Compute compiler macro alias DEFINITION's referee."
   (unless referee
-    (let* ((original-name (second (original-name compiler-macro)))
-	   (setfp (listp original-name))
+    (let* ((original-name (funcoid-name compiler-macro))
+	   (setfp (consp original-name))
 	   (original-symbol (if setfp (second original-name) original-name)))
       (setq referee (make-compiler-macro-definition
 		     original-symbol compiler-macro :setf setfp :foreign t))
@@ -663,8 +667,8 @@ This function is used for regular class and condition slots."
 	  (referee (find-definition compiler-macro definitions)))
   "Compute setf compiler macro alias DEFINITION's referee."
   (unless referee
-    (let* ((original-name (second (original-name compiler-macro)))
-	   (setfp (listp original-name))
+    (let* ((original-name (funcoid-name compiler-macro))
+	   (setfp (consp original-name))
 	   (original-symbol (if setfp (second original-name) original-name)))
       (setq referee (make-compiler-macro-definition
 		     original-symbol compiler-macro :setf setfp :foreign t))
@@ -679,8 +683,8 @@ This function is used for regular class and condition slots."
 	  (referee (find-definition function definitions)))
   "Compute simple function alias DEFINITION's referee."
   (unless referee
-    (let* ((original-name (original-name function))
-	   (setfp (listp original-name))
+    (let* ((original-name (funcoid-name function))
+	   (setfp (consp original-name))
 	   (original-symbol (if setfp (second original-name) original-name)))
       (setq referee (make-function-definition
 			original-symbol function :setf setfp :foreign t))
@@ -695,7 +699,7 @@ This function is used for regular class and condition slots."
   "Compute simple function alias DEFINITION's referee."
   (unless referee
     (let* ((original-name (original-name function))
-	   (setfp (listp original-name))
+	   (setfp (consp original-name))
 	   (original-symbol (if setfp (second original-name) original-name)))
       (setq referee (make-function-definition
 			original-symbol function :setf setfp :foreign t))

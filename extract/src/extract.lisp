@@ -216,18 +216,21 @@ SYSTEM/... (case insensitive) for one of the corresponding systems."
 ;; Symbol definitions
 ;; ------------------
 
-;; #### WARNING: we rely on SBCL's behavior here, for which return:
-;; - FOO
-;; - (:MACRO FOO)
-;; - (:COMPILER-MACRO FOO).
-(defun original-name (funcoid)
-  "Return FUNCOID's original name, or NIL.
-When available, this is the name extracted from a call to
-FUNCTION-LAMBDA-EXPRESSION."
+;; #### PORTME: FUNCTION-LAMBDA-EXPRESSION's return values are not
+;; standardized.
+(defun funcoid-name (funcoid)
+  "Return FUNCOID's name, or NIL.
+FUNCOID may be a function, a macro function, or a compiler macro function.
+Lambda expression are not considered as proper names, so NIL is returned."
   (multiple-value-bind (lambda-expression closure-p name)
       (function-lambda-expression funcoid)
     (declare (ignore lambda-expression closure-p))
-    name))
+    (etypecase name
+      (symbol name)
+      (list (case (first name)
+	      ((macro-function compiler-macro) (second name))
+	      (setf name)
+	      (otherwise nil))))))
 
 ;; #### PORTME.
 (defun make-symbol-definitions
@@ -244,29 +247,25 @@ FUNCTION-LAMBDA-EXPRESSION."
     (endpush (make-symbol-macro-definition symbol) definitions))
   ;; Macros.
   (when-let (macro (macro-function symbol))
-    (let ((original-name (second (original-name macro))))
+    (let ((original-name (funcoid-name macro)))
       (endpush
-       (if (eq symbol original-name)
+       (if (or (not original-name) (eq symbol original-name))
 	 (make-macro-definition symbol macro)
 	 (make-macro-alias-definition symbol))
        definitions)))
   ;; Compiler macros.
   (when-let (compiler-macro (compiler-macro-function symbol))
-    (let ((original-name (second (original-name compiler-macro))))
+    (let ((original-name (funcoid-name compiler-macro)))
       (endpush
-       ;; #### WARNING: EQUAL because of potential mixture of simple and setf
-       ;; names. See comment in the Aliases section of symbol.lisp.
-       (if (equal symbol original-name)
+       (if (or (not original-name) (eq symbol original-name))
 	 (make-compiler-macro-definition symbol compiler-macro)
 	 (make-compiler-macro-alias-definition symbol))
        definitions)))
   ;; Setf compiler macros.
   (when-let (compiler-macro (compiler-macro-function setf-symbol))
-    (let ((original-name (second (original-name compiler-macro))))
+    (let ((original-name (funcoid-name compiler-macro)))
       (endpush
-       ;; #### WARNING: EQUAL because of potential mixture of simple and setf
-       ;; names. See comment in the Aliases section of symbol.lisp.
-       (if (equal setf-symbol original-name)
+       (if (or (not original-name) (equal setf-symbol original-name))
 	 (make-compiler-macro-definition symbol compiler-macro :setf t)
 	 (make-setf-compiler-macro-alias-definition symbol))
        definitions)))
@@ -277,10 +276,8 @@ FUNCTION-LAMBDA-EXPRESSION."
   (when-let* (function (and (fboundp symbol)
 			    (not (macro-function symbol))
 			    (fdefinition symbol)))
-    (let ((original-name (original-name function)))
-      ;; #### WARNING: EQUAL because of potential mixture of simple and setf
-      ;; names. See comment in the Aliases section of symbol.lisp.
-      (if (equal symbol original-name)
+    (let ((original-name (funcoid-name function)))
+      (if (or (not original-name) (eq symbol original-name))
 	;; #### NOTE: technically, the symbol can be extracted from the
 	;; generic function object. However, using this general constructor is
 	;; more homogeneous with the rest.
@@ -295,10 +292,8 @@ FUNCTION-LAMBDA-EXPRESSION."
 	(endpush (make-function-alias-definition symbol) definitions))))
   ;; (Generic) setf functions.
   (when-let* (function (and (fboundp setf-symbol) (fdefinition setf-symbol)))
-    (let ((original-name (original-name function)))
-      ;; #### WARNING: EQUAL because of potential mixture of simple and setf
-      ;; names. See comment in the Aliases section of symbol.lisp.
-      (if (equal setf-symbol original-name)
+    (let ((original-name (funcoid-name function)))
+      (if (or (not original-name) (equal setf-symbol original-name))
 	;; #### NOTE: technically, the symbol can be extracted from the
 	;; generic function object. However, using this general constructor is
 	;; more homogeneous with the rest.
