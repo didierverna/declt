@@ -32,44 +32,37 @@
 ;; Rendering protocols
 ;; ==========================================================================
 
+;; #### NOTE: not all symbol-definitions may be setf ones, but for simplicity,
+;; we define a single method here, and detect setf definitions, not by testing
+;; the setf slot (which does not always exist), but by testing the type of the
+;; definition's name.
 (defmethod safe-name
     ((definition symbol-definition)
      &optional qualified
-     &aux (name (reveal (princ-to-string (name definition)))))
+     &aux (name (reveal (princ-to-string (definition-symbol definition))))
+	  (setfp (consp (name definition))))
   "Reveal symbol DEFINITION's name, possibly QUALIFIED.
-A QUALIFIED name is of the form \"package:[:]symbol\". Uninterned symbols are
-denoted by the ∅ package."
+A QUALIFIED name is of the form \"package:[:]symbol\", maybe in a setf list.
+Uninterned symbols are denoted by the ∅ package."
   (when qualified
     (let ((home-package (home-package definition)))
       (setq name (concatenate 'string
 		   (reveal (if home-package (name home-package) ""))
 		   (if (publicp definition) ":" "::")
 		   name))))
-  name)
-
-;; #### NOTE: spaces in symbol names are revealed (see above), but not the
-;; ones between SETF and the symbol in a setf name, because that would look
-;; rather weird in the output. Consequently, Declt must expect to get names
-;; with unescaped spaces. @DEFFN, @DEFFNX, AND @DEFTP take care of protecting
-;; their NAME argument with braces because of that.
-(defmethod safe-name
-    ((definition setf-mixin)
-     &optional qualified
-     &aux (name (reveal (princ-to-string (second (name definition))))))
-  "Reveal setf DEFINITION's name, possibly QUALIFIED.
-A QUALIFIED name is of the form \"(setf package:[:]symbol)\". Uninterned
-symbols are denoted by the ∅ package."
-  (when qualified
-    (let ((home-package (home-package definition)))
-      (setq name (concatenate 'string
-		   (reveal (if home-package (name home-package) ""))
-		   (if (publicp definition) ":" "::")
-		   name))))
-  ;; Hack for future case-preserving implementation.
-  (format nil "(~A ~A)" 'setf name))
+  (if setfp
+    ;; #### NOTE: we don't reveal the space between SETF and the symbol,
+    ;; because that would look rather weird in the output. Consequently, Declt
+    ;; must expect to get names with unescaped spaces. @DEFFN, @DEFFNX, AND
+    ;; @DEFTP take care of protecting their NAME argument with braces because
+    ;; of that.
+    ;; #### NOTE: Hack for future case-preserving implementation.
+    (format nil "(~A ~A)" 'setf name)
+    name))
 
 
 
+
 ;; ==========================================================================
 ;; Utilities
 ;; ==========================================================================
@@ -520,8 +513,7 @@ A safe specializer is the printed form of either a reference to a class
 definition, or an EQL specializer's type name. For setf and writer
 definitions, only the specializers rest is used, as these methods get the new
 value as their first argument."
-  (when (or (typep definition 'setf-method-definition)
-	    (typep definition 'writer-method-definition))
+  (when (or (setfp definition) (typep definition 'writer-method-definition))
     (setq specializers (cdr specializers)))
   (loop :for rest :on specializers
 	:for specializer := (car rest)
@@ -572,15 +564,8 @@ value as their first argument."
   "Render METHOD's documentation in CONTEXT."
   (render-method definition context))
 
-(defmethod document ((definition reader-method-definition) context &key)
-  "Render reader METHOD's documentation in CONTEXT."
-  (render-method definition context
-    (@table ()
-      (@tableitem "Target Slot"
-	(reference (target-slot definition) t)))))
-
-(defmethod document ((definition writer-method-definition) context &key)
-  "Render writer METHOD's documentation in CONTEXT."
+(defmethod document ((definition accessor-method-definition) context &key)
+  "Render accessor METHOD's documentation in CONTEXT."
   (render-method definition context
     (@table ()
       (@tableitem "Target Slot"
@@ -598,10 +583,10 @@ value as their first argument."
   "functionsubindex")
 
 (defmethod document
-    ((definition simple-function-definition) context
+    ((definition ordinary-function-definition) context
      &key
      &aux (expander-for (expander-for definition)))
-  "Render simple function DEFINITION's documentation in CONTEXT."
+  "Render ordinary function DEFINITION's documentation in CONTEXT."
   (if (merge-expander-p definition expander-for)
     (render-funcoid (definition expander-for)
 	(when-let (expanders-to (expanders-to definition))
@@ -623,19 +608,21 @@ value as their first argument."
   ;; #### NOTE: structure accessors necessarily share the same package and
   ;; source. The rest needs to be checked.
   (and reader writer
+       ;; #### NOTE: in SBCL, ordinary writers are always setf function, to we
+       ;; know that there's no expander-mixin contents for them.
        (not (expander-for reader))
        (not (expanders-to reader))
        (equal (docstring reader) (docstring writer))))
 
-(defmethod category-name ((definition reader-definition))
+(defmethod category-name ((definition ordinary-reader-definition))
   "Return \"reader\"."
   "reader")
 
 (defmethod document
-    ((definition reader-definition) context
+    ((definition ordinary-reader-definition) context
      &key
      &aux (writer (first (writers (target-slot definition)))))
-  "Render function DEFINITION's documentation in CONTEXT."
+  "Render ordinary reader DEFINITION's documentation in CONTEXT."
   (if (merge-accessors-p definition writer)
     (render-funcoid (definition writer) context
       (@tableitem "Target Slot"
@@ -652,12 +639,15 @@ value as their first argument."
 	  (sort expanders-to #'string-lessp :key #'definition-symbol) t)))))
 
 
-(defmethod category-name ((definition writer-definition))
+(defmethod category-name ((definition ordinary-writer-definition))
   "Return \"writer\"."
   "writer")
 
-(defmethod document ((definition writer-definition) context &key)
-  "Render writer DEFINITION's documentation in CONTEXT."
+;; #### NOTE: Remember that in SBCL, ordinary writers are setf functions, so
+;; we don't bother looking at the expander-mixin contents, which will always
+;; be null.
+(defmethod document ((definition ordinary-writer-definition) context &key)
+  "Render ordinary writer DEFINITION's documentation in CONTEXT."
   (unless (merge-accessors-p (first (readers (target-slot definition)))
 			     definition)
     (render-funcoid definition context
@@ -692,8 +682,8 @@ value as their first argument."
 	  (@tableitem "Options"
 	    (format t "~{@t{~A}~^, ~}" options)))))))
 
-(defmethod document ((definition simple-generic-definition) context &key)
-  "Render simple generic function DEFINITION's documentation in CONTEXT."
+(defmethod document ((definition generic-function-definition) context &key)
+  "Render generic function DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
     (when-let (expander-for (expander-for definition))
       (@tableitem "Setf expander for this function"
@@ -703,15 +693,6 @@ value as their first argument."
 	;; #### WARNING: casing policy.
 	(sort expanders-to #'string-lessp :key #'definition-symbol)
 	t))
-    (render-method-combination definition)
-    (when-let ((methods (methods definition)))
-      (@tableitem "Methods"
-	(dolist (method methods)
-	  (document method context))))))
-
-(defmethod document ((definition generic-setf-definition) context &key)
-  "Render generic setf DEFINITION's documentation in CONTEXT."
-  (render-funcoid definition context
     (render-method-combination definition)
     (when-let ((methods (methods definition)))
       (@tableitem "Methods"
@@ -766,7 +747,7 @@ permitted."
   ;; there's no need to check for package equality between the two.
   (and reader writer
        (typep reader 'generic-reader-definition)
-       (typep writer 'generic-setf-writer-definition)
+       (typep writer 'generic-writer-definition)
        (not (expander-for reader))
        (not (expanders-to reader))
        (eq (combination reader) (combination writer))
@@ -809,21 +790,21 @@ Possibly merge documentation with a corresponding writer."
 	    (document writer-method context)))))
     (call-next-method)))
 
-(defmethod category-name ((definition generic-writer-mixin))
+(defmethod category-name ((definition generic-writer-definition))
   "Return \"generic writer\"."
   "generic writer")
 
-(defmethod document
-  ((definition generic-setf-writer-definition) context
-   &key
-   &aux (reader (find (cadr (name definition))
+(defmethod document ((definition generic-writer-definition) context &key)
+  "Render generic writer function DEFINITION's documentation in CONTEXT.
+This is done only when merging with a corresponding reader is not possible."
+  (when (or (not (setfp definition))
+	    (not (merge-generic-accessors-p
+		  (find (definition-symbol definition)
 		      (mapcar #'owner
 			(mapcat #'readers
 			  (mapcar #'target-slot (methods definition))))
-		      :key #'name)))
-  "Render generic writer function DEFINITION's documentation in CONTEXT.
-This is done only when merging with a corresponding reader is not possible."
-  (unless (merge-generic-accessors-p reader definition)
+		    :key #'definition-symbol)
+		  definition)))
     (call-next-method)))
 
 

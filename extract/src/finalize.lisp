@@ -77,9 +77,10 @@ anymore.")
   (let* ((name (generic-function-name generic))
 	 (setf (consp name))
 	 (symbol (if setf (second name) name)))
-    (make-instance (if setf 'generic-setf-definition 'simple-generic-definition)
-      :symbol symbol :generic generic :foreign foreign)))
+    (make-instance 'generic-function-definition
+      :symbol symbol :generic generic :setf setf :foreign foreign)))
 
+;; #### FIXME: I think this is wrong. There's a SETF problem here.
 (defun make-foreign-funcoid-definition
     (name &aux (macro-function (macro-function name)))
   "Make a new foreign macro or function definition for NAME."
@@ -139,34 +140,38 @@ DEFINITIONS in the process."
 
 (defmethod stabilize progn
     ((definition expander-mixin) definitions
-     &aux (name (name definition)) ;; always a symbol here
-	  (lambda-list (lambda-list definition)))
+     &aux (name (definition-symbol definition)))
   "Compute DEFINITION's expander-for and expanders-to references."
-  ;; #### NOTE: this definition and a potential expander-for share the same
-  ;; symbol. Consequently, if this symbol is one of our own, we /will/ find an
-  ;; expander-for in the already existing definitions, if it exists. If, on
-  ;; the other hand, if DEFINITION is foreign, then so will the expander-for,
-  ;; and thus we don't care if it's not found. To put it differently, we never
-  ;; need to create a foreign expander definition here.
-  (unless (expander-for definition)
-    (setf (expander-for definition)
-	  (find-if (lambda (candidate)
-		     (and (typep candidate 'expander-definition)
-			  ;; don't want the setf part
-			  (eq (definition-symbol candidate) name)
-			  (equal (lambda-list candidate) lambda-list)))
-		   definitions)))
-  ;; #### TODO: in the code below, we're looking for expanders-to only in
-  ;; the current list of definitions. Although it may contain foreign
-  ;; definitions, it could also be incomplete. In order to be exhaustive for
-  ;; our own definitions if not for foreign ones, we would need to go through
-  ;; all existing symbols.
-  ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
-  ;; and only add what's missing, but I don't think it's worth the trouble.
-  (setf (expanders-to definition)
-	(retain name definitions
-	  :pre-test #'short-expander-definition-p
-	  :key (lambda (definition) (car (expander definition))))))
+  (unless (setfp definition)
+    (let ((lambda-list (lambda-list definition)))
+      ;; #### NOTE: this definition and a potential expander-for share the
+      ;; same symbol. Consequently, if this symbol is one of our own, we
+      ;; /will/ find an expander-for in the already existing definitions, if
+      ;; it exists. If, on the other hand, if DEFINITION is foreign, then so
+      ;; will the expander-for, and thus we don't care if it's not found. To
+      ;; put it differently, we never need to create a foreign expander
+      ;; definition here.
+      (unless (expander-for definition)
+	(setf (expander-for definition)
+	      (find-if (lambda (candidate)
+			 (and (typep candidate 'expander-definition)
+			      ;; don't want the setf part
+			      (eq (definition-symbol candidate) name)
+			      (equal (lambda-list candidate) lambda-list)))
+		       definitions)))
+      ;; #### TODO: in the code below, we're looking for expanders-to only in
+      ;; the current list of definitions. Although it may contain foreign
+      ;; definitions, it could also be incomplete. In order to be exhaustive
+      ;; for our own definitions if not for foreign ones, we would need to go
+      ;; through all existing symbols.
+      ;; #### NOTE: a case could be made to avoid rebuilding the whole list
+      ;; here, and only add what's missing, but I don't think it's worth the
+      ;; trouble.
+      (setf (expanders-to definition)
+	    (retain name definitions
+	      :pre-test #'short-expander-definition-p
+	      :key (lambda (definition) (car (expander definition))))))))
+
 
 ;; #### WARNING: there is no stabilization method for the accessor mixin. This
 ;; is handled by the slot stabilization methods. Slot readers and writers are
@@ -205,7 +210,7 @@ DEFINITIONS in the process."
 (defmethod stabilize progn
     ((definition short-expander-definition) definitions
      &aux (name (car (expander definition))))
-  "Computer short setf expander DEFINITION's standalone writer definition."
+  "Compute short setf expander DEFINITION's standalone writer definition."
   (unless (standalone-writer definition)
     (setf (standalone-writer definition)
 	  (find* name definitions
@@ -342,7 +347,7 @@ DEFINITIONS in the process."
 
 (defmethod stabilize progn
     ((definition method-definition) definitions)
-  "Computer method DEFINITION's specializer references."
+  "Compute method DEFINITION's specializer references."
   (setf (specializers definition)
 	(mapcar (lambda (specializer)
 		  ;; #### FIXME: according to my former version of
@@ -518,10 +523,7 @@ This function is used for regular class and condition slots."
 		      (endpush writer-method definitions)
 		      (endpush writer-method (methods writer)))
 		    (when writer-method
-		      (change-class writer-method
-			  (if (typep writer-method 'setf-mixin)
-			    'setf-writer-method-definition
-			    'simple-writer-method-definition)
+		      (change-class writer-method 'writer-method-definition
 			:target-slot definition)
 		      (list writer-method))))))
 	  (slot-definition-writers slot))))
@@ -563,11 +565,13 @@ This function is used for regular class and condition slots."
 	(endpush reader definitions)
 	(when writer (endpush writer definitions)))
       (when reader
-	(unless (typep reader 'reader-definition)
-	  (change-class reader 'reader-definition :target-slot definition))
+	(unless (typep reader 'ordinary-reader-definition)
+	  (change-class reader 'ordinary-reader-definition
+	    :target-slot definition))
 	(when writer
-	  (unless (typep writer 'writer-definition)
-	    (change-class writer 'writer-definition :target-slot definition))))
+	  (unless (typep writer 'ordinary-writer-definition)
+	    (change-class writer 'ordinary-writer-definition
+	      :target-slot definition))))
       ;; See comment on top of the SLOT-DEFINITION class about this.
       (setf (readers definition) (when reader (list reader)))
       (setf (writers definition) (when writer (list writer))))))
@@ -613,11 +617,13 @@ This function is used for regular class and condition slots."
 	(endpush reader definitions)
 	(when writer (endpush writer definitions)))
       (when reader
-	(unless (typep reader 'reader-definition)
-	  (change-class reader 'reader-definition :target-slot definition))
+	(unless (typep reader 'ordinary-reader-definition)
+	  (change-class reader 'ordinary-reader-definition
+	    :target-slot definition))
 	(when writer
-	  (unless (typep writer 'writer-definition)
-	    (change-class writer 'writer-definition :target-slot definition))))
+	  (unless (typep writer 'ordinary-writer-definition)
+	    (change-class writer 'ordinary-writer-definition
+	      :target-slot definition))))
       ;; See comment on top of the SLOT-DEFINITION class about this.
       (setf (readers definition) (when reader (list reader)))
       (setf (writers definition) (when writer (list writer))))))
@@ -643,11 +649,9 @@ This function is used for regular class and condition slots."
     (setq *stabilized* nil))
   (setf (referee definition) referee))
 
-
 (defmethod stabilize progn
     ((definition compiler-macro-alias-definition) definitions
-     &aux (compiler-macro
-	   (compiler-macro-function (definition-symbol definition)))
+     &aux (compiler-macro (compiler-macro-function (name definition)))
 	  (referee (find-definition compiler-macro definitions)))
   "Compute compiler macro alias DEFINITION's referee."
   (unless referee
@@ -661,44 +665,12 @@ This function is used for regular class and condition slots."
   (setf (referee definition) referee))
 
 (defmethod stabilize progn
-    ((definition setf-compiler-macro-alias-definition) definitions
-     &aux (compiler-macro
-	   (compiler-macro-function `(setf ,(definition-symbol definition))))
-	  (referee (find-definition compiler-macro definitions)))
-  "Compute setf compiler macro alias DEFINITION's referee."
-  (unless referee
-    (let* ((original-name (funcoid-name compiler-macro))
-	   (setfp (consp original-name))
-	   (original-symbol (if setfp (second original-name) original-name)))
-      (setq referee (make-compiler-macro-definition
-		     original-symbol compiler-macro :setf setfp :foreign t))
-      (endpush referee definitions)
-      (setq *stabilized* nil)))
-  (setf (referee definition) referee))
-
-
-(defmethod stabilize progn
     ((definition function-alias-definition) definitions
-     &aux (function (fdefinition (definition-symbol definition)))
+     &aux (function (fdefinition (name definition)))
 	  (referee (find-definition function definitions)))
   "Compute simple function alias DEFINITION's referee."
   (unless referee
     (let* ((original-name (funcoid-name function))
-	   (setfp (consp original-name))
-	   (original-symbol (if setfp (second original-name) original-name)))
-      (setq referee (make-function-definition
-			original-symbol function :setf setfp :foreign t))
-      (endpush referee definitions)
-      (setq *stabilized* nil)))
-  (setf (referee definition) referee))
-
-(defmethod stabilize progn
-    ((definition setf-function-alias-definition) definitions
-     &aux (function (fdefinition `(setf ,(definition-symbol definition))))
-	  (referee (find-definition function definitions)))
-  "Compute simple function alias DEFINITION's referee."
-  (unless referee
-    (let* ((original-name (original-name function))
 	   (setfp (consp original-name))
 	   (original-symbol (if setfp (second original-name) original-name)))
       (setq referee (make-function-definition
@@ -888,12 +860,7 @@ Currently, this means potentially upgrading generic definitions to reader or
 	      (cond ((every #'reader-method-definition-p methods)
 		     (change-class definition 'generic-reader-definition))
 		    ((every #'writer-method-definition-p methods)
-		     (change-class definition
-			 (etypecase definition
-			   (simple-generic-definition
-			    'simple-generic-writer-definition)
-			   (generic-setf-definition
-			    'generic-setf-writer-definition))))))))
+		     (change-class definition 'generic-writer-definition))))))
     definitions))
 
 

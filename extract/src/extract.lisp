@@ -267,7 +267,7 @@ Lambda expression are not considered as proper names, so NIL is returned."
       (endpush
        (if (or (not original-name) (equal setf-symbol original-name))
 	 (make-compiler-macro-definition symbol compiler-macro :setf t)
-	 (make-setf-compiler-macro-alias-definition symbol))
+	 (make-compiler-macro-alias-definition symbol t))
        definitions)))
   ;; Setf expanders
   (when-let (expander (sb-int:info :setf :expander symbol))
@@ -305,7 +305,7 @@ Lambda expression are not considered as proper names, so NIL is returned."
 			   (cons definition
 				 (copy-list (methods definition))))))
 	    (otherwise (endpush definition definitions))))
-	(endpush (make-setf-function-alias-definition symbol) definitions))))
+	(endpush (make-function-alias-definition symbol t) definitions))))
   ;; Method combinations.
   ;; #### WARNING: method combinations are ill-defined in the Common Lisp
   ;; standard. In particular, they are not necessarily global objects and

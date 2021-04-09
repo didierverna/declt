@@ -87,34 +87,29 @@
     :varoid-definition
     :variable-definition :constant-definition :special-definition
     :symbol-macro-definition
-    :funcoid-definition :lambda-list
-    :setf-mixin
+    :funcoid-definition :setfp :lambda-list
     :expander-mixin :expander-for :expanders-to
     :accessor-mixin :target-slot
     :macro-definition
-    :compiler-macro-definition :setf-compiler-macro-definition
+    :compiler-macro-definition
     :type-definition
     :expander-definition :standalone-reader
     :short-expander-definition :standalone-writer
     :long-expander-definition
     :function-definition
     :ordinary-function-definition
-    :simple-function-definition :setf-function-definition
-    :reader-definition :writer-definition
+    :ordinary-accessor-definition
+    :ordinary-reader-definition :ordinary-writer-definition
     :generic-function-definition :methods :combination :combination-options
-    :simple-generic-definition :generic-setf-definition
-    :generic-reader-definition
-    :generic-writer-mixin
-    :simple-generic-writer-definition :generic-setf-writer-definition
+    :generic-accessor-definition
+    :generic-reader-definition :generic-writer-definition
     :combination-definition :clients
     :short-combination-definition :standalone-combinator
     :identity-with-one-argument
     :long-combination-definition
     :method-definition :owner :specializers :qualifiers
-    :simple-method-definition :setf-method-definition
-    :reader-method-definition
-    :writer-method-definition
-    :simple-writer-method-definition :setf-writer-method-definition
+    :accessor-method-definition
+    :reader-method-definition :writer-method-definition
     :classoid-definition :direct-slots
     :clos-classoid-mixin :direct-default-initargs
     :direct-superclassoids :direct-subclassoids :direct-methods
@@ -128,8 +123,8 @@
     :typed-structure-slot-definition
     :alias-definition :referee
     :macro-alias-definition
-    :compiler-macro-alias-definition :setf-compiler-macro-alias-definition
-    :function-alias-definition :setf-function-alias-definition
+    :compiler-macro-alias-definition
+    :function-alias-definition
     ;; From src/package.lisp:
     :package-definition :use-list :used-by-list :definitions :nicknames
     :package-definition-p

@@ -192,42 +192,49 @@ These are constants, special variables, and symbol macros."))
 ;; Funcoids
 ;; ==========================================================================
 
+;; #### TODO: the current implementation for the setf property is much simpler
+;; and less error-prone than the old one, which used a mixin, along with all
+;; the precedence problems it entailed. It could still be refined however. Not
+;; all funcoids have that property (only compiler macros, functions, and setf
+;; expanders), and in some cases, it's a class invariant that should be
+;; enforced.
+
 (defabstract funcoid-definition (symbol-definition)
-  ((object :reader funcoid)) ;; slot overload
+  ((object :reader funcoid) ;; slot overload
+   (setf :documentation "Whether this is a setf definition."
+	 :initform nil :initarg :setf :reader setfp))
   (:documentation "Abstract root class for functional definitions.
 These are (compiler) macros, (generic) functions, methods, setf expanders,
 method combinations, and types.
 All funcoid definitions respond to the following public protocols, which see:
 - `lambda-list'."))
 
+(defmethod name :around
+    ((definition funcoid-definition) &aux (name (call-next-method)))
+  "Wrap funcoid DEFINITION's name in a SETF list when appropriate."
+  (if (setfp definition) (list 'setf name) name))
+
 (defgeneric lambda-list (definition)
-  (:documentation "Return DEFINITION's lambda-list.")
+  (:documentation "Return funcoid DEFINITION's lambda-list.")
   ;; #### PORTME.
   (:method ((definition funcoid-definition))
     "Return funcoid DEFINITION's function lambda-list.
 This is the default method."
-    (sb-introspect:function-lambda-list (funcoid definition))))
+    (sb-introspect:function-lambda-list (funcoid definition)))
+  (:method :around
+      ((definition funcoid-definition) &aux (lambda-list (call-next-method)))
+    "Return only the lambda-list's CDR for setf definitions.
+This only applies to compiler macros and functions (to filter out the
+parameter corresponding to the new value) but does nothing on setf expanders
+because their primary methods already do the filtering (differently)."
+    (if (and (setfp definition) (not (typep definition 'expander-definition)))
+      (cdr lambda-list)
+      lambda-list)))
 
 
-(defabstract setf-mixin ()
-  ()
-  (:documentation "Mixin for setf funcoid definitions.
-This mixin should be put before the funcoid superclass."))
-
-(defmethod name ((definition setf-mixin))
-  "Return the list (setf <setf mixin DEFINITION's symbol>)."
-  (list 'setf (definition-symbol definition)))
-
-;; #### WARNING: setf expanders are setf mixins, but behave differently. Thus
-;; they get more specific methods. It's fortunate that those methods need to
-;; be defined differently, for both concrete classes. Otherwise, we would risk
-;; a precedence problem with the setf mixin, which must appear first.
-(defmethod lambda-list ((definition setf-mixin))
-    "Return the CDR of setf mixin DEFINITION's function lambda-list.
-This is because setf funcoids take the new value as their first argument."
-  (cdr (sb-introspect:function-lambda-list (funcoid definition))))
-
-
+;; #### NOTE: in a similar vein as the comment above about the setf property,
+;; all functions have this mixin, although in some cases, it doesn't make
+;; sense.
 (defabstract expander-mixin ()
   ((expander-for
     :documentation "A setf expander definition for this funcoid, or NIL.
@@ -242,7 +249,7 @@ expander."
     :documentation "The list of setf expander definitions to this funcoid.
 This is a list of definitions for short form setf expanders that have this
 funcoid as their update-fn. There might be more than one."
-    :accessor expanders-to))
+    :initform nil :accessor expanders-to))
   (:documentation "Mixin class for funcoids relatable to setf expanders.
 These are (generic) functions and macros. A funcoid is relatable to a setf
 expander when its signature is the same as that of an access-fn, or when a
@@ -285,16 +292,12 @@ and methods for classes or conditions slots."))
     :initarg :compiler-macro :reader definition-compiler-macro))
   (:documentation "The class of compiler macro definitions."))
 
-(defclass setf-compiler-macro-definition (setf-mixin compiler-macro-definition)
-  ()
-  (:documentation "The class of setf compiler macro definitions."))
-
-(defun make-compiler-macro-definition (symbol compiler-macro &key setf foreign)
+(defun make-compiler-macro-definition
+    (symbol compiler-macro &rest keys &key setf foreign)
   "Make a new COMPILER-MACRO definition for SYMBOL."
-  (make-instance (if setf
-		   'setf-compiler-macro-definition
-		   'compiler-macro-definition)
-    :symbol symbol :compiler-macro compiler-macro :foreign foreign))
+  (declare (ignore setf foreign))
+  (apply #'make-instance 'compiler-macro-definition
+	 :symbol symbol :compiler-macro compiler-macro keys))
 
 
 
@@ -333,8 +336,9 @@ and methods for classes or conditions slots."))
 ;; 1. (operator-symbol documentation . source-location) ;; short defsetf
 ;; 2. (integer . function) ;; long defsetf
 ;; 3. function ;; define-setf-expander
-(defabstract expander-definition (setf-mixin funcoid-definition)
+(defabstract expander-definition (funcoid-definition)
   ((object :initarg :expander :reader expander) ;; slot overload
+   (setf :initform t) ;; slot overload
    (standalone-reader
     :documentation
     "A standalone reader definition for this definition's expander, or NIL.
@@ -425,7 +429,7 @@ DEFSETF, or DEFINE-SETF-EXPANDER."))
 ;; (Generic) functions
 ;; -------------------
 
-(defabstract function-definition (funcoid-definition)
+(defabstract function-definition (funcoid-definition expander-mixin)
   ((object :initarg :function :reader definition-function)) ;; slot overload
   (:documentation "Abstract root class for functions."))
 
@@ -435,49 +439,43 @@ DEFSETF, or DEFINE-SETF-EXPANDER."))
 ;; function object, but that information has already been figured out anyway.
 
 #i(make-function-definition 2)
-(defun make-function-definition (symbol function &key setf foreign)
+(defun make-function-definition (symbol function &rest keys &key setf foreign)
   "Make a new FUNCTION definition for (SETF) SYMBOL, possibly FOREIGN.
 The concrete class of the new definition depends on the kind of FUNCTION, and
 whether it is a SETF one."
-  (make-instance
-      (typecase function
-	(generic-function
-	 (if setf 'generic-setf-definition 'simple-generic-definition))
-	(otherwise
-	 (if setf 'setf-function-definition 'simple-function-definition)))
-    :symbol symbol :function function :foreign foreign))
+  (declare (ignore setf foreign))
+  (apply #'make-instance
+    (typecase function
+      (generic-function 'generic-function-definition)
+      (otherwise 'ordinary-function-definition))
+    :symbol symbol :function function keys))
 
 
 
 ;; Ordinary functions
 
+(defclass ordinary-function-definition (function-definition)
+  ()
+  (:documentation "The class of ordinary functions."))
+
 ;; #### NOTE: only basic function definitions are created. Reader and writer
 ;; definitions are created during the finalization process by upgrading the
 ;; class of the concerned definitions.
 
-(defabstract ordinary-function-definition (function-definition)
+(defabstract ordinary-accessor-definition
+    (ordinary-function-definition accessor-mixin)
   ()
-  (:documentation "Abstract root class for ordinary functions."))
+  (:documentation "Abstract root class for ordinary accessor functions."))
 
-(defclass simple-function-definition
-    (ordinary-function-definition expander-mixin)
-  ()
-  (:documentation "The class of ordinary, non-setf function definitions."))
-
-(defclass setf-function-definition
-    (setf-mixin ordinary-function-definition)
-  ()
-  (:documentation "The class of ordinary setf function definitions."))
-
-(defclass reader-definition (simple-function-definition accessor-mixin)
+(defclass ordinary-reader-definition (ordinary-accessor-definition)
   ()
   (:documentation "The class of ordinary reader definitions.
 An ordinary reader is an ordinary function that reads a slot in a
 structure."))
 
 ;; #### WARNING: see comment at the top of the file.
-(defclass writer-definition (setf-function-definition accessor-mixin)
-  ()
+(defclass ordinary-writer-definition (ordinary-accessor-definition)
+  ((setf :initform t)) ;; slot overload (currently unused; see comment above)
   (:documentation "The class of ordinary writer definitions.
 An ordinary writer is an ordinary function that writes a slot in a
 structure."))
@@ -486,7 +484,7 @@ structure."))
 
 ;; Generic functions
 
-(defabstract generic-function-definition (function-definition)
+(defclass generic-function-definition (function-definition)
   ((object :initarg :generic :reader generic) ;; slot overload
    (methods
     :documentation
@@ -496,7 +494,7 @@ structure."))
     :documentation
     "The method combination definition for this definition's generic function."
     :initform nil :accessor combination))
-  (:documentation "Abstract root class for generic function definitions."))
+  (:documentation "The class of generic function definitions."))
 
 (defmethod initialize-instance :after
     ((definition generic-function-definition) &key foreign)
@@ -514,43 +512,25 @@ structure."))
    (generic-function-method-combination (generic definition))))
 
 
-(defclass simple-generic-definition
-    (generic-function-definition expander-mixin)
-  ()
-  (:documentation "The class of non-setf, generic function definitions."))
-
-(defclass generic-setf-definition (setf-mixin generic-function-definition)
-  ()
-  (:documentation "The class of generic setf function definitions."))
-
-
 ;; #### NOTE: only basic generic definitions are created. Reader and writer
 ;; definitions are created during the freezing process by upgrading the class
 ;; of the concerned definitions.
 
-(defclass generic-reader-definition (simple-generic-definition)
+(defabstract generic-accessor-definition (generic-function-definition)
+  ()
+  (:documentation "Abstract root class for generic accessor functions."))
+
+(defclass generic-reader-definition (generic-accessor-definition)
   ()
   (:documentation "The class of generic reader function definitions.
 A generic function is considered to be a reader function when all its mehtods
 are reader methods."))
 
-(defabstract generic-writer-mixin ()
+(defclass generic-writer-definition (generic-accessor-definition)
   ()
-  (:documentation
-   "Abstract root mixin for generic writer function definitions.
+  (:documentation "The class of generic writer function definitions.
 A generic function is considered to be a writer function when all its mehtods
 are writer methods."))
-
-(defclass simple-generic-writer-definition
-    (generic-writer-mixin simple-generic-definition)
-  ()
-  (:documentation "The class of simple generic writer function definitions.
-These are non-setf writer generic functions."))
-
-(defclass generic-setf-writer-definition
-    (generic-writer-mixin generic-setf-definition)
-  ()
-  (:documentation "The class of generic setf writer function definitions."))
 
 
 
@@ -646,7 +626,7 @@ The concrete class of the new definition depends on the COMBINATION type."
 ;; Methods
 ;; -------
 
-(defabstract method-definition (funcoid-definition)
+(defclass method-definition (funcoid-definition)
   ((object :initarg :method :reader definition-method) ;; slot overload
    (owner :documentation
 	  "The generic function definition for this definition's method."
@@ -667,22 +647,6 @@ All method definitions respond to the following public protocols, which see:
   "Return method DEFINITION's method qualifiers."
   (method-qualifiers (definition-method definition)))
 
-
-(defclass simple-method-definition (method-definition)
-  ()
-  (:documentation "The class of non-setf method definitions."))
-
-(defclass setf-method-definition (setf-mixin method-definition)
-  ()
-  (:documentation "The class of setf method definitions."))
-
-;; #### WARNING: we need this because the default method on setf-mixins would
-;; break (it calls function-lambda-list). This whole thing is very fragile.
-(defmethod lambda-list ((definition setf-method-definition))
-  "Return method DEFINITION's method lambda-list's CDR.
-This is because setf methods take the new value as their first argument."
-  (cdr (method-lambda-list (definition-method definition))))
-
 (defun method-name
     (method
      &aux (name (generic-function-name (method-generic-function method))))
@@ -693,12 +657,11 @@ Return a second value of T if METHOD is in fact a SETF one."
     name))
 
 (defun make-method-definition (method definition &optional foreign)
-  "Make a new METHOD definition for generic DEFINITION, possibly FOREIGN.
-The concrete class of the new definition depends on whether it is a SETF one."
-  (multiple-value-bind (symbol setf)
-      (method-name method)
-    (make-instance (if setf 'setf-method-definition 'simple-method-definition)
-      :symbol symbol :method method :owner definition :foreign foreign)))
+  "Make a new METHOD definition for generic DEFINITION, possibly FOREIGN."
+  (multiple-value-bind (symbol setf) (method-name method)
+    (make-instance 'method-definition
+      :symbol symbol :method method :setf setf
+      :owner definition :foreign foreign)))
 
 
 ;; #### NOTE: only basic method definitions are created. Reader and writer
@@ -709,9 +672,13 @@ The concrete class of the new definition depends on whether it is a SETF one."
 ;; condition slots) is different from that of ordinary readers and writers (on
 ;; structure slots). Indeed, an :accessor specification will create a setf
 ;; function, but a :writer specification allows you to do whatever you like,
-;; not necessarily a setf form, so the hierarchy needs to be a bit different.
+;; not necessarily a setf form.
 
-(defclass reader-method-definition (simple-method-definition accessor-mixin)
+(defabstract accessor-method-definition (method-definition accessor-mixin)
+  ()
+  (:documentation "Abstract root class for accessor methods."))
+
+(defclass reader-method-definition (accessor-method-definition)
   ()
   (:documentation "The class of reader method definitions.
 A reader method is a method that reads a slot in a class or condition."))
@@ -721,34 +688,14 @@ A reader method is a method that reads a slot in a class or condition."))
   (typep definition 'reader-method-definition))
 
 
-(defabstract writer-method-definition (method-definition accessor-mixin)
+(defclass writer-method-definition (accessor-method-definition)
   ()
-  (:documentation "Abstract root class for writer method definitions."))
+  (:documentation "The class of writer method definitions.
+A writer method is a method that writes a slot in a class or condition."))
 
 (defun writer-method-definition-p (definition)
   "Return T if DEFINITION is a writer method definition."
   (typep definition 'writer-method-definition))
-
-
-(defclass simple-writer-method-definition (writer-method-definition)
-  ()
-  (:documentation "The class of non-setf writer method definitions.
-A non-setf writer method is a non-setf method that writes a slot in a class
-or a condition."))
-
-(defclass setf-writer-method-definition (setf-mixin writer-method-definition)
-  ()
-  (:documentation "The class of setf writer method definitions.
-A setf writer method is a setf method that writes a slot in a class
-or a condition."))
-
-;; #### WARNING: we need this /again/ because the default method on
-;; setf-mixins would break (it calls function-lambda-list). This whole thing
-;; is very fragile.
-(defmethod lambda-list ((definition setf-writer-method-definition))
-  "Return method DEFINITION's method lambda-list's CDR.
-This is because setf methods take the new value as their first argument."
-  (cdr (method-lambda-list (definition-method definition))))
 
 
 
@@ -996,9 +943,10 @@ Unless FOREIGN, also compute its slot definitions."
 ;;    to ordinary vs. generic functions (they can't be both at the same time
 ;;    anyway).
 
-
 (defabstract alias-definition (symbol-definition)
-  ((referee :documentation "The original definition this definition aliases."
+  ((setf :documentation "Whether this is a setf alias definition."
+	 :initform nil :initarg :setf :reader setfp)
+   (referee :documentation "The original definition this definition aliases."
 	    :accessor referee))
   (:documentation "Abstract root class for alias definitions."))
 
@@ -1008,6 +956,14 @@ Aliases are defined dynamically so it's impossible to locate the code
 being executed."
   nil)
 
+(defmethod name :around
+    ((definition alias-definition) &aux (name (call-next-method)))
+  "Wrap alias DEFINITION's name in a SETF list when appropriate."
+  (if (setfp definition) (list 'setf name) name))
+
+;; #### WARNING: we keep the referee's semantics wrt its own setf property
+;; here. Let's just hope we don't get any weird mixtures of setf and non-setf
+;; definitions by aliasing.
 (defmethod lambda-list ((definition alias-definition))
   "Return the lambda-list of alias DEFINITION's referee."
   (lambda-list (referee definition)))
@@ -1044,35 +1000,13 @@ rather than the one attached to the macro function."
 
 (defmethod docstring ((definition compiler-macro-alias-definition))
   "Return compiler macro alias DEFINITION's docstring.
-This is the docstring attached to DEFINITION's symbol,
+This is the docstring attached to DEFINITION's name,
 rather than the one attached to the compiler macro function."
-  (documentation (definition-symbol definition) 'compiler-macro))
+  (documentation (name definition) 'compiler-macro))
 
-(defun make-compiler-macro-alias-definition (symbol)
-  "Make a new compiler macro alias definition for SYMBOL."
-  (make-instance 'compiler-macro-alias-definition :symbol symbol))
-
-
-(defclass setf-compiler-macro-alias-definition
-    (setf-mixin compiler-macro-alias-definition)
-  ()
-  (:documentation "The class of setf compiler macro alias definitions."))
-
-(defmethod docstring ((definition setf-compiler-macro-alias-definition))
-  "Return setf compiler macro alias DEFINITION's docstring.
-This is the docstring attached to DEFINITION's '(SETF SYMBOL),
-rather than the one attached to the compiler macro function."
-  (documentation `(setf ,(definition-symbol definition)) 'compiler-macro))
-
-;; #### FIXME: we need this because otherwise, the setf-mixin method would
-;; take precedence. Setf-mixin is a wrong idea anyway.
-(defmethod lambda-list ((definition setf-compiler-macro-alias-definition))
-  "Return the lambda-list of setf compiler macro alias DEFINITION's referee."
-  (lambda-list (referee definition)))
-
-(defun make-setf-compiler-macro-alias-definition (symbol)
-  "Make a new setf compiler macro alias definition for SYMBOL."
-  (make-instance 'setf-compiler-macro-alias-definition :symbol symbol))
+(defun make-compiler-macro-alias-definition (symbol &optional setf)
+  "Make a new compiler macro alias definition for (possibly SETF) SYMBOL."
+  (make-instance 'compiler-macro-alias-definition :symbol symbol :setf setf))
 
 
 
@@ -1087,33 +1021,12 @@ rather than the one attached to the compiler macro function."
 
 (defmethod docstring ((definition function-alias-definition))
   "Return function alias DEFINITION's docstring.
-This is the docstring attached to DEFINITION's symbol,
+This is the docstring attached to DEFINITION's name,
 rather than the one attached to the function."
-  (documentation (definition-symbol definition) 'function))
+  (documentation (name definition) 'function))
 
-(defun make-function-alias-definition (symbol)
-  "make a new function alias definition for SYMBOL."
-  (make-instance 'function-alias-definition :symbol symbol))
-
-
-(defclass setf-function-alias-definition (setf-mixin function-alias-definition)
-  ()
-  (:documentation "The class of setf function alias definitions."))
-
-(defmethod docstring ((definition setf-function-alias-definition))
-  "Return setf function alias DEFINITION's docstring.
-This is the docstring attached to DEFINITION's '(SETF SYMBOL),
-rather than the one attached to the function."
-  (documentation `(setf ,(definition-symbol definition)) 'function))
-
-;; #### FIXME: we need this because otherwise, the setf-mixin method would
-;; take precedence. Setf-mixin is a wrong idea anyway.
-(defmethod lambda-list ((definition setf-function-alias-definition))
-  "Return the lambda-list of setf function alias DEFINITION's referee."
-  (lambda-list (referee definition)))
-
-(defun make-setf-function-alias-definition (symbol)
-  "Make a new setf function alias definition for SYMBOL."
-  (make-instance 'setf-function-alias-definition :symbol symbol))
+(defun make-function-alias-definition (symbol &optional setf)
+  "make a new function alias definition for (possibly SETF) SYMBOL."
+  (make-instance 'function-alias-definition :symbol symbol :setf setf))
 
 ;;; symbol.lisp ends here
