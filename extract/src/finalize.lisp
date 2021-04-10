@@ -66,6 +66,17 @@ anymore.")
   (:documentation "Stabilize DEFINITION in DEFINITIONS.")
   (:method-combination progn))
 
+#i(destabilize 1)
+(defmacro destabilize (definitions expression &aux (binding (gensym "binding")))
+  "Invalidate the stabilization process by adding a new definition.
+EXPRESSION should evaluate to a new definition. ENDPUSH that definition to
+DEFINITIONS (a symbol), mark the stabilization process as dirty, and return
+that definition."
+  `(let ((,binding ,expression))
+     (endpush ,binding ,definitions)
+     (setq *stabilized* nil)
+     ,binding))
+
 
 
 ;; ---------
@@ -128,10 +139,8 @@ DEFINITIONS in the process."
     (unless (home-package definition)
       (setf (home-package definition)
 	    (or (find-definition package definitions)
-		(let ((package-definition (make-package-definition package t)))
-		  (endpush package-definition definitions)
-		  (setq *stabilized* nil)
-		  package-definition))))))
+		(destabilize definitions
+		  (make-package-definition package t)))))))
 
 
 
@@ -219,15 +228,12 @@ DEFINITIONS in the process."
 			    (typep candidate 'function-definition)))
 	    :key #'name))) ;; EQ test will filter out setf functions.
   (unless (or (standalone-writer definition) (foreignp definition))
-    (let* ((writer-package
-	     (find-definition (symbol-package name) definitions))
-	   (writer
-	     (unless (and writer-package (not (foreignp writer-package)))
-	       (foreign-funcoid-definition name))))
+    (let* ((writer-package (find-definition (symbol-package name) definitions))
+	   (writer (unless (and writer-package (not (foreignp writer-package)))
+		     (foreign-funcoid-definition name))))
       (cond (writer
-	     (setq *stabilized* nil)
-	     (endpush writer definitions)
-	     (setf (standalone-writer definition) writer))
+	     (setf (standalone-writer definition)
+		   (destabilize definitions writer)))
 	    (t
 	     (warn "~S: undefined writer for short form setf expander ~S."
 		   name (name definition)))))))
@@ -265,11 +271,10 @@ DEFINITIONS in the process."
   (unless (combination definition)
     (setf (combination definition) (find-definition combination definitions)))
   (unless (or (combination definition) (foreignp definition))
-    (let ((combination-definition
-	    (make-combination-definition combination-type-name combination t)))
-      (setq *stabilized* nil)
-      (endpush combination-definition definitions)
-      (setf (combination definition) combination-definition))))
+    (setf (combination definition)
+	  (destabilize definitions
+	    (make-combination-definition
+	     combination-type-name combination t)))))
 
 
 
@@ -296,10 +301,10 @@ DEFINITIONS in the process."
 		     (cond (client
 			    (endpush client clients))
 			   ((not (foreignp definition))
-			    (setq client (make-generic-definition function t))
-			    (setq *stabilized* nil)
-			    (endpush client definitions)
-			    (endpush client clients)))))
+			    (endpush
+			     (destabilize definitions
+			       (make-generic-definition function t))
+			     clients)))))
 		 (sb-pcl::method-combination-%generic-functions
 		  (cdr cache-entry))))
     (sb-pcl::method-combination-info-cache (combination definition)))
@@ -333,9 +338,8 @@ DEFINITIONS in the process."
 			  (not (foreignp combinator-package)))
 	       (foreign-funcoid-definition name))))
       (cond (combinator
-	     (setq *stabilized* nil)
-	     (endpush combinator definitions)
-	     (setf (standalone-combinator definition) combinator))
+	     (setf (standalone-combinator definition)
+		   (destabilize definitions combinator)))
 	    (t
 	     (warn "~S: undefined operator for short method combination ~S."
 		   name (name definition)))))))
@@ -357,17 +361,10 @@ DEFINITIONS in the process."
 		  (typecase specializer
 		    (eql-specializer specializer)
 		    (otherwise
-		     (let ((class-specializer
-			     (find-definition specializer definitions)))
-		       (unless class-specializer
-			 (setq class-specializer
-			       (make-classoid-definition
-				(class-name specializer)
-				specializer
-				t))
-			 (setq *stabilized* nil)
-			 (endpush class-specializer definitions))
-		       class-specializer))))
+		     (or (find-definition specializer definitions)
+			 (destabilize definitions
+			   (make-classoid-definition
+			    (class-name specializer) specializer t))))))
 	  (method-specializers (definition-method definition)))))
 
 
@@ -396,12 +393,11 @@ DEFINITIONS in the process."
 	     (cond (classoid-definition
 		    (endpush classoid-definition classoid-definitions))
 		   ((not (foreignp definition))
-		    (setq classoid-definition
-			  (make-classoid-definition
-			   (class-name classoid) classoid t))
-		    (setq *stabilized* nil)
-		    (endpush classoid-definition definitions)
-		    (endpush classoid-definition classoid-definitions))))))
+		    (endpush
+		     (destabilize definitions
+		       (make-classoid-definition
+			(class-name classoid) classoid t))
+		     classoid-definitions))))))
     (mapc #'get-classoid-definition
       (class-direct-superclasses (classoid definition)))
     (setf (direct-superclassoids definition) classoid-definitions)
@@ -426,24 +422,22 @@ DEFINITIONS in the process."
 		  (unless (foreignp definition)
 		    (cond (generic-definition
 			   (setq method-definition
-				 (make-method-definition
-				  method generic-definition t))
-			   (setq *stabilized* nil)
-			   (endpush method-definition definitions)
+				 (destabilize definitions
+				   (make-method-definition
+				    method generic-definition t)))
 			   (endpush method-definition
 				    (methods generic-definition))
 			   (list method-definition))
 			  (t
 			   (setq generic-definition
-				 (make-generic-definition generic t))
+				 (destabilize definitions
+				   (make-generic-definition generic t)))
 			   (setq method-definition
-				 (make-method-definition
-				  method generic-definition t))
-			   (setq *stabilized* nil)
-			   (endpush method-definition definitions)
+				 (destabilize definitions
+				   (make-method-definition
+				    method generic-definition t)))
 			   (endpush method-definition
 				    (methods generic-definition))
-			   (endpush generic-definition definitions)
 			   (list method-definition)))))))
 	  (specializer-direct-methods (classoid definition)))))
 
@@ -475,9 +469,8 @@ This function is used for regular class and condition slots."
 	      (let* ((generic (fdefinition name))
 		     (reader (find-definition generic definitions)))
 		(unless (or reader (foreignp owner))
-		  (setq reader (make-generic-definition generic t))
-		  (setq *stabilized* nil)
-		  (endpush reader definitions))
+		  (setq reader (destabilize definitions
+				 (make-generic-definition generic t))))
 		(when reader
 		  (let* ((method
 			   (find classoid (generic-function-methods generic)
@@ -487,9 +480,8 @@ This function is used for regular class and condition slots."
 			   (find-definition method (methods reader))))
 		    (unless (or reader-method (foreignp owner))
 		      (setq reader-method
-			    (make-method-definition method reader t))
-		      (setq *stabilized* nil)
-		      (endpush reader-method definitions)
+			    (destabilize definitions
+			      (make-method-definition method reader t)))
 		      (endpush reader-method (methods reader)))
 		    (when reader-method
 		      (change-class reader-method 'reader-method-definition
@@ -502,9 +494,8 @@ This function is used for regular class and condition slots."
 	      (let* ((generic (fdefinition name))
 		     (writer (find-definition generic definitions)))
 		(unless (or writer (foreignp owner))
-		  (setq writer (make-generic-definition generic t))
-		  (setq *stabilized* nil)
-		  (endpush writer definitions))
+		  (setq writer (destabilize definitions
+				 (make-generic-definition generic t))))
 		(when writer
 		  (let* ((method
 			   (find classoid (generic-function-methods generic)
@@ -518,9 +509,8 @@ This function is used for regular class and condition slots."
 			   (find-definition method (methods writer))))
 		    (unless (or writer-method (foreignp owner))
 		      (setq writer-method
-			    (make-method-definition method writer t))
-		      (setq *stabilized* nil)
-		      (endpush writer-method definitions)
+			    (destabilize definitions
+			      (make-method-definition method writer t)))
 		      (endpush writer-method (methods writer)))
 		    (when writer-method
 		      (change-class writer-method 'writer-method-definition
@@ -556,14 +546,15 @@ This function is used for regular class and condition slots."
       ;; See PORTME comment above the function about this.
       (when (and reader (not writer)) (setq writer-function nil))
       (unless (or reader (foreignp owner))
-	(setq reader (make-function-definition accessor-name reader-function
-		       :foreign t))
+	(setq reader
+	      (destabilize definitions
+		(make-function-definition accessor-name reader-function
+		  :foreign t)))
 	(when writer-function
-	  (setq writer (make-function-definition accessor-name writer-function
-			 :setf t :foreign t)))
-	(setq *stabilized* nil)
-	(endpush reader definitions)
-	(when writer (endpush writer definitions)))
+	  (setq writer
+		(destabilize definitions
+		  (make-function-definition accessor-name writer-function
+		    :setf t :foreign t)))))
       (when reader
 	(unless (typep reader 'ordinary-reader-definition)
 	  (change-class reader 'ordinary-reader-definition
@@ -608,14 +599,15 @@ This function is used for regular class and condition slots."
 	   (writer (when writer-function
 		     (find-definition writer-function definitions))))
       (unless (or reader (foreignp owner))
-	(setq reader (make-function-definition reader-name reader-function
-		       :foreign t))
+	(setq reader
+	      (destabilize definitions
+		(make-function-definition reader-name reader-function
+		  :foreign t)))
 	(when writer-function
-	  (setq writer (make-function-definition reader-name writer-function
-			 :setf t :foreign t)))
-	(setq *stabilized* nil)
-	(endpush reader definitions)
-	(when writer (endpush writer definitions)))
+	  (setq writer
+		(destabilize definitions
+		  (make-function-definition reader-name writer-function
+		    :setf t :foreign t)))))
       (when reader
 	(unless (typep reader 'ordinary-reader-definition)
 	  (change-class reader 'ordinary-reader-definition
@@ -640,44 +632,40 @@ This function is used for regular class and condition slots."
 
 (defmethod stabilize progn
     ((definition macro-alias-definition) definitions
-     &aux (macro (macro-function (definition-symbol definition)))
-	  (referee (find-definition macro definitions)))
+     &aux (macro (macro-function (definition-symbol definition))))
   "Compute macro alias DEFINITION's referee."
-  (unless referee
-    (setq referee (make-macro-definition (funcoid-name macro) macro t))
-    (endpush referee definitions)
-    (setq *stabilized* nil))
-  (setf (referee definition) referee))
+  (setf (referee definition)
+	(or (find-definition macro definitions)
+	    (destabilize definitions
+	      (make-macro-definition (funcoid-name macro) macro t)))))
 
 (defmethod stabilize progn
     ((definition compiler-macro-alias-definition) definitions
-     &aux (compiler-macro (compiler-macro-function (name definition)))
-	  (referee (find-definition compiler-macro definitions)))
+     &aux (compiler-macro (compiler-macro-function (name definition))))
   "Compute compiler macro alias DEFINITION's referee."
-  (unless referee
-    (let* ((original-name (funcoid-name compiler-macro))
-	   (setfp (consp original-name))
-	   (original-symbol (if setfp (second original-name) original-name)))
-      (setq referee (make-compiler-macro-definition
-		     original-symbol compiler-macro :setf setfp :foreign t))
-      (endpush referee definitions)
-      (setq *stabilized* nil)))
-  (setf (referee definition) referee))
+  (setf (referee definition)
+	(or (find-definition compiler-macro definitions)
+	    (destabilize definitions
+	      (let* ((original-name (funcoid-name compiler-macro))
+		     (setfp (consp original-name))
+		     (original-symbol
+		       (if setfp (second original-name) original-name)))
+		(make-compiler-macro-definition original-symbol compiler-macro
+		  :setf setfp :foreign t))))))
 
 (defmethod stabilize progn
     ((definition function-alias-definition) definitions
-     &aux (function (fdefinition (name definition)))
-	  (referee (find-definition function definitions)))
+     &aux (function (fdefinition (name definition))))
   "Compute simple function alias DEFINITION's referee."
-  (unless referee
-    (let* ((original-name (funcoid-name function))
-	   (setfp (consp original-name))
-	   (original-symbol (if setfp (second original-name) original-name)))
-      (setq referee (make-function-definition
-			original-symbol function :setf setfp :foreign t))
-      (endpush referee definitions)
-      (setq *stabilized* nil)))
-  (setf (referee definition) referee))
+  (setf (referee definition)
+	(or (find-definition function definitions)
+	    (destabilize definitions
+	      (let* ((original-name (funcoid-name function))
+		     (setfp (consp original-name))
+		     (original-symbol
+		       (if setfp (second original-name) original-name)))
+		(make-function-definition original-symbol function
+		  :setf setfp :foreign t))))))
 
 
 
@@ -700,9 +688,8 @@ DEFINITIONS in the process."
 		    (endpush package-definition package-definitions))
 		   ((not (foreignp definition))
 		    (setq package-definition
-			  (make-package-definition package t))
-		    (setq *stabilized* nil)
-		    (endpush package-definition definitions)
+			  (destabilize definitions
+			    (make-package-definition package t)))
 		    (endpush package-definition package-definitions))))))
     ;; 1. Use list.
     (mapc #'get-package-definition (package-use-list package))
@@ -758,9 +745,9 @@ return a list of the updated specification (suitable to MAPCAN)."
 		(let* ((pathname (component-pathname dependency))
 		       (extension (when pathname (pathname-type pathname))))
 		  (when extension (string= extension "asd"))))
-      (setq definition (make-component-definition dependency t))
-      (setq *stabilized* nil)
-      (endpush definition definitions))
+      (setq definition
+	    (destabilize definitions
+	      (make-component-definition dependency t))))
     (when definition
       (rplaca inner definition)
       (list specification))))
