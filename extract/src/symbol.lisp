@@ -433,23 +433,6 @@ DEFSETF, or DEFINE-SETF-EXPANDER."))
   ((object :initarg :function :reader definition-function)) ;; slot overload
   (:documentation "Abstract root class for functions."))
 
-;; #### NOTE: this is a general constructor used in MAKE-SYMBOLS-DEFINITIONS.
-;; It is used to create both ordinary and generic functions. In the case of
-;; generic functions, both SYMBOL and SETF could be deduced from the generic
-;; function object, but that information has already been figured out anyway.
-
-#i(make-function-definition 2)
-(defun make-function-definition (symbol function &rest keys &key setf foreign)
-  "Make a new FUNCTION definition for (SETF) SYMBOL, possibly FOREIGN.
-The concrete class of the new definition depends on the kind of FUNCTION, and
-whether it is a SETF one."
-  (declare (ignore setf foreign))
-  (apply #'make-instance
-    (typecase function
-      (generic-function 'generic-function-definition)
-      (otherwise 'ordinary-function-definition))
-    :symbol symbol :function function keys))
-
 
 
 ;; Ordinary functions
@@ -457,6 +440,13 @@ whether it is a SETF one."
 (defclass ordinary-function-definition (function-definition)
   ()
   (:documentation "The class of ordinary functions."))
+
+(defun make-ordinary-function-definition
+    (symbol function &rest keys &key setf foreign)
+  "Make a new ordinary FUNCTION definition for (SETF) SYMBOL, possibly FOREIGN."
+  (declare (ignore setf foreign))
+  (apply #'make-instance 'ordinary-function-definition
+	 :symbol symbol :function function keys))
 
 ;; #### NOTE: only basic function definitions are created. Reader and writer
 ;; definitions are created during the finalization process by upgrading the
@@ -510,6 +500,13 @@ structure."))
   "Return generic function DEFINITION's method combination options."
   (sb-pcl::method-combination-options
    (generic-function-method-combination (generic definition))))
+
+(defun make-generic-function-definition
+    (symbol generic &rest keys &key setf foreign)
+  "Make a new GENERIC function definition for (SETF) SYMBOL, possibly FOREIGN."
+  (declare (ignore setf foreign))
+  (apply #'make-instance 'generic-function-definition
+	 :symbol symbol :generic generic keys))
 
 
 ;; #### NOTE: only basic generic definitions are created. Reader and writer

@@ -273,38 +273,33 @@ Lambda expression are not considered as proper names, so NIL is returned."
   (when-let (expander (sb-int:info :setf :expander symbol))
     (endpush (make-expander-definition symbol expander) definitions))
   ;; (Generic) functions.
-  (when-let* (function (and (fboundp symbol)
-			    (not (macro-function symbol))
-			    (fdefinition symbol)))
-    (let ((original-name (funcoid-name function)))
+  (when-let (function (and (fboundp symbol)
+			   (not (macro-function symbol))
+			   (fdefinition symbol)))
+    (let ((genericp (typep function 'generic-function))
+	  (original-name (funcoid-name function)))
       (if (or (not original-name) (eq symbol original-name))
-	;; #### NOTE: technically, the symbol can be extracted from the
-	;; generic function object. However, using this general constructor is
-	;; more homogeneous with the rest.
-	(let ((definition (make-function-definition symbol function)))
-	  (typecase definition
-	    (generic-function-definition
-	     (setq definitions
-		   (append definitions
-			   (cons definition
-				 (copy-list (methods definition))))))
-	    (otherwise (endpush definition definitions))))
+	(if genericp
+	  (let ((definition (make-generic-function-definition symbol function)))
+	    (setq definitions
+		  (append definitions
+			  (cons definition (copy-list (methods definition))))))
+	  (endpush (make-ordinary-function-definition symbol function)
+		   definitions))
 	(endpush (make-function-alias-definition symbol) definitions))))
   ;; (Generic) setf functions.
-  (when-let* (function (and (fboundp setf-symbol) (fdefinition setf-symbol)))
-    (let ((original-name (funcoid-name function)))
+  (when-let (function (and (fboundp setf-symbol) (fdefinition setf-symbol)))
+    (let ((genericp (typep function 'generic-function))
+	  (original-name (funcoid-name function)))
       (if (or (not original-name) (equal setf-symbol original-name))
-	;; #### NOTE: technically, the symbol can be extracted from the
-	;; generic function object. However, using this general constructor is
-	;; more homogeneous with the rest.
-	(let ((definition (make-function-definition symbol function :setf t)))
-	  (typecase definition
-	    (generic-function-definition
-	     (setq definitions
-		   (append definitions
-			   (cons definition
-				 (copy-list (methods definition))))))
-	    (otherwise (endpush definition definitions))))
+	(if genericp
+	  (let ((definition
+		  (make-generic-function-definition symbol function :setf t)))
+	    (setq definitions
+		  (append definitions
+			  (cons definition (copy-list (methods definition))))))
+	  (endpush (make-ordinary-function-definition symbol function :setf t)
+		   definitions))
 	(endpush (make-function-alias-definition symbol t) definitions))))
   ;; Method combinations.
   ;; #### WARNING: method combinations are ill-defined in the Common Lisp

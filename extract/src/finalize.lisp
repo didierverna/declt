@@ -26,10 +26,10 @@
 ;; Finalization occurs in two phases.
 ;; 1. Phase one is called "stabilization". The purpose of stabilization is
 ;;    primarily to compute cross-references between definitions. During
-;;    stabilization, new definitions may be created (foreign ones, notably).
-;;    When this happens, the previously computed cross-references may turn out
-;;    to become incomplete. Because of that, stabilization is run over and
-;;    over again until no new definition is created.
+;;    stabilization, new foreign definitions may be created. When this
+;;    happens, the previously computed cross-references may turn out to become
+;;    incomplete. Because of that, stabilization is run over and over again
+;;    until no new definition is created.
 ;; 2. Phase two is called "freezing". The purpose of freezing is to finish
 ;;    updating the definitions, with information that cannot be computed
 ;;    unless we know for sure that no new definition will ever be created.
@@ -83,25 +83,24 @@ that definition."
 ;; Utilities
 ;; ---------
 
-(defun make-generic-definition (generic &optional foreign)
-  "Make a new GENERIC function definition, possibly FOREIGN."
+(defun make-foreign-generic-definition (generic)
+  "Make a new foreign GENERIC function definition."
   (let* ((name (generic-function-name generic))
 	 (setf (consp name))
 	 (symbol (if setf (second name) name)))
-    (make-instance 'generic-function-definition
-      :symbol symbol :generic generic :setf setf :foreign foreign)))
+    (make-generic-function-definition symbol generic :setf setf :foreign t)))
 
-;; #### FIXME: I think this is wrong. There's a SETF problem here.
-(defun make-foreign-funcoid-definition
-    (name &aux (macro-function (macro-function name)))
-  "Make a new foreign macro or function definition for NAME."
-  (if macro-function
-    (make-macro-definition name macro-function t)
-    (make-function-definition name (fdefinition name) :foreign t)))
-
-(defun foreign-funcoid-definition (name)
+(defun foreign-funcoid-definition (name &aux (macro (macro-function name)))
   "Return a new foreign macro or function definition for NAME, or NIL."
-  (when (fboundp name) (make-foreign-funcoid-definition name)))
+  (if macro
+    (make-macro-definition name macro t)
+    (let ((function (when (fboundp name) (fdefinition name))))
+      (typecase function
+	(generic-function
+	 ;; No need to go through the above here. We have more information.
+	 (make-generic-function-definition name function :foreign t))
+	(otherwise
+	 (make-ordinary-function-definition name function :foreign t))))))
 
 
 
@@ -295,15 +294,15 @@ DEFINITIONS in the process."
   ;; and only add what's missing, but I don't think it's worth the trouble.
   (mapc
       (lambda (cache-entry)
-	(maphash (lambda (function unused)
+	(maphash (lambda (generic unused)
 		   (declare (ignore unused))
-		   (let ((client (find-definition function definitions)))
+		   (let ((client (find-definition generic definitions)))
 		     (cond (client
 			    (endpush client clients))
 			   ((not (foreignp definition))
 			    (endpush
 			     (destabilize definitions
-			       (make-generic-definition function t))
+			       (make-foreign-generic-definition generic))
 			     clients)))))
 		 (sb-pcl::method-combination-%generic-functions
 		  (cdr cache-entry))))
@@ -420,25 +419,16 @@ DEFINITIONS in the process."
 		  ;; definition, or the whole generic definition, it means
 		  ;; that we're dealing with a foreign definition.
 		  (unless (foreignp definition)
-		    (cond (generic-definition
-			   (setq method-definition
-				 (destabilize definitions
-				   (make-method-definition
-				    method generic-definition t)))
-			   (endpush method-definition
-				    (methods generic-definition))
-			   (list method-definition))
-			  (t
-			   (setq generic-definition
-				 (destabilize definitions
-				   (make-generic-definition generic t)))
-			   (setq method-definition
-				 (destabilize definitions
-				   (make-method-definition
-				    method generic-definition t)))
-			   (endpush method-definition
-				    (methods generic-definition))
-			   (list method-definition)))))))
+		    (unless generic-definition
+		      (setq generic-definition
+			    (destabilize definitions
+			      (make-foreign-generic-definition generic))))
+		    (setq method-definition
+			  (destabilize definitions
+			    (make-method-definition
+			     method generic-definition t)))
+		    (endpush method-definition (methods generic-definition))
+		    (list method-definition)))))
 	  (specializer-direct-methods (classoid definition)))))
 
 
@@ -470,7 +460,7 @@ This function is used for regular class and condition slots."
 		     (reader (find-definition generic definitions)))
 		(unless (or reader (foreignp owner))
 		  (setq reader (destabilize definitions
-				 (make-generic-definition generic t))))
+				 (make-foreign-generic-definition generic))))
 		(when reader
 		  (let* ((method
 			   (find classoid (generic-function-methods generic)
@@ -495,7 +485,7 @@ This function is used for regular class and condition slots."
 		     (writer (find-definition generic definitions)))
 		(unless (or writer (foreignp owner))
 		  (setq writer (destabilize definitions
-				 (make-generic-definition generic t))))
+				 (make-foreign-generic-definition generic))))
 		(when writer
 		  (let* ((method
 			   (find classoid (generic-function-methods generic)
@@ -548,13 +538,13 @@ This function is used for regular class and condition slots."
       (unless (or reader (foreignp owner))
 	(setq reader
 	      (destabilize definitions
-		(make-function-definition accessor-name reader-function
-		  :foreign t)))
+		(make-ordinary-function-definition
+		 accessor-name reader-function :foreign t)))
 	(when writer-function
 	  (setq writer
 		(destabilize definitions
-		  (make-function-definition accessor-name writer-function
-		    :setf t :foreign t)))))
+		  (make-ordinary-function-definition
+		   accessor-name writer-function :setf t :foreign t)))))
       (when reader
 	(unless (typep reader 'ordinary-reader-definition)
 	  (change-class reader 'ordinary-reader-definition
@@ -601,13 +591,13 @@ This function is used for regular class and condition slots."
       (unless (or reader (foreignp owner))
 	(setq reader
 	      (destabilize definitions
-		(make-function-definition reader-name reader-function
-		  :foreign t)))
+		(make-ordinary-function-definition
+		 reader-name reader-function :foreign t)))
 	(when writer-function
 	  (setq writer
 		(destabilize definitions
-		  (make-function-definition reader-name writer-function
-		    :setf t :foreign t)))))
+		  (make-ordinary-function-definition
+		   reader-name writer-function :setf t :foreign t)))))
       (when reader
 	(unless (typep reader 'ordinary-reader-definition)
 	  (change-class reader 'ordinary-reader-definition
@@ -660,12 +650,16 @@ This function is used for regular class and condition slots."
   (setf (referee definition)
 	(or (find-definition function definitions)
 	    (destabilize definitions
-	      (let* ((original-name (funcoid-name function))
+	      (let* ((genericp (typep function 'generic-function))
+		     (original-name (funcoid-name function))
 		     (setfp (consp original-name))
 		     (original-symbol
 		       (if setfp (second original-name) original-name)))
-		(make-function-definition original-symbol function
-		  :setf setfp :foreign t))))))
+		(if genericp
+		  (make-generic-function-definition
+		   original-symbol function :setf setfp :foreign t)
+		  (make-ordinary-function-definition
+		   original-symbol function :setf setfp :foreign t)))))))
 
 
 
