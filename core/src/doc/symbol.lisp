@@ -682,22 +682,35 @@ value as their first argument."
 	  (@tableitem "Options"
 	    (format t "~{@t{~A}~^, ~}" options)))))))
 
-(defmethod document ((definition generic-function-definition) context &key)
+(defmethod document
+    ((definition generic-function-definition) context
+     &key
+     &aux (expander-for (expander-for definition)))
   "Render generic function DEFINITION's documentation in CONTEXT."
-  (render-funcoid definition context
-    (when-let (expander-for (expander-for definition))
-      (@tableitem "Setf expander for this function"
-	(reference expander-for t)))
-    (when-let (expanders-to (expanders-to definition))
-      (render-references "Setf expanders to this function"
-	;; #### WARNING: casing policy.
-	(sort expanders-to #'string-lessp :key #'definition-symbol)
-	t))
-    (render-method-combination definition)
-    (when-let ((methods (methods definition)))
-      (@tableitem "Methods"
-	(dolist (method methods)
-	  (document method context))))))
+  (if (merge-expander-p definition expander-for)
+    (render-funcoid (definition expander-for)
+	(when-let (expanders-to (expanders-to definition))
+	  (render-references "Setf expanders to this function"
+	    ;; #### WARNING: casing policy.
+	    (sort expanders-to #'string-lessp :key #'definition-symbol) t))
+      (render-method-combination definition)
+      (when-let ((methods (methods definition)))
+	(@tableitem "Methods"
+	  (dolist (method methods)
+	    (document method context)))))
+    (render-funcoid definition context
+      (when-let (expander-for (expander-for definition))
+	(@tableitem "Setf expander for this function"
+	  (reference expander-for t)))
+      (when-let (expanders-to (expanders-to definition))
+	(render-references "Setf expanders to this function"
+	  ;; #### WARNING: casing policy.
+	  (sort expanders-to #'string-lessp :key #'definition-symbol) t))
+      (render-method-combination definition)
+      (when-let ((methods (methods definition)))
+	(@tableitem "Methods"
+	  (dolist (method methods)
+	    (document method context)))))))
 
 
 ;; #### NOTE: for generic accessors merging, we don't try to be extremely
