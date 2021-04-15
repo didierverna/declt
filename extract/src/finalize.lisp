@@ -828,14 +828,20 @@ Those definitions are guaranteed to be in the original system's order."
 ;; Freezing
 ;; ==========================================================================
 
-(defun freeze (definitions)
+;; #### NOTE: we can't upgrade regular generic functions to reader or writer
+;; ones until we're sure to have all the methods around. That's why the
+;; freezing step was originally introduced. Now, it also serves to compute the
+;; definitions UIDs, which could be done in a lot of different (perhaps more
+;; elegant) ways. One advantage of this approach is that it's already
+;; thread-safe, if we ever go down that road in the future.
+
+(defun freeze (definitions &aux (next-uid 0))
   "Freeze DEFINITIONS.
-Currently, this means potentially upgrading generic definitions to reader or
- writer definitions."
-  ;; #### NOTE: we can't upgrade regular generic functions to reader or writer
-  ;; ones until we're sure to have all the methods around. That's why the
-  ;; freezing step was introduced.
+Currently, this means:
+- computing the definitions UIDs,
+- potentially upgrading generic definitions to reader or writer definitions."
   (mapc (lambda (definition)
+	  (setf (uid definition) (incf next-uid))
 	  (when (typep definition 'generic-function-definition)
 	    (when-let (methods (methods definition))
 	      (cond ((every #'reader-method-definition-p methods)

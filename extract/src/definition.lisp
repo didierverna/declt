@@ -40,6 +40,7 @@
 Only constants, special variables, symbol macros, and aliases lack such an
 object."
     :initform nil :initarg :object :reader object)
+   (uid :documentation "This definition's UID." :accessor uid)
    (source-file
     :documentation "The source file definition for this definition's object."
     :initform nil :accessor source-file)

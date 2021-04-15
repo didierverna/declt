@@ -101,10 +101,8 @@ It is of the form \"The <qualified safe name> <type name>\"."
     (category-name definition)))
 
 (defun anchor-name (definition)
-  "Return DEFINITION's anchor name.
-It is of the form \"go to the <qualified safe name> <type name>\"."
-  (format nil "go to the ~A ~A"
-    (safe-name definition t) (category-name definition)))
+  "Return DEFINITION's anchor name, that is, \"(<UID>)\"."
+  (format nil "(~A)" (uid definition)))
 
 
 

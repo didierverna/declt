@@ -80,7 +80,7 @@
     ;; From ASDF:
     :component-pathname ;; #### FIXME: see render-pathname.
     ;; From src/definition.lisp:
-    :definition :source-file :foreignp
+    :definition :uid :source-file :foreignp
     :name :docstring :public-definitions :private-definitions
     ;; From src/symbol.lisp:
     :symbol-definition :definition-symbol :home-package :publicp
