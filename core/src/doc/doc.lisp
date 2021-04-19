@@ -29,18 +29,7 @@
 (in-readtable :net.didierverna.declt)
 
 
-(defclass context ()
-  ((hyperlinks :documentation
-	       "Whether to create hyperlinks for ASDF components.
-Currently supported values are NIL, and :file-system."
-	       :initarg :hyperlinks :accessor hyperlinks))
-  (:documentation "The class of rendering contexts."))
-
-(defun make-context ()
-  (make-instance 'context))
-
-
-
+
 ;; ==========================================================================
 ;; Utilities
 ;; ==========================================================================
@@ -106,6 +95,7 @@ It is of the form \"The <qualified safe name> <type name>\"."
 
 
 
+
 ;; ==========================================================================
 ;; Utilities
 ;; ==========================================================================
@@ -138,9 +128,6 @@ dot by default) or NIL."
     ;; #### NOTE: Texinfo adds a comma automatically here.
     (format t " ~A" (category-name definition))))
 
-(defgeneric document (definition context &key &allow-other-keys)
-  (:documentation "Render DEFINITION's documentation in CONTEXT."))
-
 (defun render-docstring (item)
   "Render ITEM's documentation string.
 Rendering is done on *standard-output*."
@@ -166,5 +153,24 @@ Rendering is done on *standard-output*."
       (if (= length 1)
 	(reference (first definitions) short)
 	(itemize-list definitions :renderer renderer)))))
+
+
+
+;; ==========================================================================
+;; Documentation Engine
+;; ==========================================================================
+
+(defclass context ()
+  ((hyperlinks :documentation
+	       "Whether to create hyperlinks for ASDF components.
+Currently supported values are NIL, and :file-system."
+	       :initarg :hyperlinks :accessor hyperlinks))
+  (:documentation "The class of rendering contexts."))
+
+(defun make-context ()
+  (make-instance 'context))
+
+(defgeneric document (definition context &key &allow-other-keys)
+  (:documentation "Render DEFINITION's documentation in CONTEXT."))
 
 ;;; doc.lisp ends here
