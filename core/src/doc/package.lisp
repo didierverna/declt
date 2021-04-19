@@ -45,15 +45,15 @@
   "Render package DEFINITION's documentation in context."
   (anchor-and-index definition)
   (render-docstring definition)
-  (@table ()
+  (table ()
     (when-let (source (source-file definition))
-      (@tableitem "Source" (reference source t)))
+      (item ("Source") (reference source t)))
     (when-let* ((nicknames (nicknames definition))
 		(length (length nicknames)))
-      (@tableitem (format nil "Nickname~p" length)
+      (item ((format nil "Nickname~p" length))
 	(if (eq length 1)
 	  (format t "@t{~(~A~)}" (escape (first nicknames)))
-	  (@itemize-list nicknames :format "@t{~(~A~)}" :key #'escape))))
+	  (itemize-list nicknames :format "@t{~(~A~)}" :key #'escape))))
     ;; #### WARNING: casing policy.
     (render-references "Use List"
       (sort (use-list definition) #'string-lessp :key #'name)

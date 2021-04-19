@@ -28,8 +28,9 @@
 (in-readtable :net.didierverna.declt)
 
 
+
 ;; ==========================================================================
-;; Utilities
+;; Escaping
 ;; ==========================================================================
 
 ;; #### NOTE: Texinfo has different contexts in which the set of characters to
@@ -106,6 +107,221 @@ characters."
 		:else
 		  :collect (string char)))))
 
+(defun escape-lambda-list (lambda-list)
+  "Escape safe LAMBDA-LIST for Texinfo.
+This function expects a value from `safe-lambda-list', or
+`safe-specializers', which see. It returns a string properly escaped for
+Texinfo, apart from &-constructs which retain their original form, and @ref's
+which are already properly set."
+  (if lambda-list
+    (loop :for rest :on lambda-list
+	  :for element := (car rest)
+	  :if (listp element)
+	    :collect (escape-lambda-list element) :into escaped-lambda-list
+	  :else :if (or (member element '("&optional" "&rest" "&key"
+					  "&allow-other-keys" "&aux"
+					  "&environment" "&whole" "&body")
+				:test #'string-equal) ;; case-insensitive test
+			;; #### WARNING: I'll be damned in we ever fall on a
+			;; specifier called @ref{... !
+			(when-let (pos (search "@ref{" element)) (zerop pos)))
+		  :collect element :into escaped-lambda-list
+	  :else :if (when-let (pos (search "(eql " element)) (zerop pos))
+		  :collect (format nil "@t{~A}" (escape element))
+		    :into escaped-lambda-list
+	  :else :collect (escape element) :into escaped-lambda-list
+	  :finally (progn (when rest ;; dotted list
+			    (setf (cdr (last escaped-lambda-list))
+				  (escape rest))) ;; cannot be a &-construct
+			  (return (princ-to-string escaped-lambda-list))))
+    "()"))
+
+
+
+
+;; ==========================================================================
+;; Cross-Referencing
+;; ==========================================================================
+
+(defun @anchor (anchor)
+  "Render ANCHOR as an @anchor on a standalone line.
+ANCHOR is escaped for Texinfo prior to rendering.
+Rendering is done on *standard-output*."
+  (format t "~&@anchor{~A}@c~%" (escape-anchor anchor)))
+
+(defun @ref (anchor label)
+  "Render ANCHOR as an @ref with online and printed LABEL.
+Both ANCHOR and LABEL are escaped for Texinfo prior to rendering.
+LABEL is rendered in teletype.
+Rendering is done on *standard-output*."
+  (format t "@ref{~A, , @t{~A}}"
+    (escape-anchor anchor) (escape-label label)))
+
+
+
+
+;; ==========================================================================
+;; Environment and Command Wrappers
+;; ==========================================================================
+
+(defun @end (environment)
+  "Render and @end ENVIRONMENT line on *standard-output*.
+ENVIRONMENT should be a string designator."
+  (format t "~&@end ~(~A~)~%" environment))
+
+(defun @item (&optional title)
+  "Render an @item [TITLE] line on *standard-output*."
+  (format t "~&@item~@[ ~A~]~%" title))
+
+(defmacro item ((&optional title) &body body)
+  "Execute BODY as part of an @item [TITLE].
+BODY should render on *standard-output*."
+  `(progn (@item ,title) ,@body))
+
+(defun @table (&optional (kind :@strong))
+  "Render a @table KIND line on *standard-output*.
+KIND should be a string designator. It defaults to @strong."
+  (format t "~&@table ~(~A~)~%" kind))
+
+(defmacro table ((&optional (kind :@strong)) &body body)
+  "Execute BODY as part of a @table KIND environment.
+KIND should be a string designator. It defaults to @strong.
+BODY should render on *standard-output*."
+  `(progn (@table ,kind) ,@body (@end :table)))
+
+(defun @multitable (&rest fractions)
+  "Render a @multitable @columnFRACTIONS line on *standard-output*."
+  (format t "~&@multitable @columnfractions~{ ~S~}~%" fractions))
+
+(defmacro multitable ((&rest fractions) &body body)
+  "Execute BODY as part of a @multitable @columnFRACTIONS environment.
+BODY should render on *standard-output*."
+  `(progn (@multitable ,@fractions) ,@body (@end :multitable)))
+
+(defun @itemize (&optional (kind :@bullet))
+  "Render an @itemize KIND line on *standard-output*.
+KIND should be a string designator. It defaults to @bullet."
+  (format t "~&@itemize ~(~A~)~%" kind))
+
+(defmacro itemize ((&optional (kind :@bullet)) &body body)
+  "Execute BODY as part of an @itemize KIND environment.
+KIND should be a string designator. It defaults to @bullet.
+BODY should render on *standard-output*."
+  `(progn (@itemize ,kind) ,@body (@end :itemize)))
+
+#i(itemize-list 1)
+(defun itemize-list
+    (list &key renderer (kind :@bullet) (format "~A") (key #'identity))
+  "Render a LIST of items as part of an @itemize KIND environment.
+KIND should be a string designator. It defaults to @bullet.
+If RENDERER is non-nil, it must be a function of one argument (every LIST
+element) that performs the rendering on *standard-output* directly.
+
+Otherwise, the rendering is done by calling format, as explained below.
+- FORMAT is the format string to use for every LIST element. It defaults to
+  \"~A\".
+- KEY is a function of one argument (every LIST element) used to provide
+  the necessary arguments to the FORMAT string. If multiple arguments are
+  needed, they should be returned by KEY as multiple values."
+  (itemize (kind)
+    (dolist (elt list)
+      (item ()
+	(if renderer
+	  (funcall renderer elt)
+	  (apply #'format t format
+		 (multiple-value-list (funcall key elt))))))))
+
+(defun @defvr (category name)
+  "Render a @defvr {CATEGORY} {NAME} line on *standard-output*.
+CATEGORY and NAME are escaped for Texinfo prior to rendering."
+  (format t "~&@defvr {~A} {~A}~%" (escape category) (escape name)))
+
+(defmacro defvr (category name &body body)
+  "Execute BODY as part of a @defvr {CATEGORY} {NAME} environment.
+CATEGORY and NAME are escaped for Texinfo prior to rendering.
+BODY should render on *standard-output*."
+  `(progn (@defvr ,category ,name) ,@body (@end :defvr)))
+
+(defun %deffn (x category name lambda-list &optional qualifiers)
+  "Render a @deffn[x] {CATEGORY} {NAME} [QUALIFIERS] LAMBDA-LIST line.
+Rendering is done on *standard-output*. CATEGORY, NAME, QUALIFIERS, and
+LAMBDA-LIST are escaped for Texinfo prior to rendering. LAMBDA-LIST should be
+provided by `safe-lambda-list' or `safe-specializers', which see."
+  (format t "~&@deffn~:[~;x~] {~A} {~A}~@[ ~A~] ~A~%"
+    x
+    (escape category)
+    (escape name)
+    (when qualifiers (escape qualifiers))
+    (escape-lambda-list lambda-list)))
+
+(defun @deffn (category name lambda-list &optional qualifiers)
+  "Render a @deffn {CATEGORY} {NAME} [QUALIFIERS] LAMBDA-LIST line.
+Rendering is done on *standard-output*. CATEGORY, NAME, QUALIFIERS, and
+LAMBDA-LIST are escaped for Texinfo prior to rendering. LAMBDA-LIST should be
+provided by `safe-lambda-list' or `safe-specializers', which see."
+  (%deffn nil category name lambda-list qualifiers))
+
+(defun @deffnx (category name lambda-list &optional qualifiers)
+  "Render a @deffnx {CATEGORY} {NAME} [QUALIFIERS] LAMBDA-LIST line.
+Rendering is done on *standard-output*. CATEGORY, NAME, QUALIFIERS, and
+LAMBDA-LIST are escaped for Texinfo prior to rendering. LAMBDA-LIST should be
+provided by `safe-lambda-list' or `safe-specializers', which see."
+  (%deffn t category name lambda-list qualifiers))
+
+(defmacro deffn ((category name lambda-list &optional qualifiers) &body body)
+  "Execute BODY as part of a @deffn {CATEGORY} {NAME} [QUALIFIERS] LAMBDA-LIST.
+CATEGORY, NAME, QUALIFIERS, and LAMBDA-LIST are escaped for Texinfo prior to
+rendering. LAMBDA-LIST should be provided by `safe-lambda-list' or
+`safe-specializers', which see. BODY should render on *standard-output*."
+  `(progn (@deffn ,category ,name ,lambda-list ,qualifiers)
+	  ,@body
+	  (@end :deffn)))
+
+;; #### NOTE: we must distinguish between a classoid type, which has no
+;; lambda- list, from a CL type, the lambda-list of which may be ().
+(defun @deftp (category name &optional (lambda-list nil lambda-list-p))
+  "Render a @deftp {CATEGORY} {NAME} [LAMBDA-LIST] line on *standard-output*.
+CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
+LAMBDA-LIST should be provided by `safe-lambda-list', which see."
+  (format t "~&@deftp {~A} {~A}~@[ ~A~]~%"
+    (escape category)
+    (escape name)
+    (when lambda-list-p (escape-lambda-list lambda-list))))
+
+;; #### NOTE: we must distinguish between a classoid type, which has no
+;; lambda- list, from a CL type, the lambda-list of which may be ().
+(defmacro deftp
+    ((category name &optional (lambda-list nil lambda-list-p)) &body body)
+  "Execute BODY as part of a @deftp {CATEGORY} {NAME} [LAMBDA-LIST] environment.
+CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
+LAMBDA-LIST should be provided by `safe-lambda-list', which see.
+BODY should render on *standard-output*."
+  `(progn ,(if lambda-list-p
+	     `(@deftp ,category ,name ,lambda-list)
+	     `(@deftp ,category ,name))
+	  ,@body
+	  (@end :deftp)))
+
+
+
+
+;; ==========================================================================
+;; Misc Rendering Utilities
+;; ==========================================================================
+
+(defmacro render-to-string (&body body)
+  "Execute BODY with *standard-output* redirected to a string.
+Return that string."
+  `(with-output-to-string (*standard-output*)
+     ,@body))
+
+
+
+
+;; ==========================================================================
+;; DWIM Formatter
+;; ==========================================================================
+
 (defun first-word-length (string)
   "Return the length of the first word in STRING.
 Initial whitespace characters are skipped."
@@ -158,193 +374,9 @@ embellish the output by detecting potential paragraphs from standalone lines."
 	    :else
 	      :do (format t "~A~%" (escape line))))))
 
-(defun @anchor (anchor)
-  "Render ANCHOR as an @anchor.
-ANCHOR is escaped for Texinfo prior to rendering.
-Rendering is done on *standard-output*."
-  (format t "@anchor{~A}@c~%" (escape-anchor anchor)))
-
-(defun @ref (anchor label)
-  "Render ANCHOR as an @ref with online and printed LABEL.
-Both ANCHOR and LABEL are escaped for Texinfo prior to rendering.
-LABEL is rendered in teletype.
-Rendering is done on *standard-output*."
-  (format t "@ref{~A, , @t{~A}}"
-    (escape-anchor anchor) (escape-label label)))
-
-(defmacro @tableitem (title &body body)
-  "Execute BODY within a table @item TITLE.
-BODY should render on *standard-output*."
-  `(progn
-     (format t "~&@item ~A~%" ,title)
-     ,@body))
-
-(defmacro @table ((&optional (kind :@strong)) &body body)
-  "Execute BODY within a @table KIND environment.
-BODY should render on *standard-output*."
-  `(progn
-     (format t "~&@table ~(~A~)~%" ,kind)
-     ,@body
-     (format t "~&@end table~%")))
-
-(defmacro @multitable ((&rest fractions) &body body)
-  "Execute BODY within a @multitable environment.
-FRACTIONS is the list of column fractions to use.
-BODY should render on *standard-output*."
-  `(progn
-     (format t "~&@multitable @columnfractions~{ ~S~}~%" ',fractions)
-     ,@body
-     (format t "~&@end multitable~%")))
-
-(defmacro @item (&body body)
-  "Execute BODY within an itemize @item.
-BODY should render on *standard-output*."
-  `(progn
-     (format t "~&@item~%")
-     ,@body))
-
-(defmacro @itemize ((&optional (kind :@bullet)) &body body)
-  "Execute BODY within an @itemize KIND environment.
-BODY should render on *standard-output*."
-  `(progn
-     (format t "~&@itemize ~(~A~)~%" ,kind)
-     ,@body
-     (format t "~&@end itemize~%")))
-
-#i(itemize-list 1)
-(defun @itemize-list
-    (list &key renderer (kind :@bullet) (format "~A") (key #'identity))
-  "Render a LIST of items within an @itemize KIND environment.
-If RENDERER is non-nil, it must be a function of one argument (every LIST
-element) that performs the rendering on *standard-output* directly. Otherwise,
-the rendering is done by calling format, as explained below.
-
-- FORMAT is the format string to use for every LIST element.
-- KEY is a function of one argument (every LIST element) used to provide
-  the necessary arguments to the FORMAT string. If multiple arguments are
-  needed, they should be returned by KEY as multiple values."
-  (@itemize (kind)
-    (dolist (elt list)
-      (@item
-	(if renderer
-	    (funcall renderer elt)
-	  (apply #'format t format
-		 (multiple-value-list (funcall key elt))))))))
-
-(defmacro @defvr (category name &body body)
-  "Execute BODY within a @defvr {CATEGORY} NAME environment.
-CATEGORY and NAME are escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  `(progn
-     (format t "~&@defvr {~A} ~A~%" (escape ,category) (escape ,name))
-     ,@body
-     (format t "~&@end defvr~%")))
 
 
-(defun escape-lambda-list (lambda-list)
-  "Escape safe LAMBDA-LIST for Texinfo.
-This function expects a value from `safe-lambda-list', or
-`safe-specializers', which see. It returns a string properly escaped for
-Texinfo, apart from &-constructs which retain their original form, and @ref's
-which are already properly set."
-  (if lambda-list
-    (loop :for rest :on lambda-list
-	  :for element := (car rest)
-	  :if (listp element)
-	    :collect (escape-lambda-list element) :into escaped-lambda-list
-	  :else :if (or (member element '("&optional" "&rest" "&key"
-					  "&allow-other-keys" "&aux"
-					  "&environment" "&whole" "&body")
-				:test #'string-equal) ;; case-insensitive test
-			;; #### WARNING: I'll be damned in we ever fall on a
-			;; specifier called @ref{... !
-			(when-let (pos (search "@ref{" element)) (zerop pos)))
-		  :collect element :into escaped-lambda-list
-	  :else :if (when-let (pos (search "(eql " element)) (zerop pos))
-		  :collect (format nil "@t{~A}" (escape element))
-		    :into escaped-lambda-list
-	  :else :collect (escape element) :into escaped-lambda-list
-	  :finally (progn (when rest ;; dotted list
-			    (setf (cdr (last escaped-lambda-list))
-				  (escape rest))) ;; cannot be a &-construct
-			  (return (princ-to-string escaped-lambda-list))))
-    "()"))
-
-(defmacro @deffn ((category name lambda-list &optional qualifiers) &body body)
-  "Execute BODY under @deffn CATEGORY NAME [QUALIFIERS] LAMBDA-LIST.
-CATEGORY, NAME, QUALIFIERS, and LAMBDA-LIST are escaped for Texinfo prior to
-rendering. LAMBDA-LIST should be provided by `safe-lambda-list', which see.
-BODY should render on *standard-output*."
-  (let ((the-qualifiers (gensym "qualifiers")))
-    `(let ((,the-qualifiers ,qualifiers))
-       (format t "~&@deffn {~A} {~A}~@[ ~A~] ~A~%"
-	 (escape ,category)
-	 (escape ,name)
-	 (when ,the-qualifiers (escape ,the-qualifiers))
-	 (escape-lambda-list ,lambda-list))
-       ,@body
-       (format t "~&@end deffn~%"))))
-
-(defun @deffnx (category name lambda-list &optional qualifiers)
-  "Render @deffnx CATEGORY NAME [QUALIFIERS] LAMBDA-LIST on *standard-output*.
-CATEGORY, NAME, QUALIFIERS, and LAMBDA-LIST are escaped for Texinfo prior to
-rendering. LAMBDA-LIST should be provided by `safe-lambda-list', which see."
-  (format t "~&@deffnx {~A} {~A}~@[ ~A~] ~A~%"
-    (escape category)
-    (escape name)
-    (when qualifiers (escape qualifiers))
-    (escape-lambda-list lambda-list)))
-
-(defmacro @defmethod (category name qualifiers lambda-list &body body)
-  "Execute BODY under @deffn CATEGORY NAME QUALIFIERS LAMBDA-LIST.
-CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
-LAMBDA-LIST should be provided by `safe-lambda-list', which see.
-BODY should render on *standard-output*."
-  `(@deffn (,category ,name ,lambda-list ,qualifiers)
-     ,@body))
-
-(defun @defmethodx (category name qualifiers lambda-list)
-  "Render @deffnx CATEGORY NAME QUALIFIERS LAMBDA-LIST on *standard-output*.
-CATEGORY, NAME, QUALIFIERS, and LAMBDA-LIST are escaped for Texinfo prior to
-rendering. LAMBDA-LIST should be provided by `safe-lambda-list', which see."
-  (@deffnx category name lambda-list qualifiers))
-
-(defmacro @defcombination (name lambda-list &body body)
-  "Execute BODY within a @deftp {KIND Method Combination} NAME environment.
-NAME is escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  `(@deffn ("Method Combination" ,name ,lambda-list) ,@body))
-
-(defmacro @deftp
-    ((category name
-      &optional (lambda-list nil lambda-list-p))
-     &body body)
-  "Execute BODY within a @deftp CATEGORY NAME [LAMBDA-LIST] environment.
-CATEGORY, NAME, and LAMBDA-LIST are escaped for Texinfo prior to rendering.
-LAMBDA-LIST should be provided by `safe-lambda-list', which see.
-BODY should render on *standard-output*."
-  `(progn
-     (format t "~&@deftp {~A} {~A}~@[ ~A~]~%"
-       (escape ,category)
-       (escape ,name)
-       (when ,lambda-list-p (escape-lambda-list ,lambda-list)))
-     ,@body
-     (format t "~&@end deftp~%")))
-
-(defmacro @deftype (name lambda-list &body body)
-  "Execute BODY within a @deftp Type NAME LAMBDA-LIST environment.
-NAME and LAMBDA-LIST are escaped for Texinfo prior to rendering.
-BODY should render on *standard-output*."
-  `(@deftp ("Type" ,name ,lambda-list) ,@body))
-
-(defmacro render-to-string (&body body)
-  "Execute BODY with *standard-output* redirected to a string.
-Return that string."
-  `(with-output-to-string (*standard-output*)
-     ,@body))
-
-
-
+
 ;; ==========================================================================
 ;; Node Implementation
 ;; ==========================================================================

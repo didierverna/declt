@@ -162,9 +162,9 @@ table item, unless there is only one definition in which case it appears
 directly as the table item's contents.
 Rendering is done on *standard-output*."
   (unless (zerop length)
-    (@tableitem title
+    (item (title)
       (if (= length 1)
 	(reference (first definitions) short)
-	(@itemize-list definitions :renderer renderer)))))
+	(itemize-list definitions :renderer renderer)))))
 
 ;;; doc.lisp ends here

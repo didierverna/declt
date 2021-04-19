@@ -46,7 +46,7 @@ Rendering is done on *standard-output*."
 	   (probed-pathname (probe-file pathname))
 	   (probed-namestring
 	     (when probed-pathname (namestring probed-pathname))))
-      (@tableitem title
+      (item (title)
 	(format t "~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
 	  (escape probed-namestring)
 	  (escape (or probed-namestring
@@ -92,11 +92,10 @@ See `resolve-dependency-specification' for more information."
 (defun render-dependencies
     (dependencies &optional (prefix "") &aux (length (length dependencies)))
   "Render COMPONENT's DEPENDENCIES, optionally PREFIXing the title."
-  (@tableitem (format nil "~ADependenc~@p" prefix length)
+  (item ((format nil "~ADependenc~@p" prefix length))
     (if (eq length 1)
       (render-dependency (first dependencies))
-      (@itemize-list dependencies
-	:renderer #'render-dependency))))
+      (itemize-list dependencies :renderer #'render-dependency))))
 
 (defmethod document :around
     ((definition component-definition) context &key)
@@ -104,19 +103,19 @@ See `resolve-dependency-specification' for more information."
 Documentation is done in a @table environment."
   (anchor-and-index definition)
   (render-docstring definition)
-  (@table () (call-next-method)))
+  (table () (call-next-method)))
 
 (defmethod document ((definition component-definition) context &key)
   "Render ASDF component DEFINITION's documentation in CONTEXT."
   ;; Reminder: this redirects to the component's short description.
   (when-let (long-description (long-description definition))
-    (@tableitem "Long Description"
+    (item ("Long Description")
       (render-text long-description)
       (fresh-line)))
   (when-let (version (definition-version definition))
-    (@tableitem "Version" (format t "~A~%" (escape version))))
+    (item ("Version") (format t "~A~%" (escape version))))
   (when-let (if-feature (if-feature definition))
-    (@tableitem "If Feature"
+    (item ("If Feature")
       ;; #### WARNING: case conversion.
       (format t "@t{~(~A~)}" (escape (prin1-to-string if-feature)))))
   (when-let (dependencies (when (typep definition 'system-definition) ;; Yuck!
@@ -125,10 +124,10 @@ Documentation is done in a @table environment."
   (when-let (dependencies (dependencies definition))
     (render-dependencies dependencies))
   (when-let (source (source-file definition))
-    (@tableitem "Source" (reference source t)))
+    (item ("Source") (reference source t)))
   (render-pathname definition context)
   (when-let (parent (parent definition))
-    (@tableitem "Parent Component" (reference parent))))
+    (item ("Parent Component") (reference parent))))
 
 
 
@@ -272,10 +271,10 @@ components trees.")))))
   (call-next-method)
   (when-let* ((children (children definition))
 	      (length (length children)))
-    (@tableitem (format nil "Child Component~p" length)
+    (item ((format nil "Child Component~p" length))
       (if (eq length 1)
 	(reference (first children))
-	(@itemize-list children :renderer #'reference)))))
+	(itemize-list children :renderer #'reference)))))
 
 
 
@@ -324,13 +323,13 @@ Modules are listed depth-first from the system components tree.")))))
 (defmethod document ((definition system-definition) context &key)
   "Render system DEFINITION's documentation in CONTEXT."
   (when-let (long-name (long-name definition))
-    (@tableitem "Long Name" (format t "~A~%" (escape long-name))))
+    (item ("Long Name") (format t "~A~%" (escape long-name))))
   (flet ((render-contacts (category names emails)
 	   "Render a CATEGORY contact list of NAMES and EMAILS."
 	   ;; Both names and emails are null or not at the same time.
 	   (when names
-	     (@tableitem
-		 (format nil (concatenate 'string category "~P") (length names))
+	     (item ((format nil
+			(concatenate 'string category "~P") (length names)))
 	       ;; #### FIXME: @* and map ugliness. I'm sure FORMAT can do all
 	       ;; #### this.
 	       (format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
@@ -345,26 +344,26 @@ Modules are listed depth-first from the system components tree.")))))
     (render-contacts "Author"
       (author-names definition) (author-emails definition)))
   (when-let (mailto (mailto definition))
-    (@tableitem "Contact" (format t "@email{~A}~%" (escape mailto))))
+    (item ("Contact") (format t "@email{~A}~%" (escape mailto))))
   (when-let (homepage (homepage definition))
-    (@tableitem "Home Page" (format t "@uref{~A}~%" (escape homepage))))
+    (item ("Home Page") (format t "@uref{~A}~%" (escape homepage))))
   (when-let (source-control (source-control definition))
-    (@tableitem "Source Control"
+    (item ("Source Control")
       (etypecase source-control
 	(string
 	 (format t "@~:[t~;uref~]{~A}~%"
-		 (search "://" source-control)
-		 (escape source-control)))
+	   (search "://" source-control)
+	   (escape source-control)))
 	(t
 	 ;; #### FIXME: why this before ?
 	 ;; (escape (format nil "~(~S~)" source-control))
 	 (format t "@t{~A}~%" (escape (format nil "~A" source-control)))))))
   (when-let (bug-tracker (bug-tracker definition))
-    (@tableitem "Bug Tracker" (format t "@uref{~A}~%" (escape bug-tracker))))
+    (item ("Bug Tracker") (format t "@uref{~A}~%" (escape bug-tracker))))
   ;; #### WARNING: this ASDF slot is not well defined, hence the STRING
   ;; coercion.
   (when-let (license-name (license-name definition))
-    (@tableitem "License" (format t "~A~%" (escape (string license-name)))))
+    (item ("License") (format t "~A~%" (escape (string license-name)))))
   (call-next-method))
 
 

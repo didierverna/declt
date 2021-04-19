@@ -71,7 +71,7 @@ Uninterned symbols are denoted by the ∅ package."
   "Render a reference to DEFINITION's home package definition.
 Possibly render an \"uninterned\" mention instead of an actual reference,
 when there is no home package to reference."
-  (@tableitem "Package"
+  (item ("Package")
     (let ((home-package (home-package definition)))
       (if home-package
 	(reference home-package t)
@@ -86,7 +86,7 @@ The documentation core includes all common definition attributes:
 Each element is rendered as a table item."
   (render-package-reference definition)
   (when-let (source (source-file definition))
-    (@tableitem "Source" (reference source t))))
+    (item ("Source") (reference source t))))
 
 
 
@@ -111,12 +111,12 @@ Each element is rendered as a table item."
 BODY is executed within a @table environement."
   `(let ((,the-definition ,definition)
 	 (,the-context ,context))
-     (@defvr (string-capitalize (category-name ,the-definition))
+     (defvr (string-capitalize (category-name ,the-definition))
 	 ;; #### WARNING: casing policy.
 	 (string-downcase (safe-name ,the-definition))
        (anchor-and-index ,the-definition)
        (render-docstring ,the-definition)
-       (@table () ,@body))))
+       (table () ,@body))))
 
 (defmethod document ((definition varoid-definition) context &key)
   "Render varoid DEFINITION's documentation in CONTEXT.
@@ -194,14 +194,14 @@ providing only basic information."
       ;; context choice.
       (when-let (value-type (value-type definition))
 	(unless (eq value-type t)
-	  (@tableitem "Type" (render value-type))))
+	  (item ("Type") (render value-type))))
       (when-let (allocation (allocation definition))
 	(unless (eq allocation :instance)
-	  (@tableitem "Allocation" (render allocation))))
+	  (item ("Allocation") (render allocation))))
       (when-let (initform (initform definition))
-	(@tableitem "Initform" (render initform)))
+	(item ("Initform") (render initform)))
       (when-let (initargs (initargs definition))
-	(@tableitem "Initargs"
+	(item ("Initargs")
 	  ;; #### FIXME: format mess. There's gotta be a better way.
 	  (let ((values (mapcar (lambda (val)
 				  ;; #### WARNING: casing policy.
@@ -215,7 +215,7 @@ providing only basic information."
       (sort (readers definition) #'string-lessp :key #'definition-symbol)
       t)
     (if (and (readers definition) (not (writers definition)))
-      (@tableitem "Writers" (format t "@i{This slot is read-only.}~%"))
+      (item ("Writers") (format t "@i{This slot is read-only.}~%"))
       (render-references "Writers"
 	;; #### WARNING: casing policy.
 	(sort (writers definition) #'string-lessp :key #'definition-symbol)
@@ -234,13 +234,13 @@ providing only basic information."
     ;; #### FIXME: not rendering standard / default values should be a context
     ;; choice.
     (unless (eq (value-type definition) t)
-      (@tableitem "Type"
+      (item ("Type")
 	(format t "@t{~A}~%"
 	  ;; #### WARNING: casing policy.
 	  (escape (format nil "~(~S~)" (value-type definition))))))
     (render-references "Reader" (readers definition) t)
     (if (and (readers definition) (not (writers definition)))
-      (@tableitem "Writer" (format t "@i{This slot is read-only.}~%"))
+      (item ("Writer") (format t "@i{This slot is read-only.}~%"))
       (render-references "Writer" (writers definition) t))))
 
 
@@ -306,15 +306,15 @@ converted to revealed strings, and initform / supplied-p data is removed."
 			     (car |definition(s)|)
 			     |definition(s)|))
 	 (,the-context ,context))
-     (@deffn ((string-capitalize (category-name ,the-definition))
-	      ;; #### WARNING: casing policy.
-	      (string-downcase (safe-name ,the-definition))
-	      (safe-lambda-list (lambda-list ,the-definition)))
-	 (anchor-and-index ,the-definition)
+     (deffn ((string-capitalize (category-name ,the-definition))
+	     ;; #### WARNING: casing policy.
+	     (string-downcase (safe-name ,the-definition))
+	     (safe-lambda-list (lambda-list ,the-definition)))
+       (anchor-and-index ,the-definition)
        ,@(mapcar (lambda (funcoid) `(render-headline ,funcoid))
 	   (when (consp |definition(s)|) (cdr |definition(s)|)))
        (render-docstring ,the-definition)
-       (@table ()
+       (table ()
 	 (render-definition-core ,the-definition ,the-context)
 	 ,@body))))
 
@@ -349,7 +349,7 @@ providing only basic information."
 	  t)))
     (render-funcoid definition context
       (when-let (expander-for (expander-for definition))
-	(@tableitem "Setf expander for this macro"
+	(item ("Setf expander for this macro")
 	  (reference expander-for t)))
       (when-let (expanders-to (expanders-to definition))
 	(render-references "Setf expanders to this macro"
@@ -384,12 +384,12 @@ providing only basic information."
 (defmethod document ((definition type-definition) context &key)
   "Render type DEFINITION's documentation in CONTEXT."
   ;; #### WARNING: casing policy.
-  (@deftype (string-downcase (safe-name definition))
-      (safe-lambda-list (lambda-list definition))
+  (deftp ("Type"
+	  (string-downcase (safe-name definition))
+	  (safe-lambda-list (lambda-list definition)))
     (anchor-and-index definition)
     (render-docstring definition)
-    (@table ()
-      (render-definition-core definition context))))
+    (table () (render-definition-core definition context))))
 
 
 
@@ -406,14 +406,12 @@ providing only basic information."
   "Render short setf expander DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
     (when-let (standalone-reader (standalone-reader definition))
-      (@tableitem "Reader"
-	(reference standalone-reader)))
+      (item ("Reader") (reference standalone-reader)))
     (let ((standalone-writer (standalone-writer definition)))
       (cond (standalone-writer
-	     (@tableitem "Writer"
-	       (reference (standalone-writer definition))))
+	     (item ("Writer") (reference (standalone-writer definition))))
 	    ((not (foreignp definition))
-	     (@tableitem "Writer" (princ "@i{missing}")))))))
+	     (item ("Writer") (princ "@i{missing}")))))))
 
 (defmethod document
     ((definition long-expander-definition) context
@@ -423,8 +421,7 @@ providing only basic information."
   (unless (merge-expander-p standalone-reader definition)
     (render-funcoid definition context
       (when-let (standalone-reader (standalone-reader definition))
-	(@tableitem "Reader"
-	  (reference standalone-reader))))))
+	(item ("Reader") (reference standalone-reader))))))
 
 
 
@@ -450,10 +447,10 @@ providing only basic information."
   (render-funcoid definition context
     (let ((standalone-combinator (standalone-combinator definition)))
       (cond (standalone-combinator
-	     (@tableitem "Operator" (reference standalone-combinator)))
+	     (item ("Operator") (reference standalone-combinator)))
 	    ((not (foreignp definition))
-	     (@tableitem "Operator" (princ "@i{missing}")))))
-    (@tableitem "Identity with one argument"
+	     (item ("Operator") (princ "@i{missing}")))))
+    (item ("Identity with one argument")
       (format t "@t{~(~A~)}" (identity-with-one-argument definition)))
     (render-references "Client Functions"
       ;; #### WARNING: casing policy.
@@ -534,30 +531,30 @@ value as their first argument."
   `(let ((,the-definition ,(if (consp |definition(s)|)
 			     (car |definition(s)|)
 			     |definition(s)|)))
-     (@defmethod (string-capitalize (category-name ,the-definition))
-	 ;; #### WARNING: casing policy.
-	 (string-downcase (safe-name ,the-definition))
-       (when-let (qualifiers (qualifiers ,the-definition))
-	 (format nil "~(~{~S~^ ~}~)" qualifiers))
-       (safe-specializers ,the-definition)
+     (deffn ((string-capitalize (category-name ,the-definition))
+	     ;; #### WARNING: casing policy.
+	     (string-downcase (safe-name ,the-definition))
+	     (safe-specializers ,the-definition)
+	     (when-let (qualifiers (qualifiers ,the-definition))
+	       (format nil "~(~{~S~^ ~}~)" qualifiers)))
        (anchor-and-index ,the-definition)
        ,@(mapcar (lambda (definition)
 		   (let ((the-definition (gensym "definition")))
 		     `(let ((,the-definition ,definition))
-			(@defmethodx
+			(@deffnx
 			    (string-capitalize (category-name ,the-definition))
 			    ;; #### WARNING: casing policy.
 			    (string-downcase (safe-name ,the-definition))
+			  (safe-specializers ,the-definition)
 			  (when-let (qualifiers (qualifiers ,the-definition))
-			    (format nil "~(~{~S~^ ~}~)" qualifiers))
-			  (safe-specializers ,the-definition))
+			    (format nil "~(~{~S~^ ~}~)" qualifiers)))
 			(anchor-and-index ,the-definition))))
 	   (when (consp |definition(s)|) (cdr |definition(s)|)))
        (render-docstring ,the-definition)
        (when-let (source-file (source-file ,the-definition))
 	 (unless (equal source-file
 			(source-file (owner ,the-definition)))
-	   (@table () (@tableitem "Source" (reference source-file t)))))
+	   (table () (item ("Source") (reference source-file t)))))
        ,@body)))
 
 (defmethod document ((definition method-definition) context &key)
@@ -567,9 +564,7 @@ value as their first argument."
 (defmethod document ((definition accessor-method-definition) context &key)
   "Render accessor METHOD's documentation in CONTEXT."
   (render-method definition context
-    (@table ()
-      (@tableitem "Target Slot"
-	(reference (target-slot definition) t)))))
+    (table () (item ("Target Slot") (reference (target-slot definition) t)))))
 
 
 
@@ -595,7 +590,7 @@ value as their first argument."
 	    (sort expanders-to #'string-lessp :key #'definition-symbol) t)))
     (render-funcoid definition context
       (when-let (expander-for (expander-for definition))
-	(@tableitem "Setf expander for this function"
+	(item ("Setf expander for this function")
 	  (reference expander-for t)))
       (when-let (expanders-to (expanders-to definition))
 	(render-references "Setf expanders to this function"
@@ -625,14 +620,11 @@ value as their first argument."
   "Render ordinary reader DEFINITION's documentation in CONTEXT."
   (if (merge-accessors-p definition writer)
     (render-funcoid (definition writer) context
-      (@tableitem "Target Slot"
-	(reference (target-slot definition) t)))
+      (item ("Target Slot") (reference (target-slot definition) t)))
     (render-funcoid definition context
-      (@tableitem "Target Slot"
-	(reference (target-slot definition) t))
+      (item ("Target Slot") (reference (target-slot definition) t))
       (when-let (expander-for (expander-for definition))
-	(@tableitem "Setf expander for this function"
-	  (reference expander-for t)))
+	(item ("Setf expander for this function") (reference expander-for t)))
       (when-let (expanders-to (expanders-to definition))
 	(render-references "Setf expanders to this function"
 	  ;; #### WARNING: casing policy.
@@ -651,8 +643,7 @@ value as their first argument."
   (unless (merge-accessors-p (first (readers (target-slot definition)))
 			     definition)
     (render-funcoid definition context
-      (@tableitem "Target Slot"
-	(reference (target-slot definition) t)))))
+      (item ("Target Slot") (reference (target-slot definition) t)))))
 
 
 
@@ -670,7 +661,7 @@ value as their first argument."
   "Render generic function DEFINITION's method combination documentation."
   ;; #### NOTE: Foreign definitions may lack a combination definition.
   (when combination
-    (@tableitem "Method Combination"
+    (item ("Method Combination")
       (reference combination t)
       (terpri)
       (when-let (options (mapcar (lambda (option)
@@ -678,9 +669,7 @@ value as their first argument."
 				   ;; #### WARNING: casing policy.
 				   (escape (format nil "~(~S~)" option)))
 			   (combination-options definition)))
-	(@table ()
-	  (@tableitem "Options"
-	    (format t "~{@t{~A}~^, ~}" options)))))))
+	(table () (item ("Options") (format t "~{@t{~A}~^, ~}" options)))))))
 
 (defmethod document
     ((definition generic-function-definition) context
@@ -695,22 +684,19 @@ value as their first argument."
 	    (sort expanders-to #'string-lessp :key #'definition-symbol) t))
       (render-method-combination definition)
       (when-let ((methods (methods definition)))
-	(@tableitem "Methods"
-	  (dolist (method methods)
-	    (document method context)))))
+	(item ("Methods")
+	  (dolist (method methods) (document method context)))))
     (render-funcoid definition context
       (when-let (expander-for (expander-for definition))
-	(@tableitem "Setf expander for this function"
-	  (reference expander-for t)))
+	(item ("Setf expander for this function") (reference expander-for t)))
       (when-let (expanders-to (expanders-to definition))
 	(render-references "Setf expanders to this function"
 	  ;; #### WARNING: casing policy.
 	  (sort expanders-to #'string-lessp :key #'definition-symbol) t))
       (render-method-combination definition)
       (when-let ((methods (methods definition)))
-	(@tableitem "Methods"
-	  (dolist (method methods)
-	    (document method context)))))))
+	(item ("Methods")
+	  (dolist (method methods) (document method context)))))))
 
 
 ;; #### NOTE: for generic accessors merging, we don't try to be extremely
@@ -791,11 +777,11 @@ Possibly merge documentation with a corresponding writer."
       (when (or (first merged-methods)
 		(second merged-methods)
 		(third merged-methods))
-	(@tableitem "Methods"
+	(item ("Methods")
 	  (dolist (accessors (first merged-methods))
 	    (render-method ((car accessors) (cdr accessors)) context
-	      (@table ()
-		(@tableitem "Target Slot"
+	      (table ()
+		(item ("Target Slot")
 		  (reference (target-slot (car accessors)) t)))))
 	  (dolist (reader-method (second merged-methods))
 	    (document reader-method context))
@@ -829,10 +815,10 @@ This is done only when merging with a corresponding reader is not possible."
 (defun render-initargs (definition context)
   "Render classoid DEFINITION's direct default initargs in CONTEXT."
   (when-let (initargs (direct-default-initargs definition))
-    (@tableitem "Direct Default Initargs"
+    (item ("Direct Default Initargs")
       ;; #### FIXME: we should rather compute the longest initarg name and use
       ;; that as a template size for the @headitem specification.
-      (@multitable (.3f0 .5f0)
+      (multitable (.3f0 .5f0)
 	(format t "@headitem Initarg @tab Value~%")
 	(dolist (initarg initargs)
 	  (format t "@item @t{~A}~%@tab @t{~A}~%"
@@ -847,14 +833,14 @@ This is done only when merging with a corresponding reader is not possible."
 	(the-context (gensym "context")))
     `(let ((,the-definition ,definition)
 	   (,the-context ,context))
-       (@deftp ((string-capitalize (category-name ,the-definition))
-		;; #### WARNING: casing policy.
-		(string-downcase (safe-name ,the-definition)))
-	   (anchor-and-index ,the-definition)
+       (deftp ((string-capitalize (category-name ,the-definition))
+	       ;; #### WARNING: casing policy.
+	       (string-downcase (safe-name ,the-definition)))
+	 (anchor-and-index ,the-definition)
 	 (render-docstring ,the-definition)
 	 ;; #### TODO: we may want to change the titles below to display not
 	 ;; only "classes", but "structures" and "conditions" directly.
-	 (@table ()
+	 (table ()
 	   (render-definition-core ,the-definition ,the-context)
 	   (render-references "Direct superclasses"
 	     ;; #### WARNING: casing policy.
@@ -872,7 +858,7 @@ This is done only when merging with a corresponding reader is not possible."
 	       :key #'definition-symbol)
 	     t)
 	   (when-let (direct-slots (direct-slots ,the-definition))
-	     (@tableitem "Direct slots"
+	     (item ("Direct slots")
 	       (dolist (direct-slot direct-slots)
 		 (document direct-slot ,the-context))))
 	   ,@body)))))
@@ -901,20 +887,20 @@ which also documents direct default initargs."
 
 (defmethod document ((definition typed-structure-definition) context &key)
   "Render typed structure DEFINITION's documentation in CONTEXT."
-  (@deftp ("Structure"
-	   ;; #### WARNING: casing policy.
-	   (string-downcase (safe-name definition)))
-      (anchor-and-index definition)
+  (deftp ("Structure"
+	  ;; #### WARNING: casing policy.
+	  (string-downcase (safe-name definition)))
+    (anchor-and-index definition)
     (render-docstring definition)
-    (@table ()
+    (table ()
       (render-definition-core definition context)
-      (@tableitem "Type"
+      (item ("Type")
 	(if (eq (element-type definition) t)
 	  ;; #### WARNING: casing policy.
 	  (format t "@t{~(~S~)}~%" (structure-type definition))
 	  (format t "@t{(vector ~(~A~))}~%" (element-type definition))))
       (when-let (direct-slots (direct-slots definition))
-	(@tableitem "Direct slots"
+	(item ("Direct slots")
 	  (dolist (direct-slot direct-slots)
 	    (document direct-slot context)))))))
 
@@ -957,7 +943,7 @@ which also documents direct default initargs."
 (defmethod document ((definition alias-definition) context &key)
   "Render alias DEFINITION's documentation in CONTEXT."
   (render-funcoid definition context
-    (@tableitem "Alias for" (reference (referee definition) t))))
+    (item ("Alias for") (reference (referee definition) t))))
 
 
 
