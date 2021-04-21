@@ -196,10 +196,8 @@ More specifically:
 
 (defmethod document ((definition slot-definition) context &key)
   "Render slot DEFINITION's documentation in context.
-More specifically:
-- render DEFINITION's package reference, if different from DEFINITION's owner,
-- render DEFINITION's value type,
-- for CLOS slots, render allocation, initform, and initargs."
+More specifically, render DEFINITION's value type, and for CLOS slots render
+allocation, initform, and initargs."
   (when-let (value-type (value-type definition))
     ;; #### FIXME: not rendering standard / default values should be a context
     ;; choice.
