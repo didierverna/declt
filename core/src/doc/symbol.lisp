@@ -79,11 +79,7 @@ when there is no home package to reference."
 
 (defun render-definition-core (definition context)
   "Render DEFINITION's documentation core in CONTEXT.
-The documentation core includes all common definition attributes:
-  - package,
-  - source location.
-
-Each element is rendered as a table item."
+More specifically, render DEFINITION's package and source file references."
   (render-package-reference definition)
   (when-let (source (source-file definition))
     (item ("Source") (reference source t))))
@@ -103,27 +99,47 @@ Each element is rendered as a table item."
 ;; Varoids
 ;; -------
 
-(defmacro render-varoid (definition context
-			 &body body
-			 &aux (the-definition (gensym "definition"))
-			      (the-context (gensym "context")))
-  "Execute BODY within a varoid DEFINITION documentation in CONTEXT.
-BODY is executed within a @table environement."
-  `(let ((,the-definition ,definition)
-	 (,the-context ,context))
-     (defvr (string-capitalize (category-name ,the-definition))
-	 ;; #### WARNING: casing policy.
-	 (string-downcase (safe-name ,the-definition))
-       (anchor-and-index ,the-definition)
-       (render-docstring ,the-definition)
-       (table () ,@body))))
+(defmethod document :open ((definition varoid-definition) context &key)
+  "Open varoid DEFINITIONS's documentation environment in CONTEXT.
+More specifically:
+- open a @defvr environment,
+- anchor and index DEFINITION,
+- render DEFINITION's docstring,
+- open a @table environment."
+  (@defvr (string-capitalize (category-name definition))
+      ;; #### WARNING: casing policy.
+      (string-downcase (safe-name definition)))
+  (anchor-and-index definition)
+  (render-docstring definition)
+  (@table))
 
+;; #### NOTE: my first feeling about type conditionals in methods is that they
+;; are kludgy workarounds for ill-designed hierarchies, or not expressive
+;; enough method combinations. On the other hand, I'm not so sure anymore. The
+;; advantage I see here is that it makes /exceptions/ very explicit in the
+;; code, instead of scattering (obscuring) the behavior, as is often the case
+;; in OO.
 (defmethod document ((definition varoid-definition) context &key)
   "Render varoid DEFINITION's documentation in CONTEXT.
-This is the default method used for simple varoids,
-providing only basic information."
-  (render-varoid definition context
-    (render-definition-core definition context)))
+More specifically, render DEFINITION's package and source file references.
+As a special exception, slots don't reference their package, unless it differs
+from the slot's owner package, and never reference their source file, which is
+the same as their owner."
+  (unless (and (typep definition 'slot-definition)
+	       (eq (home-package definition)
+		   (home-package (owner definition))))
+    (render-package-reference definition))
+  (unless (typep definition 'slot-definition)
+    (when-let (source (source-file definition))
+      (item ("Source") (reference source t)))))
+
+(defmethod document :close ((definition varoid-definition) context &key)
+  "Close varoid DEFINITION's documentation environment in CONTEXT.
+More specifically:
+- close the table environment,
+- close the @defvr environment."
+  (@end :table)
+  (@end :devfr))
 
 
 
@@ -159,6 +175,7 @@ providing only basic information."
   "symbolmacrosubindex")
 
 
+
 ;; Slots
 (defmethod safe-name :around
     ((definition slot-definition)
@@ -177,24 +194,26 @@ providing only basic information."
   "Return \"slotsubindex\"."
   "slotsubindex")
 
-(defmethod document ((definition clos-slot-definition) context &key)
-  "Render CLOS slot DEFINITION's documentation in CONTEXT.
-- The source file is not documented at all, since it is lexically the same as
-  that of the parent classoid.
-- The package is not documented, unless it differs from that of the parent
-  classoid."
-  (render-varoid definition context
-    (unless (eq (home-package definition) (home-package (owner definition)))
-      (render-package-reference definition))
+(defmethod document ((definition slot-definition) context &key)
+  "Render slot DEFINITION's documentation in context.
+More specifically:
+- render DEFINITION's package reference, if different from DEFINITION's owner,
+- render DEFINITION's value type,
+- for CLOS slots, render allocation, initform, and initargs."
+  (when-let (value-type (value-type definition))
+    ;; #### FIXME: not rendering standard / default values should be a context
+    ;; choice.
+    (unless (eq value-type t)
+      (item ("Type")
+	(format t "@t{~A}~%"
+	  ;; #### WARNING: casing policy.
+	  (escape (format nil "~(~S~)" (value-type definition)))))))
+  ;; Somewhat kludgy, but we want those close to the type definition.
+  (when (typep definition 'clos-slot-definition)
     (flet ((render (value)
 	     (format t "@t{~A}~%"
 	       ;; #### WARNING: casing policy.
 	       (escape (format nil "~(~S~)" value)))))
-      ;; #### FIXME: not rendering standard / default values should be a
-      ;; context choice.
-      (when-let (value-type (value-type definition))
-	(unless (eq value-type t)
-	  (item ("Type") (render value-type))))
       (when-let (allocation (allocation definition))
 	(unless (eq allocation :instance)
 	  (item ("Allocation") (render allocation))))
@@ -209,39 +228,31 @@ providing only basic information."
 			  initargs)))
 	    (format t "@t{~A}~{, @t{~A}~}"
 	      (first values)
-	      (rest values))))))
-    (render-references "Readers"
-      ;; #### WARNING: casing policy.
-      (sort (readers definition) #'string-lessp :key #'definition-symbol)
-      t)
-    (if (and (readers definition) (not (writers definition)))
-      (item ("Writers") (format t "@i{This slot is read-only.}~%"))
-      (render-references "Writers"
-	;; #### WARNING: casing policy.
-	(sort (writers definition) #'string-lessp :key #'definition-symbol)
-	t))))
+	      (rest values))))))))
 
-(defmethod document
-    ((definition typed-structure-slot-definition) context &key)
+(defmethod document ((definition clos-slot-definition) context &key)
+  "Render CLOS slot DEFINITION's documentation in CONTEXT.
+More specifically, render DEFINITION's reader and writer references."
+  (render-references "Readers"
+    ;; #### WARNING: casing policy.
+    (sort (readers definition) #'string-lessp :key #'definition-symbol)
+    t)
+  (if (and (readers definition) (not (writers definition)))
+    (item ("Writers") (format t "@i{This slot is read-only.}~%"))
+    (render-references "Writers"
+      ;; #### WARNING: casing policy.
+      (sort (writers definition) #'string-lessp :key #'definition-symbol)
+      t)))
+
+;; #### TODO: if/when we update RENDER-REFERENCES to handle plural, we can
+;; factor this out with the above, and hence put this in the general method.
+(defmethod document ((definition typed-structure-slot-definition) context &key)
   "Render typed structure slot DEFINITION's documentation in CONTEXT.
-- The source file is unavailable, but not documented at all anyway, since it
-  is lexically the same as that of the parent classoid.
-- The package is not documented, unless it differs from that of the parent
-  classoid."
-  (render-varoid definition context
-    (unless (eq (home-package definition) (home-package (owner definition)))
-      (render-package-reference definition))
-    ;; #### FIXME: not rendering standard / default values should be a context
-    ;; choice.
-    (unless (eq (value-type definition) t)
-      (item ("Type")
-	(format t "@t{~A}~%"
-	  ;; #### WARNING: casing policy.
-	  (escape (format nil "~(~S~)" (value-type definition))))))
-    (render-references "Reader" (readers definition) t)
-    (if (and (readers definition) (not (writers definition)))
-      (item ("Writer") (format t "@i{This slot is read-only.}~%"))
-      (render-references "Writer" (writers definition) t))))
+More specifically, render DEFINITION's reader and writer references."
+  (render-references "Reader" (readers definition) t)
+  (if (and (readers definition) (not (writers definition)))
+    (item ("Writer") (format t "@i{This slot is read-only.}~%"))
+    (render-references "Writer" (writers definition) t)))
 
 
 
@@ -317,6 +328,10 @@ converted to revealed strings, and initform / supplied-p data is removed."
        (table ()
 	 (render-definition-core ,the-definition ,the-context)
 	 ,@body))))
+
+(defmethod document :around ((definition funcoid-definition) context &key)
+  ;; not quite there yet!
+  )
 
 (defmethod document ((definition funcoid-definition) context &key)
   "Render funcoid DEFINITION's documentation in CONTEXT.
@@ -863,6 +878,10 @@ This is done only when merging with a corresponding reader is not possible."
 		 (document direct-slot ,the-context))))
 	   ,@body)))))
 
+(defmethod document :around ((definition classoid-definition) context &key)
+  ;; not quite there yet!
+  )
+
 (defmethod document ((definition classoid-definition) context &key)
   "Render classoid DEFINITION's documentation in CONTEXT.
 This is the default method used for conditions and classes,
@@ -942,8 +961,15 @@ which also documents direct default initargs."
 
 (defmethod document ((definition alias-definition) context &key)
   "Render alias DEFINITION's documentation in CONTEXT."
-  (render-funcoid definition context
-    (item ("Alias for") (reference (referee definition) t))))
+  (deffn ((string-capitalize (category-name definition))
+	  ;; #### WARNING: casing policy.
+	  (string-downcase (safe-name definition))
+	  (safe-lambda-list (lambda-list definition)))
+    (anchor-and-index definition)
+    (render-docstring definition)
+    (table ()
+      (render-definition-core definition context)
+      (item ("Alias for") (reference (referee definition) t)))))
 
 
 
