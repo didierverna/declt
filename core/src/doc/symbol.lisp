@@ -136,7 +136,7 @@ the same as their owner."
 (defmethod document :close ((definition varoid-definition) context &key)
   "Close varoid DEFINITION's documentation environment in CONTEXT.
 More specifically:
-- close the table environment,
+- close the @table environment,
 - close the @defvr environment."
   (@end :table)
   (@end :devfr))
@@ -827,8 +827,61 @@ This is done only when merging with a corresponding reader is not possible."
 ;; Classoids
 ;; ---------
 
-(defun render-initargs (definition context)
-  "Render classoid DEFINITION's direct default initargs in CONTEXT."
+(defmethod document :open ((definition classoid-definition) context &key)
+  "Open classoid DEFINITION's documentation environment in CONTEXT.
+More specifically:
+- open a @deftp environment,
+- anchor and index DEFINITION,
+- render DEFINITION's docstring,
+- open a @table environment,
+- render DEFINITIONS's core documentation."
+  (@deftp (string-capitalize (category-name definition))
+    ;; #### WARNING: casing policy.
+    (string-downcase (safe-name definition)))
+  (anchor-and-index definition)
+  (render-docstring definition)
+  (@table)
+  (render-definition-core definition context))
+
+(defmethod document ((definition classoid-definition) context &key)
+  "Render classoid DEFINITION's direct slots references in CONTEXT."
+  (when-let (direct-slots (direct-slots definition))
+    (item ("Direct slots")
+      (dolist (direct-slot direct-slots)
+	(document direct-slot context)))))
+
+(defmethod document :close ((definition classoid-definition) context &key)
+  "Close classoid DEFINITION's documentation environment in CONTEXT.
+More specifically:
+- close the @table environment,
+- close the @deftp environment."
+  (@end :table)
+  (@end :deftp))
+
+
+
+;; CLOS classoid mixins
+(defmethod document ((definition clos-classoid-mixin) context &key)
+  "Render CLOS classoid mixin DEFINITION's documentation in CONTEXT.
+More specifically, render DEFINITION's direct superclasses, subclasses,
+methods, and initargs references."
+  ;; #### TODO: we may want to change the titles below to display not only
+  ;; "classes", but "structures" and "conditions" directly.
+  (render-references "Direct superclasses"
+    ;; #### WARNING: casing policy.
+    (sort (direct-superclassoids definition) #'string-lessp
+      :key #'definition-symbol)
+    t)
+  (render-references "Direct subclasses"
+    ;; #### WARNING: casing policy.
+    (sort (direct-subclassoids definition) #'string-lessp
+      :key #'definition-symbol)
+    t)
+  (render-references "Direct methods"
+    ;; #### WARNING: casing policy.
+    (sort (direct-methods definition) #'string-lessp
+      :key #'definition-symbol)
+    t)
   (when-let (initargs (direct-default-initargs definition))
     (item ("Direct Default Initargs")
       ;; #### FIXME: we should rather compute the longest initarg name and use
@@ -842,54 +895,6 @@ This is done only when merging with a corresponding reader is not possible."
 	    (escape (format nil "~(~S~)" (first initarg)))
 	    (escape (format nil "~(~A~)" (second initarg)))))))))
 
-(defmacro render-clos-classoid (definition context &body body)
-  "Execute BODY within a CLOS classoid DEFINITION documentation in CONTEXT."
-  (let ((the-definition (gensym "definition"))
-	(the-context (gensym "context")))
-    `(let ((,the-definition ,definition)
-	   (,the-context ,context))
-       (deftp ((string-capitalize (category-name ,the-definition))
-	       ;; #### WARNING: casing policy.
-	       (string-downcase (safe-name ,the-definition)))
-	 (anchor-and-index ,the-definition)
-	 (render-docstring ,the-definition)
-	 ;; #### TODO: we may want to change the titles below to display not
-	 ;; only "classes", but "structures" and "conditions" directly.
-	 (table ()
-	   (render-definition-core ,the-definition ,the-context)
-	   (render-references "Direct superclasses"
-	     ;; #### WARNING: casing policy.
-	     (sort (direct-superclassoids ,the-definition) #'string-lessp
-	       :key #'definition-symbol)
-	     t)
-	   (render-references "Direct subclasses"
-	     ;; #### WARNING: casing policy.
-	     (sort (direct-subclassoids ,the-definition) #'string-lessp
-	       :key #'definition-symbol)
-	     t)
-	   (render-references "Direct methods"
-	     ;; #### WARNING: casing policy.
-	     (sort (direct-methods ,the-definition) #'string-lessp
-	       :key #'definition-symbol)
-	     t)
-	   (when-let (direct-slots (direct-slots ,the-definition))
-	     (item ("Direct slots")
-	       (dolist (direct-slot direct-slots)
-		 (document direct-slot ,the-context))))
-	   ,@body)))))
-
-(defmethod document :around ((definition classoid-definition) context &key)
-  ;; not quite there yet!
-  )
-
-(defmethod document ((definition classoid-definition) context &key)
-  "Render classoid DEFINITION's documentation in CONTEXT.
-This is the default method used for conditions and classes,
-which also documents direct default initargs."
-  (render-clos-classoid definition context
-    (render-initargs definition context)))
-
-
 
 ;; Structures
 (defmethod category-name ((definition structure-definition))
@@ -900,28 +905,13 @@ which also documents direct default initargs."
   "Return \"structuresubindex\"."
   "structuresubindex")
 
-(defmethod document ((definition clos-structure-definition) context &key)
-  "Render CLOS structure DEFINITION's documentation in CONTEXT."
-  (render-clos-classoid definition context))
-
 (defmethod document ((definition typed-structure-definition) context &key)
-  "Render typed structure DEFINITION's documentation in CONTEXT."
-  (deftp ("Structure"
-	  ;; #### WARNING: casing policy.
-	  (string-downcase (safe-name definition)))
-    (anchor-and-index definition)
-    (render-docstring definition)
-    (table ()
-      (render-definition-core definition context)
-      (item ("Type")
-	(if (eq (element-type definition) t)
-	  ;; #### WARNING: casing policy.
-	  (format t "@t{~(~S~)}~%" (structure-type definition))
-	  (format t "@t{(vector ~(~A~))}~%" (element-type definition))))
-      (when-let (direct-slots (direct-slots definition))
-	(item ("Direct slots")
-	  (dolist (direct-slot direct-slots)
-	    (document direct-slot context)))))))
+  "Render typed structure DEFINITION's type documentation in CONTEXT."
+  (item ("Type")
+    (if (eq (element-type definition) t)
+      ;; #### WARNING: casing policy.
+      (format t "@t{~(~S~)}~%" (structure-type definition))
+      (format t "@t{(vector ~(~A~))}~%" (element-type definition)))))
 
 
 

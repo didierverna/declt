@@ -749,7 +749,10 @@ depends on the kind of CLASSOID."
     "The list of direct method definitions for this definition's classoid."
     :accessor direct-methods))
   (:documentation "Mixin for CLOS-based classoids.
-These are conditions, ordinary structures, and classes."))
+These are conditions, ordinary structures, and classes.
+All CLOS classoid mixin definitions respond to the following public protocols,
+which see:
+- `direct-default-initargs'."))
 
 (defmethod initialize-instance :after
     ((definition clos-classoid-mixin) &key foreign)
