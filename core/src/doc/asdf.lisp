@@ -118,7 +118,10 @@ Documentation is done in a @table environment."
     (item ("If Feature")
       ;; #### WARNING: case conversion.
       (format t "@t{~(~A~)}" (escape (prin1-to-string if-feature)))))
-  (when-let (dependencies (when (typep definition 'system-definition) ;; Yuck!
+  ;; #### NOTE: it is kludgy to insert a bit of system-specific documentation
+  ;; in the general component method, but we want to group all dependency
+  ;; references together.
+  (when-let (dependencies (when (typep definition 'system-definition)
 			    (defsystem-dependencies definition)))
     (render-dependencies dependencies "Defsystem "))
   (when-let (dependencies (dependencies definition))
@@ -156,9 +159,8 @@ Documentation is done in a @table environment."
   "fileindex")
 
 ;; #### NOTE: other kinds of files are only documented as simple components.
-(defmethod document ((definition lisp-file-definition) context &key)
-  "Render lisp file DEFINITION's documentation in CONTEXT."
-  (call-next-method)
+(defmethod document :close ((definition lisp-file-definition) context &key)
+  "Render lisp file DEFINITION's references in CONTEXT."
   ;; #### NOTE: I don't think it's worth referencing all components here, so
   ;; we're documenting systems only. This could be turned into a context
   ;; option someday.
@@ -266,9 +268,8 @@ components trees.")))))
   "Return \"moduleindex\""
   "moduleindex")
 
-(defmethod document ((definition module-definition) context &key)
-  "Render module DEFINITION's documentation in CONTEXT."
-  (call-next-method)
+(defmethod document :close ((definition module-definition) context &key)
+  "Render module DEFINITION's references in CONTEXT."
   (when-let* ((children (children definition))
 	      (length (length children)))
     (item ((format nil "Child Component~p" length))
@@ -319,11 +320,12 @@ Modules are listed depth-first from the system components tree.")))))
   "Return \"systemindex\""
   "systemindex")
 
-#i(render-contacts 1)
-(defmethod document ((definition system-definition) context &key)
-  "Render system DEFINITION's documentation in CONTEXT."
+;; #### NOTE: the system specific bits appear first.
+(defmethod document :open ((definition system-definition) context &key)
+  "Render DEFINITION's system-specific bits in CONTEXT."
   (when-let (long-name (long-name definition))
     (item ("Long Name") (format t "~A~%" (escape long-name))))
+  #i(render-contacts 1)
   (flet ((render-contacts (category names emails)
 	   "Render a CATEGORY contact list of NAMES and EMAILS."
 	   ;; Both names and emails are null or not at the same time.
@@ -363,8 +365,7 @@ Modules are listed depth-first from the system components tree.")))))
   ;; #### WARNING: this ASDF slot is not well defined, hence the STRING
   ;; coercion.
   (when-let (license-name (license-name definition))
-    (item ("License") (format t "~A~%" (escape (string license-name)))))
-  (call-next-method))
+    (item ("License") (format t "~A~%" (escape (string license-name))))))
 
 
 

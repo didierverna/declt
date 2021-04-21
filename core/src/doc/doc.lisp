@@ -170,7 +170,38 @@ Currently supported values are NIL, and :file-system."
 (defun make-context ()
   (make-instance 'context))
 
+(define-method-combination document ()
+  ((around (:around))
+   (open (:open))
+   (body () :required t :order :most-specific-last)
+   (close (:close)))
+  "The documentation protocol's method combination.
+This method combination provides the following four method groups:
+- around methods (optional, :around qualifier),
+- opening methods (optional, :open qualifier),
+- body methods (at least one required, no qualifier),
+- closing methods (optional, :close qualifier).
+
+Around methods behave like those of the standard method combination. They can
+be used to conditionalize the actual rendering of documentation, for example
+in order to filter out definitions that are merged with others.
+
+The main methods block behaves as follows.
+- The most specific opening method, if any, is executed.
+- All body methods as executed sequentially in most specific last order.
+- Finally, the most specific closing method, if any, is executed."
+  (let ((form `(multiple-value-prog1
+		   (progn ,(when open `(call-method ,(first open)))
+			  (progn ,@(mapcar
+				       (lambda (method) `(call-method ,method))
+				     body)))
+		 ,(when close `(call-method ,(first close))))))
+    (if around
+      `(call-method ,(first around) (,@(rest around) (make-method ,form)))
+      form)))
+
 (defgeneric document (definition context &key &allow-other-keys)
-  (:documentation "Render DEFINITION's documentation in CONTEXT."))
+  (:documentation "Render DEFINITION's documentation in CONTEXT.")
+  (:method-combination document))
 
 ;;; doc.lisp ends here
