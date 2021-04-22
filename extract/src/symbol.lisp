@@ -233,9 +233,9 @@ because their primary methods already do the filtering (differently)."
 
 
 ;; #### NOTE: in a similar vein as the comment above about the setf property,
-;; all functions have this mixin, although in some cases, it doesn't make
-;; sense.
-(defabstract expander-mixin ()
+;; all functions are setfable by construction of the hierarchy below, although
+;; in some cases, it doesn't make sense.
+(defabstract setfable-funcoid-definition (funcoid-definition)
   ((expander-for
     :documentation "A setf expander definition for this funcoid, or NIL.
 This is the definition of a setf expander that expands forms identical to this
@@ -250,11 +250,12 @@ expander."
 This is a list of definitions for short form setf expanders that have this
 funcoid as their update-fn. There might be more than one."
     :initform nil :accessor expanders-to))
-  (:documentation "Mixin class for funcoids relatable to setf expanders.
-These are (generic) functions and macros. A funcoid is relatable to a setf
-expander when its signature is the same as that of an access-fn, or when a
-short form setf expander expands to it (i.e., it has this funcoid as its
-update-fn)."))
+  (:documentation "Abstract root class for setfable funcoids.
+These are (generic) functions and macros. A funcoid is setfable when it may be
+related to one or more setf expanders. There are two kinds of relation to a
+setf expander: 1. the funcoid' signature is the same as that of an expander's
+access-fn, and 2. a short form setf expander expands to it (i.e., it has this
+funcoid as its update-fn)."))
 
 
 (defabstract accessor-mixin ()
@@ -274,7 +275,7 @@ and methods for classes or conditions slots."))
 
 ;; Macros
 
-(defclass macro-definition (funcoid-definition expander-mixin)
+(defclass macro-definition (setfable-funcoid-definition)
   ((object :initarg :macro :reader macro)) ;; slot overload
   (:documentation "The class of macro definitions."))
 
@@ -429,7 +430,7 @@ DEFSETF, or DEFINE-SETF-EXPANDER."))
 ;; (Generic) functions
 ;; -------------------
 
-(defabstract function-definition (funcoid-definition expander-mixin)
+(defabstract function-definition (setfable-funcoid-definition)
   ((object :initarg :function :reader definition-function)) ;; slot overload
   (:documentation "Abstract root class for functions."))
 

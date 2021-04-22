@@ -88,7 +88,7 @@
     :variable-definition :constant-definition :special-definition
     :symbol-macro-definition
     :funcoid-definition :setfp :lambda-list
-    :expander-mixin :expander-for :expanders-to
+    :setfable-funcoid-definition :expander-for :expanders-to
     :accessor-mixin :target-slot
     :macro-definition
     :compiler-macro-definition

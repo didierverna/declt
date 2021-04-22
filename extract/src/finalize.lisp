@@ -147,7 +147,7 @@ DEFINITIONS in the process."
 ;; --------------------
 
 (defmethod stabilize progn
-    ((definition expander-mixin) definitions
+    ((definition setfable-funcoid-definition) definitions
      &aux (name (definition-symbol definition)))
   "Compute DEFINITION's expander-for and expanders-to references."
   (unless (setfp definition)
