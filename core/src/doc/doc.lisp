@@ -173,13 +173,13 @@ Currently supported values are NIL, and :file-system."
 (define-method-combination document ()
   ((around (:around))
    (open (:open))
-   (body () :required t :order :most-specific-last)
+   (body () :order :most-specific-last)
    (close (:close)))
   "The documentation protocol's method combination.
 This method combination provides the following four method groups:
 - around methods (optional, :around qualifier),
 - opening methods (optional, :open qualifier),
-- body methods (at least one required, no qualifier),
+- body methods (no qualifier),
 - closing methods (optional, :close qualifier).
 
 Around methods behave like those of the standard method combination. They can
@@ -188,8 +188,13 @@ in order to filter out definitions that are merged with others.
 
 The main methods block behaves as follows.
 - The most specific opening method, if any, is executed.
-- All body methods as executed sequentially in most specific last order.
-- Finally, the most specific closing method, if any, is executed."
+- All body methods (if any) are executed sequentially in most specific last
+  order.
+- Finally, the most specific closing method, if any, is executed.
+
+No method group requires the existence of an applicable method, but for each
+generic call, there must of course be at least one applicable method,
+regardless of the group."
   (let ((form `(multiple-value-prog1
 		   (progn ,(when open `(call-method ,(first open)))
 			  (progn ,@(mapcar

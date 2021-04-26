@@ -576,7 +576,10 @@ This is a function or macro definition. Note that if this definition
 is unavailable, it means that the method combination itself cannot be used
 (yet)."
     :initform nil :accessor standalone-combinator))
-  (:documentation "The class of short method combination definitions."))
+  (:documentation "The class of short method combination definitions.
+All short method combination definitions respond to the following public
+protocols, which see:
+- `identity-with-one-argument'."))
 
 ;; #### PORTME.
 (defun identity-with-one-argument (definition)
