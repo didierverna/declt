@@ -29,32 +29,6 @@
 (in-readtable :net.didierverna.declt)
 
 
-;; ==========================================================================
-;; Local Utilities
-;; ==========================================================================
-
-(defun render-pathname (definition context &optional (title "Location"))
-  "Render an itemized pathname line for DEFINITION in CONTEXT.
-Rendering is done on *standard-output*."
-  (when (hyperlinks context)
-    ;; #### NOTE: the use of PROBE-FILE below has two purposes: making sure
-    ;; that the file does exist, so that it can actually be linked properly,
-    ;; and dereferencing an (ASDF 1) installed system file symlink (what we
-    ;; get) in order to link the actual file (what we want).
-    ;; #### FIXME: not abstract enough. Access to the definition's object.
-    (let* ((pathname  (component-pathname (component definition)))
-	   (probed-pathname (probe-file pathname))
-	   (probed-namestring
-	     (when probed-pathname (namestring probed-pathname))))
-      (item (title)
-	(format t "~@[@url{file://~A, ignore, ~]@t{~A}~:[~;}~]~%"
-	  (escape probed-namestring)
-	  (escape (or probed-namestring
-		      (concatenate 'string pathname " (not found)")))
-	  probed-pathname)))))
-
-
-
 
 ;; ==========================================================================
 ;; Components
@@ -128,7 +102,10 @@ Documentation is done in a @table environment."
     (render-dependencies dependencies))
   (when-let (source (source-file definition))
     (item ("Source") (reference source t)))
-  (render-pathname definition context)
+  (when (hyperlinks context)
+    (item ("Location")
+      (format t "@url{file://~A, ignore, @t{~:*~A}}~%"
+	(escape (location definition)))))
   (when-let (parent (parent definition))
     (item ("Parent Component") (reference parent))))
 

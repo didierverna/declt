@@ -77,8 +77,6 @@
     :system-source-directory
     :system-source-file)
   (:export
-    ;; From ASDF:
-    :component-pathname ;; #### FIXME: see render-pathname.
     ;; From src/definition.lisp:
     :definition :uid :source-file :foreignp
     :name :docstring :public-definitions :private-definitions
@@ -129,8 +127,7 @@
     :package-definition :use-list :used-by-list :definitions :nicknames
     :package-definition-p
     ;; From src/asdf.lisp:
-    :component-definition :parent :dependencies
-    :component ;; #### FIXME: see render-pathname.
+    :component-definition :location :parent :dependencies
     :description :long-description :definition-version :if-feature
     :file-definition :file-definition-p :extension
     :source-file-definition
