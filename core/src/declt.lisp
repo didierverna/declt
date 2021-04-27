@@ -29,6 +29,14 @@
 (in-readtable :net.didierverna.declt)
 
 
+#i(select-keys 1)
+(defun select-keys (keys &rest selected)
+  "Return a new property list from KEYS with only SELECTED ones."
+  (loop :for key :in keys :by #'cddr
+	:for val :in (cdr keys) :by #'cddr
+	:when (member key selected)
+	  :nconc (list key val)))
+
 (defun render-header
     (extract file-name info-name declt-notice current-time-string)
   "Render the header of the Texinfo file."
@@ -365,7 +373,11 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 		   (declt-notice :long)
 
 	      &aux (current-time-string (current-time-string))
-		   (extract (apply #'extract system-name keys))
+		   (extract (apply #'extract system-name
+				   (select-keys keys
+				     :library-name :tagline :library-version
+				     :contact :copyright-years :license
+				     :introduction :conclusion)))
 		   (context (make-context)))
   "Generate a reference manual for ASDF SYSTEM-NAME.
 The reference manual is currently generated in Texinfo format.

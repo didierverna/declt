@@ -441,12 +441,11 @@ SYSTEM-NAME is an ASDF system designator."
 	  license
 	  introduction
 	  conclusion
-     &allow-other-keys ;; lazy calling from DECLT
      &aux (system (load-system system-name))
 	  contact-names contact-emails
 	  (extract (make-extract)))
   "Extract and return documentation information for ASDF SYSTEM-NAME.
-The documentation information is returned in a EXTRACT structure, which see.
+The documentation information is returned in an EXTRACT structure, which see.
 
 SYSTEM-NAME is an ASDF system designator. The following keyword parameters
 allow to specify or override some bits of information.
