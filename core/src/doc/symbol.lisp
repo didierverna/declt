@@ -970,6 +970,17 @@ More specifically, render DEFINITION's reader and writer references."
 ;; ADD-CATEGORIES-NODE). It conditions the order of appearance of the
 ;; definitions in the generated manual.
 
+;; #### TODO: not all retained definitions end up being documented at the
+;; toplevel, in particular when merging occurs, or depending of whether we
+;; document foreign definitions or standard/default values. The current policy
+;; is to leave those definitions lurking around in the nodes structure, and
+;; let the DOCUMENT protocol decide on what to do with them (see some of the
+;; :around methods for instance). There is one exception to this policy, which
+;; is when undocumented definitions would lead to an empty section in the
+;; reference manual. This currently happens only with setf expanders (see
+;; below). In the future, we may want to refine this policy, and figure out
+;; exactly when it would be most appropriate to filter definitions out.
+
 (defparameter *categories*
   `(("constants" constant-definition)
     ("special variables" special-definition)
