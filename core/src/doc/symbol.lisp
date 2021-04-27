@@ -982,7 +982,15 @@ More specifically, render DEFINITION's reader and writer references."
      ,(lambda (definition)
 	(or (typep definition 'compiler-macro-definition)
 	    (typep definition 'compiler-macro-alias-definition))))
-    ("setf expanders" expander-definition)
+    ("setf expanders"
+     ,(lambda (definition)
+	(and (typep definition 'expander-definition)
+	     ;; #### WARNING: we need to redundantly perform this check here
+	     ;; because if all expanders were to be merged with their
+	     ;; standalone reader definition, we'd end up with an empty Setf
+	     ;; Expanders section.
+	     (not (merge-expander-p (standalone-reader definition)
+				    definition)))))
     ("ordinary functions"
      ,(lambda (definition)
 	(or (typep definition 'ordinary-function-definition)
@@ -1023,19 +1031,9 @@ Each category is of the form (TITLE FILTER).
 		    (symbol (lambda (definition)
 			      (typep definition (second category))))
 		    (function (second category)))))
-      (when-let* (type-definitions (remove-if-not filter definitions))
-	;; #### WARNING: hack alert. A setf expander merged with its reader
-	;; funcoid will disappear from the Setf Expanders section. So we need
-	;; to filter those out as well here.
-	(when (eq (second category) 'expander-definition)
-	  (setq type-definitions
-		(remove-if (lambda (definition)
-			     (merge-expander-p (standalone-reader definition)
-					       definition))
-		    type-definitions)))
-	(when type-definitions
-	  (add-category-node parent context status (first category)
-			     type-definitions))))))
+      (when-let (type-definitions (remove-if-not filter definitions))
+	(add-category-node parent context status (first category)
+			   type-definitions)))))
 
 (defun add-definitions-node
     (parent extract context
