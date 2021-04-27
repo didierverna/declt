@@ -971,35 +971,39 @@ More specifically, render DEFINITION's reader and writer references."
 ;; definitions in the generated manual.
 
 (defparameter *categories*
-  `((constant-definition          "constants")
-    (special-definition           "special variables")
-    (symbol-macro-definition      "symbol macros")
-    (,(lambda (definition)
+  `(("constants" constant-definition)
+    ("special variables" special-definition)
+    ("symbol macros" symbol-macro-definition)
+    ("macros"
+     ,(lambda (definition)
 	(or (typep definition 'macro-definition)
-	    (typep definition 'macro-alias-definition)))
-     "macros")
-    (,(lambda (definition)
+	    (typep definition 'macro-alias-definition))))
+    ("compiler macros"
+     ,(lambda (definition)
 	(or (typep definition 'compiler-macro-definition)
-	    (typep definition 'compiler-macro-alias-definition)))
-     "compiler macros")
-    (expander-definition          "setf expanders")
-    (,(lambda (definition)
+	    (typep definition 'compiler-macro-alias-definition))))
+    ("setf expanders" expander-definition)
+    ("ordinary functions"
+     ,(lambda (definition)
 	(or (typep definition 'ordinary-function-definition)
 	    (and (typep definition 'function-alias-definition)
-		 (typep (referee definition) 'ordinary-function-definition))))
-     "ordinary functions")
-    (,(lambda (definition)
+		 (typep (referee definition) 'ordinary-function-definition)))))
+    ("generic functions"
+     ,(lambda (definition)
 	(or (typep definition 'generic-function-definition)
 	    (and (typep definition 'function-alias-definition)
-		 (typep (referee definition) 'generic-function-definition))))
-     "generic functions")
-    (combination-definition       "method combinations")
-    (condition-definition         "conditions")
-    (structure-definition         "structures")
-    (class-definition             "classes")
-    (type-definition              "types"))
+		 (typep (referee definition) 'generic-function-definition)))))
+    ("method combinations" combination-definition)
+    ("conditions" condition-definition)
+    ("structures" structure-definition)
+    ("classes" class-definition)
+    ("types" type-definition))
   "The list of definition categories.
-Each category is of type (TYPE DESCRIPTION-STRING).")
+Each category is of the form (TITLE FILTER).
+- TITLE (a string) serves as the section title.
+- FILTER can be either a definition type (symbol), in which case definitions
+  of that type a retained, or a predicate function of one (definition)
+  argument, which should return T if the definition is to be retained.")
 
 (defun add-category-node (parent context status category definitions)
   "Add the STATUS CATEGORY node to PARENT for DEFINITIONS in CONTEXT."
@@ -1015,22 +1019,22 @@ Each category is of type (TYPE DESCRIPTION-STRING).")
 (defun add-categories-node (parent context status definitions)
   "Add the STATUS DEFINITIONS categories nodes to PARENT in CONTEXT."
   (dolist (category *categories*)
-    (let ((filter (etypecase (first category)
+    (let ((filter (etypecase (second category)
 		    (symbol (lambda (definition)
-			      (typep definition (first category))))
-		    (function (first category)))))
+			      (typep definition (second category))))
+		    (function (second category)))))
       (when-let* (type-definitions (remove-if-not filter definitions))
 	;; #### WARNING: hack alert. A setf expander merged with its reader
 	;; funcoid will disappear from the Setf Expanders section. So we need
 	;; to filter those out as well here.
-	(when (eq (first category) 'expander-definition)
+	(when (eq (second category) 'expander-definition)
 	  (setq type-definitions
 		(remove-if (lambda (definition)
 			     (merge-expander-p (standalone-reader definition)
 					       definition))
 		    type-definitions)))
 	(when type-definitions
-	  (add-category-node parent context status (second category)
+	  (add-category-node parent context status (first category)
 			     type-definitions))))))
 
 (defun add-definitions-node
