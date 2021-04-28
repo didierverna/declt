@@ -993,15 +993,7 @@ More specifically, render DEFINITION's reader and writer references."
      ,(lambda (definition)
 	(or (typep definition 'compiler-macro-definition)
 	    (typep definition 'compiler-macro-alias-definition))))
-    ("setf expanders"
-     ,(lambda (definition)
-	(and (typep definition 'expander-definition)
-	     ;; #### WARNING: we need to redundantly perform this check here
-	     ;; because if all expanders were to be merged with their
-	     ;; standalone reader definition, we'd end up with an empty Setf
-	     ;; Expanders section.
-	     (not (merge-expander-p (standalone-reader definition)
-				    definition)))))
+    ("setf expanders" expander-definition)
     ("ordinary functions"
      ,(lambda (definition)
 	(or (typep definition 'ordinary-function-definition)
@@ -1024,16 +1016,26 @@ Each category is of the form (TITLE FILTER).
   of that type a retained, or a predicate function of one (definition)
   argument, which should return T if the definition is to be retained.")
 
-(defun add-category-node (parent context status category definitions)
+(defun add-category-node
+    (parent context status category definitions
+     ;; #### WARNING: in some cases, an existing definition will not be
+     ;; documented directly. For example, setf expanders could be merged with
+     ;; their standalone reader, the standard method combination would be
+     ;; skipped, etc. In some cases, this could result in the creation of an
+     ;; empty documentation section, even though the list of definitions is
+     ;; not nil. Rather than duplicating all the tests here, we simply let the
+     ;; documentation protocol proceed, and check afterwards that something
+     ;; was actually rendered before adding a new node for good.
+     &aux (contents (render-to-string
+		      (dolist (definition (sort definitions #'string-lessp
+					    :key #'definition-symbol))
+			(document definition context)))))
   "Add the STATUS CATEGORY node to PARENT for DEFINITIONS in CONTEXT."
-  (add-child parent
-    (make-node :name (format nil "~@(~A ~A~)" status category)
-	       :section-name (format nil "~@(~A~)" category)
-	       :before-menu-contents
-	       (render-to-string
-		 (dolist (definition (sort definitions #'string-lessp
-					   :key #'definition-symbol))
-		   (document definition context))))))
+  (unless (zerop (length contents))
+    (add-child parent
+      (make-node :name (format nil "~@(~A ~A~)" status category)
+		 :section-name (format nil "~@(~A~)" category)
+		 :before-menu-contents contents))))
 
 (defun add-categories-node (parent context status definitions)
   "Add the STATUS DEFINITIONS categories nodes to PARENT in CONTEXT."
