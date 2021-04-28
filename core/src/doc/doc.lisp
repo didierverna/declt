@@ -163,13 +163,19 @@ Rendering is done on *standard-output*."
 
 (defclass context ()
   ((hyperlinks :documentation
-	       "Whether to create hyperlinks for ASDF components.
-Currently supported values are NIL, and :file-system."
-	       :initarg :hyperlinks :accessor hyperlinks))
+	       "Whether to create hyperlinks to files or directories.
+Currently supported values are NIL (the default), and :file-system."
+	       :initform nil :initarg :hyperlinks :accessor hyperlinks))
   (:documentation "The class of rendering contexts."))
 
-(defun make-context ()
-  (make-instance 'context))
+(defun make-context (&rest keys &key hyperlinks)
+  "Make a new rendering context.
+The following keys are available.
+- HYPERLINKS: whether to create hyperlinks to files or directories.
+  Currently supported values are NIL (the default), and :file-system."
+  (declare (ignore hyperlinks))
+  (apply #'make-instance 'context keys))
+
 
 (define-method-combination document ()
   ((around (:around))

@@ -364,12 +364,13 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 		   copyright-years license
 		   introduction conclusion
 
+		   hyperlinks
+
 		   (output-directory #p"./")
 		   (file-name (if (stringp system-name)
 				system-name
 				(string-downcase system-name)))
 		   (info-name file-name)
-		   hyperlinks
 		   (declt-notice :long)
 
 	      &aux (current-time-string (current-time-string))
@@ -378,13 +379,16 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 				     :library-name :tagline :library-version
 				     :contact :copyright-years :license
 				     :introduction :conclusion)))
-		   (context (make-context)))
+		   (context (apply #'make-context
+			      (select-keys keys :hyperlinks))))
   "Generate a reference manual for ASDF SYSTEM-NAME.
 The reference manual is currently generated in Texinfo format.
 
 For a description of SYSTEM-NAME, LIBRARY-NAME, TAGLINE, LIBRARY-VERSION,
 CONTACT, COPYRIGHT-YEARS, LICENSE, INTRODUCTION, and CONCLUSION, see
 `extract'.
+
+For a description of HYPERLINKS, see `make-context'.
 
 The following keyword parameters are also available.
 - OUTPUT-DIRECTORY: output directory for the generated reference manual.
@@ -393,14 +397,13 @@ The following keyword parameters are also available.
   Defaults to the system name.
 - INFO-NAME: base name for the subsequent Info file, sans extension (this
   name appears in the Texinfo file). Defaults to FILE-NAME.
-- HYPERLINKS: create hyperlinks to files or directories. Defaults to NIL.
 - DECLT-NOTICE: small credit paragraph to Declt, or NIL. Defaults to
   :long. Also accepts :short."
   (declare (ignore library-name tagline library-version contact
 		   copyright-years license
-		   introduction conclusion))
+		   introduction conclusion
 
-  (setf (hyperlinks context) hyperlinks)
+		   hyperlinks))
 
   ;; Construct the nodes hierarchy.
   (with-standard-io-syntax
