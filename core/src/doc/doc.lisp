@@ -165,15 +165,19 @@ Rendering is done on *standard-output*."
   ((locations
     :documentation "Whether to hyperlink definitions to their locations.
 Currently supported values are NIL (the default), and :file-system."
-    :initform nil :initarg :locations :reader locations))
+    :initform nil :initarg :locations :reader locations)
+   (default-values
+    :documentation "Whether to render default / standard values."
+    :initform nil :initarg :default-values :reader default-values))
   (:documentation "The class of rendering contexts."))
 
-(defun make-context (&rest keys &key locations)
+(defun make-context (&rest keys &key locations default-values)
   "Make a new rendering context.
 The following keys are available.
 - LOCATIONS: whether to hyperlink definitions to their locations.
-  Currently supported values are NIL (the default), and :file-system."
-  (declare (ignore locations))
+  Currently supported values are NIL (the default), and :file-system.
+- DEFAULT-VALUES: whether to render default / standard values."
+  (declare (ignore locations default-values))
   (apply #'make-instance 'context keys))
 
 

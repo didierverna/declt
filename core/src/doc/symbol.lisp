@@ -67,12 +67,19 @@ Uninterned symbols are denoted by the ∅ package."
 ;; Utilities
 ;; ==========================================================================
 
-(defun render-package-reference (definition)
-  "Render a reference to DEFINITION's home package definition.
+(defun render-package-reference
+    (definition context
+     &optional force
+     &aux (home-package (home-package definition)))
+  "Render a reference to DEFINITION's home package definition in CONTEXT.
+When FORCE, render a reference to the Common Lisp package, even if CONTEXT
+says otherwise.
 Possibly render an \"uninterned\" mention instead of an actual reference,
 when there is no home package to reference."
-  (item ("Package")
-    (let ((home-package (home-package definition)))
+  (when (or (not (eq home-package (find-package :common-lisp)))
+	    (default-values context)
+	    force)
+    (item ("Package")
       (if home-package
 	(reference home-package t)
 	(format t "@i{none (uninterned)}.~%")))))
@@ -80,8 +87,7 @@ when there is no home package to reference."
 (defun render-definition-core (definition context)
   "Render DEFINITION's documentation core in CONTEXT.
 More specifically, render DEFINITION's package and source file references."
-  (declare (ignore context)) ;; for now
-  (render-package-reference definition)
+  (render-package-reference definition context)
   (when-let (source (source-file definition))
     (item ("Source") (reference source t))))
 
@@ -126,13 +132,14 @@ More specifically, render DEFINITION's package and source file references.
 As a special exception, slots don't reference their package, unless it differs
 from the slot's owner package, and never reference their source file, which is
 the same as their owner."
-  (unless (and (typep definition 'slot-definition)
-	       (eq (home-package definition)
-		   (home-package (owner definition))))
-    (render-package-reference definition))
-  (unless (typep definition 'slot-definition)
-    (when-let (source (source-file definition))
-      (item ("Source") (reference source t)))))
+  (typecase definition
+    (slot-definition
+     (unless (eq (home-package definition) (home-package (owner definition)))
+       (render-package-reference definition context t)))
+    (otherwise
+     (render-package-reference definition context)
+     (when-let (source (source-file definition))
+       (item ("Source") (reference source t))))))
 
 (defmethod document :close ((definition varoid-definition) context &key)
   "Close varoid DEFINITION's documentation environment in CONTEXT.
@@ -480,7 +487,9 @@ More specifically:
      &key
      &aux (combination (combination definition)))
   "Render generic function DEFINITION's combination reference in CONTEXT."
-  (when combination
+  (when (and combination
+	     (or (not (eq (name combination) 'standard))
+		 (default-values context)))
     (item ("Method Combination")
       (reference combination t)
       (terpri)
@@ -783,11 +792,16 @@ More specifically, render DEFINITION's direct superclasses, subclasses,
 methods, and initargs references."
   ;; #### TODO: we may want to change the titles below to display not only
   ;; "classes", but "structures" and "conditions" directly.
-  (render-references "Direct superclasses"
-    ;; #### WARNING: casing policy.
-    (sort (direct-superclassoids definition) #'string-lessp
-      :key #'definition-symbol)
-    t)
+  (let ((direct-superclassoids (direct-superclassoids definition)))
+    (unless (default-values context)
+      (setq direct-superclassoids
+	    ;; #### TODO: this is not completely correct. What about non-empty
+	    ;; superclass lists that do contain standard-object explicitly?
+	    (remove 'standard-object direct-superclassoids :key #'name)))
+    (render-references "Direct superclasses"
+      ;; #### WARNING: casing policy.
+      (sort direct-superclassoids #'string-lessp :key #'definition-symbol)
+      t))
   (render-references "Direct subclasses"
     ;; #### WARNING: casing policy.
     (sort (direct-subclassoids definition) #'string-lessp
@@ -876,22 +890,20 @@ methods, and initargs references."
   "Render slot DEFINITION's documentation in context.
 More specifically, render DEFINITION's value type, and for CLOS slots render
 allocation, initform, and initargs."
-  (when-let (value-type (value-type definition))
-    ;; #### FIXME: not rendering standard / default values should be a context
-    ;; choice.
-    (unless (eq value-type t)
+  (let ((value-type (value-type definition)))
+    (when (or (not (eq value-type t)) (default-values context))
       (item ("Type")
 	(format t "@t{~A}~%"
 	  ;; #### WARNING: casing policy.
-	  (escape (format nil "~(~S~)" (value-type definition)))))))
+	  (escape (format nil "~(~S~)" value-type))))))
   ;; Somewhat kludgy, but we want those close to the type definition.
   (when (typep definition 'clos-slot-definition)
     (flet ((render (value)
 	     (format t "@t{~A}~%"
 	       ;; #### WARNING: casing policy.
 	       (escape (format nil "~(~S~)" value)))))
-      (when-let (allocation (allocation definition))
-	(unless (eq allocation :instance)
+      (let ((allocation (allocation definition)))
+	(when (or (not (eq allocation :instance)) (default-values context))
 	  (item ("Allocation") (render allocation))))
       (when-let (initform (initform definition))
 	(item ("Initform") (render initform)))
