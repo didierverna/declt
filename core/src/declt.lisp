@@ -364,7 +364,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 		   copyright-years license
 		   introduction conclusion
 
-		   hyperlinks
+		   locations
 
 		   (output-directory #p"./")
 		   (file-name (if (stringp system-name)
@@ -380,7 +380,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 				     :contact :copyright-years :license
 				     :introduction :conclusion)))
 		   (context (apply #'make-context
-			      (select-keys keys :hyperlinks))))
+			      (select-keys keys :locations))))
   "Generate a reference manual for ASDF SYSTEM-NAME.
 The reference manual is currently generated in Texinfo format.
 
@@ -388,7 +388,7 @@ For a description of SYSTEM-NAME, LIBRARY-NAME, TAGLINE, LIBRARY-VERSION,
 CONTACT, COPYRIGHT-YEARS, LICENSE, INTRODUCTION, and CONCLUSION, see
 `extract'.
 
-For a description of HYPERLINKS, see `make-context'.
+For a description of LOCATIONS, see `make-context'.
 
 The following keyword parameters are also available.
 - OUTPUT-DIRECTORY: output directory for the generated reference manual.
@@ -403,7 +403,7 @@ The following keyword parameters are also available.
 		   copyright-years license
 		   introduction conclusion
 
-		   hyperlinks))
+		   locations))
 
   ;; Construct the nodes hierarchy.
   (with-standard-io-syntax

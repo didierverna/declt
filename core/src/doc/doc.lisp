@@ -162,18 +162,18 @@ Rendering is done on *standard-output*."
 ;; ==========================================================================
 
 (defclass context ()
-  ((hyperlinks :documentation
-	       "Whether to create hyperlinks to files or directories.
+  ((locations
+    :documentation "Whether to hyperlink definitions to their locations.
 Currently supported values are NIL (the default), and :file-system."
-	       :initform nil :initarg :hyperlinks :accessor hyperlinks))
+    :initform nil :initarg :locations :accessor locations))
   (:documentation "The class of rendering contexts."))
 
-(defun make-context (&rest keys &key hyperlinks)
+(defun make-context (&rest keys &key locations)
   "Make a new rendering context.
 The following keys are available.
-- HYPERLINKS: whether to create hyperlinks to files or directories.
+- LOCATIONS: whether to hyperlink definitions to their locations.
   Currently supported values are NIL (the default), and :file-system."
-  (declare (ignore hyperlinks))
+  (declare (ignore locations))
   (apply #'make-instance 'context keys))
 
 

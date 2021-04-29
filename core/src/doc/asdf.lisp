@@ -102,7 +102,7 @@ Documentation is done in a @table environment."
     (render-dependencies dependencies))
   (when-let (source (source-file definition))
     (item ("Source") (reference source t)))
-  (when (hyperlinks context)
+  (when (locations context)
     (item ("Location")
       (format t "@url{file://~A, ignore, @t{~:*~A}}~%"
 	(escape (location definition)))))
