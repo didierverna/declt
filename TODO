@@ -25,16 +25,8 @@ of keywords), but that would break on unreadable objects. A solution would be
 to "ignore-errors" on ~S, and fall back to ~A instead. Make this work along
 with format-tables.
 
-** Slots
-Document not only direct slots, but also overloads (additional initargs etc).
-
 ** modify macros
 Is there anything specific to do?
-
-** Default values
-Some standard values are not documented, e.g, standard method combination,
-instance allocation, etc. We could provide a rendering option to make those
-apparent.
 
 ** Backend
 Clean up the code so that Texinfo becomes a backend with a clean
@@ -104,19 +96,3 @@ repo !
 It may be nice to do it at some point. For example, I wonder if the abundance
 of STRING-CAPITALIZE on category names is costly, in which case we could
 change the protocol to provide both versions as premade compile-time strings.
-
-** Memory address problems
-I have trouble with EQL specializers on things that are probably created
-dynamically at load-time. This happens in mcclim and
-com.clearly-useful.generic-collection-interface. There are references to
-things like #<EQLSPECIALIZER ... {address}>, but later on (in method
-definitions), the hexadecimal address seems to have changed. I don't know what
-to do about this. In fact, I don't fully understand the problem.
-
-** Duplicate anchor problems
-There are still some of those, due to very similar objects, such as different
-classes with identical names (e.g. gendl:remote-object). I'm not sure about
-the purpose of those. I probably have to implement a simpler anchoring
-mechanism, sacrificing readability of anchors (that was for Info) by using
-an auto-incrementing counter of some sort. There will still be a problem left:
-the documentation will have different items looking *very* similar.
