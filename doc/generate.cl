@@ -95,10 +95,10 @@ for a more human-readable guide to using @declt{}."
 (asdf:load-system :net.didierverna.declt)
 (net.didierverna.declt:nickname-package)
 
-(defvar *hyperlinks* nil)
+(defvar *locations* nil)
 (when (and (second sb-ext:*posix-argv*)
-	   (string= (second sb-ext:*posix-argv*) "--hyperlinks"))
-  (setq *hyperlinks* t))
+	   (string= (second sb-ext:*posix-argv*) "--locations"))
+  (setq *locations* t))
 
 ;; ASDF doesn't understand my version numbering scheme. That will change soon,
 ;; but in the meantime, I have to provide my version number explicitly here.
@@ -108,9 +108,9 @@ for a more human-readable guide to using @declt{}."
 	     :copyright-years declt:*copyright-years*
 	     :license :bsd
 	     :introduction +introduction+
+	     :locations *locations*
 	     :file-name "reference"
-	     :info-name "declt-reference"
-	     :hyperlinks *hyperlinks*)
+	     :info-name "declt-reference")
 
 (uiop:quit)
 
