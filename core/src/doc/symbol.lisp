@@ -80,6 +80,7 @@ when there is no home package to reference."
 (defun render-definition-core (definition context)
   "Render DEFINITION's documentation core in CONTEXT.
 More specifically, render DEFINITION's package and source file references."
+  (declare (ignore context)) ;; for now
   (render-package-reference definition)
   (when-let (source (source-file definition))
     (item ("Source") (reference source t))))
