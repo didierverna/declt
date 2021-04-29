@@ -165,7 +165,7 @@ Rendering is done on *standard-output*."
   ((locations
     :documentation "Whether to hyperlink definitions to their locations.
 Currently supported values are NIL (the default), and :file-system."
-    :initform nil :initarg :locations :accessor locations))
+    :initform nil :initarg :locations :reader locations))
   (:documentation "The class of rendering contexts."))
 
 (defun make-context (&rest keys &key locations)
