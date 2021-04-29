@@ -125,8 +125,8 @@ dot by default) or NIL."
   (@ref (anchor-name definition) (string-downcase (safe-name definition)))
   (if short
     (when punctuation (write-char punctuation))
-    ;; #### NOTE: Texinfo adds a comma automatically here.
-    (format t " ~A" (category-name definition))))
+    ;; #### NOTE: beware of Texinfo adding a comma automatically here.
+    (format t "@: (~A)~@[~A~]" (category-name definition) punctuation)))
 
 (defun render-docstring (item)
   "Render ITEM's documentation string.
