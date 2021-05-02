@@ -116,13 +116,18 @@ It is of the form \"The <qualified safe name> <type name>\"."
   (anchor definition)
   (index definition))
 
-(defun reference (definition &optional short (punctuation #\.))
-  "Render a possibly SHORT DEFINITION's reference on *STANDARD-OUTPUT*.
+(defun reference (definition context &optional short (punctuation #\.))
+  "Render a possibly SHORT DEFINITION's reference in CONTEXT.
+Rendering is done on *STANDARD-OUTPUT*.
+When DEFINITION is foreign and CONTEXT disables their rendering, the produced
+reference is just text. Otherwise, an actual link is created.
 Unless SHORT, the DEFINITION type is advertised after the reference
 itself. When SHORT, the reference is followed by a PUNCTUATION character (a
 dot by default) or NIL."
   ;; #### WARNING: casing policy.
-  (@ref (anchor-name definition) (string-downcase (safe-name definition)))
+  (if (and (foreignp definition) (not (foreign-definitions context)))
+    (format t "@t{~A}" (escape-label (string-downcase (safe-name definition))))
+    (@ref (anchor-name definition) (string-downcase (safe-name definition))))
   (if short
     (when punctuation (write-char punctuation))
     ;; #### NOTE: beware of Texinfo adding a comma automatically here.
@@ -134,16 +139,18 @@ Rendering is done on *standard-output*."
   (when-let (docstring (docstring item))
     (render-text docstring)))
 
-;; #### FIXME: concatenate TITLE with ~p and format it to handle length = 1.
+;; #### FIXME: concatenate TITLE with ~p and format it to handle length = 1,
+;; and cleanup the RENDERER mess that's useless in the first IF clause.
 #i(render-references 1)
-(defun render-references (title definitions
+(defun render-references (title definitions context
 			  &optional short
 			  &aux (length (length definitions))
 			       (renderer (if short
 					   (lambda (definition)
-					     (reference definition t))
-					   #'reference)))
-  "Render an enTITLEd list of possibly SHORT references to DEFINITIONS.
+					     (reference definition context t))
+					   (lambda (definition)
+					     (reference definition context)))))
+  "Render an enTITLEd list of [SHORT] references to DEFINITIONS in CONTEXT.
 See `reference' for the meaning of SHORT. The list is rendered in an itemized
 table item, unless there is only one definition in which case it appears
 directly as the table item's contents.
@@ -151,7 +158,7 @@ Rendering is done on *standard-output*."
   (unless (zerop length)
     (item (title)
       (if (= length 1)
-	(reference (first definitions) short)
+	(reference (first definitions) context short)
 	(itemize-list definitions :renderer renderer)))))
 
 
@@ -168,21 +175,26 @@ Currently supported values are NIL (the default), and :file-system."
     :initform nil :initarg :locations :reader locations)
    (default-values
     :documentation "Whether to render default / standard values."
-    :initform nil :initarg :default-values :reader default-values))
+    :initform nil :initarg :default-values :reader default-values)
+   (foreign-definitions
+    :documentation "Whether to render foreign definitions."
+    :initform nil :initarg :foreign-definitions :reader foreign-definitions))
   (:documentation "The class of rendering contexts."))
 
-(defun make-context (&rest keys &key locations default-values)
+(defun make-context
+    (&rest keys &key locations default-values foreign-definitions)
   "Make a new rendering context.
 The following keys are available.
 - LOCATIONS: whether to hyperlink definitions to their locations.
   Currently supported values are NIL (the default), and :file-system.
-- DEFAULT-VALUES: whether to render default / standard values."
-  (declare (ignore locations default-values))
+- DEFAULT-VALUES: whether to render default / standard values.
+- FOREIGN-DEFINITIONS: whether to render foreign definitions."
+  (declare (ignore locations default-values foreign-definitions))
   (apply #'make-instance 'context keys))
 
 
 (define-method-combination document ()
-  ((around (:around))
+  ((around (:around) :order :most-specific-last)
    (open (:open))
    (body () :order :most-specific-last)
    (close (:close)))
@@ -193,9 +205,10 @@ This method combination provides the following four method groups:
 - body methods (no qualifier),
 - closing methods (optional, :close qualifier).
 
-Around methods behave like those of the standard method combination. They can
-be used to conditionalize the actual rendering of documentation, for example
-in order to filter out definitions that are merged with others.
+Around methods behave like those of the standard method combination, except
+that they are ordered most specific last. They can be used to conditionalize
+the actual rendering of documentation, for example in order to filter out
+definitions that are merged with others.
 
 The main methods block behaves as follows.
 - The most specific opening method, if any, is executed.
@@ -218,6 +231,10 @@ regardless of the group."
 
 (defgeneric document (definition context &key &allow-other-keys)
   (:documentation "Render DEFINITION's documentation in CONTEXT.")
+  (:method :around (definition context &key)
+    "Check whether to render foreign DEFINITIONs."
+    (unless (and (foreignp definition) (not (foreign-definitions context)))
+      (call-next-method)))
   (:method-combination document))
 
 ;;; doc.lisp ends here

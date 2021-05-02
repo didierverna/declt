@@ -47,7 +47,7 @@
   (render-docstring definition)
   (table ()
     (when-let (source (source-file definition))
-      (item ("Source") (reference source t)))
+      (item ("Source") (reference source context t)))
     (when-let* ((nicknames (nicknames definition))
 		(length (length nicknames)))
       (item ((format nil "Nickname~p" length))
@@ -57,10 +57,12 @@
     ;; #### WARNING: casing policy.
     (render-references "Use List"
       (sort (use-list definition) #'string-lessp :key #'name)
+      context
       t)
     ;; #### WARNING: casing policy.
     (render-references "Used By List"
       (sort (used-by-list definition)  #'string-lessp :key #'name)
+      context
       t)
     ;; #### NOTE: classoids and their slots are documented in a single bloc.
     ;; As a consequence, if a classoid belongs to this package, there's no
@@ -80,9 +82,11 @@
 		 #'string-lessp ;; #### WARNING: casing policy.
 	       :key #'definition-symbol)))
       (render-references "Public Interface"
-	(organize-definitions (public-definitions definition)))
+	(organize-definitions (public-definitions definition))
+	context)
       (render-references "Internals"
-	(organize-definitions (private-definitions definition))))))
+	(organize-definitions (private-definitions definition))
+	context))))
 
 
 
@@ -94,19 +98,21 @@
   "Add the packages node to PARENT in EXTRACT."
   (when-let (definitions
 	     (remove-if-not #'package-definition-p (definitions extract)))
-    (let ((packages-node
-	    (add-child parent
-	      (make-node :name "Packages"
-			 :synopsis "The packages documentation"
-			 :before-menu-contents (format nil "~
+    (unless (and (every #'foreignp definitions)
+		 (not (foreign-definitions context)))
+      (let ((packages-node
+	      (add-child parent
+		(make-node :name "Packages"
+			   :synopsis "The packages documentation"
+			   :before-menu-contents (format nil "~
 Packages are listed by definition order.")))))
-      (dolist (definition definitions)
-	#+()(remove-if #'foreignp package-definitions)
-	(add-child packages-node
-	  (make-node :name (long-title definition)
-		     :section-name (format nil "@t{~(~A~)}"
-				     (escape (safe-name definition t)))
-		     :before-menu-contents
-		     (render-to-string (document definition context))))))))
+	(dolist (definition definitions)
+	  (let ((contents (render-to-string (document definition context))))
+	    (unless (zerop (length contents))
+	      (add-child packages-node
+		(make-node :name (long-title definition)
+			   :section-name (format nil "@t{~(~A~)}"
+					   (escape (safe-name definition t)))
+			   :before-menu-contents contents)))))))))
 
 ;;; package.lisp ends here

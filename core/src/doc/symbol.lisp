@@ -81,7 +81,7 @@ when there is no home package to reference."
 	    force)
     (item ("Package")
       (if home-package
-	(reference home-package t)
+	(reference home-package context t)
 	(format t "@i{none (uninterned)}.~%")))))
 
 (defun render-definition-core (definition context)
@@ -89,7 +89,7 @@ when there is no home package to reference."
 More specifically, render DEFINITION's package and source file references."
   (render-package-reference definition context)
   (when-let (source (source-file definition))
-    (item ("Source") (reference source t))))
+    (item ("Source") (reference source context t))))
 
 
 
@@ -139,7 +139,7 @@ the same as their owner."
     (otherwise
      (render-package-reference definition context)
      (when-let (source (source-file definition))
-       (item ("Source") (reference source t))))))
+       (item ("Source") (reference source context t))))))
 
 (defmethod document :close ((definition varoid-definition) context &key)
   "Close varoid DEFINITION's documentation environment in CONTEXT.
@@ -317,11 +317,12 @@ More specifically:
 - render references to all setf expanders expanding to DEFINITION."
   (when (and expander-for (not merge-expander))
     (item ((format nil "Setf expander for this ~A" category))
-      (reference expander-for t)))
+      (reference expander-for context t)))
   (when-let (expanders-to (expanders-to definition))
     (render-references (format nil "Setf expanders to this ~A" category)
       ;; #### WARNING: casing policy.
       (sort expanders-to #'string-lessp :key #'definition-symbol)
+      context
       t)))
 
 
@@ -329,7 +330,7 @@ More specifically:
 ;; Accessor mixin
 (defmethod document ((definition accessor-mixin) context &key)
   "Render accessor mixin DEFINITION's target slot reference in CONTEXT."
-  (item ("Target Slot") (reference (target-slot definition) t)))
+  (item ("Target Slot") (reference (target-slot definition) context t)))
 
 
 
@@ -411,13 +412,13 @@ More specifically:
 (defmethod document ((definition expander-definition) context &key)
   "Render setf expander DEFINITION's standalone reader reference in CONTEXT."
   (when-let (standalone-reader (standalone-reader definition))
-    (item ("Reader") (reference standalone-reader))))
+    (item ("Reader") (reference standalone-reader context))))
 
 (defmethod document ((definition short-expander-definition) context &key)
   "Render short expander DEFINITION's standalone writer reference in CONTEXT."
   (let ((standalone-writer (standalone-writer definition)))
     (cond (standalone-writer
-	   (item ("Writer") (reference standalone-writer)))
+	   (item ("Writer") (reference standalone-writer context)))
 	  ((not (foreignp definition))
 	   (item ("Writer") (princ "@i{missing}"))))))
 
@@ -491,7 +492,7 @@ More specifically:
 	     (or (not (eq (name combination) 'standard))
 		 (default-values context)))
     (item ("Method Combination")
-      (reference combination t)
+      (reference combination context t)
       (terpri)
       (when-let (options (mapcar (lambda (option)
 				   ;; #### FIXME: see TODO on format-tables.
@@ -633,13 +634,14 @@ permitted."
   (render-references "Client Functions"
     ;; #### WARNING: casing policy.
     (sort (clients definition) #'string-lessp :key #'definition-symbol)
+    context
     t))
 
 (defmethod document ((definition short-combination-definition) context &key)
   "Render short method combination DEFINITION's documentation in CONTEXT."
   (let ((standalone-combinator (standalone-combinator definition)))
     (cond (standalone-combinator
-	   (item ("Operator") (reference standalone-combinator)))
+	   (item ("Operator") (reference standalone-combinator context)))
 	  ((not (foreignp definition))
 	   (item ("Operator") (princ "@i{missing}")))))
   (item ("Identity with one argument")
@@ -692,8 +694,8 @@ permitted."
 ;; customizable.
 ;; #### PORTME.
 (defun safe-specializers
-    (definition &aux (specializers (specializers definition)))
-  "Return a list of safe specializers for method DEFINITION.
+    (definition context &aux (specializers (specializers definition)))
+  "Return a list of safe specializers for method DEFINITION in CONTEXT.
 A safe specializer is the printed form of either a reference to a class
 definition, or an EQL specializer's type name. For setf and writer
 definitions, only the specializers rest is used, as these methods get the new
@@ -705,7 +707,7 @@ value as their first argument."
 	:collect (typecase specializer
 		   (definition
 		    (with-output-to-string (*standard-output*)
-		      (reference specializer t (when (cdr rest) #\,))))
+		      (reference specializer context t (when (cdr rest) #\,))))
 		   ;; #### WARNING: casing policy.
 		   (otherwise (format nil "~(~S~)~:[~;, ~]"
 				(sb-pcl::specializer-type specializer)
@@ -728,7 +730,7 @@ More specifically:
   (@deffn (string-capitalize (category-name definition))
     ;; #### WARNING: casing policy.
     (string-downcase (safe-name definition))
-    (safe-specializers definition)
+    (safe-specializers definition context)
     (when-let (qualifiers (qualifiers definition))
       (format nil "~(~{~S~^ ~}~)" qualifiers)))
   (anchor-and-index definition)
@@ -736,7 +738,7 @@ More specifically:
     (@deffnx (string-capitalize (category-name writer))
 	;; #### WARNING: casing policy.
 	(string-downcase (safe-name writer))
-      (safe-specializers writer)
+      (safe-specializers writer context)
       (when-let (qualifiers (qualifiers writer))
 	(format nil "~(~{~S~^ ~}~)" qualifiers)))
     (anchor-and-index writer))
@@ -744,7 +746,7 @@ More specifically:
   (@table)
   (when-let (source-file (source-file definition))
     (unless (equal source-file (source-file (owner definition)))
-      (item ("Source") (reference source-file t)))))
+      (item ("Source") (reference source-file context t)))))
 
 
 
@@ -801,16 +803,19 @@ methods, and initargs references."
     (render-references "Direct superclasses"
       ;; #### WARNING: casing policy.
       (sort direct-superclassoids #'string-lessp :key #'definition-symbol)
+      context
       t))
   (render-references "Direct subclasses"
     ;; #### WARNING: casing policy.
     (sort (direct-subclassoids definition) #'string-lessp
       :key #'definition-symbol)
+    context
     t)
   (render-references "Direct methods"
     ;; #### WARNING: casing policy.
     (sort (direct-methods definition) #'string-lessp
       :key #'definition-symbol)
+    context
     t)
   (when-let (initargs (direct-default-initargs definition))
     (item ("Direct Default Initargs")
@@ -924,12 +929,14 @@ More specifically, render DEFINITION's reader and writer references."
   (render-references "Readers"
     ;; #### WARNING: casing policy.
     (sort (readers definition) #'string-lessp :key #'definition-symbol)
+    context
     t)
   (if (and (readers definition) (not (writers definition)))
     (item ("Writers") (format t "@i{This slot is read-only.}~%"))
     (render-references "Writers"
       ;; #### WARNING: casing policy.
       (sort (writers definition) #'string-lessp :key #'definition-symbol)
+      context
       t)))
 
 ;; #### TODO: if/when we update RENDER-REFERENCES to handle plural, we can
@@ -937,10 +944,10 @@ More specifically, render DEFINITION's reader and writer references."
 (defmethod document ((definition typed-structure-slot-definition) context &key)
   "Render typed structure slot DEFINITION's documentation in CONTEXT.
 More specifically, render DEFINITION's reader and writer references."
-  (render-references "Reader" (readers definition) t)
+  (render-references "Reader" (readers definition) context t)
   (if (and (readers definition) (not (writers definition)))
     (item ("Writer") (format t "@i{This slot is read-only.}~%"))
-    (render-references "Writer" (writers definition) t)))
+    (render-references "Writer" (writers definition) context t)))
 
 
 
@@ -966,7 +973,7 @@ More specifically, render DEFINITION's reader and writer references."
     (render-docstring definition)
     (table ()
       (render-definition-core definition context)
-      (item ("Alias for") (reference (referee definition) t)))))
+      (item ("Alias for") (reference (referee definition) context t)))))
 
 
 
@@ -1031,14 +1038,9 @@ Each category is of the form (TITLE FILTER).
 
 (defun add-category-node
     (parent context status category definitions
-     ;; #### WARNING: in some cases, an existing definition will not be
-     ;; documented directly. For example, setf expanders could be merged with
-     ;; their standalone reader, the standard method combination would be
-     ;; skipped, etc. In some cases, this could result in the creation of an
-     ;; empty documentation section, even though the list of definitions is
-     ;; not nil. Rather than duplicating all the tests here, we simply let the
-     ;; documentation protocol proceed, and check afterwards that something
-     ;; was actually rendered before adding a new node for good.
+     ;; #### NOTE: whether a definition will be rendered here is slightly more
+     ;; complex than for ASDF systems or packages (where only the foreign
+     ;; status matters). Rendering is also influenced by merging notably.
      &aux (contents (render-to-string
 		      (dolist (definition (sort definitions #'string-lessp
 					    :key #'definition-symbol))

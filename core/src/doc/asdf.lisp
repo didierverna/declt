@@ -47,12 +47,12 @@ element being the name of a component's parent."
 		 (call-next-method definition))
     (call-next-method definition)))
 
-(defun render-dependency (dependency)
-  "Render a resolved DEPENDENCY specification.
+(defun render-dependency (dependency context)
+  "Render a resolved DEPENDENCY specification in CONTEXT.
 See `resolve-dependency-specification' for more information."
   (if (listp (car dependency))
-    (render-dependency (car dependency))
-    (reference (car dependency)))
+    (render-dependency (car dependency) context)
+    (reference (car dependency) context))
   (when (cdr dependency)
     ;; #### WARNING: case conversion.
     (format t ", ~A~@[ @t{~(~A~)}~]"
@@ -64,12 +64,16 @@ See `resolve-dependency-specification' for more information."
 	(escape (prin1-to-string (third dependency)))))))
 
 (defun render-dependencies
-    (dependencies &optional (prefix "") &aux (length (length dependencies)))
-  "Render COMPONENT's DEPENDENCIES, optionally PREFIXing the title."
+    (dependencies context
+     &optional (prefix "")
+     &aux (length (length dependencies)))
+  "Render COMPONENT's DEPENDENCIES in CONTEXT, optionally PREFIXing the title."
   (item ((format nil "~ADependenc~@p" prefix length))
     (if (eq length 1)
-      (render-dependency (first dependencies))
-      (itemize-list dependencies :renderer #'render-dependency))))
+      (render-dependency (first dependencies) context)
+      (itemize-list dependencies
+	:renderer (lambda (dependency)
+		    (render-dependency dependency context))))))
 
 (defmethod document :around
     ((definition component-definition) context &key)
@@ -97,17 +101,17 @@ Documentation is done in a @table environment."
   ;; references together.
   (when-let (dependencies (when (typep definition 'system-definition)
 			    (defsystem-dependencies definition)))
-    (render-dependencies dependencies "Defsystem "))
+    (render-dependencies dependencies context "Defsystem "))
   (when-let (dependencies (dependencies definition))
-    (render-dependencies dependencies))
+    (render-dependencies dependencies context))
   (when-let (source (source-file definition))
-    (item ("Source") (reference source t)))
+    (item ("Source") (reference source context t)))
   (when (locations context)
     (item ("Location")
       (format t "@url{file://~A, ignore, @t{~:*~A}}~%"
 	(escape (location definition)))))
   (when-let (parent (parent definition))
-    (item ("Parent Component") (reference parent))))
+    (item ("Parent Component") (reference parent context))))
 
 
 
@@ -143,9 +147,11 @@ Documentation is done in a @table environment."
   ;; option someday.
   (render-references "ASDF Systems"
     (remove-if-not #'system-definition-p (definitions definition))
+    context
     t)
   (render-references "Packages"
     (remove-if-not #'package-definition-p (definitions definition))
+    context
     t)
   ;; #### NOTE: generic functions and their methods are documented in a single
   ;; bloc. As a consequence, if a generic function belongs to this file,
@@ -165,9 +171,11 @@ Documentation is done in a @table environment."
 	       #'string-lessp ;; #### WARNING: casing policy.
 	     :key #'definition-symbol)))
     (render-references "Public Interface"
-      (organize-definitions (public-definitions definition)))
+      (organize-definitions (public-definitions definition))
+      context)
     (render-references "Internals"
-      (organize-definitions (private-definitions definition)))))
+      (organize-definitions (private-definitions definition))
+      context)))
 
 
 
@@ -251,8 +259,9 @@ components trees.")))))
 	      (length (length children)))
     (item ((format nil "Child Component~p" length))
       (if (eq length 1)
-	(reference (first children))
-	(itemize-list children :renderer #'reference)))))
+	(reference (first children) context)
+	(itemize-list children
+	  :renderer (lambda (child) (reference child context)))))))
 
 
 
@@ -361,11 +370,12 @@ The main system appears first, followed by any subsystem dependency.")))))
   "Add the systems node to PARENT in EXTRACT."
   (dolist (definition
 	   (remove-if-not #'system-definition-p (definitions extract)))
-    (add-child systems-node
-      (make-node :name (long-title definition)
-		 :section-name (format nil "@t{~A}"
-				 (escape (safe-name definition t)))
-		 :before-menu-contents
-		 (render-to-string (document definition context))))))
+    (let ((contents (render-to-string (document definition context))))
+      (unless (zerop (length contents))
+	(add-child systems-node
+	  (make-node :name (long-title definition)
+		     :section-name (format nil "@t{~A}"
+				     (escape (safe-name definition t)))
+		     :before-menu-contents contents))))))
 
 ;;; asdf.lisp ends here
