@@ -705,13 +705,6 @@ DEFINITIONS in the process."
 ;; ASDF Components
 ;; ---------------
 
-(defun make-component-definition (component &optional foreign)
-  "Make a new COMPONENT definition of the appropriate class, possibly FOREIGN."
-  (etypecase component
-    (asdf:system (make-system-definition component foreign))
-    (asdf:module (make-module-definition component foreign))
-    (asdf:file-component (make-file-definition component foreign))))
-
 (defun resolve-dependency-specification
     (specification component definitions foreign &aux inner)
   "Resolve dependency SPECIFICATION for (FOREIGN) COMPONENT in DEFINITIONS.
@@ -741,7 +734,10 @@ return a list of the updated specification (suitable to MAPCAN)."
 		  (when extension (string= extension "asd"))))
       (setq definition
 	    (destabilize definitions
-	      (make-component-definition dependency t))))
+	      (etypecase dependency
+		(asdf:system (make-system-definition dependency t))
+		(asdf:module (make-module-definition dependency t))
+		(asdf:file-component (make-file-definition dependency t))))))
     (when definition
       (rplaca inner definition)
       (list specification))))
