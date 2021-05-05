@@ -47,7 +47,7 @@
 
 ;; #### PORTME.
 (defun definition-source-by-name
-    (definition type &key (name (name definition)))
+    (definition type &aux (name (name definition)))
   "Return DEFINITION's source for TYPE."
   (when-let (sources (sb-introspect:find-definition-sources-by-name name type))
     (sb-introspect:definition-source-pathname (first sources))))
