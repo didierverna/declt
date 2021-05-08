@@ -46,7 +46,7 @@ object."
     :initform nil :accessor source-file)
    (foreign
     :documentation "Whether this definition is foreign."
-    :initform nil :initarg :foreign :reader foreignp))
+    :initform nil :initarg :foreign :accessor foreignp))
   (:documentation "Abstract root class for all definitions.
 All definitions respond to the following public protocols, which see:
 - `name',
@@ -109,6 +109,19 @@ This is the default method for heterogeneous definitions lists."
 ;; ==========================================================================
 ;; Internal Utility Protocols
 ;; ==========================================================================
+
+#i(domesticp 2)
+(defun domesticp (symbol pathname packages pathnames)
+  "Return T if a definition for SYMBOL originating in PATHNAME is domestic.
+A definition is considered domestic under the following conditions:
+- its originating PATHNAME is known (non NIL) and one of domestic PATHNAMES,
+- its originating PATHNAME is unknown, but the SYMBOL's home package is one of
+  domestic PACKAGES.
+Note that a definition for a domestic symbol, but originating in a foreign
+source file is considered foreign."
+  (if pathname
+    (member pathname pathnames :test #'equal)
+    (member (symbol-package symbol) packages)))
 
 (defun find-definition (object definitions)
   "Find a definition for OBJECT in DEFINITIONS."

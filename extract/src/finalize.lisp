@@ -62,8 +62,9 @@ This variable is set to NIL whenever new definitions are created during the
 process. Stabilization is run over and over again until nothing moves
 anymore.")
 
-(defgeneric stabilize (definition definitions)
-  (:documentation "Stabilize DEFINITION in DEFINITIONS.")
+(defgeneric stabilize (definition definitions packages pathnames)
+  (:documentation
+   "Stabilize DEFINITION in DEFINITIONS and domestic PACKAGES and PATHNAMES.")
   (:method-combination progn))
 
 #i(destabilize 1)
@@ -83,24 +84,41 @@ that definition."
 ;; Utilities
 ;; ---------
 
-(defun make-foreign-generic-definition (generic)
-  "Make a new foreign GENERIC function definition."
+;; #### FIXME: these two names are plain ugly.
+
+(defun new-generic-definition (generic packages pathnames)
+  "Make a new foreign GENERIC function definition.
+PACKAGES and PATHNAMES are used to determine domesticity."
   (let* ((name (generic-function-name generic))
 	 (setf (consp name))
 	 (symbol (if setf (second name) name)))
-    (make-generic-function-definition symbol generic :setf setf :foreign t)))
+    (make-generic-function-definition
+     symbol generic
+     :setf setf
+     :foreign (not (domesticp symbol (object-source-pathname generic)
+		     packages pathnames)))))
 
-(defun foreign-funcoid-definition (name &aux (macro (macro-function name)))
-  "Return a new foreign macro or function definition for NAME, or NIL."
+(defun new-funcoid-definition
+    (name packages pathnames &aux (macro (macro-function name)))
+  "Return a new macro or function definition for NAME, or NIL.
+PACKAGES and PATHNAMES are used to determine domesticity."
   (if macro
-    (make-macro-definition name macro t)
+    (make-macro-definition
+     name macro
+     (not (domesticp name (object-source-pathname macro) packages pathnames)))
     (let ((function (when (fboundp name) (fdefinition name))))
       (typecase function
 	(generic-function
 	 ;; No need to go through the above here. We have more information.
-	 (make-generic-function-definition name function :foreign t))
+	 (make-generic-function-definition
+	  name function
+	  :foreign (not (domesticp name (object-source-pathname function)
+			  packages pathnames))))
 	(otherwise
-	 (make-ordinary-function-definition name function :foreign t))))))
+	 (make-ordinary-function-definition
+	  name function
+	  :foreign (not (domesticp name (object-source-pathname function)
+			  packages pathnames))))))))
 
 
 
@@ -108,11 +126,14 @@ that definition."
 ;; All Definitions
 ;; ---------------
 
-(defmethod stabilize progn ((definition definition) definitions)
+(defmethod stabilize progn
+    ((definition definition) definitions packages pathnames)
   "Compute DEFINITION's source file definition."
   (unless (source-file definition)
     (when-let (source-pathname (source-pathname definition))
       (setf (source-file definition)
+	    ;; #### NOTE: currently, we don't ever create foreign source file
+	    ;; definitions but this may change in the future.
 	    (find* source-pathname definitions
 		   :pre-test #'lisp-file-definition-p
 		   :key (lambda (candidate)
@@ -126,7 +147,7 @@ that definition."
 ;; ------------------
 
 (defmethod stabilize progn
-    ((definition symbol-definition) definitions
+    ((definition symbol-definition) definitions packages pathnames
      &aux (package (symbol-package (definition-symbol definition))))
   "Compute symbol DEFINITION's home package definition.
 New foreign package definitions may be created and added at the end of
@@ -147,38 +168,41 @@ DEFINITIONS in the process."
 ;; --------------------
 
 (defmethod stabilize progn
-    ((definition setfable-funcoid-definition) definitions
+    ((definition setfable-funcoid-definition) definitions packages pathnames
      &aux (name (definition-symbol definition)))
   "Compute DEFINITION's expander-for and expanders-to references."
   (unless (setfp definition)
-    (let ((lambda-list (lambda-list definition)))
-      ;; #### NOTE: this definition and a potential expander-for share the
-      ;; same symbol. Consequently, if this symbol is one of our own, we
-      ;; /will/ find an expander-for in the already existing definitions, if
-      ;; it exists. If, on the other hand, if DEFINITION is foreign, then so
-      ;; will the expander-for, and thus we don't care if it's not found. To
-      ;; put it differently, we never need to create a foreign expander
-      ;; definition here.
-      (unless (expander-for definition)
-	(setf (expander-for definition)
+    (unless (expander-for definition)
+      (let ((expander-for
 	      (find-if (lambda (candidate)
 			 (and (typep candidate 'expander-definition)
 			      ;; don't want the setf part
 			      (eq (definition-symbol candidate) name)
-			      (equal (lambda-list candidate) lambda-list)))
+			      (equal (lambda-list candidate)
+				     (lambda-list definition))))
 		       definitions)))
-      ;; #### TODO: in the code below, we're looking for expanders-to only in
-      ;; the current list of definitions. Although it may contain foreign
-      ;; definitions, it could also be incomplete. In order to be exhaustive
-      ;; for our own definitions if not for foreign ones, we would need to go
-      ;; through all existing symbols.
-      ;; #### NOTE: a case could be made to avoid rebuilding the whole list
-      ;; here, and only add what's missing, but I don't think it's worth the
-      ;; trouble.
-      (setf (expanders-to definition)
-	    (retain name definitions
-	      :pre-test #'short-expander-definition-p
-	      :key (lambda (definition) (car (expander definition))))))))
+	(unless (or expander-for (foreignp definition))
+	  (when-let (expander (sb-int:info :setf :expander name))
+	    (setq expander-for
+		  (destabilize definitions
+		    (make-expander-definition
+		     name expander
+		     (not
+		      (domesticp name (source-by-name name :setf-expander)
+			packages pathnames)))))))
+	(setf (expander-for definition) expander-for)))
+    ;; #### TODO: in the code below, we're looking for expanders-to only in
+    ;; the current list of definitions. Although it may contain foreign
+    ;; definitions, it could also be incomplete. In order to be exhaustive
+    ;; for our own definitions if not for foreign ones, we would need to go
+    ;; through all existing symbols.
+    ;; #### NOTE: a case could be made to avoid rebuilding the whole list
+    ;; here, and only add what's missing, but I don't think it's worth the
+    ;; trouble.
+    (setf (expanders-to definition)
+	  (retain name definitions
+	    :pre-test #'short-expander-definition-p
+	    :key (lambda (definition) (car (expander definition)))))))
 
 
 ;; #### WARNING: there is no stabilization method for the accessor mixin. This
@@ -191,32 +215,55 @@ DEFINITIONS in the process."
 ;; Setf expanders
 ;; --------------
 
-;; #### WARNING: in fact, take the comments above and below with a grain of
-;; salt. Especially because of the way we handle expanders-to above, we
-;; actually don't currently create foreign expanders, ever...
-
 (defmethod stabilize progn
-    ((definition expander-definition) definitions
+    ((definition expander-definition) definitions packages pathnames
      &aux (name (definition-symbol definition))) ;; don't want the setf part
   "Compute setf expander DEFINTIION's standalone reader definition."
-  ;; #### NOTE: same remark as above when stabilizing and expander-for
-  ;; definition: if this expander is our own, then we /will/ find a definition
-  ;; for its standalone-reader if it exists, as it is for the same symbol.
-  ;; Otherwise, we don't care if we find a definition or not. So we never need
-  ;; to create a foreign standalone reader definition.
   (multiple-value-bind (lambda-list unavailable) (lambda-list definition)
     (unless (or (standalone-reader definition) unavailable)
-      (setf (standalone-reader definition)
-	    (find-if (lambda (candidate)
-		       (and (or (typep candidate 'macro-definition)
-				(typep candidate 'function-definition))
-			    ;; this will filter out setf functions
-			    (eq (name candidate) name)
-			    (equal (lambda-list candidate) lambda-list)))
-		     definitions)))))
+      (let ((standalone-reader
+	      (find-if (lambda (candidate)
+			 (and (or (typep candidate 'macro-definition)
+				  (typep candidate 'function-definition))
+			      ;; this will filter out setf functions
+			      (eq (name candidate) name)
+			      (equal (lambda-list candidate) lambda-list)))
+		       definitions)))
+	(unless (or standalone-reader (foreignp definition))
+	  ;; #### TODO: perhaps we should check for aliasing here. On the
+	  ;; other hand, we're creating a foreign definition so maybe we don't
+	  ;; care that much.
+	  (when-let (macro (macro-function name))
+	    (setq standalone-reader
+		  (destabilize definitions
+		    (make-macro-definition
+		     name macro
+		     (not (domesticp name (object-source-pathname macro)
+			    packages pathnames)))))))
+	(unless (or standalone-reader (foreignp definition))
+	  ;; #### TODO: perhaps we should check for aliasing here. On the
+	  ;; other hand, we're creating a foreign definition so maybe we don't
+	  ;; care that much.
+	  (when-let (function (when (fboundp name) (fdefinition name)))
+	    (setq standalone-reader
+		  (destabilize definitions
+		    (typecase function
+		      (generic-function
+		       (make-generic-function-definition
+			name function
+			:foreign (not (domesticp name
+					  (object-source-pathname function)
+					packages pathnames))))
+		      (otherwise
+		       (make-ordinary-function-definition
+			name function
+			:foreign (not (domesticp name
+					  (object-source-pathname function)
+					packages pathnames)))))))))
+	(setf (standalone-reader definition) standalone-reader)))))
 
 (defmethod stabilize progn
-    ((definition short-expander-definition) definitions
+    ((definition short-expander-definition) definitions packages pathnames
      &aux (name (car (expander definition))))
   "Compute short setf expander DEFINITION's standalone writer definition."
   (unless (standalone-writer definition)
@@ -227,15 +274,12 @@ DEFINITIONS in the process."
 			    (typep candidate 'function-definition)))
 	    :key #'name))) ;; EQ test will filter out setf functions.
   (unless (or (standalone-writer definition) (foreignp definition))
-    (let* ((writer-package (find-definition (symbol-package name) definitions))
-	   (writer (unless (and writer-package (not (foreignp writer-package)))
-		     (foreign-funcoid-definition name))))
-      (cond (writer
-	     (setf (standalone-writer definition)
-		   (destabilize definitions writer)))
-	    (t
-	     (warn "~S: undefined writer for short form setf expander ~S."
-		   name (name definition)))))))
+    (let ((writer-definition (new-funcoid-definition name packages pathnames)))
+      (if writer-definition
+	(setf (standalone-writer definition)
+	      (destabilize definitions writer-definition))
+	(warn "~S: undefined writer for short form setf expander ~S."
+	      name (name definition))))))
 
 
 
@@ -260,20 +304,28 @@ DEFINITIONS in the process."
 
 ;; #### PORTME.
 (defmethod stabilize progn
-    ((definition generic-function-definition) definitions
+    ((definition generic-function-definition) definitions packages pathnames
      &aux (combination-type-name
 	   (sb-pcl::method-combination-type-name
 	    (generic-function-method-combination (generic definition))))
 	  (combination
 	   (gethash combination-type-name sb-pcl::**method-combinations**)))
-  "Compute generic function DEFINITION's method combination definition."
+  "Compute generic function DEFINITION's methods, and combination definition."
+  (setf (methods definition)
+	(retain (generic definition) definitions
+	  :pre-test #'method-definition-p
+	  :key (lambda (candidate)
+		 (method-generic-function (definition-method candidate)))))
   (unless (combination definition)
     (setf (combination definition) (find-definition combination definitions)))
   (unless (or (combination definition) (foreignp definition))
     (setf (combination definition)
 	  (destabilize definitions
 	    (make-combination-definition
-	     combination-type-name combination t)))))
+	     combination-type-name combination
+	     (not (domesticp combination-type-name
+		      (object-source-pathname combination)
+		    packages pathnames)))))))
 
 
 
@@ -288,7 +340,8 @@ DEFINITIONS in the process."
 
 ;; #### PORTME.
 (defmethod stabilize progn
-    ((definition combination-definition) definitions &aux clients)
+    ((definition combination-definition) definitions packages pathnames
+     &aux clients)
   "Compute method combination DEFINITION's users."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
   ;; and only add what's missing, but I don't think it's worth the trouble.
@@ -302,7 +355,8 @@ DEFINITIONS in the process."
 			   ((not (foreignp definition))
 			    (endpush
 			     (destabilize definitions
-			       (make-foreign-generic-definition generic))
+			       (new-generic-definition
+				generic packages pathnames))
 			     clients)))))
 		 (sb-pcl::method-combination-%generic-functions
 		  (cdr cache-entry))))
@@ -311,10 +365,10 @@ DEFINITIONS in the process."
 
 ;; #### PORTME.
 (defmethod stabilize progn
-  ((definition short-combination-definition) definitions
-   ;; #### WARNING: gross hack 3. The operator is not immediately obvious in
-  ;; the method combination info structure. However, since we have made sure
-  ;; that there is at least one actual combination object in the cache, in
+  ((definition short-combination-definition) definitions packages pathnames
+   ;; #### WARNING: gross hack. The operator is not immediately obvious in the
+  ;; method combination info structure. However, since we have made sure that
+  ;; there is at least one actual combination object in the cache, in
   ;; MAKE-COMBINATION-DEFINITION, we can just look into that one.
    &aux (name (sb-pcl::short-combination-operator
 	       (cdr
@@ -330,18 +384,13 @@ DEFINITIONS in the process."
 			    (typep candidate 'function-definition)))
 	    :key #'name))) ;; EQ test will filter out setf functions
   (unless (or (standalone-combinator definition) (foreignp definition))
-    (let* ((combinator-package
-	     (find-definition (symbol-package name) definitions))
-	   (combinator
-	     (unless (and combinator-package
-			  (not (foreignp combinator-package)))
-	       (foreign-funcoid-definition name))))
-      (cond (combinator
-	     (setf (standalone-combinator definition)
-		   (destabilize definitions combinator)))
-	    (t
-	     (warn "~S: undefined operator for short method combination ~S."
-		   name (name definition)))))))
+    (let ((combinator-definition
+	    (new-funcoid-definition name packages pathnames)))
+      (if combinator-definition
+	(setf (standalone-combinator definition)
+	      (destabilize definitions combinator-definition))
+	(warn "~S: undefined operator for short method combination ~S."
+	      name (name definition))))))
 
 
 
@@ -349,8 +398,12 @@ DEFINITIONS in the process."
 ;; -------
 
 (defmethod stabilize progn
-    ((definition method-definition) definitions)
-  "Compute method DEFINITION's specializer references."
+    ((definition method-definition) definitions packages pathnames)
+  "Compute method DEFINITION's owner, and specializer references."
+  (setf (owner definition)
+	(find-definition
+	 (method-generic-function (definition-method definition))
+	 definitions))
   (setf (specializers definition)
 	(mapcar (lambda (specializer)
 		  ;; #### FIXME: according to my former version of
@@ -361,9 +414,15 @@ DEFINITIONS in the process."
 		    (eql-specializer specializer)
 		    (otherwise
 		     (or (find-definition specializer definitions)
-			 (destabilize definitions
-			   (make-classoid-definition
-			    (class-name specializer) specializer t))))))
+			 (let ((classoid-definition
+				 (destabilize definitions
+				   (make-classoid-definition
+				    (class-name specializer) specializer
+				    packages pathnames))))
+			   (dolist (slot-definition
+				    (direct-slots classoid-definition))
+			     (endpush slot-definition definitions))
+			   classoid-definition)))))
 	  (method-specializers (definition-method definition)))))
 
 
@@ -383,7 +442,8 @@ DEFINITIONS in the process."
 ;; as their names always go hand in hand.
 
 (defmethod stabilize progn
-    ((definition clos-classoid-mixin) definitions &aux classoid-definitions)
+    ((definition clos-classoid-mixin) definitions packages pathnames
+     &aux classoid-definitions)
   "Compute classoid DEFINITION's super/sub classoids, and method definitions."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole lists here,
   ;; and only add what's missing, but I don't think it's worth the trouble.
@@ -392,11 +452,14 @@ DEFINITIONS in the process."
 	     (cond (classoid-definition
 		    (endpush classoid-definition classoid-definitions))
 		   ((not (foreignp definition))
-		    (endpush
-		     (destabilize definitions
-		       (make-classoid-definition
-			(class-name classoid) classoid t))
-		     classoid-definitions))))))
+		    (setq classoid-definition
+			  (destabilize definitions
+			    (make-classoid-definition
+			     (class-name classoid) classoid
+			     packages pathnames)))
+		    (dolist (slot-definition (direct-slots classoid-definition))
+		      (endpush slot-definition definitions))
+		    (endpush classoid-definition classoid-definitions))))))
     (mapc #'get-classoid-definition
       (class-direct-superclasses (classoid definition)))
     (setf (direct-superclassoids definition) classoid-definitions)
@@ -407,27 +470,17 @@ DEFINITIONS in the process."
   (setf (direct-methods definition)
 	(mapcan
 	    (lambda (method)
-	      (let* ((generic (method-generic-function method))
-		     (generic-definition (find-definition generic definitions))
-		     (method-definition
-		       (when generic-definition
-			 (find method (methods generic-definition)
-			   :key #'definition-method))))
+	      (let ((method-definition (find-definition method definitions)))
 		(if method-definition
 		  (list method-definition)
-		  ;; Starting here, that is, if we're missing the method
-		  ;; definition, or the whole generic definition, it means
-		  ;; that we're dealing with a foreign definition.
 		  (unless (foreignp definition)
-		    (unless generic-definition
-		      (setq generic-definition
-			    (destabilize definitions
-			      (make-foreign-generic-definition generic))))
 		    (setq method-definition
 			  (destabilize definitions
 			    (make-method-definition
-			     method generic-definition t)))
-		    (endpush method-definition (methods generic-definition))
+			     method
+			     (not (domesticp (method-name method)
+				      (object-source-pathname method)
+				    packages pathnames)))))
 		    (list method-definition)))))
 	  (specializer-direct-methods (classoid definition)))))
 
@@ -444,11 +497,11 @@ DEFINITIONS in the process."
 ;; two). That's why we have 3 methods below, two of them actually using the
 ;; same helper function.
 
+;; #### PORTME.
 (defun stabilize-clos-classoid-slot
-    (definition definitions
+    (definition definitions packages pathnames
      &aux (slot (slot definition))
-	  (owner (owner definition))
-	  (classoid (classoid owner)))
+	  (classoid (sb-pcl::slot-definition-class slot)))
   "Compute CLOS classoid slot DEFINITION's reader and writer definitions.
 This function is used for regular class and condition slots."
   ;; #### NOTE: a case could be made to avoid rebuilding the whole list here,
@@ -456,68 +509,59 @@ This function is used for regular class and condition slots."
   (setf (readers definition)
 	(mapcan
 	    (lambda (name)
-	      (let* ((generic (fdefinition name))
-		     (reader (find-definition generic definitions)))
-		(unless (or reader (foreignp owner))
-		  (setq reader (destabilize definitions
-				 (make-foreign-generic-definition generic))))
-		(when reader
-		  (let* ((method
-			   (find classoid (generic-function-methods generic)
-			     :key (lambda (method)
-				    (first (method-specializers method)))))
-			 (reader-method
-			   (find-definition method (methods reader))))
-		    (unless (or reader-method (foreignp owner))
-		      (setq reader-method
-			    (destabilize definitions
-			      (make-method-definition method reader t)))
-		      (endpush reader-method (methods reader)))
-		    (when reader-method
-		      (change-class reader-method 'reader-method-definition
-			:target-slot definition)
-		      (list reader-method))))))
+	      (let* ((method (find classoid
+				 (generic-function-methods (fdefinition name))
+			       :key (lambda (method)
+				      (first (method-specializers method)))))
+		     (method-definition (find-definition method definitions)))
+		(unless (or method-definition (foreignp definition))
+		  (setq method-definition
+			(destabilize definitions
+			  (make-method-definition
+			   method
+			   (not (domesticp (method-name method)
+				    (object-source-pathname method)
+				  packages pathnames))))))
+		(when method-definition
+		  (change-class method-definition 'reader-method-definition
+		    :target-slot definition)
+		  (list method-definition))))
 	  (slot-definition-readers slot)))
   (setf (writers definition)
 	(mapcan
 	    (lambda (name)
-	      (let* ((generic (fdefinition name))
-		     (writer (find-definition generic definitions)))
-		(unless (or writer (foreignp owner))
-		  (setq writer (destabilize definitions
-				 (make-foreign-generic-definition generic))))
-		(when writer
-		  (let* ((method
-			   (find classoid (generic-function-methods generic)
-			     :key (lambda (method)
-				    ;; #### NOTE: whatever the kind of writer,
-				    ;; that is, whether it is defined with
-				    ;; :writer or :accessor, the argument list
-				    ;; is always (NEW-VALUE OBJECT).
-				    (second (method-specializers method)))))
-			 (writer-method
-			   (find-definition method (methods writer))))
-		    (unless (or writer-method (foreignp owner))
-		      (setq writer-method
-			    (destabilize definitions
-			      (make-method-definition method writer t)))
-		      (endpush writer-method (methods writer)))
-		    (when writer-method
-		      (change-class writer-method 'writer-method-definition
-			:target-slot definition)
-		      (list writer-method))))))
+	      (let* ((method (find classoid
+				 (generic-function-methods (fdefinition name))
+			       :key (lambda (method)
+				      ;; #### NOTE: whatever the kind of
+				      ;; writer, that is, whether it is
+				      ;; defined with :writer or :accessor,
+				      ;; the argument list is always
+				      ;; (NEW-VALUE OBJECT).
+				      (second (method-specializers method)))))
+		     (method-definition (find-definition method definitions)))
+		(unless (or method-definition (foreignp definition))
+		  (setq method-definition
+			(destabilize definitions
+			  (make-method-definition
+			   method
+			   (not (domesticp (method-name method)
+				    (object-source-pathname method)
+				  packages pathnames))))))
+		(when method-definition
+		  (change-class method-definition 'writer-method-definition
+		    :target-slot definition)
+		  (list method-definition))))
 	  (slot-definition-writers slot))))
 
 ;; #### PORTME: SBCL defines writers as setf functions, but the standard
 ;; explicitly allows the use of setf expanders instead. Also, beware of this
-;; trap! When a slot is read-only, SBCL still has an internal writer function
-;; (for initialization, I suppose), but it's not a setf function; it's an
-;; internal closure. As a consequence, we /will/ find a writer-function below,
-;; but not a definition for it.
+;; trap! When a slot is read-only, SBCL still has an internal writer (for
+;; initialization, I suppose), but it's not a setf function; it's an internal
+;; closure. As a consequence, we /will/ find a writer below, but not a
+;; definition for it.
 (defun stabilize-clos-structure-slot
-    (definition definitions
-     &aux (slot (slot definition))
-	  (owner (owner definition)))
+    (definition definitions packages pathnames &aux (slot (slot definition)))
   "Compute CLOS structure slot DEFINITION's reader and writer definitions."
   ;; #### NOTE: in the case of structures, there is only one reader / writer
   ;; per slot, so if it's already there, we can save some time because the
@@ -527,51 +571,61 @@ This function is used for regular class and condition slots."
   (unless (readers definition)
     (let* ((accessor-name
 	     (sb-pcl::slot-definition-defstruct-accessor-symbol slot))
-	   (reader-function
-	     (sb-pcl::slot-definition-internal-reader-function slot))
-	   (writer-function
-	     (sb-pcl::slot-definition-internal-writer-function slot))
-	   (reader (find-definition reader-function definitions))
-	   (writer (find-definition writer-function definitions)))
-      ;; See PORTME comment above the function about this.
-      (when (and reader (not writer)) (setq writer-function nil))
-      (unless (or reader (foreignp owner))
-	(setq reader
+	   (reader (sb-pcl::slot-definition-internal-reader-function slot))
+	   (writer (sb-pcl::slot-definition-internal-writer-function slot))
+	   (reader-definition (find-definition reader definitions))
+	   (writer-definition (find-definition writer definitions)))
+      ;; See comment above the function about this.
+      (when (and reader-definition (not writer-definition))
+	(setq writer nil))
+      (unless (or reader-definition (foreignp definition))
+	(setq reader-definition
 	      (destabilize definitions
 		(make-ordinary-function-definition
-		 accessor-name reader-function :foreign t)))
-	(when writer-function
-	  (setq writer
+		 accessor-name reader
+		 :foreign (not (domesticp accessor-name
+				   (object-source-pathname reader)
+				 packages pathnames)))))
+	(when writer
+	  (setq writer-definition
 		(destabilize definitions
 		  (make-ordinary-function-definition
-		   accessor-name writer-function :setf t :foreign t)))))
-      (when reader
-	(unless (typep reader 'ordinary-reader-definition)
-	  (change-class reader 'ordinary-reader-definition
+		   accessor-name writer
+		   :setf t
+		   :foreign (not (domesticp accessor-name
+				     (object-source-pathname writer)
+				   packages pathnames)))))))
+      (when reader-definition
+	(unless (typep reader-definition 'ordinary-reader-definition)
+	  (change-class reader-definition 'ordinary-reader-definition
 	    :target-slot definition))
-	(when writer
-	  (unless (typep writer 'ordinary-writer-definition)
-	    (change-class writer 'ordinary-writer-definition
+	(when writer-definition
+	  (unless (typep writer-definition 'ordinary-writer-definition)
+	    (change-class writer-definition 'ordinary-writer-definition
 	      :target-slot definition))))
       ;; See comment on top of the SLOT-DEFINITION class about this.
-      (setf (readers definition) (when reader (list reader)))
-      (setf (writers definition) (when writer (list writer))))))
+      (setf (readers definition)
+	    (when reader-definition (list reader-definition)))
+      (setf (writers definition)
+	    (when writer-definition (list writer-definition))))))
 
-(defmethod stabilize progn ((definition clos-slot-definition) definitions)
+;; #### PORTME.
+(defmethod stabilize progn
+    ((definition clos-slot-definition) definitions packages pathnames)
   "Compute CLOS slot DEFINITION's reader and writer definitions."
-  (typecase (owner definition)
-    (clos-structure-definition
-     (stabilize-clos-structure-slot definition definitions))
+  (typecase (slot definition)
+    (sb-pcl::structure-direct-slot-definition
+     (stabilize-clos-structure-slot definition definitions packages pathnames))
     (otherwise
-     (stabilize-clos-classoid-slot definition definitions))))
+     (stabilize-clos-classoid-slot definition definitions packages pathnames))))
 
 
 ;; #### PORTME: SBCL defines writers as setf functions, but the standard
 ;; explicitly allows the use of setf expanders instead.
 (defmethod stabilize progn
     ((definition typed-structure-slot-definition) definitions
-     &aux (slot (slot definition))
-	  (owner (owner definition)))
+     packages pathnames
+     &aux (slot (slot definition)))
   "Compute typed structure slot DEFINITION's reader and writer definitions."
   ;; #### NOTE: in the case of structures, there is only one reader / writer
   ;; per slot, so if it's already there, we can save some time because the
@@ -582,33 +636,41 @@ This function is used for regular class and condition slots."
   (unless (readers definition)
     (let* ((reader-name (sb-kernel:dsd-accessor-name slot))
 	   (writer-name `(setf ,reader-name))
-	   (reader-function (fdefinition reader-name))
-	   (writer-function (when (fboundp writer-name)
-			      (fdefinition writer-name)))
-	   (reader (find-definition reader-function definitions))
-	   (writer (when writer-function
-		     (find-definition writer-function definitions))))
-      (unless (or reader (foreignp owner))
-	(setq reader
+	   (reader (fdefinition reader-name))
+	   (writer (when (fboundp writer-name) (fdefinition writer-name)))
+	   (reader-definition (find-definition reader definitions))
+	   (writer-definition
+	     (when writer (find-definition writer definitions))))
+      (unless (or reader-definition (foreignp definition))
+	(setq reader-definition
 	      (destabilize definitions
 		(make-ordinary-function-definition
-		 reader-name reader-function :foreign t)))
-	(when writer-function
-	  (setq writer
+		 reader-name reader
+		 :foreign (not (domesticp reader-name
+				   (object-source-pathname reader)
+				 packages pathnames)))))
+	(when writer
+	  (setq writer-definition
 		(destabilize definitions
 		  (make-ordinary-function-definition
-		   reader-name writer-function :setf t :foreign t)))))
-      (when reader
-	(unless (typep reader 'ordinary-reader-definition)
-	  (change-class reader 'ordinary-reader-definition
+		   reader-name writer
+		   :setf t
+		   :foreign (not (domesticp reader-name
+				     (object-source-pathname writer)
+				   packages pathnames)))))))
+      (when reader-definition
+	(unless (typep reader-definition 'ordinary-reader-definition)
+	  (change-class reader-definition 'ordinary-reader-definition
 	    :target-slot definition))
-	(when writer
-	  (unless (typep writer 'ordinary-writer-definition)
-	    (change-class writer 'ordinary-writer-definition
+	(when writer-definition
+	  (unless (typep writer-definition 'ordinary-writer-definition)
+	    (change-class writer-definition 'ordinary-writer-definition
 	      :target-slot definition))))
       ;; See comment on top of the SLOT-DEFINITION class about this.
-      (setf (readers definition) (when reader (list reader)))
-      (setf (writers definition) (when writer (list writer))))))
+      (setf (readers definition)
+	    (when reader-definition (list reader-definition)))
+      (setf (writers definition)
+	    (when writer-definition (list writer-definition))))))
 
 
 
@@ -621,16 +683,21 @@ This function is used for regular class and condition slots."
 ;; up with generated UIDs instead.
 
 (defmethod stabilize progn
-    ((definition macro-alias-definition) definitions
+    ((definition macro-alias-definition) definitions packages pathnames
      &aux (macro (macro-function (definition-symbol definition))))
   "Compute macro alias DEFINITION's referee."
   (setf (referee definition)
 	(or (find-definition macro definitions)
 	    (destabilize definitions
-	      (make-macro-definition (funcoid-name macro) macro t)))))
+	      (make-macro-definition
+	       (funcoid-name macro) macro
+	       (not (domesticp (funcoid-name macro)
+			(object-source-pathname macro)
+		      packages pathnames)))))))
 
 (defmethod stabilize progn
     ((definition compiler-macro-alias-definition) definitions
+     packages pathnames
      &aux (compiler-macro (compiler-macro-function (name definition))))
   "Compute compiler macro alias DEFINITION's referee."
   (setf (referee definition)
@@ -640,11 +707,15 @@ This function is used for regular class and condition slots."
 		     (setfp (consp original-name))
 		     (original-symbol
 		       (if setfp (second original-name) original-name)))
-		(make-compiler-macro-definition original-symbol compiler-macro
-		  :setf setfp :foreign t))))))
+		(make-compiler-macro-definition
+		 original-symbol compiler-macro
+		 :setf setfp
+		 :foreign (not (domesticp original-symbol
+				   (object-source-pathname compiler-macro)
+				 packages pathnames))))))))
 
 (defmethod stabilize progn
-    ((definition function-alias-definition) definitions
+    ((definition function-alias-definition) definitions packages pathnames
      &aux (function (fdefinition (name definition))))
   "Compute simple function alias DEFINITION's referee."
   (setf (referee definition)
@@ -657,9 +728,17 @@ This function is used for regular class and condition slots."
 		       (if setfp (second original-name) original-name)))
 		(if genericp
 		  (make-generic-function-definition
-		   original-symbol function :setf setfp :foreign t)
+		   original-symbol function
+		   :setf setfp
+		   :foreign (not (domesticp original-symbol
+				     (object-source-pathname function)
+				   packages pathnames)))
 		  (make-ordinary-function-definition
-		   original-symbol function :setf setfp :foreign t)))))))
+		   original-symbol function
+		   :setf setfp
+		   :foreign (not (domesticp original-symbol
+				     (object-source-pathname function)
+				   packages pathnames)))))))))
 
 
 
@@ -668,7 +747,7 @@ This function is used for regular class and condition slots."
 ;; --------
 
 (defmethod stabilize progn
-    ((definition package-definition) definitions
+    ((definition package-definition) definitions packages pathnames
      &aux (package (definition-package definition))
 	  package-definitions)
   "Compute package DEFINITION's use, used-by, and definitions lists.
@@ -743,7 +822,7 @@ return a list of the updated specification (suitable to MAPCAN)."
       (list specification))))
 
 (defmethod stabilize progn
-    ((definition component-definition) definitions
+    ((definition component-definition) definitions packages pathnames
      &aux (foreign (foreignp definition))
 	  (component (component definition)))
   "Compute component DEFINITION's parent and dependency definitions.
@@ -773,7 +852,7 @@ Those definitions are guaranteed to be in the original component's order."
 ;; -----
 
 (defmethod stabilize progn
-    ((definition lisp-file-definition) definitions
+    ((definition lisp-file-definition) definitions packages pathnames
      &aux (pathname (component-pathname (file definition))))
   "Compute Lisp file DEFINITION's definitions list."
   (setf (definitions definition)
@@ -784,7 +863,8 @@ Those definitions are guaranteed to be in the original component's order."
 ;; Modules
 ;; -------
 
-(defmethod stabilize progn ((definition module-definition) definitions)
+(defmethod stabilize progn
+    ((definition module-definition) definitions packages pathnames)
   "Compute module DEFINITION's child definitions.
 Those definitions are guaranteed to be in the module's original order."
   (setf (children definition)
@@ -803,7 +883,7 @@ Those definitions are guaranteed to be in the module's original order."
 ;; -------
 
 (defmethod stabilize progn
-    ((definition system-definition) definitions
+    ((definition system-definition) definitions packages pathnames
      &aux (foreign (foreignp definition))
 	  (system (system definition)))
   "Compute system DEFINITION's defsystem dependency definitions.
@@ -853,8 +933,8 @@ Currently, this means:
 ;; Finalization Entry Point
 ;; ==========================================================================
 
-(defun finalize (definitions)
-  "Finalize DEFINITIONS.
+(defun finalize (definitions packages pathnames)
+  "Finalize DEFINITIONS in domestic PACKAGES and PATHNAMES.
 For more information, see `stabilize' and `freeze'."
   ;; #### NOTE: the Common Lisp standard doesn't specify what happens when an
   ;; object being traversed is modified (see Section 3.6 of the CLHS). So I
@@ -869,7 +949,7 @@ For more information, see `stabilize' and `freeze'."
   (while (not *stabilized*)
     (setq *stabilized* t)
     (do ((remaining definitions (cdr remaining))) ((endp remaining))
-      (stabilize (first remaining) definitions)))
+      (stabilize (first remaining) definitions packages pathnames)))
   (freeze definitions))
 
 ;; finalize.lisp ends here

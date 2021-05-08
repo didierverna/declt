@@ -157,16 +157,17 @@ Documentation is done in a @table environment."
   ;; bloc. As a consequence, if a generic function belongs to this file,
   ;; there's no need to also reference (some of) its methods. On the other
   ;; hand, we need to reference methods for which the owner is elsewhere
-  ;; (admittedly, and for the same reason, only one would suffice). In the
-  ;; case of classoids, slots don't need to be referenced at all because a
-  ;; slot definition is at the same lexical place as its owner.
+  ;; (admittedly, and for the same reason, only one would suffice) or doesn't
+  ;; exist. In the case of classoids, slots don't need to be referenced at all
+  ;; because a slot definition is at the same lexical place as its owner.
   (flet ((organize-definitions (definitions)
 	   (sort (remove-if
 		     (lambda (definition)
 		       (or (typep definition 'slot-definition)
 			   (and (typep definition 'method-definition)
-				(eq (source-file definition)
-				    (source-file (owner definition))))))
+				(when (owner definition)
+				  (eq (source-file definition)
+				      (source-file (owner definition)))))))
 		     definitions)
 	       #'string-lessp ;; #### WARNING: casing policy.
 	     :key #'definition-symbol)))

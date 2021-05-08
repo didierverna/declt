@@ -76,7 +76,7 @@ When FORCE, render a reference to the Common Lisp package, even if CONTEXT
 says otherwise.
 Possibly render an \"uninterned\" mention instead of an actual reference,
 when there is no home package to reference."
-  (when (or (not (eq home-package (find-package :common-lisp)))
+  (when (or (not (string= (name home-package) (string :common-lisp)))
 	    (default-values context)
 	    force)
     (item ("Package")
@@ -512,13 +512,14 @@ More specifically:
   (if merged-methods
     (item ("Methods")
       (dolist (accessors (first merged-methods))
-	(document (car accessors) context :writer (cdr accessors)))
+	(document (car accessors) context :writer (cdr accessors) :inline t))
       (dolist (reader-method (second merged-methods))
-	(document reader-method context))
+	(document reader-method context :inline t))
       (dolist (writer-method (third merged-methods))
-	(document writer-method context)))
+	(document writer-method context :inline t)))
     (when-let ((methods (methods definition)))
-      (item ("Methods") (dolist (method methods) (document method context)))))
+      (item ("Methods")
+	(dolist (method methods) (document method context :inline t)))))
   (@end :table)
   (@end :deffn))
 
@@ -713,20 +714,19 @@ value as their first argument."
 				(sb-pcl::specializer-type specializer)
 				(cdr rest))))))
 
-;; #### NOTE: methods don't advertise their package, as it is the same as that
-;; of their owner.
-;; #### TODO: except that we need to rethink this when methods will get the
-;; ability to be documented as toplevel entities (e.g. for foreign
-;; definitions).
 (defmethod document :open
-    ((definition method-definition) context &key writer)
+    ((definition method-definition) context &key inline writer)
   "Open method DEFINITION's documentation in CONTEXT.
 More specifically:
 - open a @deffn environment, possibly merging a WRITER method,
 - anchor and index DEFINITION,
 - render DEFINITION's docstring,
 - open a @table environment,
-- render DEFINITION's source file, unless identical to that of the owner."
+- render DEFINITION's source file.
+When INLINE, the method definition is documented within its owner's
+documentation. In such a case, the package reference is not rendered (as it is
+the same as the owner's), and the source file is only referenced if different
+from that of the owner's."
   (@deffn (string-capitalize (category-name definition))
     ;; #### WARNING: casing policy.
     (string-downcase (safe-name definition))
@@ -744,8 +744,9 @@ More specifically:
     (anchor-and-index writer))
   (render-docstring definition)
   (@table)
+  (unless inline (render-package-reference definition context))
   (when-let (source-file (source-file definition))
-    (unless (equal source-file (source-file (owner definition)))
+    (unless (and inline (equal source-file (source-file (owner definition))))
       (item ("Source") (reference source-file context t)))))
 
 
@@ -1024,6 +1025,10 @@ More specifically, render DEFINITION's reader and writer references."
 	(or (typep definition 'generic-function-definition)
 	    (and (typep definition 'function-alias-definition)
 		 (typep (referee definition) 'generic-function-definition)))))
+    ("standalone methods"
+     ,(lambda (definition)
+	(and (typep definition 'method-definition)
+	     (not (owner definition)))))
     ("method combinations" combination-definition)
     ("conditions" condition-definition)
     ("structures" structure-definition)

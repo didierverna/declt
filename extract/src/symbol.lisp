@@ -46,11 +46,14 @@
 ;; only one definition source.
 
 ;; #### PORTME.
-(defun definition-source-by-name
-    (definition type &aux (name (name definition)))
-  "Return DEFINITION's source for TYPE."
+(defun source-by-name (name type)
+  "Return NAME's source for TYPE."
   (when-let (sources (sb-introspect:find-definition-sources-by-name name type))
     (sb-introspect:definition-source-pathname (first sources))))
+
+(defun definition-source-by-name (definition type)
+  "Return DEFINITION's source for TYPE."
+  (source-by-name (name definition) type))
 
 
 
@@ -417,12 +420,12 @@ DEFSETF, or DEFINE-SETF-EXPANDER."))
     (function (sb-introspect:function-lambda-list expander))))
 
 
-(defun make-expander-definition (symbol expander)
-  "Make a new setf EXPANDER definition for SYMBOL."
+(defun make-expander-definition (symbol expander &optional foreign)
+  "Make a new setf EXPANDER definition for SYMBOL, possibly foreign."
   (make-instance (typecase expander
 		   ((cons symbol) 'short-expander-definition)
 		   (otherwise 'long-expander-definition))
-    :symbol symbol :expander expander))
+    :symbol symbol :expander expander :foreign foreign))
 
 
 
@@ -486,15 +489,6 @@ structure."))
     "The method combination definition for this definition's generic function."
     :initform nil :accessor combination))
   (:documentation "The class of generic function definitions."))
-
-(defmethod initialize-instance :after
-    ((definition generic-function-definition) &key foreign)
-  "Create all generic DEFINTION's method definitions, unless FOREIGN."
-  (unless foreign
-    (setf (methods definition)
-	  (mapcar (lambda (method)
-		    (make-method-definition method definition))
-	    (generic-function-methods (generic definition))))))
 
 ;; #### PORTME.
 (defun combination-options (definition)
@@ -631,7 +625,7 @@ The concrete class of the new definition depends on the COMBINATION type."
   ((object :initarg :method :reader definition-method) ;; slot overload
    (owner :documentation
 	  "The generic function definition for this definition's method."
-	  :initarg :owner :reader owner)
+	  :initform nil :accessor owner)
    (specializers :documentation "The specializers of this definition's method.
 This is a list of either class definitions (for regular specializers),
 or raw EQL specializers."
@@ -639,6 +633,10 @@ or raw EQL specializers."
   (:documentation "Abstract root class for method definitions.
 All method definitions respond to the following public protocols, which see:
 - `qualifiers'."))
+
+(defun method-definition-p (definition)
+  "Return T if DEFINITION is a method definition."
+  (typep definition 'method-definition))
 
 (defmethod lambda-list ((definition method-definition))
   "Return method DEFINITION's method lambda-list."
@@ -657,12 +655,11 @@ Return a second value of T if METHOD is in fact a SETF one."
     (values (second name) t)
     name))
 
-(defun make-method-definition (method definition &optional foreign)
-  "Make a new METHOD definition for generic DEFINITION, possibly FOREIGN."
+(defun make-method-definition (method &optional foreign)
+  "Make a new METHOD definition, possibly FOREIGN."
   (multiple-value-bind (symbol setf) (method-name method)
     (make-instance 'method-definition
-      :symbol symbol :method method :setf setf
-      :owner definition :foreign foreign)))
+      :symbol symbol :method method :setf setf :foreign foreign)))
 
 
 ;; #### NOTE: only basic method definitions are created. Reader and writer
@@ -718,9 +715,21 @@ A writer method is a method that writes a slot in a class or condition."))
   (:documentation "Abstract root class for classoid definitions.
 These are conditions, structures, and classes."))
 
+(defmethod initialize-instance :after
+    ((definition classoid-definition)
+     &key packages pathnames
+     &aux (classoid (classoid definition)))
+  "Compute classoid DEFINITION's foreign status."
+  (setf (foreignp definition)
+	(not
+	 (domesticp (class-name classoid) (object-source-pathname classoid)
+	   packages pathnames))))
+
 ;; #### PORTME.
-(defun make-classoid-definition (symbol classoid &optional foreign)
-  "Make a new CLASSOID definition for SYMBOL, possibly FOREIGN.
+(defun make-classoid-definition (symbol classoid packages pathnames)
+  "Make a new CLASSOID definition for SYMBOL.
+Also create all slots definitions. The foreign status of the new classoid and
+its slots is computed from domestic PACKAGES and PATHNAMES.
 The concrete class of the new definition (structure, class, or condition)
 depends on the kind of CLASSOID."
   (make-instance
@@ -729,7 +738,7 @@ depends on the kind of CLASSOID."
 	(sb-pcl::structure-class 'clos-structure-definition)
 	(sb-kernel:defstruct-description 'typed-structure-definition)
 	(otherwise 'class-definition))
-    :symbol symbol :classoid classoid :foreign foreign))
+    :symbol symbol :classoid classoid :packages packages :pathnames pathnames))
 
 
 
@@ -759,12 +768,19 @@ which see:
 - `direct-default-initargs'."))
 
 (defmethod initialize-instance :after
-    ((definition clos-classoid-mixin) &key foreign)
-  "Create all CLOS classoid DEFINITION's slot definitions, unless FOREIGN."
-  (unless foreign
-    (setf (direct-slots definition)
-	  (mapcar (lambda (slot) (make-clos-slot-definition slot definition))
-	    (class-direct-slots (classoid definition))))))
+    ((definition clos-classoid-mixin)
+     &key packages pathnames
+     &aux (classoid (classoid definition))
+	  (source (object-source-pathname classoid)))
+  "Compute CLOS classoid DEFINITION's slot definitions."
+  (dolist (slot (class-direct-slots classoid))
+    (let ((slot-definition
+	    (make-clos-slot-definition
+	     slot
+	     (not (domesticp (slot-definition-name slot) source
+		    packages pathnames)))))
+      (setf (owner slot-definition) definition)
+      (endpush slot-definition (direct-slots definition)))))
 
 (defun direct-default-initargs (definition)
   "Return CLOS classoid mixin DEFINITION's direct default initargs."
@@ -814,17 +830,20 @@ It is T for list structures, but may be something else for vector ones."
 ;; #### PORTME.
 (defmethod initialize-instance :after
     ((definition typed-structure-definition)
-     &key foreign
-     &aux (structure (definition-structure definition)))
-  "Compute typed structure DEFINITION's type and element type.
-Unless FOREIGN, also compute its slot definitions."
+     &key packages pathnames
+     &aux (structure (definition-structure definition))
+	  (source (object-source-pathname structure)))
+  "Compute typed structure DEFINITION's type, element type, and slots."
   (setf (structure-type definition) (sb-kernel:dd-type structure))
   (setf (element-type definition) (sb-kernel::dd-element-type structure))
-  (unless foreign
-    (setf (direct-slots definition)
-	  (mapcar (lambda (slot)
-		    (make-typed-structure-slot-definition slot definition))
-	    (sb-kernel:dd-slots (definition-structure definition))))))
+  (dolist (slot (sb-kernel:dd-slots structure))
+    (let ((slot-definition
+	    (make-typed-structure-slot-definition
+	     slot
+	     (not (domesticp (sb-kernel:dsd-name slot) source
+		    packages pathnames)))))
+      (setf (owner slot-definition) definition)
+      (endpush slot-definition (direct-slots definition)))))
 
 ;; #### PORTME.
 (defmethod docstring ((definition typed-structure-definition))
@@ -845,7 +864,7 @@ Unless FOREIGN, also compute its slot definitions."
   ((object :initarg :slot :reader slot) ;; slot overload
    (owner
     :documentation "The definition for the owner of this definition's slot."
-    :initarg :owner :reader owner)
+    :initform nil :accessor owner)
    (readers
     :documentation "The list of definitions for this definition's slot readers."
     :initform nil :accessor readers)
@@ -862,12 +881,11 @@ Unless FOREIGN, also compute its slot definitions."
   ()
   (:documentation "The class of CLOS slot definitions."))
 
-(defun make-clos-slot-definition (slot owner &optional foreign)
-  "Make a new CLOS SLOT definition for classoid OWNER."
+(defun make-clos-slot-definition (slot &optional foreign)
+  "Make a new CLOS SLOT definition, possibly FOREIGN."
   (make-instance 'clos-slot-definition
     :symbol (slot-definition-name slot)
     :slot slot
-    :owner owner
     :foreign foreign))
 
 ;; #### PORTME.
@@ -897,12 +915,11 @@ Unless FOREIGN, also compute its slot definitions."
   (:documentation "The class of typed structure slot definitions."))
 
 ;; #### PORTME.
-(defun make-typed-structure-slot-definition (slot owner &optional foreign)
-  "Make a new typed structure SLOT definition for classoid OWNER."
+(defun make-typed-structure-slot-definition (slot &optional foreign)
+  "Make a new typed structure SLOT definition, possibly FOREIGN."
   (make-instance 'typed-structure-slot-definition
     :symbol (sb-kernel:dsd-name slot)
     :slot slot
-    :owner owner
     :foreign foreign))
 
 (defmethod docstring ((definition typed-structure-slot-definition))

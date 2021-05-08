@@ -59,26 +59,14 @@ like ./, ../ or even are symlinks, the cross-references will most probably
 break. We need to work on canonical pathnames.
 
 ** Foreign definitions
-Currently we grab symbols via systems -> files -> packages -> symbols.
-This means that we may end up with definitions without a source file, because
-it belongs to one of our package but, it was created outside. Those are not
-considered foreign, but this is arguable.
-
-In the same vein, definitions coming from one of our files but for a foreign
-package (e.g. inisitalize-instance on one of our classes) should be considered
-as belonging to us and we should document them. In that particular example,
-this would require documenting a method as a toplevel definition.
-
-If we go this route, we can already retrieve some of these definitions by
-following links from previous definitions (e.g. class direct methods). But we
-will certainly miss some (what about defvar foregin-package::variable ?).
-There is a way to get everything, which is to DO-ALL-SYMBOLS. But this is
-likely to degrade the performance by a noticeable amount, so I'm not ready to
-do that just yet. Maybe this could be implemented as a user-level option.
-
-[ Other definitions potentially concerned:
--  setf expanders for which the access-fn is foreign, but the
-update-fn is ours. I currently don't know how to retrieve those. ]
+Even with the latest improvements in foreign definitions handling, there are
+still some cases that could escape us. For example, a short form foreign setf
+expander for which the update-fn is ours. The only general solution for that
+kind of problem is to work in all-symbols mode, and process /all/ symbols
+again in the finalization phase, checking for such cross-references in both
+directions. To be provided as a user-option (or maybe part of the already
+existing all-symbols mode) because the performance cost is very high for
+probably very little gain.
 
 
 ** Call graphs

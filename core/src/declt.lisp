@@ -360,7 +360,8 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 
 (defun declt (system-name
 	      &rest keys
-	      &key library-name tagline library-version contact
+	      &key all-symbols
+		   library-name tagline library-version contact
 		   copyright-years license
 		   introduction conclusion
 
@@ -376,6 +377,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 	      &aux (current-time-string (current-time-string))
 		   (extract (apply #'extract system-name
 				   (select-keys keys
+				     :all-symbols
 				     :library-name :tagline :library-version
 				     :contact :copyright-years :license
 				     :introduction :conclusion)))
@@ -386,9 +388,9 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
   "Generate a reference manual for ASDF SYSTEM-NAME.
 The reference manual is currently generated in Texinfo format.
 
-For a description of SYSTEM-NAME, LIBRARY-NAME, TAGLINE, LIBRARY-VERSION,
-CONTACT, COPYRIGHT-YEARS, LICENSE, INTRODUCTION, and CONCLUSION, see
-`extract'.
+For a description of SYSTEM-NAME, ALL-SYMBOLS, LIBRARY-NAME, TAGLINE,
+LIBRARY-VERSION, CONTACT, COPYRIGHT-YEARS, LICENSE, INTRODUCTION, and
+CONCLUSION, see `extract'.
 
 For a description of LOCATIONS, DEFAULT-VALUES, and FOREIGN-DEFINITIONS, see
 `make-context'.
@@ -402,7 +404,8 @@ The following keyword parameters are also available.
   name appears in the Texinfo file). Defaults to FILE-NAME.
 - DECLT-NOTICE: small credit paragraph to Declt, or NIL. Defaults to
   :long. Also accepts :short."
-  (declare (ignore library-name tagline library-version contact
+  (declare (ignore all-symbols
+		   library-name tagline library-version contact
 		   copyright-years license
 		   introduction conclusion
 

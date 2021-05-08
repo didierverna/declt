@@ -234,73 +234,113 @@ Lambda expression are not considered as proper names, so NIL is returned."
 
 ;; #### PORTME.
 (defun make-symbol-definitions
-    (symbol &aux (setf-symbol `(setf ,symbol)) definitions)
-  "Make and return a list of all existing definitions for SYMBOL."
+    (symbol packages pathnames &aux (setf-symbol `(setf ,symbol)) definitions)
+  "Make and return a list of all existing domestic definitions for SYMBOL.
+Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
+`domesticp'."
   ;; Constants.
-  (when (eql (sb-int:info :variable :kind symbol) :constant)
+  (when (and (eql (sb-int:info :variable :kind symbol) :constant)
+	     (domesticp symbol (source-by-name symbol :constant)
+			packages pathnames))
     (endpush (make-constant-definition symbol) definitions))
   ;; Special variables.
-  (when (eql (sb-int:info :variable :kind symbol) :special)
+  (when (and (eql (sb-int:info :variable :kind symbol) :special)
+	     (domesticp symbol (source-by-name symbol :variable)
+			packages pathnames))
     (endpush (make-special-definition symbol) definitions))
   ;; Symbol macros.
-  (when (eql (sb-int:info :variable :kind symbol) :macro)
+  (when (and (eql (sb-int:info :variable :kind symbol) :macro)
+	     (domesticp symbol (source-by-name symbol :symbol-macro)
+			packages pathnames))
     (endpush (make-symbol-macro-definition symbol) definitions))
   ;; Macros.
   (when-let (macro (macro-function symbol))
     (let ((original-name (funcoid-name macro)))
-      (endpush
-       (if (or (not original-name) (eq symbol original-name))
-	 (make-macro-definition symbol macro)
-	 (make-macro-alias-definition symbol))
-       definitions)))
+      (if (or (not original-name) (eq symbol original-name))
+	(when (domesticp symbol (object-source-pathname macro)
+		packages pathnames)
+	  (endpush (make-macro-definition symbol macro) definitions))
+	(when (domesticp symbol nil packages pathnames)
+	  (endpush (make-macro-alias-definition symbol) definitions)))))
   ;; Compiler macros.
   (when-let (compiler-macro (compiler-macro-function symbol))
     (let ((original-name (funcoid-name compiler-macro)))
-      (endpush
-       (if (or (not original-name) (eq symbol original-name))
-	 (make-compiler-macro-definition symbol compiler-macro)
-	 (make-compiler-macro-alias-definition symbol))
-       definitions)))
+      (if (or (not original-name) (eq symbol original-name))
+	(when (domesticp symbol (object-source-pathname compiler-macro)
+			 packages pathnames)
+	  (endpush (make-compiler-macro-definition symbol compiler-macro)
+		   definitions))
+	(when (domesticp symbol nil packages pathnames)
+	  (endpush (make-compiler-macro-alias-definition symbol)
+		   definitions)))))
   ;; Setf compiler macros.
   (when-let (compiler-macro (compiler-macro-function setf-symbol))
     (let ((original-name (funcoid-name compiler-macro)))
-      (endpush
-       (if (or (not original-name) (equal setf-symbol original-name))
-	 (make-compiler-macro-definition symbol compiler-macro :setf t)
-	 (make-compiler-macro-alias-definition symbol t))
-       definitions)))
-  ;; Setf expanders
+      (if (or (not original-name) (equal setf-symbol original-name))
+	(when (domesticp symbol (object-source-pathname compiler-macro)
+			 packages pathnames)
+	  (endpush
+	   (make-compiler-macro-definition symbol compiler-macro :setf t)
+	   definitions))
+	(when (domesticp symbol nil packages pathnames)
+	  (endpush (make-compiler-macro-alias-definition symbol t)
+		   definitions)))))
+  ;; Setf expanders.
   (when-let (expander (sb-int:info :setf :expander symbol))
-    (endpush (make-expander-definition symbol expander) definitions))
+    (when (domesticp symbol (source-by-name symbol :setf-expander)
+		     packages pathnames)
+      (endpush (make-expander-definition symbol expander) definitions)))
   ;; (Generic) functions.
   (when-let (function (and (fboundp symbol)
 			   (not (macro-function symbol))
 			   (fdefinition symbol)))
-    (let ((genericp (typep function 'generic-function))
-	  (original-name (funcoid-name function)))
+    (let ((original-name (funcoid-name function)))
       (if (or (not original-name) (eq symbol original-name))
-	(if genericp
-	  (let ((definition (make-generic-function-definition symbol function)))
-	    (setq definitions
-		  (append definitions
-			  (cons definition (copy-list (methods definition))))))
-	  (endpush (make-ordinary-function-definition symbol function)
-		   definitions))
-	(endpush (make-function-alias-definition symbol) definitions))))
+	(cond ((typep function 'generic-function)
+	       ;; #### NOTE: although we might be creating both generic
+	       ;; function and associated method definitions here, we defer
+	       ;; the computation of those cross-references until the
+	       ;; finalization process. I haven't thought this through, but
+	       ;; since the finalization process may add new method
+	       ;; definitions, there may be cases where a computation done
+	       ;; here would end up being invalidated.
+	       (when (domesticp symbol (object-source-pathname function)
+				packages pathnames)
+		 (endpush (make-generic-function-definition symbol function)
+			  definitions))
+	       (dolist (method (generic-function-methods function))
+		 (when (domesticp symbol (object-source-pathname method)
+				  packages pathnames)
+		   (endpush (make-method-definition method) definitions))))
+	      (t
+	       (when (domesticp symbol (object-source-pathname function)
+				packages pathnames)
+		 (endpush (make-ordinary-function-definition symbol function)
+			  definitions))))
+	(when (domesticp symbol nil packages pathnames)
+	  (endpush (make-function-alias-definition symbol) definitions)))))
   ;; (Generic) setf functions.
   (when-let (function (and (fboundp setf-symbol) (fdefinition setf-symbol)))
-    (let ((genericp (typep function 'generic-function))
-	  (original-name (funcoid-name function)))
+    (let ((original-name (funcoid-name function)))
       (if (or (not original-name) (equal setf-symbol original-name))
-	(if genericp
-	  (let ((definition
-		  (make-generic-function-definition symbol function :setf t)))
-	    (setq definitions
-		  (append definitions
-			  (cons definition (copy-list (methods definition))))))
-	  (endpush (make-ordinary-function-definition symbol function :setf t)
-		   definitions))
-	(endpush (make-function-alias-definition symbol t) definitions))))
+	(cond ((typep function 'generic-function)
+	       (when (domesticp symbol (object-source-pathname function)
+				packages pathnames)
+		 (endpush (make-generic-function-definition symbol function
+							    :setf t)
+			  definitions))
+	       (dolist (method (generic-function-methods function))
+		 (when (domesticp symbol (object-source-pathname method)
+				  packages pathnames)
+		   (endpush (make-method-definition method) definitions))))
+	      (t
+	       (when (domesticp symbol (object-source-pathname function)
+				packages pathnames)
+		 (endpush (make-ordinary-function-definition symbol function
+							     :setf t)
+			  definitions))))
+	(when (domesticp symbol nil packages pathnames)
+	  (endpush (make-function-alias-definition symbol t) definitions)))))
   ;; Method combinations.
   ;; #### WARNING: method combinations are ill-defined in the Common Lisp
   ;; standard. In particular, they are not necessarily global objects and
@@ -325,22 +365,52 @@ Lambda expression are not considered as proper names, so NIL is returned."
   ;; uniquely represented by the entry in SB-PCL::**METHOD-COMBINATIONS**. See
   ;; also the comment about generic function stabilization in finalize.lisp.
   (when-let (combination (gethash symbol sb-pcl::**method-combinations**))
-    (endpush (make-combination-definition symbol combination) definitions))
-  ;; Structures, classes, and conditions,
-  (when-let* ((classoid (find-class symbol nil))
-	      (definition (make-classoid-definition symbol classoid)))
-    (setq definitions
-	  (append definitions
-		  (cons definition (copy-list (direct-slots definition))))))
-  ;; Typed structures
-  (when-let* ((structure (sb-int:info :typed-structure :info symbol))
-	      (definition (make-classoid-definition symbol structure)))
-    (setq definitions
-	  (append definitions
-		  (cons definition (copy-list (direct-slots definition))))))
-  ;; Types
+    (when (domesticp symbol (object-source-pathname combination)
+		     packages pathnames)
+      (endpush (make-combination-definition symbol combination) definitions)))
+  ;; #### WARNING: classoids and their slots are treated differently from
+  ;; generic functions and their methods. We will never create standalone
+  ;; slots or partial classoid definitions (missing slots). There are several
+  ;; reasons for this.
+  ;; 1. While a generic function definition may be scattered all over the
+  ;;    place, a classoid definition is always monolithic.
+  ;; 2. While it's easy to look at a method and figure out the generic
+  ;;    function (they have the same name), it's not the case for slots, so
+  ;;    rendering a standalone slot would make little sense.
+  ;; 3. On top of that, SBCL's typed structure slot description objects don't
+  ;;    have a back pointer to the structure description, so it would be
+  ;;    impossible for the finalization process to compute the
+  ;;    cross-references.
+  ;; Because of all this, this is what we do.
+  ;; 1. We create domestic classoids completely, and compute all classoid /
+  ;;    slot cross-references here. Some slots may still get a foreign flag,
+  ;;    but that probably doesn't really matter.
+  ;; 2. Conversely, there may be foreign structures containing domestic slots,
+  ;;    but those won't be created now (maybe later, during the finalization
+  ;;    process).
+  ;; Structures, classes, and conditions.
+  (when-let (classoid (find-class symbol nil))
+    (let ((source (object-source-pathname classoid)))
+      (when (domesticp symbol source packages pathnames)
+	(let ((classoid-definition
+		(make-classoid-definition symbol classoid packages pathnames)))
+	  (endpush classoid-definition  definitions)
+	  (dolist (slot-definition (direct-slots classoid-definition))
+	    (endpush slot-definition definitions))))))
+  ;; Typed structures.
+  (when-let (structure (sb-int:info :typed-structure :info symbol))
+    (let ((source (object-source-pathname structure)))
+      (when (domesticp symbol source packages pathnames)
+	(let ((structure-definition
+		(make-classoid-definition symbol structure packages pathnames)))
+	  (endpush structure-definition definitions)
+	  (dolist (slot-definition (direct-slots structure-definition))
+	    (endpush slot-definition definitions))))))
+  ;; Types.
   (when-let (expander (sb-int:info :type :expander symbol))
-    (endpush (make-type-definition symbol expander) definitions))
+    (when (domesticp symbol (source-by-name symbol :type)
+		     packages pathnames)
+      (endpush (make-type-definition symbol expander) definitions)))
 
   definitions)
 
@@ -352,13 +422,25 @@ Lambda expression are not considered as proper names, so NIL is returned."
       ;; the need to PUSHNEW here.
       (pushnew symbol symbols))))
 
-(defun make-all-symbol-definitions (definitions)
-  "Return a list of all symbol definitions for package DEFINITIONS."
-  (mapcan #'make-symbol-definitions
-    (mapcan #'package-symbols
-      ;; #### NOTE: at that point, we don't have any foreign package
-      ;; definitions here, so we don't need to filter them.
-      (mapcar #'definition-package definitions))))
+(defun make-all-symbol-definitions
+    (packages pathnames all-symbols-p &aux definitions processed)
+  "Return a list of all domestic symbol definitions.
+If ALL-SYMBOLS, introspect all accessible symbols in the current Lisp
+environment. Otherwise (the default), limit introspection to the symbols from
+domestic PACKAGES.
+Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
+`domesticp'."
+  (if all-symbols-p
+    (do-all-symbols (symbol definitions)
+      (unless (member symbol processed)
+	(push symbol processed)
+	(when-let (symbol-definitions
+		   (make-symbol-definitions symbol packages pathnames))
+	  (setq definitions (nconc definitions symbol-definitions)))))
+    (dolist (symbol (mapcan #'package-symbols packages) definitions)
+      (when-let (symbol-definitions
+		 (make-symbol-definitions symbol packages pathnames))
+	(setq definitions (nconc definitions symbol-definitions))))))
 
 
 
@@ -431,7 +513,8 @@ SYSTEM-NAME is an ASDF system designator."
 
 (defun extract
     (system-name
-     &key (library-name (if (stringp system-name)
+     &key all-symbols
+	  (library-name (if (stringp system-name)
 			  system-name
 			  (string-downcase system-name)))
 	  (tagline nil taglinep)
@@ -449,6 +532,9 @@ The documentation information is returned in an EXTRACT structure, which see.
 
 SYSTEM-NAME is an ASDF system designator. The following keyword parameters
 allow to specify or override some bits of information.
+- ALL-SYMBOLS: scan all accessible symbols in the Lisp environment rather than
+  just the ones from our domestic packages. Some additional information may be
+  discovered in the process, at the expense of a much higher processing time.
 - LIBRARY-NAME: name of the library being documented. Defaults to the system
   name.
 - TAGLINE: small text to be used as the manual's subtitle, or NIL.
@@ -519,14 +605,21 @@ allow to specify or override some bits of information.
   (let* ((system-definitions (make-all-system-definitions system))
 	 (module-definitions (make-all-module-definitions system-definitions))
 	 (file-definitions (make-all-file-definitions system-definitions))
+	 (pathnames
+	   (mapcar #'component-pathname
+	     (mapcar #'file
+	       (remove-if-not #'lisp-file-definition-p file-definitions))))
 	 (package-definitions
 	   (make-all-package-definitions file-definitions system-definitions))
-	 (symbol-definitions (make-all-symbol-definitions package-definitions)))
+	 (packages (mapcar #'definition-package package-definitions))
+	 (symbol-definitions
+	   (make-all-symbol-definitions packages pathnames all-symbols)))
+
     (setf (definitions extract)
 	  (append system-definitions module-definitions file-definitions
-		  package-definitions symbol-definitions)))
+		  package-definitions symbol-definitions))
 
-  (finalize (definitions extract))
+    (finalize (definitions extract) packages pathnames))
 
   extract)
 
