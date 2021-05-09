@@ -120,51 +120,6 @@ PACKAGES and PATHNAMES are used to determine domesticity."
 	  :foreign (not (domesticp name (object-source-pathname function)
 			  packages pathnames))))))))
 
-(defun congruence (lambda-list)
-  "Return LAMBDA-LIST's congruence.
-This is a list containing:
-- the number of mandatory arguments,
-- the number of optional arguments,
-- the list of keyword argument names."
-  (loop :with state := :mandatory
-	:with mandatory := 0
-	:with optional := 0
-	:with keywords := ()
-	:while lambda-list
-	:do (case (car lambda-list)
-	      ((&whole &environment &rest)
-	       (setq lambda-list (cddr lambda-list)))
-	      (&aux
-	       (setq lambda-list ()))
-	      (&optional (setq state :optional lambda-list (cdr lambda-list)))
-	      (&key (setq state :keywords lambda-list (cdr lambda-list)))
-	      (otherwise
-	       (case state
-		 (:mandatory (incf mandatory))
-		 (:optional (incf optional))
-		 (:keywords (endpush (if (consp (car lambda-list))
-				       (caar lambda-list)
-				       (car lambda-list))
-				     keywords)))
-	       (setq lambda-list (cdr lambda-list))))
-	:finally (return (list mandatory optional keywords))))
-
-(defun congruence= (congruence1 congruence2)
-  "Return T if CONGRUENCE1 and CONGRUENCE2 are identical.
-CONGRUENCE1/2 must be the result of `congruence', which see.
-Two congruences are identical if their number of mandatory and optional
-arguments are respectively the same, and if they have the same keyword
-arguments, in any order."
-  (and (= (car congruence1) (car congruence2))
-       (= (cadr congruence1) (cadr congruence2))
-       (null (set-difference (caddr congruence1) (caddr congruence2)))
-       (null (set-difference (caddr congruence2) (caddr congruence1)))))
-
-(defun congruentp (lambda-list-1 lambda-list-2)
-  "Return T if LAMBDA-LIST-1 and LAMBDA-LIST-2 are congruent.
-See `congruence=' for more information."
-  (congruence= (congruence lambda-list-1) (congruence lambda-list-2)))
-
 
 
 ;; ---------------
@@ -212,6 +167,14 @@ DEFINITIONS in the process."
 ;; Setf expander mixins
 ;; --------------------
 
+;; #### WARNING: previously, I was attempting to check the lambda-list
+;; congruency between non-setf funcoids and potential setf expanders
+;; (expander-for). I realized that it's bound to remain shaky, because not
+;; even the Lisp code can guarantee that. I've also seen libraries (e.g.
+;; anaphora) prototyping their expander-for as just (&rest whatever), so it's
+;; really impossible to tell. Because of that, I've now reverted to a much
+;; simpler scheme, just ignoring the lambda lists, only checking the names.
+
 (defmethod stabilize progn
     ((definition setfable-funcoid-definition) definitions packages pathnames
      &aux (name (definition-symbol definition)))
@@ -220,11 +183,10 @@ DEFINITIONS in the process."
     (unless (expander-for definition)
       (let ((expander-for
 	      (find-if (lambda (candidate)
+			 ;; See comment above.
 			 (and (typep candidate 'expander-definition)
 			      ;; don't want the setf part
-			      (eq (definition-symbol candidate) name)
-			      (congruentp (lambda-list candidate)
-					  (lambda-list definition))))
+			      (eq (definition-symbol candidate) name)))
 		       definitions)))
 	(unless (or expander-for (foreignp definition))
 	  (when-let (expander (sb-int:info :setf :expander name))
@@ -268,12 +230,12 @@ DEFINITIONS in the process."
     (unless (or (standalone-reader definition) unavailable)
       (let ((standalone-reader
 	      (find-if (lambda (candidate)
+			 ;; See comment above the stabilize method on setfable
+			 ;; funcoids.
 			 (and (or (typep candidate 'macro-definition)
 				  (typep candidate 'function-definition))
 			      ;; this will filter out setf functions
-			      (eq (name candidate) name)
-			      (congruentp (lambda-list candidate)
-					  lambda-list)))
+			      (eq (name candidate) name)))
 		       definitions)))
 	(unless (or standalone-reader (foreignp definition))
 	  ;; #### TODO: perhaps we should check for aliasing here. On the
