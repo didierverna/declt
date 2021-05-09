@@ -120,6 +120,51 @@ PACKAGES and PATHNAMES are used to determine domesticity."
 	  :foreign (not (domesticp name (object-source-pathname function)
 			  packages pathnames))))))))
 
+(defun congruence (lambda-list)
+  "Return LAMBDA-LIST's congruence.
+This is a list containing:
+- the number of mandatory arguments,
+- the number of optional arguments,
+- the list of keyword argument names."
+  (loop :with state := :mandatory
+	:with mandatory := 0
+	:with optional := 0
+	:with keywords := ()
+	:while lambda-list
+	:do (case (car lambda-list)
+	      ((&whole &environment &rest)
+	       (setq lambda-list (cddr lambda-list)))
+	      (&aux
+	       (setq lambda-list ()))
+	      (&optional (setq state :optional lambda-list (cdr lambda-list)))
+	      (&key (setq state :keywords lambda-list (cdr lambda-list)))
+	      (otherwise
+	       (case state
+		 (:mandatory (incf mandatory))
+		 (:optional (incf optional))
+		 (:keywords (endpush (if (consp (car lambda-list))
+				       (caar lambda-list)
+				       (car lambda-list))
+				     keywords)))
+	       (setq lambda-list (cdr lambda-list))))
+	:finally (return (list mandatory optional keywords))))
+
+(defun congruence= (congruence1 congruence2)
+  "Return T if CONGRUENCE1 and CONGRUENCE2 are identical.
+CONGRUENCE1/2 must be the result of `congruence', which see.
+Two congruences are identical if their number of mandatory and optional
+arguments are respectively the same, and if they have the same keyword
+arguments, in any order."
+  (and (= (car congruence1) (car congruence2))
+       (= (cadr congruence1) (cadr congruence2))
+       (null (set-difference (caddr congruence1) (caddr congruence2)))
+       (null (set-difference (caddr congruence2) (caddr congruence1)))))
+
+(defun congruentp (lambda-list-1 lambda-list-2)
+  "Return T if LAMBDA-LIST-1 and LAMBDA-LIST-2 are congruent.
+See `congruence=' for more information."
+  (congruence= (congruence lambda-list-1) (congruence lambda-list-2)))
+
 
 
 ;; ---------------
@@ -178,8 +223,8 @@ DEFINITIONS in the process."
 			 (and (typep candidate 'expander-definition)
 			      ;; don't want the setf part
 			      (eq (definition-symbol candidate) name)
-			      (equal (lambda-list candidate)
-				     (lambda-list definition))))
+			      (congruentp (lambda-list candidate)
+					  (lambda-list definition))))
 		       definitions)))
 	(unless (or expander-for (foreignp definition))
 	  (when-let (expander (sb-int:info :setf :expander name))
@@ -227,7 +272,8 @@ DEFINITIONS in the process."
 				  (typep candidate 'function-definition))
 			      ;; this will filter out setf functions
 			      (eq (name candidate) name)
-			      (equal (lambda-list candidate) lambda-list)))
+			      (congruentp (lambda-list candidate)
+					  lambda-list)))
 		       definitions)))
 	(unless (or standalone-reader (foreignp definition))
 	  ;; #### TODO: perhaps we should check for aliasing here. On the
