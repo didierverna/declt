@@ -92,7 +92,11 @@ This includes both :defsystem-depends-on and :depends-on."
 
 (defun subsystem
     (name system directory
-     &aux (subsystem (resolve-dependency-name system name)))
+     ;; #### TODO: RESOLVE-DEPENDENCY-NAME can fail on components that are not
+     ;; loaded (e.g. with a missing :feature). Currently, we simply ignore the
+     ;; error, but this raises the general question of representing unloaded
+     ;; components. There is a similar case in finalize.lisp.
+     &aux (subsystem (ignore-errors (resolve-dependency-name system name))))
   "Return NAME'd SYSTEM dependency if found under DIRECTORY, or nil."
   (when (sub-component-p subsystem directory)
     subsystem))

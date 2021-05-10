@@ -838,7 +838,8 @@ return a list of the updated specification (suitable to MAPCAN)."
 	 ;; #### TODO: RESOLVE-DEPENDENCY-NAME can fail on components that are
 	 ;; not loaded (e.g. with a missing :feature). Currently, we simply
 	 ;; ignore the error, but this raises the general question of
-	 ;; representing unloaded components.
+	 ;; representing unloaded components. There is a similar case in
+	 ;; extract.lisp.
 	 (dependency (ignore-errors (resolve-dependency-name component name)))
 	 (definition
 	   (when dependency (find-definition dependency definitions))))
