@@ -590,9 +590,10 @@ permitted."
     ((definition generic-reader-definition) context
      &rest args &key
      &aux (writer (find (list 'setf (name definition))
-		      (mapcar #'owner
-			(mapcat #'writers
-			  (mapcar #'target-slot (methods definition))))
+		      (remove-if #'null ;; protect against standalone methods
+			  (mapcar #'owner
+			    (mapcat #'writers
+			      (mapcar #'target-slot (methods definition)))))
 		    :key #'name :test #'equal))
 	  (merged-methods (merge-generic-writer definition writer)))
   "Check for potential writer merging with generic reader DEFINITION."
