@@ -226,49 +226,48 @@ DEFINITIONS in the process."
     ((definition expander-definition) definitions packages pathnames
      &aux (name (definition-symbol definition))) ;; don't want the setf part
   "Compute setf expander DEFINTIION's standalone reader definition."
-  (multiple-value-bind (lambda-list unavailable) (lambda-list definition)
-    (unless (or (standalone-reader definition) unavailable)
-      (let ((standalone-reader
-	      (find-if (lambda (candidate)
-			 ;; See comment above the stabilize method on setfable
-			 ;; funcoids.
-			 (and (or (typep candidate 'macro-definition)
-				  (typep candidate 'function-definition))
-			      ;; this will filter out setf functions
-			      (eq (name candidate) name)))
-		       definitions)))
-	(unless (or standalone-reader (foreignp definition))
-	  ;; #### TODO: perhaps we should check for aliasing here. On the
-	  ;; other hand, we're creating a foreign definition so maybe we don't
-	  ;; care that much.
-	  (when-let (macro (macro-function name))
-	    (setq standalone-reader
-		  (destabilize definitions
-		    (make-macro-definition
-		     name macro
-		     (not (domesticp name (object-source-pathname macro)
-			    packages pathnames)))))))
-	(unless (or standalone-reader (foreignp definition))
-	  ;; #### TODO: perhaps we should check for aliasing here. On the
-	  ;; other hand, we're creating a foreign definition so maybe we don't
-	  ;; care that much.
-	  (when-let (function (when (fboundp name) (fdefinition name)))
-	    (setq standalone-reader
-		  (destabilize definitions
-		    (typecase function
-		      (generic-function
-		       (make-generic-function-definition
-			name function
-			:foreign (not (domesticp name
-					  (object-source-pathname function)
-					packages pathnames))))
-		      (otherwise
-		       (make-ordinary-function-definition
-			name function
-			:foreign (not (domesticp name
-					  (object-source-pathname function)
-					packages pathnames)))))))))
-	(setf (standalone-reader definition) standalone-reader)))))
+  (unless (standalone-reader definition)
+    (let ((standalone-reader
+	    (find-if (lambda (candidate)
+		       ;; See comment above the stabilize method on setfable
+		       ;; funcoids.
+		       (and (or (typep candidate 'macro-definition)
+				(typep candidate 'function-definition))
+			    ;; this will filter out setf functions
+			    (eq (name candidate) name)))
+		     definitions)))
+      (unless (or standalone-reader (foreignp definition))
+	;; #### TODO: perhaps we should check for aliasing here. On the other
+	;; hand, we're creating a foreign definition so maybe we don't care
+	;; that much.
+	(when-let (macro (macro-function name))
+	  (setq standalone-reader
+		(destabilize definitions
+		  (make-macro-definition
+		   name macro
+		   (not (domesticp name (object-source-pathname macro)
+			  packages pathnames)))))))
+      (unless (or standalone-reader (foreignp definition))
+	;; #### TODO: perhaps we should check for aliasing here. On the other
+	;; hand, we're creating a foreign definition so maybe we don't care
+	;; that much.
+	(when-let (function (when (fboundp name) (fdefinition name)))
+	  (setq standalone-reader
+		(destabilize definitions
+		  (typecase function
+		    (generic-function
+		     (make-generic-function-definition
+		      name function
+		      :foreign (not (domesticp name
+					(object-source-pathname function)
+				      packages pathnames))))
+		    (otherwise
+		     (make-ordinary-function-definition
+		      name function
+		      :foreign (not (domesticp name
+					(object-source-pathname function)
+				      packages pathnames)))))))))
+      (setf (standalone-reader definition) standalone-reader))))
 
 (defmethod stabilize progn
     ((definition short-expander-definition) definitions packages pathnames
@@ -505,6 +504,14 @@ DEFINITIONS in the process."
 ;; two). That's why we have 3 methods below, two of them actually using the
 ;; same helper function.
 
+;; #### WARNING: in the function below, we need to pay attention to whether
+;; accessors are generic or not. They normally should be (at least for
+;; user-defined classoids), but there are cases in which they actually are
+;; ordinary functions (e.g. SIMPLE-CONDITION-FORMAT-CONTROL, and
+;; SIMPLE-CONDITION-FORMAT-ARGUMENTS). It's not clear to me exactly which
+;; other cases we may fall on, but to be on the safe side, we take care of
+;; that systematically.
+
 ;; #### PORTME.
 (defun stabilize-clos-classoid-slot
     (definition definitions packages pathnames
@@ -517,49 +524,72 @@ This function is used for regular class and condition slots."
   (setf (readers definition)
 	(mapcan
 	    (lambda (name)
-	      (let* ((method (find classoid
-				 (generic-function-methods (fdefinition name))
-			       :key (lambda (method)
-				      (first (method-specializers method)))))
-		     (method-definition (find-definition method definitions)))
-		(unless (or method-definition (foreignp definition))
-		  (setq method-definition
+	      (let* ((funcoid (fdefinition name))
+		     (method
+		       (when (typep funcoid 'generic-function)
+			 (find classoid (generic-function-methods funcoid)
+			   :key (lambda (method)
+				  (first (method-specializers method))))))
+		     (reader-definition
+		       (find-definition (or method funcoid) definitions)))
+		(unless (or reader-definition (foreignp definition))
+		  (setq reader-definition
 			(destabilize definitions
-			  (make-method-definition
-			   method
-			   (not (domesticp (method-name method)
-				    (object-source-pathname method)
-				  packages pathnames))))))
-		(when method-definition
-		  (change-class method-definition 'reader-method-definition
+			  (if method
+			    (make-method-definition
+			     method
+			     (not (domesticp name
+				      (object-source-pathname method)
+				    packages pathnames)))
+			    (make-ordinary-function-definition
+			     name funcoid
+			     :foreign (not (domesticp name
+					       (object-source-pathname funcoid)
+					     packages pathnames)))))))
+		(when reader-definition
+		  (change-class reader-definition
+		      (if method
+			'reader-method-definition
+			'ordinary-reader-definition)
 		    :target-slot definition)
-		  (list method-definition))))
+		  (list reader-definition))))
 	  (slot-definition-readers slot)))
   (setf (writers definition)
 	(mapcan
 	    (lambda (name)
-	      (let* ((method (find classoid
-				 (generic-function-methods (fdefinition name))
-			       :key (lambda (method)
-				      ;; #### NOTE: whatever the kind of
-				      ;; writer, that is, whether it is
-				      ;; defined with :writer or :accessor,
-				      ;; the argument list is always
-				      ;; (NEW-VALUE OBJECT).
-				      (second (method-specializers method)))))
-		     (method-definition (find-definition method definitions)))
-		(unless (or method-definition (foreignp definition))
-		  (setq method-definition
+	      (let* ((funcoid (fdefinition name))
+		     (method
+		       (when (typep funcoid 'generic-function)
+			 (find classoid (generic-function-methods funcoid)
+			   :key (lambda (method)
+				  ;; #### NOTE: whatever the kind of writer,
+				  ;; that is, whether it is defined with
+				  ;; :writer or :accessor, the argument list
+				  ;; is always (NEW-VALUE OBJECT).
+				  (second (method-specializers method))))))
+		     (writer-definition
+		       (find-definition (or method funcoid) definitions)))
+		(unless (or writer-definition (foreignp definition))
+		  (setq writer-definition
 			(destabilize definitions
-			  (make-method-definition
-			   method
-			   (not (domesticp (method-name method)
-				    (object-source-pathname method)
-				  packages pathnames))))))
-		(when method-definition
-		  (change-class method-definition 'writer-method-definition
+			  (if method
+			    (make-method-definition
+			     method
+			     (not (domesticp name
+				      (object-source-pathname method)
+				    packages pathnames)))
+			    (make-ordinary-function-definition
+			     name funcoid
+			     :foreign (not (domesticp name
+					       (object-source-pathname funcoid)
+					     packages pathnames)))))))
+		(when writer-definition
+		  (change-class writer-definition
+		      (if method
+			'writer-method-definition
+			'ordinary-writer-definition)
 		    :target-slot definition)
-		  (list method-definition))))
+		  (list writer-definition))))
 	  (slot-definition-writers slot))))
 
 ;; #### PORTME: SBCL defines writers as setf functions, but the standard
