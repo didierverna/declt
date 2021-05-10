@@ -48,7 +48,7 @@
   ((object :reader component) ;; slot overload
    (location
     :documentation "The component's location (a namestring)."
-    :accessor location)
+    :initform nil :accessor location)
    (parent
     :documentation "The parent definition for this definition's component."
     :accessor parent)
@@ -66,9 +66,10 @@
 	  ;; or not. If it does, it could disappear later on, and vice versa.
 	  ;; We still try to probe it, however, because it could allow us to
 	  ;; dereference symbolic links.
-	  (probed-pathname (probe-file pathname)))
+	  (when pathname (probed-pathname (probe-file pathname))))
   "Compute component DEFINITION's location."
-  (setf (location definition) (namestring (or probed-pathname pathname))))
+  (when (or probed-pathname pathname)
+    (setf (location definition) (namestring (or probed-pathname pathname)))))
 
 (defun component-definition-p (definition)
   "Return T if DEFINITION is a component definition."
