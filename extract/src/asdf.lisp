@@ -66,7 +66,7 @@
 	  ;; or not. If it does, it could disappear later on, and vice versa.
 	  ;; We still try to probe it, however, because it could allow us to
 	  ;; dereference symbolic links.
-	  (when pathname (probed-pathname (probe-file pathname))))
+	  (probed-pathname (when pathname (probe-file pathname))))
   "Compute component DEFINITION's location."
   (when (or probed-pathname pathname)
     (setf (location definition) (namestring (or probed-pathname pathname)))))
