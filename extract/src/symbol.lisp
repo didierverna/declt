@@ -873,6 +873,14 @@ It is T for list structures, but may be something else for vector ones."
     :initform nil :accessor writers))
   (:documentation "Abstract root class for slots."))
 
+;; #### WARNING: we need this because apparently, the source slot in slot
+;; objects in SBCL is unbound. It's ok to access the owner because slots are
+;; created along with their owner, and the cross-references are established at
+;; that time (so, early).
+(defmethod source-pathname ((definition slot-definition))
+  "Return slot DEFINITION's owner source pathname."
+  (source-pathname (owner definition)))
+
 (defgeneric value-type (definition)
   (:documentation "Return slot DEFINITION's value type."))
 
