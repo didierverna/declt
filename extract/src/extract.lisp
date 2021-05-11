@@ -98,7 +98,7 @@ This includes both :defsystem-depends-on and :depends-on."
      ;; components. There is a similar case in finalize.lisp.
      &aux (subsystem (ignore-errors (resolve-dependency-name system name))))
   "Return NAME'd SYSTEM dependency if found under DIRECTORY, or nil."
-  (when (sub-component-p subsystem directory)
+  (when (and subsystem (sub-component-p subsystem directory))
     subsystem))
 
 (defun subsystems (system directory)
