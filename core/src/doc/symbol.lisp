@@ -76,13 +76,12 @@ When FORCE, render a reference to the Common Lisp package, even if CONTEXT
 says otherwise.
 Possibly render an \"uninterned\" mention instead of an actual reference,
 when there is no home package to reference."
-  (when (or (not (string= (name home-package) (string :common-lisp)))
-	    (default-values context)
-	    force)
-    (item ("Package")
-      (if home-package
-	(reference home-package context t)
-	(format t "@i{none (uninterned)}.~%")))))
+  (if (null home-package)
+    (item ("Package") (format t "@i{none (uninterned)}.~%"))
+    (when (or (not (string= (name home-package) (string :common-lisp)))
+	      (default-values context)
+	      force)
+      (item ("Package") (reference home-package context t)))))
 
 (defun render-definition-core (definition context)
   "Render DEFINITION's documentation core in CONTEXT.
