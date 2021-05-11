@@ -613,9 +613,10 @@ permitted."
   (unless (and (setfp definition)
 	       (merge-generic-writer
 		(find (definition-symbol definition)
-		    (mapcar #'owner
-		      (mapcat #'readers
-			(mapcar #'target-slot (methods definition))))
+		    (remove-if #'null ;; protect against standalone methods
+			(mapcar #'owner
+			  (mapcat #'readers
+				  (mapcar #'target-slot (methods definition)))))
 		  :key #'definition-symbol)
 		definition))
     (call-next-method)))
