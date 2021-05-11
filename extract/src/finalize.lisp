@@ -232,7 +232,9 @@ DEFINITIONS in the process."
 		       ;; See comment above the stabilize method on setfable
 		       ;; funcoids.
 		       (and (or (typep candidate 'macro-definition)
-				(typep candidate 'function-definition))
+				(typep candidate 'macro-alias-definition)
+				(typep candidate 'function-definition)
+				(typep candidate 'function-alias-definition))
 			    ;; this will filter out setf functions
 			    (eq (name candidate) name)))
 		     definitions)))
@@ -278,7 +280,9 @@ DEFINITIONS in the process."
 	  (find* name definitions
 	    :pre-test (lambda (candidate)
 			(or (typep candidate 'macro-definition)
-			    (typep candidate 'function-definition)))
+			    (typep candidate 'macro-alias-definition)
+			    (typep candidate 'function-definition)
+			    (typep candidate 'function-alias-definition)))
 	    :key #'name))) ;; EQ test will filter out setf functions.
   (unless (or (standalone-writer definition) (foreignp definition))
     (let ((writer-definition (new-funcoid-definition name packages pathnames)))
@@ -388,7 +392,9 @@ DEFINITIONS in the process."
 	  (find* name definitions
 	    :pre-test (lambda (candidate)
 			(or (typep candidate 'macro-definition)
-			    (typep candidate 'function-definition)))
+			    (typep candidate 'macro-alias-definition)
+			    (typep candidate 'function-definition)
+			    (typep candidate 'function-alias-definition)))
 	    :key #'name))) ;; EQ test will filter out setf functions
   (unless (or (standalone-combinator definition) (foreignp definition))
     (let ((combinator-definition
