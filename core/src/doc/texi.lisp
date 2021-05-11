@@ -112,7 +112,7 @@ characters."
 This function expects a value from `safe-lambda-list', or
 `safe-specializers', which see. It returns a string properly escaped for
 Texinfo, apart from &-constructs which retain their original form, and @ref's
-which are already properly set."
+and @t's which are already properly set."
   (if lambda-list
     (loop :for rest :on lambda-list
 	  :for element := (car rest)
@@ -124,7 +124,12 @@ which are already properly set."
 				:test #'string-equal) ;; case-insensitive test
 			;; #### WARNING: I'll be damned in we ever fall on a
 			;; specifier called @ref{... !
-			(when-let (pos (search "@ref{" element)) (zerop pos)))
+			(when-let (pos (search "@ref{" element)) (zerop pos))
+			;; #### WARNING: this is really kludgy. It compensates
+			;; for references that are not rendered as actual
+			;; links (but instead just plain text) because foreign
+			;; definitions are not rendered.
+			(when-let (pos (search "@t{" element)) (zerop pos)))
 		  :collect element :into escaped-lambda-list
 	  :else :if (when-let (pos (search "(eql " element)) (zerop pos))
 		  :collect (format nil "@t{~A}" (escape element))
