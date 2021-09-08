@@ -38,19 +38,19 @@
 
 ;; Version specifiers
 
-(defparameter *release-major-level* 3
+(defparameter *release-major-level* 4
   "The major level of this release.")
 
 (defparameter *release-minor-level* 0
   "The minor level of this release.")
 
-(defparameter *release-status* :patchlevel
+(defparameter *release-status* :beta
   "The status of this release.")
 
-(defparameter *release-status-level* 0
+(defparameter *release-status-level* 1
   "The status level of this release.")
 
-(defparameter *release-name* "Montgomery Scott"
+(defparameter *release-name* "William Riker"
   "The name of this release.
 The general naming theme for Declt is \"Star Trek characters\".")
 

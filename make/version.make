@@ -1,3 +1,3 @@
-LONG_VERSION    := 3.0 "Montgomery Scott"
-SHORT_VERSION   := 3.0
+LONG_VERSION    := 4.0 beta 1 "William Riker"
+SHORT_VERSION   := 4.0b1
 COPYRIGHT_YEARS := 2010-2013, 2015-2021
