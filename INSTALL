@@ -41,7 +41,7 @@ also type ‘make generate’.
    Type ‘make uninstall’ to uninstall the library.
 
 
-4.1 Configuration
+5.1 Configuration
 =================
 
 Some aspects of Declt’s behavior can be configured _before_ the library
