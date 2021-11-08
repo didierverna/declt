@@ -76,6 +76,11 @@ directions. To be provided as a user-option (or maybe part of the already
 existing all-symbols mode) because the performance cost is very high for
 probably very little gain.
 
+** Anchors
+This is a note to myself rather than a TODO entry.
+With the simplification of anchor names in v4 (namely, going numerical instead
+of human-readable), it will become more complicated to cross-reference
+different manual entries, if we ever go down that road.
 
 ** Call graphs
 Cf.
