@@ -539,6 +539,7 @@ allow to specify or override some bits of information.
 - ALL-SYMBOLS: scan all accessible symbols in the Lisp environment rather than
   just the ones from our domestic packages. Some additional information may be
   discovered in the process, at the expense of a much higher processing time.
+  Defaults to NIL.
 - LIBRARY-NAME: name of the library being documented. Defaults to the system
   name.
 - TAGLINE: small text to be used as the manual's subtitle, or NIL.

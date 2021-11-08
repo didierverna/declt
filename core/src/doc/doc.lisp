@@ -188,7 +188,9 @@ The following keys are available.
 - LOCATIONS: whether to hyperlink definitions to their locations.
   Currently supported values are NIL (the default), and :file-system.
 - DEFAULT-VALUES: whether to render default / standard values.
-- FOREIGN-DEFINITIONS: whether to render foreign definitions."
+  Defaults to NIL.
+- FOREIGN-DEFINITIONS: whether to render foreign definitions.
+  Defaults to NIL."
   (declare (ignore locations default-values foreign-definitions))
   (apply #'make-instance 'context keys))
 
