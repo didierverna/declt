@@ -178,11 +178,15 @@ Currently supported values are NIL (the default), and :file-system."
     :initform nil :initarg :default-values :reader default-values)
    (foreign-definitions
     :documentation "Whether to render foreign definitions."
-    :initform nil :initarg :foreign-definitions :reader foreign-definitions))
+    :initform nil :initarg :foreign-definitions :reader foreign-definitions)
+   (declt-notice
+    :documentation "whether to add a small credit paragraph about Declt.
+Possible values are NIL, :short, or :long (the default)."
+    :initform :long :initarg :declt-notice :reader declt-notice))
   (:documentation "The class of rendering contexts."))
 
 (defun make-context
-    (&rest keys &key locations default-values foreign-definitions)
+    (&rest keys &key locations default-values foreign-definitions declt-notice)
   "Make a new rendering context.
 The following keys are available.
 - LOCATIONS: whether to hyperlink definitions to their locations.
@@ -190,8 +194,10 @@ The following keys are available.
 - DEFAULT-VALUES: whether to render default / standard values.
   Defaults to NIL.
 - FOREIGN-DEFINITIONS: whether to render foreign definitions.
-  Defaults to NIL."
-  (declare (ignore locations default-values foreign-definitions))
+  Defaults to NIL.
+- DECLT-NOTICE: whether to add a small credit paragraph to Declt.
+Possible values are NIL, :short, or :long (the default)."
+  (declare (ignore locations default-values foreign-definitions declt-notice))
   (apply #'make-instance 'context keys))
 
 

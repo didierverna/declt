@@ -366,13 +366,13 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 		   introduction conclusion
 
 		   locations default-values foreign-definitions
+		   (declt-notice :long)
 
 		   (output-directory #p"./")
 		   (file-name (if (stringp system-name)
 				system-name
 				(string-downcase system-name)))
 		   (info-name file-name)
-		   (declt-notice :long)
 
 	      &aux (current-time-string (current-time-string))
 		   (extract (apply #'extract system-name
@@ -384,7 +384,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 		   (context (apply #'make-context
 			      (select-keys keys
 				:locations :default-values
-				:foreign-definitions))))
+				:foreign-definitions :declt-notice))))
   "Generate a reference manual for ASDF SYSTEM-NAME.
 The reference manual is currently generated in Texinfo format.
 
@@ -392,8 +392,8 @@ For a description of SYSTEM-NAME, ALL-SYMBOLS, LIBRARY-NAME, TAGLINE,
 LIBRARY-VERSION, CONTACT, COPYRIGHT-YEARS, LICENSE, INTRODUCTION, and
 CONCLUSION, see `extract'.
 
-For a description of LOCATIONS, DEFAULT-VALUES, and FOREIGN-DEFINITIONS, see
-`make-context'.
+For a description of LOCATIONS, DEFAULT-VALUES, FOREIGN-DEFINITIONS, and
+DECLT-NOTICE, see `make-context'.
 
 The following keyword parameters are also available.
 - OUTPUT-DIRECTORY: output directory for the generated reference manual.
@@ -401,15 +401,13 @@ The following keyword parameters are also available.
 - FILE-NAME: base name for the generated reference manual, sans extension.
   Defaults to the system name.
 - INFO-NAME: base name for the subsequent Info file, sans extension (this
-  name appears in the Texinfo file). Defaults to FILE-NAME.
-- DECLT-NOTICE: small credit paragraph to Declt, or NIL. Defaults to
-  :long. Also accepts :short."
+  name appears in the Texinfo file). Defaults to FILE-NAME."
   (declare (ignore all-symbols
 		   library-name tagline library-version contact
 		   copyright-years license
 		   introduction conclusion
 
-		   locations default-values foreign-definitions))
+		   locations default-values foreign-definitions declt-notice))
 
   ;; Construct the nodes hierarchy.
   (with-standard-io-syntax
@@ -428,10 +426,9 @@ generated automatically by Declt version ~A~@[
 on ~A~]~]."
 			 (escape (library-name extract))
 			 (escape (library-version extract))
-			 (when declt-notice
-			   (escape
-			    (version declt-notice)))
-			 (when (eq declt-notice :long)
+			 (when-let (declt-notice (declt-notice context))
+			   (escape (version declt-notice)))
+			 (when (eq (declt-notice context) :long)
 			   (escape current-time-string)))
 		       :after-menu-contents
 		       (when (license extract) "@insertcopying"))))
@@ -497,7 +494,7 @@ Concepts, functions, variables and data types")
 		       :if-exists :supersede
 		       :if-does-not-exist :create
 		       :external-format :utf8)
-	(render-header extract file-name info-name declt-notice
+	(render-header extract file-name info-name (declt-notice context)
 		       current-time-string)
 	(render-top-node top-node)
 	(format t "~%@bye~%~%@c ~A.texi ends here~%" file-name))))
