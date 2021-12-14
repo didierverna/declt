@@ -225,8 +225,7 @@ This is the @declt{} User Manual for @declt{} version @value{VERSION}.
 * The Declt Pipeline::          Accessing the inner processing stages
 * Other Considerations::        Miscellaneous information
 * Conclusion::                  That's all folks
-* Domesticity::
-* Coverage::
+* Introspection Heuristics::    More details on information retrieval
 * Documentation Tuning::
 * Supported Platforms::         Portability, dependencies, etc.
 * Indexes::                     Concepts, functions, variables and data types
@@ -435,10 +434,10 @@ result.
 @item :all-symbols
 @fkindex{declt,all-symbols}
 Whether to scan all symbols in the Lisp environment rather than just the
-ones from domestic packages. It defaults to @nil{}. The default euristic
-may occasionally miss some definitions. Scanning all symbols guarantees
-completeness, although at the expense of a much greater computation
-time. @xref{Coverage} for more information.
+ones from domestic packages. It defaults to @nil{}. The default
+heuristics may occasionally miss some definitions. Scanning all symbols
+guarantees completeness, although at the expense of a much greater
+computation time. @xref{Introspection Heuristics} for more information.
 @item :library-name
 @fkindex{declt,library-name}
 The library name, used in the reference manual title and at some other
@@ -532,7 +531,8 @@ included in the documentation, foreign definitions are partial rather
 than exhaustive: only the bits relevant to the library being documented
 are included.
 
-For more information on foreign definitions, @xref{Domesticity}.
+For more information on foreign definitions, @xref{Introspection
+Heuristics}.
 @end table
 
 
@@ -710,7 +710,7 @@ project.
 @c ====================================================================
 @c Conclusion
 @c ====================================================================
-@node Conclusion, Domesticity, Other Considerations, Top
+@node Conclusion, Introspection Heuristics, Other Considerations, Top
 @chapter Conclusion
 So that's it I guess. You know all about @declt{} now. The next step is
 to polish your own libraries so that @declt{} can extract meaningful
@@ -724,16 +724,31 @@ Now, go my friend. Go document the whole Lisp world!
 
 
 @c ====================================================================
-@c Domesticity
+@c Introspection Heuristics
 @c ====================================================================
-@node Domesticity, Coverage, Conclusion, Top
-@appendix Domesticity
+@node Introspection Heuristics, Documentation Tuning, Conclusion, Top
+@appendix Introspection Heuristics
+As mentioned already, @declt{} works by introspection: it loads an ASDF
+system and tries to figure out what actually ``belongs'' to it by
+introspecting the Lisp environment.
+
+@menu
+* Domesticity::                 What belongs to the library
+* Coverage::                    Finding domestic definitions
+@end menu
+
+
+@c -----------
+@c Domesticity
+@c -----------
+@node Domesticity, Coverage, Introspection Heuristics, Introspection Heuristics
+@section Domesticity
 @cindex Domesticity
 Domesticity is the concept defining what ``belongs'' to the library
 being documented. It controls what should appear in the reference
 manual, and what should not.
 
-The basic rule is that anything defined in one the library's source
+The basic rule is that anything defined in one of the library's source
 files is domestic, and the rest is foreign. If for some reason, the
 source file is unknown, then, the definition will be considered domestic
 if the symbol naming it is from a domestic package.
@@ -743,36 +758,58 @@ are worth mentioning.
 @itemize
 @item
 Language extensions (for example, new methods on standard generic
-functions) and, in general, new definitions on symbols from foreign
-packages are considered domestic, and hence will appear in the reference
-manual.
+functions) and, in general, new local definitions on symbols from
+foreign packages are considered domestic, and hence will appear in the
+reference manual.
 @item
 Conversely, extensions to the library being documented, but defined
 outside of it, will @emph{not} be part of the resulting reference
 manual, as they will be considered foreign.
 @end itemize
 
+Note that even though they are not normally meant to appear in the
+documentation, @declt{} may be led to create foreign definitions
+(sometimes a lot of them) as well as domestic ones. For example, if your
+library adds a method to @code{make-instance}, @declt{} @emph{will}
+internally create a (foreign) definition for the @code{make-instance}
+generic function. Foreign definitions are never exhaustive however
+(otherwise, we would end up with a complete documentation for the whole
+Lisp image): only the information relevant to the library being
+documented is kept around.
+
 @fkindex{declt,foreign-definitions}
-Remember however that it is still possible to include the bits of
-foreign definitions that are relevant to us (for example, the standard
-generic functions that the library extends) by calling @code{declt} with
-the @code{:foreign-definitions} option.
+As said before, it is possible to include those (partial) foreign
+definitions in the documentation by using the
+@code{:foreign-definitions} option to @code{declt}. Continuing with the
+previous example, local methods on @code{make-instance} normally appear
+as toplevel, standalone definitions in the documentation, as they belong
+to a foreign generic function. If, however, foreign definitions are
+included in the documentation, there will be a toplevel (partial) entry
+for @code{make-instance}, and the domestic methods will appear inside it
+(truly foreign methods will @emph{never} be documented).
 
 
-
-@c ====================================================================
+@c --------
 @c Coverage
-@c ====================================================================
-@node Coverage, Documentation Tuning, Domesticity, Top
-@appendix Coverage
+@c --------
+@node Coverage,  , Domesticity, Introspection Heuristics
+@section Coverage
 @cindex Coverage
+In order to understand what a @dfn{foreign definition} is, you need to
+understand how @declt{} works first. This was briefly explained in the
+introduction, but here is the story again: @declt{} first loads the ASDF
+system from which it retrieves modules and components, notably including
+Lisp files. It then scans all live packages and collects those which
+were defined within that system (@emph{i.e.} those the source of which
+belong to that system). Finally, it collects all definitions for the
+symbols in those packages.
 
 
 
 @c ====================================================================
 @c Documentation Tuning
 @c ====================================================================
-@node Documentation Tuning, Supported Platforms, Coverage, Top
+@node Documentation Tuning, Supported Platforms, Introspection Heuristics, Top
 @appendix Documentation Tuning
 
 @menu
@@ -856,8 +893,8 @@ reader is required.
 @cindex Pretty Printing, docstrings
 @declt{} also attempts to do some pretty printing on things like
 docstrings, system long description @etc{}. Currently, there's a simple
-heuristic that tries to detect short lines that should probably stand on
-their own (with an explicit line break). For every piece of text,
+heuristics that tries to detect short lines that should probably stand
+on their own (with an explicit line break). For every piece of text,
 @declt{} first calculates the longest line and bases its line breaking
 decision on that. In the future, it will be possible to bypass this
 calculation by specifying an intended line width. Other pretty printers
@@ -934,18 +971,6 @@ original Lisp symbol, some characters will actually be different. More
 specifically, dots, commas, colons, parentheses, and backslashes will be
 replaced by close Unicode symbols. Additionally, the ampersand is turned
 upside down, so this one will be noticeable@dots{}
-
-
-
-@c In order to understand what a @dfn{foreign definition} is, you need to
-@c understand how @declt{} works first. This was briefly explained in the
-@c introduction, but here is the story again: @declt{} first loads the ASDF
-@c system from which it retrieves modules and components, notably including
-@c Lisp files. It then scans all live packages and collects those which
-@c were defined within that system (@emph{i.e.} those the source of which
-@c belong to that system). Finally, it collects all definitions for the
-@c symbols in those packages.
-
 
 
 
