@@ -529,10 +529,8 @@ to @nil{}, in which case foreign references are still advertised, but do
 not point to actual definitions (they are not ``clickable''). When
 included in the documentation, foreign definitions are partial rather
 than exhaustive: only the bits relevant to the library being documented
-are included.
-
-For more information on foreign definitions, @xref{Introspection
-Heuristics}.
+are included. For more information on foreign definitions,
+@xref{Introspection Heuristics}.
 @end table
 
 
@@ -870,21 +868,22 @@ will make the generated output look nicer.
 @fkindex{declt,tagline}
 Unless you provide it with an explicit @code{:tagline} argument,
 @code{declt} uses the system's long name or description (provided they
-are one-liners)to construct a subtitle. Consequently, it is advisable to
+are one-liners) to construct a subtitle. Consequently, it is advisable to
 use a single (short) line of text for these slots. The system's long
 name should typically be the expansion of the system's name, if that's
 an acronym, or be left to @nil{}.
 
 @node Docstrings,  , Taglines, Coding Style
 @subsection Docstrings
-@declt{} tries to make the generated output look nicer in various
-ways. For example, @code{setf} functions are documented right after the
+@declt{} tries to make the generated output look nicer in various ways.
+For example, @code{setf} functions are documented right after the
 corresponding reader (if any) instead of being listed under the ``S''
-letter. In a similar vein, methods are documented as elements of their
-respective generic function, not as toplevel definitions.
+letter. In a similar vein, methods are documented as components of their
+respective generic function, not as toplevel definitions (except for
+foreign methods without a corresponding generic function definition).
 
-One thing that you can influence is @declt{}'s attempt at concatenating
-definitions. Concatenating may occur when there are definitions for both
+One thing that you can influence is @declt{}'s attempt at merging
+definitions. Merging may occur when there are definitions for both
 @code{symbol} and @code{(setf symbol)}. This happens for accessor
 functions, generic functions or @code{setf} expanders. This also happens
 for accessor methods. If possible, @declt{} will try to generate a
@@ -892,13 +891,13 @@ for accessor methods. If possible, @declt{} will try to generate a
 only possible, however, if both definitions would render the same
 documentation, @ie{} same package, source file and docstring.
 
-If you don't provide a docstring, concatenation will work. If you
-provide different docstrings (like ``Set the value of @dots{}'' and
-``Get the value of @dots{}''), you will effectively prevent
-concatenation from happening. One thing I like to do is to provide the
-@emph{same} neutral docstring for readers and writers. For instance
-``Access the value of @dots{}''. This way, definitions can both provide
-a docstring and be concatenated together.
+If you don't provide a docstring, merging will work. If you provide
+different docstrings (like ``Set the value of @dots{}'' and ``Get the
+value of @dots{}''), you will effectively prevent merging from
+happening. One thing I like to do is to provide the @emph{same} neutral
+docstring for readers and writers. For instance ``Access the value of
+@dots{}''. This way, definitions can both provide a docstring and be
+merged together.
 
 
 @c ---------------
