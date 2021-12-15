@@ -795,14 +795,47 @@ for @code{make-instance}, and the domestic methods will appear inside it
 @node Coverage,  , Domesticity, Introspection Heuristics
 @section Coverage
 @cindex Coverage
-In order to understand what a @dfn{foreign definition} is, you need to
-understand how @declt{} works first. This was briefly explained in the
-introduction, but here is the story again: @declt{} first loads the ASDF
-system from which it retrieves modules and components, notably including
-Lisp files. It then scans all live packages and collects those which
-were defined within that system (@emph{i.e.} those the source of which
-belong to that system). Finally, it collects all definitions for the
-symbols in those packages.
+In order to discover domestic definitions, @declt{} uses a default
+heuristics which establishes a tradeoff between performance and
+accuracy. This heuristics is based on the assumption that most libraries
+out there are implemented within packages of their own.
+
+Consequently, this is what happens by default. After the library has
+been loaded, @declt{} scans all live packages and selects the domestic
+ones. It then scans all symbols from these packages to find domestic
+definitions.
+
+Note that if we were to stop there, we would probably miss many domestic
+definitions, namely, those on foreign symbols such as methods on
+standard generic functions. Fortunately, a lot of these will be
+recovered later on, when @declt{} computes cross-references between
+definitions in the so-called @dfn{finalization} step.
+
+For example, suppose the library provides a new method on
+@code{make-instance}. This method is domestic because it is defined in
+one of the library's files, but the heuristics will miss it because
+@code{common-lisp}, the home package of the @code{make-instance} symbol
+is foreign. On the other hand, it is very likely that this method exists
+because it specializes on a domestic class already known to @declt{}.
+When @declt{} finalizes a class definition, it looks up methods that
+specialize on it (among other things). These methods are in fact
+accessible through the class by introspection (they are called ``direct
+methods''). Consequently, @declt{} @emph{will} eventually encounter the
+new @code{make-instance} method and add it to the list of domestic
+definitions.
+
+@fkindex{declt,all-symbols}
+In the end, it is probable that most domestic definitions end up being
+discovered, either during the initial scanning phase, or later on,
+during the finalization phase when computing cross-references.
+Nevertheless, domestic definitions may still escape the discovery
+process, if they contribute to a foreign package and no cross-reference
+points back to them. That is the reason for the existence of the
+@code{:all-symbols} option to @declt{}. With this option, @declt{}
+performs a complete scan of all the live symbols in the Lisp image
+rather than just those from domestic packages. The resulting
+documentation is then guaranteed to be exhaustive, at the expense of a
+@emph{much} greater computation time.
 
 
 
