@@ -337,11 +337,6 @@ in the ASDF source registry. Otherwise, @declt{} is also available via
 @uref{http://www.quicklisp.org,,Quicklisp}. @xref{Supported Platforms},
 for more information on portability and dependencies.
 
-@sysindex{net.didierverna.declt}
-@declt{}'s main system is called @samp{net.didierverna.declt}. Depending
-on your installation, you may thus either @code{asdf:load-system}, or
-@code{ql:quickload} it in your Lisp image.
-
 In addition to the bare Lisp library, the @declt{} distribution offers
 documentation in the form of 2 different manuals: the User Manual (you
 are reading it) and the
@@ -389,6 +384,11 @@ Type @command{make uninstall} to uninstall the library.
 @c ====================================================================
 @node General Use, The Declt Pipeline, Installation, Top
 @chapter General Use
+@sysindex{net.didierverna.declt}
+@declt{}'s main system is called @samp{net.didierverna.declt}. Depending
+on your installation, you may thus either @code{asdf:load-system}, or
+@code{ql:quickload} it in your Lisp image.
+
 @pkgindex{net.didierverna.declt}
 @declt{} itself resides in a package called @t{net.didierverna.declt}. You
 can automatically nickname this package with the following function.

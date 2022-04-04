@@ -11,10 +11,6 @@ ASDF source registry.  Otherwise, Declt is also available via Quicklisp.
 *Note Supported Platforms::, for more information on portability and
 dependencies.
 
-   Declt’s main system is called ‘net.didierverna.declt’.  Depending on
-your installation, you may thus either ‘asdf:load-system’, or
-‘ql:quickload’ it in your Lisp image.
-
    In addition to the bare Lisp library, the Declt distribution offers
 documentation in the form of 2 different manuals: the User Manual (you
 are reading it) and the *note The Declt Reference Manual:
