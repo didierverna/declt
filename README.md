@@ -1,5 +1,5 @@
 # Declt
-Declt (pronounce "dec'let") is a reference manual generator for Commojn Lisp
+Declt (pronounce "dec'let") is a reference manual generator for Common Lisp
 libraries. A Declt manual documents one specified ASDF system (considered as
 the "main" system), and all its local dependencies (subsystems found in the
 same distribution). This is what is collectively referred to as the *library*.
