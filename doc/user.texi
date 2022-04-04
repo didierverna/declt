@@ -263,38 +263,47 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 @c ====================================================================
 @node Introduction, Installation, Copying, Top
 @chapter Introduction
+@cindex Library
 @declt{} (pronounce ``dec'let'') is a reference manual generator for
-@cl{} libraries.  It works by loading an ASDF system and introspecting
-its contents. The generated documentation contains the description of
-the system itself and its local dependencies (other systems in the same
-distribution): components (modules and files), packages and definitions
-found in those packages.
+@cl{} libraries. A @declt{} manual documents one specified ASDF system
+(considered as the ``main'' system), and all its local dependencies
+(subsystems found in the same distribution). This is what is
+collectively referred to as the @dfn{library}.
 
-Exported and internal definitions are listed separately. This allows the
-reader to have a quick view on the library's public API. Within each
-section, definitions are sorted lexicographically.
+@cindex Definition
+@declt{} doesn't perform any kind of static code analysis, but instead
+loads the library, and then introspects the Lisp environment to discover
+what ``belongs'' to it. The generated documentation includes the
+description of both programmatic and ASDF components. Every such
+component description is called a @dfn{definition}.
 
-In addition to ASDF system components and packages, @declt{} documents
-the following definitions: constants, special variables, symbol macros,
-macros, @t{setf} expanders, compiler macros, functions (including
-@t{setf} ones), generic functions and methods (including @t{setf} ones),
-method combinations, conditions, structures, classes and types.
+@declt{} manuals provide a detailed description of the library's
+infrastructure by including definitions for every relevant ASDF
+component (systems, modules, and files), and Lisp package.
 
-The generated documentation includes every possible bit of information
-that introspecting can provide: documentation strings, lambda lists
-(including qualifiers and specializers where appropriate), slots
-(including type, allocation and initialization arguments), definition
-source file @etc{}
+Exported programmatic definitions are split from the internal ones,
+which allows to separately browse either the library's public interface
+or its implementation. Both sections of the manual include definitions
+for constants, special variables, symbol macros, macros, @t{setf}
+expanders, compiler macros, regular functions (including @t{setf} ones),
+generic functions and methods (including @t{setf} ones), method
+combinations, conditions, structures, classes, and types.
 
-Every documented item provides a full set of cross-references to related
-items: ASDF component dependencies, parents and children, classes direct
-methods, super and subclasses, slot readers and writers, @t{setf}
-expanders access and update functions @etc{}
+Programmatic definitions are as complete and exhaustive as introspection
+can make them. @declt{} collects documentation strings, lambda lists
+(including qualifiers and specializers where appropriate), slot
+definitions (including type information, allocation type, initialization
+arguments, @etc{}), definition sources, @etc{}
 
-Finally, @declt{} produces exhaustive and multiple-entry indexes for
-every documented item.
+Every definition includes a full set of cross-references to related
+ones: ASDF component dependencies, parents, and children, classes direct
+methods, super- and sub-classes, slot readers and writers, @t{setf}
+expanders access and update functions, @etc{}
 
-Reference manuals are generated in Texinfo format. From there it is
+Finally, @declt{} produces exhaustive and multiple-entry indexes to all
+documented aspects of the library.
+
+@declt{} manuals are generated in Texinfo format. From there it is
 possible to produce readable / printable output in Info, HTML, PDF,
 PostScript, @etc{}
 
