@@ -193,7 +193,7 @@ except that this permission notice may be translated as well.
 @c ====================================================================
 @titlepage
 @title The Declt User Manual
-@subtitle Documentation extractor from @cl{} to Texinfo, Version @value{VERSION}
+@subtitle Documentation Extractor from @cl{} to Texinfo, Version @value{VERSION}
 @author Didier Verna <@email{didier@@didierverna.net}>
 @page
 @vskip 0pt plus 1filll
