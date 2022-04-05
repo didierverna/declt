@@ -284,10 +284,10 @@ component (systems, modules, and files), and Lisp package.
 Exported programmatic definitions are split from the internal ones,
 which allows to separately browse either the library's public interface
 or its implementation. Both sections of the manual include definitions
-for constants, special variables, symbol macros, macros, @t{setf}
-expanders, compiler macros, regular functions (including @t{setf} ones),
-generic functions and methods (including @t{setf} ones), method
-combinations, conditions, structures, classes, and types.
+for constants, special variables, symbol macros, macros, setf expanders,
+compiler macros, regular functions (including setf ones), generic
+functions and methods (including setf ones), method combinations,
+conditions, structures, classes, and types.
 
 Programmatic definitions are as complete and exhaustive as introspection
 can make them. @declt{} collects documentation strings, lambda lists
@@ -297,7 +297,7 @@ arguments, @etc{}), definition sources, @etc{}
 
 Every definition includes a full set of cross-references to related
 ones: ASDF component dependencies, parents, and children, classes direct
-methods, super- and sub-classes, slot readers and writers, @t{setf}
+methods, super- and sub-classes, slot readers and writers, setf
 expanders access and update functions, @etc{}
 
 Finally, @declt{} produces exhaustive and multiple-entry indexes to all
@@ -856,7 +856,7 @@ incomplete, and that is because the finalization phase doesn't re-scan
 each and every symbol in the Lisp image again; only the definitions that
 have been created so far. Let's take an example (granted, a contrived
 one; but aren't they all?). You define a regular domestic function, and
-it is used as the update function in a foreign setf-expander. Even with
+it is used as the update function in a foreign setf expander. Even with
 an initial scan of all symbols in the Lisp image, you'll get a
 definition for your domestic function, but that's it. Later on, during
 the finalization process, there's no way to go from the function to the
@@ -905,17 +905,17 @@ an acronym, or be left to @nil{}.
 @node Docstrings,  , Taglines, Coding Style
 @subsection Docstrings
 @declt{} tries to make the generated output look nicer in various ways.
-For example, @code{setf} functions are documented right after the
-corresponding reader (if any) instead of being listed under the ``S''
-letter. In a similar vein, methods are documented as components of their
-respective generic function, not as toplevel definitions (except for
-foreign methods without a corresponding generic function definition).
+For example, setf functions are documented right after the corresponding
+reader (if any) instead of being listed under the ``S'' letter. In a
+similar vein, methods are documented as components of their respective
+generic function, not as toplevel definitions (except for foreign
+methods without a corresponding generic function definition).
 
 One thing that you can influence is @declt{}'s attempt at merging
 definitions. Merging may occur when there are definitions for both
 @code{symbol} and @code{(setf symbol)}. This happens for accessor
-functions, generic functions or @code{setf} expanders. This also happens
-for accessor methods. If possible, @declt{} will try to generate a
+functions, generic functions or setf expanders. This also happens for
+accessor methods. If possible, @declt{} will try to generate a
 @emph{single} definition for both the reader and the writer. That is
 only possible, however, if both definitions would render the same
 documentation, @ie{} same package, source file and docstring.
