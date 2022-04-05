@@ -96,7 +96,7 @@ Common Lisp
 @c Configuration options
 @macro coindex{name}
 @vindex net.didierverna.declt.configuration
-@cindex Configuration Option, @t{:\name\}
+@cindex Configuration option, @t{:\name\}
 @cindex @t{:\name\}
 @end macro
 
@@ -390,33 +390,24 @@ on your installation, you may thus either @code{asdf:load-system}, or
 @code{ql:quickload} it in your Lisp image.
 
 @pkgindex{net.didierverna.declt}
-@declt{} itself resides in a package called @t{net.didierverna.declt}. You
-can automatically nickname this package with the following function.
-@cindex Package, nicknames
+@declt{}'s main package is called @t{net.didierverna.declt}. You can
+automatically nickname this package with the following function.
+@cindex Package nickname
 @defun nickname-package [nickname]
 Add @var{NICKNAME} (@code{:declt} by default) to the
 @code{:net.didierverna.declt} package.
 @end defun
 
-The normal and simplest way to use @declt{} is to call the @t{declt}
-function, which currently generates a Texinfo file containing the
-reference manual. This file may in turn be converted to a variety of
-human-readable formats with scripts such as (depending on your personal
-Texinfo installation) @command{texi2any}, @command{texi2dvi},
-@command{texi2pdf}, @etc{}
+The normal and simplest way to use @declt{} (but @pxref{The Declt
+Pipeline}) is to call the @t{declt} function, which currently generates
+a Texinfo file containing the reference manual. This file may in turn be
+compiled into a variety of human-readable formats with scripts such as
+(depending on your personal Texinfo installation) @command{texi2any},
+@command{texi2dvi}, @command{texi2pdf}, @etc{}
 @defun declt system-name :key value@dots{}
 Generate a reference manual in Texinfo format for ASDF
 @var{SYSTEM-NAME} (a system designator).
 @end defun
-
-The @t{declt} function actually triggers the whole documentation
-pipeline. As of version 4.0, @declt{} provides direct access to the
-different stages of this pipeline. This allows you to make use of the
-extracted information directly, generate documentation in other formats,
-in already supported formats, but by other means, or anything else you
-may think of. This chapter describes the general use of the existing
-pipeline only. @xref{The Declt Pipeline} for information on its
-internals.
 
 The following sections describe the set of keyword arguments that
 @t{declt} understands.
@@ -435,7 +426,7 @@ The following sections describe the set of keyword arguments that
 @section Documentation Material
 Most of the documented material is extracted automatically by @declt{},
 although sometimes it is difficult to get it right, if at all. From time
-to time, you may also want to override @declt{}'s default choice. The
+to time, you may also want to override @declt{}'s default choices. The
 following options provide control over the extraction mechanism and
 result.
 
@@ -444,9 +435,10 @@ result.
 @fkindex{declt,all-symbols}
 Whether to scan all symbols in the Lisp environment rather than just the
 ones from domestic packages. It defaults to @nil{}. The default
-heuristics may occasionally miss some definitions. Scanning all symbols
-guarantees completeness, although at the expense of a much greater
-computation time. @xref{Introspection Heuristics} for more information.
+heuristic may occasionally miss some definitions. Scanning all symbols
+provides a more complete documentation, although at the expense of a
+much greater computation time. @xref{Introspection Heuristics} for more
+information.
 @item :library-name
 @fkindex{declt,library-name}
 The library name, used in the reference manual title and at some other
@@ -532,14 +524,16 @@ Otherwise, @declt{} will explicitely mention properties that do not
 differ from their default or standard value, such as a @t{standard}
 method combination, an @t{:instance} slot allocation, @etc{}
 @item :foreign-definitions
+@cindex Foreign definition
+@cindex Definition, foreign
 @fkindex{declt,foreign-definitions}
 Whether to include foreign definitions in the documentation. It defaults
 to @nil{}, in which case foreign references are still advertised, but do
 not point to actual definitions (they are not ``clickable''). When
 included in the documentation, foreign definitions are partial rather
-than exhaustive: only the bits relevant to the library being documented
-are included. For more information on foreign definitions,
-@xref{Introspection Heuristics}.
+than exhaustive: only the bits relevant to the library are included. For
+more information on foreign definitions, @xref{Introspection
+Heuristics}.
 @end table
 
 
@@ -755,10 +749,14 @@ Domesticity is the concept defining what ``belongs'' to the library
 being documented. It controls what should appear in the reference
 manual, and what should not.
 
+@cindex Domestic definition
+@cindex Definition, domestic
+@cindex Foreign definition
+@cindex Definition, foreign
 The basic rule is that anything defined in one of the library's source
-files is domestic, and the rest is foreign. If for some reason, the
-source file is unknown, then, the definition will be considered domestic
-if the symbol naming it is from a domestic package.
+files is @dfn{domestic}, and the rest is @dfn{foreign}. If for some
+reason, the source file is unknown, then, the definition will be
+considered domestic if the symbol naming it is from a domestic package.
 
 This view on domesticity has implications on what is documented, which
 are worth mentioning.
@@ -769,9 +767,9 @@ functions) and, in general, new local definitions on symbols from
 foreign packages are considered domestic, and hence will appear in the
 reference manual.
 @item
-Conversely, extensions to the library being documented, but defined
-outside of it, will @emph{not} be part of the resulting reference
-manual, as they will be considered foreign.
+Conversely, extensions to the library, but defined outside of it, will
+@emph{not} be part of the resulting reference manual, as they will be
+considered foreign.
 @end itemize
 
 Note that even though they are not normally meant to appear in the
@@ -781,8 +779,8 @@ library adds a method to @code{make-instance}, @declt{} @emph{will}
 internally create a (foreign) definition for the @code{make-instance}
 generic function. Foreign definitions are never exhaustive however
 (otherwise, we would end up with a complete documentation for the whole
-Lisp image): only the information relevant to the library being
-documented is kept around.
+Lisp image): only the information relevant to the library is kept
+around.
 
 @fkindex{declt,foreign-definitions}
 As said before, it is possible to include those (partial) foreign
@@ -803,15 +801,16 @@ for @code{make-instance}, and the domestic methods will appear inside it
 @section Coverage
 @cindex Coverage
 In order to discover domestic definitions, @declt{} uses a default
-heuristics which establishes a tradeoff between performance and
-accuracy. This heuristics is based on the assumption that most libraries
-out there are implemented within packages of their own.
+heuristic which establishes a tradeoff between performance and accuracy.
+This heuristic is based on the assumption that most libraries out there
+are implemented within packages of their own.
 
 Consequently, this is what happens by default. After the library has
 been loaded, @declt{} scans all live packages and selects the domestic
 ones. It then scans all symbols from these packages to find domestic
 definitions.
 
+@cindex Finalization
 Note that if we were to stop there, we would probably miss many domestic
 definitions, namely, those on foreign symbols such as methods on
 standard generic functions. Fortunately, a lot of these will be
@@ -820,29 +819,50 @@ definitions in the so-called @dfn{finalization} step.
 
 For example, suppose the library provides a new method on
 @code{make-instance}. This method is domestic because it is defined in
-one of the library's files, but the heuristics will miss it because
-@code{common-lisp}, the home package of the @code{make-instance} symbol
-is foreign. On the other hand, it is very likely that this method exists
-because it specializes on a domestic class already known to @declt{}.
-When @declt{} finalizes a class definition, it looks up methods that
-specialize on it (among other things). These methods are in fact
-accessible through the class by introspection (they are called ``direct
-methods''). Consequently, @declt{} @emph{will} eventually encounter the
-new @code{make-instance} method and add it to the list of domestic
-definitions.
+one of the library's files, but the default heuristic will miss it
+because @code{common-lisp}, the home package of the @code{make-instance}
+symbol is foreign. On the other hand, it is very likely that this method
+exists because it specializes on a domestic class already known to
+@declt{}. When @declt{} finalizes a class definition, it looks up
+methods that specialize on it (among other things). These methods are in
+fact accessible through the class by introspection (they are called
+``direct methods''). Consequently, @declt{} @emph{will} eventually
+encounter the new @code{make-instance} method and add it to the list of
+domestic definitions.
 
-@fkindex{declt,all-symbols}
 In the end, it is probable that most domestic definitions end up being
 discovered, either during the initial scanning phase, or later on,
-during the finalization phase when computing cross-references.
-Nevertheless, domestic definitions may still escape the discovery
-process, if they contribute to a foreign package and no cross-reference
-points back to them. That is the reason for the existence of the
-@code{:all-symbols} option to @declt{}. With this option, @declt{}
-performs a complete scan of all the live symbols in the Lisp image
-rather than just those from domestic packages. The resulting
-documentation is then guaranteed to be exhaustive, at the expense of a
-@emph{much} greater computation time.
+during the finalization phase when cross-references are computed. This
+is why the default heuristic is probably good enough most of the time.
+
+@fkindex{declt,all-symbols}
+On the other hand, some (rare?) domestic definitions may still escape
+the discovery process with the default heuristic. For example, if you
+define a foreign global variable in one of your library's files, chances
+are that there won't be any domestic definition cross-referencing it.
+This is why @declt{} provides a way to initially scan @emph{all} symbols
+in the @cl{} image, rather than just the ones from domestic packages
+(again, this is done by passing the @code{:all-symbols} option to the
+@declt{} function). The resulting documentation will then be more
+complete, although at the expense of a @emph{much} greater computation
+time.
+
+And yes, you have just noticed that I said ``more complete'' rather than
+``exhaustive'', and mind you, this is not because my vocabulary is
+limited. The thing is that even with a scan of all symbols, we may still
+miss some information. To be precise, we won't miss any domestic
+definition. It is the cross-referencing information that may remain
+incomplete, and that is because the finalization phase doesn't re-scan
+each and every symbol in the Lisp image again; only the definitions that
+have been created so far. Let's take an example (granted, a contrived
+one; but aren't they all?). You define a regular domestic function, and
+it is used as the update function in a foreign setf-expander. Even with
+an initial scan of all symbols in the Lisp image, you'll get a
+definition for your domestic function, but that's it. Later on, during
+the finalization process, there's no way to go from the function to the
+setf expander, so that information remains unknown. In order to fix
+that, the finalization process would need to re-scan the whole Lisp
+world again. Not sure it's actually worth it; maybe one day@enddots{}
 
 
 
@@ -914,7 +934,7 @@ merged together.
 @c ---------------
 @node Pretty Printing, Caveats, Coding Style, Documentation Tuning
 @section Pretty Printing
-@cindex Pretty Printing
+@cindex Pretty printing
 @findex declt
 @fkindex{declt,introduction}
 @fkindex{declt,conclusion}
@@ -923,7 +943,7 @@ initialization arguments (@code{:introduction} and @code{:conclusion}
 excepted) is properly escaped for the Texinfo format, so you don't need
 to worry about that.
 
-@cindex Pretty Printing, blanks
+@cindex Pretty printing, blank
 In non-verbatim contexts, @declt{} attempts to pretty-print symbols the
 names of which would otherwise be problematic. In particular, the empty
 symbol (@t{||}) is denoted as the math empty set, and blank characters
@@ -931,11 +951,11 @@ symbol (@t{||}) is denoted as the math empty set, and blank characters
 symbols. Note that this means that even for Info output, a Unicode
 reader is required.
 
-@cindex Pretty Printing, docstrings
+@cindex Pretty printing, docstring
 @declt{} also attempts to do some pretty printing on things like
 docstrings, system long description @etc{}. Currently, there's a simple
-heuristics that tries to detect short lines that should probably stand
-on their own (with an explicit line break). For every piece of text,
+heuristic that tries to detect short lines that should probably stand on
+their own (with an explicit line break). For every piece of text,
 @declt{} first calculates the longest line and bases its line breaking
 decision on that. In the future, it will be possible to bypass this
 calculation by specifying an intended line width. Other pretty printers
@@ -981,11 +1001,11 @@ documentation.
 
 @node Method Combinations, Anchor Names, SBCL Only, Caveats
 @subsection Method Combinations
-@cindex Method Combinations
+@cindex Method combination
 The method combination interface in @cl{} is underspecified. In
 particular, although you define method combinations globally, changing
 them afterwards may not affect already created generic functions. As a
-result, you could in theory end up with @strong{many} different method
+result, you could in theory end up with @emph{many} different method
 combinations with the same name, used in various generic functions. See
 this
 @url{http://www.didierverna.net/blog/index.php?post/2013/08/16/Lisp-Corner-Cases%3A-Method-Combinations,
@@ -1000,7 +1020,7 @@ items and generic functions using them provide cross-references.
 
 @node Anchor Names,  , Method Combinations, Caveats
 @subsection Anchor Names
-@cindex Anchor Names
+@cindex Anchor name
 Because of the Texinfo anchor syntax, some characters are very
 problematic (or even completely prohibited) in anchor names. In order to
 provide robust anchors, @declt{} transforms those characters into
