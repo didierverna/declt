@@ -221,6 +221,7 @@ This is the @declt{} User Manual for @declt{} version @value{VERSION}.
 * Copying::                     The BSD license
 * Introduction::                Declt at a glance
 * Installation::                Library and documentation
+* Quick Start::                 For the brave and the impatient
 * General Use::                 Documenting your library
 * The Declt Pipeline::          Accessing the inner processing stages
 * Other Considerations::        Miscellaneous information
@@ -376,6 +377,30 @@ local version of it with hyperlinks to your installation by typing
 version, you can also type @command{make generate}.
 
 Type @command{make uninstall} to uninstall the library.
+
+
+
+@c ====================================================================
+@c Installation
+@c ====================================================================
+@node Quick Start, General Use, Installation, Top
+@chapter Quick Start
+In your favorite Lisp REPL, type this.
+
+@cartouche
+@verbatim
+(asdf:load-system :net.didierverna.declt) ;; or use ql:quickload
+(net.didierverna.declt:nickname-package)
+(declt:declt :my.asdf.system)
+@end verbatim
+@end cartouche
+
+You will end up with a file named @file{my.asdf.system.texi} in the
+current directory. This is a Texinfo file that can further be compiled
+into various formats, such as Info, HTML, or PDF. For example, in order
+to get a PDF, type this in the same directory: @samp{makeinfo --pdf
+my.asdf.system.texi}, and enjoy reading the resulting
+@file{my.asdf.system.pdf}@enddots{}
 
 
 
