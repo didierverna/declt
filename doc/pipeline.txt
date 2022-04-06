@@ -1,0 +1,5 @@
+	  .--------.              .----------.              .---------.
+system -> | assess | -> report -> | assemble | -> script -> | typeset | -> file
+	  '--------'              '----------'              '---------'
+				      ^                        ^
+			layout -------'         format --------'
