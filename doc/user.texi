@@ -223,7 +223,7 @@ This is the @declt{} User Manual for @declt{} version @value{VERSION}.
 * Installation::                Library and documentation
 * Quick Start::                 For the brave and the impatient
 * Overview::                    The Declt pipeline
-* General Use::                 Documenting your library
+* Global Usage::                Documenting your library
 * System Assessment::           Extracting information
 * Report Assembly::             Organizing the documentation
 * Script Typesetting::          Creating a human-readable file
@@ -411,7 +411,7 @@ my.asdf.system.texi}, and enjoy reading the resulting
 @c ====================================================================
 @c Overview
 @c ====================================================================
-@node Overview, General Use, Quick Start, Top
+@node Overview, Global Usage, Quick Start, Top
 @chapter Overview
 @findex declt
 @declt{} is implemented as a 3 stages pipeline, as depicted in the
@@ -467,10 +467,14 @@ called @code{(typeset (assemble (assess system)))}.
 
 
 @c ====================================================================
-@c General Use
+@c Global Usage
 @c ====================================================================
-@node General Use, System Assessment, Overview, Top
-@chapter General Use
+@node Global Usage, System Assessment, Overview, Top
+@chapter Global Usage
+This chapter explains how to use @declt{} to trigger the whole pipeline
+(@pxref{Overview}), that is, to go directly from an ASDF system to a
+reference manual.
+
 @sysindex{net.didierverna.declt}
 @declt{}'s main system is called @samp{net.didierverna.declt}. Depending
 on your installation, you may thus either @code{asdf:load-system}, or
@@ -485,37 +489,39 @@ Add @var{NICKNAME} (@code{:declt} by default) to the
 @code{:net.didierverna.declt} package.
 @end defun
 
-The normal and simplest way to use @declt{} is to call the @t{declt}
-function, which currently generates a Texinfo file containing the
-reference manual. This file may in turn be compiled into a variety of
-human-readable formats with scripts such as (depending on your personal
-Texinfo installation) @command{texi2any}, @command{texi2dvi},
-@command{texi2pdf}, @etc{}
+In order to trigger the whole pipeline, use the @code{declt} function,
+which currently generates a Texinfo file containing the reference
+manual. This file may in turn be compiled into a variety of
+human-readable formats with the @command{makeinfo} program.
 @defun declt system-name :key value@dots{}
 Generate a reference manual in Texinfo format for ASDF
 @var{SYSTEM-NAME} (a system designator).
 @end defun
 
-The following sections describe the set of keyword arguments that
-@t{declt} understands.
+The @code{declt} function accepts a number of keyword arguments which
+affect the behavior of every stage of the pipeline (they are in fact
+passed along to the corresponding functions, which see). The following
+sections describe these keyword arguments.
 
 @menu
-* Documentation Material::      Controlling the extracted material
+* System Assessment Options::	Controlling the extracted material
 * Documentation Shape::         Controlling how it is documented
 * File Management::             Controlling the generated files
 @end menu
 
 
-@c ----------------------
-@c Documentation Material
-@c ----------------------
-@node Documentation Material, Documentation Shape, General Use, General Use
-@section Documentation Material
+@c -------------------------
+@c System Assessment Options
+@c -------------------------
+@node System Assessment Options, Documentation Shape, Global Usage, Global Usage
+@section System Assessment Options
+@findex assess
 Most of the documented material is extracted automatically by @declt{},
 although sometimes it is difficult to get it right, if at all. From time
 to time, you may also want to override @declt{}'s default choices. The
 following options provide control over the extraction mechanism and
-result.
+result. They are passed along to the @code{assess} function
+(@pxref{System Assessment}), along with the system designator.
 
 @table @code
 @item :all-symbols
@@ -583,7 +589,7 @@ is considered raw text and will be properly escaped for Texinfo.
 @c -------------------
 @c Documentation Shape
 @c -------------------
-@node Documentation Shape, File Management, Documentation Material, General Use
+@node Documentation Shape, File Management, System Assessment Options, Global Usage
 @section Documentation Shape
 After the documentation material has been extracted, @declt{} provides
 some level of control over how exactly it is used.
@@ -627,7 +633,7 @@ Heuristics}.
 @c ---------------
 @c File Management
 @c ---------------
-@node File Management,  , Documentation Shape, General Use
+@node File Management,  , Documentation Shape, Global Usage
 @section File Management
 Finally, the following options provide control over where exacty the
 documentation goes.
@@ -651,7 +657,7 @@ appears in the Texinfo source.
 @c ====================================================================
 @c System Assessment
 @c ====================================================================
-@node System Assessment, Report Assembly, General Use, Top
+@node System Assessment, Report Assembly, Global Usage, Top
 @chapter System Assessment
 
 
