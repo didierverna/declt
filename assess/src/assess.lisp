@@ -1,4 +1,4 @@
-;; extract.lisp --- Definitions extraction
+;; assess.lisp --- Definitions extraction
 
 ;; Copyright (C) 2020, 2021 Didier Verna
 
@@ -34,7 +34,7 @@
 
 ;;; Code:
 
-(in-package :net.didierverna.declt.extract)
+(in-package :net.didierverna.declt.assess)
 (in-readtable :net.didierverna.declt)
 
 
@@ -450,10 +450,10 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
 
 
 ;; ==========================================================================
-;; Extract Class
+;; Report Class
 ;; ==========================================================================
 
-(defclass extract ()
+(defclass report ()
   ((library-name :documentation "The library's name."
 		 :accessor library-name)
    (tagline :documentation "The reference manual's tagline."
@@ -474,17 +474,17 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
 	       :accessor conclusion)
    (definitions :documentation "The list of definitions."
 		:accessor definitions))
-  (:documentation "The Extract class.
+  (:documentation "The Report class.
 This is the class holding all extracted documentation information."))
 
-(defmethod print-object ((extract extract) stream)
-  "Show EXTRACT's library name."
-  (print-unreadable-object (extract stream :type t)
-    (princ (library-name extract) stream)))
+(defmethod print-object ((report report) stream)
+  "Show REPORT's library name."
+  (print-unreadable-object (report stream :type t)
+    (princ (library-name report) stream)))
 
-(defun make-extract ()
-  "Make a new extract."
-  (make-instance 'extract))
+(defun make-report ()
+  "Make a new report."
+  (make-instance 'report))
 
 
 
@@ -515,7 +515,7 @@ SYSTEM-NAME is an ASDF system designator."
 	 (asdf:load-system system-name)))
   system)
 
-(defun extract
+(defun assess
     (system-name
      &key all-symbols
 	  (library-name (if (stringp system-name)
@@ -530,9 +530,9 @@ SYSTEM-NAME is an ASDF system designator."
 	  conclusion
      &aux (system (load-system system-name))
 	  contact-names contact-emails
-	  (extract (make-extract)))
+	  (report (make-report)))
   "Extract and return documentation information for ASDF SYSTEM-NAME.
-The documentation information is returned in an EXTRACT structure, which see.
+The documentation information is returned in a REPORT structure, which see.
 
 SYSTEM-NAME is an ASDF system designator. The following keyword parameters
 allow to specify or override some bits of information.
@@ -559,7 +559,7 @@ allow to specify or override some bits of information.
   Defaults to NIL."
 
   (check-type library-name non-empty-string)
-  (setf (library-name extract) library-name)
+  (setf (library-name report) library-name)
   (unless taglinep
     (setq tagline (or (system-long-name system)
 		      (component-description system))))
@@ -567,12 +567,12 @@ allow to specify or override some bits of information.
     (setq tagline nil))
   (when (and tagline (char= (aref tagline (1- (length tagline))) #\.))
     (setq tagline (subseq tagline 0 (1- (length tagline)))))
-  (setf (tagline extract) tagline)
+  (setf (tagline report) tagline)
   (unless library-version-p
     (setq library-version (component-version system)))
   (unless (one-liner-p library-version)
     (setq library-version nil))
-  (setf (library-version extract) library-version)
+  (setf (library-version report) library-version)
   (unless contactp
     (setq contact (system-author system))
     (when (stringp contact) (setq contact (list contact)))
@@ -588,8 +588,8 @@ allow to specify or override some bits of information.
 	     (null (car contact-emails))
 	     (one-liner-p (system-mailto system)))
     (setq contact-emails (list (system-mailto system))))
-  (setf (contact-names extract) contact-names)
-  (setf (contact-emails extract) contact-emails)
+  (setf (contact-names report) contact-names)
+  (setf (contact-emails report) contact-emails)
   (setq copyright-years
 	(or copyright-years
 	    (multiple-value-bind (second minute hour date month year)
@@ -598,14 +598,14 @@ allow to specify or override some bits of information.
 	      (format nil "~A" year))))
   (unless (one-liner-p copyright-years)
     (setq copyright-years nil))
-  (setf (copyright-years extract) copyright-years)
+  (setf (copyright-years report) copyright-years)
   (when license
     (setq license (assoc license *licenses*))
     (unless license
       (error "License not found.")))
-  (setf (license extract) license)
-  (setf (introduction extract) introduction)
-  (setf (conclusion extract) conclusion)
+  (setf (license report) license)
+  (setf (introduction report) introduction)
+  (setf (conclusion report) conclusion)
 
   (let* ((system-definitions (make-all-system-definitions system))
 	 (module-definitions (make-all-module-definitions system-definitions))
@@ -620,12 +620,12 @@ allow to specify or override some bits of information.
 	 (symbol-definitions
 	   (make-all-symbol-definitions packages pathnames all-symbols)))
 
-    (setf (definitions extract)
+    (setf (definitions report)
 	  (append system-definitions module-definitions file-definitions
 		  package-definitions symbol-definitions))
 
-    (finalize (definitions extract) packages pathnames))
+    (finalize (definitions report) packages pathnames))
 
-  extract)
+  report)
 
-;;; extract.lisp ends here
+;;; assess.lisp ends here

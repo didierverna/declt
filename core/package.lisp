@@ -30,7 +30,7 @@
 
 (defpackage :net.didierverna.declt
   (:documentation "The Declt library's package.")
-  (:use :cl :net.didierverna.declt.setup :net.didierverna.declt.extract)
+  (:use :cl :net.didierverna.declt.setup :net.didierverna.declt.assess)
   (:export
     ;; From the :net.didierverna.declt.setup package:
     :*copyright-years*

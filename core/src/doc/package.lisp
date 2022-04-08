@@ -94,10 +94,10 @@
 ;; Package Nodes
 ;; ==========================================================================
 
-(defun add-packages-node (parent extract context)
-  "Add the packages node to PARENT in EXTRACT."
+(defun add-packages-node (parent report context)
+  "Add REPORT's packages node to PARENT in CONTEXT."
   (when-let (definitions
-	     (remove-if-not #'package-definition-p (definitions extract)))
+	     (remove-if-not #'package-definition-p (definitions report)))
     (unless (and (every #'foreignp definitions)
 		 (not (foreign-definitions context)))
       (let ((packages-node

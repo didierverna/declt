@@ -25,7 +25,7 @@
 
 ;;; Code:
 
-(in-package :net.didierverna.declt.extract)
+(in-package :net.didierverna.declt.assess)
 (in-readtable :net.didierverna.declt)
 
 

@@ -1,4 +1,4 @@
-;;; net.didierverna.declt.extract.asd --- Declt extract library, ASDF system
+;;; net.didierverna.declt.assess.asd --- Declt assessment library, ASDF system
 
 ;; Copyright (C) 2021 Didier Verna
 
@@ -26,15 +26,15 @@
 ;;; Code:
 
 ;; #### PORTME.
-(defsystem :net.didierverna.declt.extract
+(defsystem :net.didierverna.declt.assess
   :long-name
-  "Documentation Extractor from Common Lisp to Texinfo, extract library"
+  "Documentation Extractor from Common Lisp to Texinfo, assessment library"
   :description
   "Declt library for extracting information from ASDF systems"
   :long-description
   "The Declt library that collects information from ASDF systems by
 introspection, and produces an abstract representation, independent from both
-the final manual's organization, or the output format. For a more complete
+the final manual's organization and the output format. For a more complete
 description of Declt, see the `net.didierverna.declt' system."
   :author "Didier Verna"
   :mailto "didier@didierverna.net"
@@ -57,6 +57,6 @@ description of Declt, see the `net.didierverna.declt' system."
 			     (:file "package")
 			     (:file "asdf")
 			     (:file "finalize")
-			     (:file "extract")))))
+			     (:file "assess")))))
 
-;;; net.didierverna.declt.extract.asd ends here
+;;; net.didierverna.declt.assess.asd ends here

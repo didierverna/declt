@@ -42,7 +42,7 @@ net.didierverna.declt system."
 	     :at (1 (lambda (str) (subseq str 19))))
   :if-feature :sbcl
   :depends-on ((:feature :sbcl (:require :sb-introspect))
-	       :net.didierverna.declt.setup :net.didierverna.declt.extract)
+	       :net.didierverna.declt.setup :net.didierverna.declt.assess)
   :serial t
   :components ((:file "package")
 	       (:module "src"

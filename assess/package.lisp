@@ -1,4 +1,4 @@
-;;; package.lisp --- Declt extract package definition
+;;; package.lisp --- Declt assessment package definition
 
 ;; Copyright (C) 2021 Didier Verna
 
@@ -27,8 +27,8 @@
 
 (in-package :cl-user)
 
-(defpackage :net.didierverna.declt.extract
-  (:documentation "The Declt extract library's package.")
+(defpackage :net.didierverna.declt.assess
+  (:documentation "The Declt assessment library's package.")
   (:use :cl :net.didierverna.declt.setup)
   ;; #### PORTME.
   (:import-from #+sbcl :sb-mop
@@ -144,8 +144,8 @@
     :maintainer-names :maintainer-emails :author-names :author-emails
     :defsystem-dependencies
     :long-name :mailto :homepage :source-control :bug-tracker :license-name
-    ;; From src/extract.lisp:
-    :extract :library-name :tagline :library-version
+    ;; From src/assess.lisp:
+    :report :assess :library-name :tagline :library-version
     :contact-names :contact-emails :copyright-years :license
     :introduction :conclusion
     :definitions))

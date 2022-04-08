@@ -47,7 +47,7 @@
 
 ;;; Code:
 
-(in-package :net.didierverna.declt.extract)
+(in-package :net.didierverna.declt.assess)
 (in-readtable :net.didierverna.declt)
 
 
@@ -303,7 +303,7 @@ DEFINITIONS in the process."
 ;; means that if we cannot find the combination definition right now, it must
 ;; be a foreign one.
 
-;; #### WARNING: see comment about method combination objects in extract.lisp.
+;; #### WARNING: see comment about method combination objects in assess.lisp.
 ;; Remember that a method combination definition is actually only a template
 ;; (much like a macro) that serves to create actual method combination objects
 ;; once a set of options has been decided on, at the level of the generic
@@ -845,7 +845,7 @@ return a list of the updated specification (suitable to MAPCAN)."
 	 ;; not loaded (e.g. with a missing :feature). Currently, we simply
 	 ;; ignore the error, but this raises the general question of
 	 ;; representing unloaded components. There is a similar case in
-	 ;; extract.lisp.
+	 ;; assess.lisp.
 	 (dependency (ignore-errors (resolve-dependency-name component name)))
 	 (definition
 	   (when dependency (find-definition dependency definitions))))

@@ -38,26 +38,26 @@
 	  :nconc (list key val)))
 
 (defun render-header
-    (extract file-name info-name declt-notice current-time-string)
+    (report file-name info-name declt-notice current-time-string)
   "Render the header of the Texinfo file."
   (format t "\\input texinfo~2%@c ~A.texi --- Reference manual~2%" file-name)
 
-  (when (copyright-years extract)
+  (when (copyright-years report)
     (mapc (lambda (name)
 	    (format t "@c Copyright (C) ~A ~A~%"
-	      (copyright-years extract) name))
+	      (copyright-years report) name))
       ;; #### NOTE: we already removed the duplicates in the original contact
       ;; list, but there may still be duplicates in the names, for instance if
       ;; somebody used his name several times, with a different email
       ;; address.
-      (remove-duplicates (remove-if #'null (contact-names extract))
+      (remove-duplicates (remove-if #'null (contact-names report))
 	:from-end t :test #'string=))
     (terpri))
 
-  (format t "@c This file is part of ~A.~2%" (library-name extract))
+  (format t "@c This file is part of ~A.~2%" (library-name report))
 
-  (when (license extract)
-    (with-input-from-string (str (caddr (license extract)))
+  (when (license report)
+    (with-input-from-string (str (caddr (license report)))
       (loop :for line := (read-line str nil str)
 	    :until (eq line str)
 	    :do (format t "@c ~A~%" line))))
@@ -80,7 +80,7 @@
 @afourpaper
 @documentencoding UTF-8
 @c %**end of header~4%"
-    (escape info-name) (escape (library-name extract)))
+    (escape info-name) (escape (library-name report)))
 
   (format t "~
 @c ====================================================================
@@ -149,8 +149,8 @@
 @documentdescription
 The ~A Reference Manual~@[, version ~A~].
 @end documentdescription~4%"
-    (escape (library-name extract))
-    (escape (library-version extract)))
+    (escape (library-name report))
+    (escape (library-version report)))
 
   (format t "~
 @c ====================================================================
@@ -271,11 +271,11 @@ The ~A Reference Manual~@[, version ~A~].
 @direntry
 * ~A Reference: (~A). The ~A Reference Manual.
 @end direntry~4%"
-    (escape (library-name extract))
+    (escape (library-name report))
     (escape info-name)
-    (escape (library-name extract)))
+    (escape (library-name report)))
 
-  (when (license extract)
+  (when (license report)
     (format t "~
 @c ====================================================================
 @c Copying
@@ -283,16 +283,16 @@ The ~A Reference Manual~@[, version ~A~].
 @copying
 @quotation~%")
 
-    (when (copyright-years extract)
+    (when (copyright-years report)
       (mapc (lambda (name)
 	      (format t "Copyright @copyright{} ~A ~A~%"
-		(escape (copyright-years extract))
+		(escape (copyright-years report))
 		(escape name)))
 	;; #### NOTE: we already removed the duplicates in the original
 	;; contact list, but there may still be duplicates in the names, for
 	;; instance if somebody used his name several times, with a different
 	;; email address.
-	(remove-duplicates (remove-if #'null (contact-names extract))
+	(remove-duplicates (remove-if #'null (contact-names report))
 	  :from-end t :test #'string=))
       (terpri))
     (format t "~
@@ -324,19 +324,19 @@ except that this permission notice may be translated as well.
 @titlepage
 @title The ~A Reference Manual
 ~A~%"
-    (escape (library-name extract))
-    (if (or (tagline extract) (library-version extract))
+    (escape (library-name report))
+    (if (or (tagline report) (library-version report))
 	(format nil "@subtitle ~@[~A~]~:[~;, ~]~@[version ~A~]~%"
-	  (escape (tagline extract))
-	  (and (tagline extract) (library-version extract))
-	  (escape (library-version extract)))
+	  (escape (tagline report))
+	  (and (tagline report) (library-version report))
+	  (escape (library-version report)))
 	""))
   (mapc (lambda (name email)
 	  (format t "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
 	    (escape name) email (escape email)))
-    (contact-names extract) (contact-emails extract))
+    (contact-names report) (contact-emails report))
   (terpri)
-  (when (or declt-notice (license extract))
+  (when (or declt-notice (license report))
     (format t "@page~%"))
 
   (when declt-notice
@@ -347,7 +347,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
     (escape (version declt-notice))
     (when (eq declt-notice :long) (escape current-time-string))))
 
-  (when (license extract)
+  (when (license report)
     (format t "@vskip 0pt plus 1filll~%@insertcopying~%"))
 
   (format t "@end titlepage~4%")
@@ -375,7 +375,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 		   (info-name file-name)
 
 	      &aux (current-time-string (current-time-string))
-		   (extract (apply #'extract system-name
+		   (report (apply #'assess system-name
 				   (select-keys keys
 				     :all-symbols
 				     :library-name :tagline :library-version
@@ -390,7 +390,7 @@ The reference manual is currently generated in Texinfo format.
 
 For a description of SYSTEM-NAME, ALL-SYMBOLS, LIBRARY-NAME, TAGLINE,
 LIBRARY-VERSION, CONTACT, COPYRIGHT-YEARS, LICENSE, INTRODUCTION, and
-CONCLUSION, see `extract'.
+CONCLUSION, see `assess'.
 
 For a description of LOCATIONS, DEFAULT-VALUES, FOREIGN-DEFINITIONS, and
 DECLT-NOTICE, see `make-context'.
@@ -416,7 +416,7 @@ The following keyword parameters are also available.
 	    (make-node :name "Top"
 		       :section-name
 		       (format nil "The ~A Reference Manual"
-			 (escape (library-name extract)))
+			 (escape (library-name report)))
 		       :section-type :unnumbered
 		       :before-menu-contents
 		       (format nil "~
@@ -424,40 +424,40 @@ The following keyword parameters are also available.
 This is the ~A Reference Manual~@[, version ~A~]~@[,
 generated automatically by Declt version ~A~@[
 on ~A~]~]."
-			 (escape (library-name extract))
-			 (escape (library-version extract))
+			 (escape (library-name report))
+			 (escape (library-version report))
 			 (when-let (declt-notice (declt-notice context))
 			   (escape (version declt-notice)))
 			 (when (eq (declt-notice context) :long)
 			   (escape current-time-string)))
 		       :after-menu-contents
-		       (when (license extract) "@insertcopying"))))
-      (when (license extract)
+		       (when (license report) "@insertcopying"))))
+      (when (license report)
 	(add-child top-node
 	  (make-node :name "Copying"
-		     :synopsis (cadr (license extract))
+		     :synopsis (cadr (license report))
 		     :section-type :unnumbered
 		     :before-menu-contents
 		     (format nil "@quotation~@
 				  ~A~@
 				  @end quotation"
-		       (escape (caddr (license extract)))))))
-      (when (introduction extract)
+		       (escape (caddr (license report)))))))
+      (when (introduction report)
 	(add-child top-node
 	  (make-node :name "Introduction"
 		     :synopsis (format nil "What ~A is all about"
-				 (escape (library-name extract)))
-		     :before-menu-contents (introduction extract))))
-      (add-systems-node     top-node extract context)
-      (add-modules-node     top-node extract context)
-      (add-files-node       top-node extract context)
-      (add-packages-node    top-node extract context)
-      (add-definitions-node top-node extract context)
-      (when (conclusion extract)
+				 (escape (library-name report)))
+		     :before-menu-contents (introduction report))))
+      (add-systems-node     top-node report context)
+      (add-modules-node     top-node report context)
+      (add-files-node       top-node report context)
+      (add-packages-node    top-node report context)
+      (add-definitions-node top-node report context)
+      (when (conclusion report)
 	(add-child top-node
 	  (make-node :name "Conclusion"
 		     :synopsis "Time to go"
-		     :before-menu-contents (conclusion extract))))
+		     :before-menu-contents (conclusion report))))
       (let ((indexes-node (add-child top-node
 			    (make-node :name "Indexes"
 				       :synopsis (format nil "~
@@ -494,7 +494,7 @@ Concepts, functions, variables and data types")
 		       :if-exists :supersede
 		       :if-does-not-exist :create
 		       :external-format :utf8)
-	(render-header extract file-name info-name (declt-notice context)
+	(render-header report file-name info-name (declt-notice context)
 		       current-time-string)
 	(render-top-node top-node)
 	(format t "~%@bye~%~%@c ~A.texi ends here~%" file-name))))

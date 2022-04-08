@@ -1070,12 +1070,12 @@ Each category is of the form (TITLE FILTER).
 			   type-definitions)))))
 
 (defun add-definitions-node
-    (parent extract context
-     &aux (public-definitions (public-definitions extract))
+    (parent report context
+     &aux (public-definitions (public-definitions report))
 	  (public-definitions-number (length public-definitions))
-	  (private-definitions (private-definitions extract))
+	  (private-definitions (private-definitions report))
 	  (private-definitions-number (length private-definitions)))
-  "Add EXTRACT's definitions node to PARENT in CONTEXT."
+  "Add REPORT's definitions node to PARENT in CONTEXT."
   (unless (zerop (+ public-definitions-number private-definitions-number))
     (let ((definitions-node
 	    (add-child parent

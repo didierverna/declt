@@ -185,7 +185,7 @@ Documentation is done in a @table environment."
 ;; -----
 
 (defun file-node (definition context)
-  "Create and return a file DEFINITION node in EXTRACT."
+  "Create and return a file DEFINITION node in CONTEXT."
   (make-node :name (long-title definition)
 	     :section-name
 	     (format nil "@t{~A}" (escape (safe-name definition t)))
@@ -193,7 +193,7 @@ Documentation is done in a @table environment."
 	     (render-to-string (document definition context))))
 
 (defun add-files-node
-    (parent extract context
+    (parent report context
      &aux lisp-file-definitions c-file-definitions java-file-definitions
 	  html-file-definitions doc-file-definitions
 	  static-file-definitions source-file-definitions file-definitions
@@ -204,9 +204,9 @@ Documentation is done in a @table environment."
 			 :before-menu-contents (format nil "~
 Files are sorted by type and then listed depth-first from the systems
 components trees.")))))
-  "Add the files node to PARENT in EXTRACT."
+  "Add REPORT's files node to PARENT in CONTEXT."
   (dolist (definition
-	   (remove-if-not #'file-definition-p (definitions extract)))
+	   (remove-if-not #'file-definition-p (definitions report)))
     (etypecase definition
       ;; #### WARNING: the order is important!
       (lisp-file-definition (push definition lisp-file-definitions))
@@ -270,14 +270,14 @@ components trees.")))))
 ;; Nodes
 ;; -----
 
-(defun add-modules-node (parent extract context)
-  "Add the modules node to PARENT in EXTRACT."
+(defun add-modules-node (parent report context)
+  "Add REPORT's modules node to PARENT in CONTEXT."
   (when-let (definitions
 	     (remove-if-not
 		 (lambda (definition)
 		   (and (module-definition-p definition)
 			(not (system-definition-p definition))))
-		 (definitions extract)))
+		 (definitions report)))
     (let ((modules-node (add-child parent
 			  (make-node :name "Modules"
 				     :synopsis "The modules documentation"
@@ -361,16 +361,16 @@ Modules are listed depth-first from the system components tree.")))))
 ;; -----
 
 (defun add-systems-node
-    (parent extract context
+    (parent report context
      &aux (systems-node (add-child parent
 			  (make-node :name "Systems"
 				     :synopsis "The systems documentation"
 				     :before-menu-contents
 				     (format nil "~
 The main system appears first, followed by any subsystem dependency.")))))
-  "Add the systems node to PARENT in EXTRACT."
+  "Add REPORT's systems node to PARENT in CONTEXT."
   (dolist (definition
-	   (remove-if-not #'system-definition-p (definitions extract)))
+	   (remove-if-not #'system-definition-p (definitions report)))
     (let ((contents (render-to-string (document definition context))))
       (unless (zerop (length contents))
 	(add-child systems-node
