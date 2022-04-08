@@ -1,6 +1,6 @@
 ;;; package.lisp --- Declt package definition
 
-;; Copyright (C) 2010-2013, 2015, 2017, 2021 Didier Verna
+;; Copyright (C) 2010-2013, 2015, 2017, 2021, 2022 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 

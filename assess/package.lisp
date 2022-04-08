@@ -1,6 +1,6 @@
 ;;; package.lisp --- Declt assessment package definition
 
-;; Copyright (C) 2021 Didier Verna
+;; Copyright (C) 2021, 2022 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 

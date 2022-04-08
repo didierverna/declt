@@ -1,6 +1,6 @@
 ;;; license.lisp --- License definitions
 
-;; Copyright (C) 2020 Didier Verna
+;; Copyright (C) 2020, 2022 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 

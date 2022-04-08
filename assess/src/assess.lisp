@@ -1,6 +1,6 @@
 ;; assess.lisp --- Definitions extraction
 
-;; Copyright (C) 2020, 2021 Didier Verna
+;; Copyright (C) 2020-2022 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 

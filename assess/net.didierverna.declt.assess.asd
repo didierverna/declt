@@ -1,6 +1,6 @@
 ;;; net.didierverna.declt.assess.asd --- Declt assessment library, ASDF system
 
-;; Copyright (C) 2021 Didier Verna
+;; Copyright (C) 2021, 2022 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 

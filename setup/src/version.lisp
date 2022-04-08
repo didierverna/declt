@@ -1,6 +1,6 @@
 ;;; version.lisp --- Declt version management
 
-;; Copyright (C) 2015, 2017, 2019, 2021 Didier Verna
+;; Copyright (C) 2015, 2017, 2019, 2021, 2022 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -31,7 +31,7 @@
 
 
 ;; Copyright years
-(defvar *copyright-years* "2010-2013, 2015-2021"
+(defvar *copyright-years* "2010-2013, 2015-2022"
   "A string denoting the copyright years for the whole project.")
 
 
