@@ -595,9 +595,9 @@ directives (no post-processing will occur). All other textual material
 is considered raw text and will be properly escaped for Texinfo.
 
 
-@c -------------------
+@c -----------------------
 @c Report Assembly Options
-@c -------------------
+@c -----------------------
 @node Report Assembly Options, Script Typesetting Options, System Assessment Options, Global Usage
 @section Report Assembly Options
 @findex assemble
