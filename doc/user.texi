@@ -461,8 +461,8 @@ for more information.
 @findex assemble
 @findex typeset
 Again, when you call @code{(declt system)}, the 3 stages of the pipeline
-are chained automatically, which is more or less equivalent to having
-called @code{(typeset (assemble (assess system)))}.
+are chained automatically, which is more or less equivalent to calling
+@code{(typeset (assemble (assess system)))}.
 
 
 
