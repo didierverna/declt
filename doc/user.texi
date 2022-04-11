@@ -505,7 +505,7 @@ sections describe these keyword arguments.
 
 @menu
 * System Assessment Options::	Controlling the extracted material
-* Documentation Shape::         Controlling how it is documented
+* Report Assembly Options::     Controlling how it is documented
 * File Management::             Controlling the generated files
 @end menu
 
@@ -513,7 +513,7 @@ sections describe these keyword arguments.
 @c -------------------------
 @c System Assessment Options
 @c -------------------------
-@node System Assessment Options, Documentation Shape, Global Usage, Global Usage
+@node System Assessment Options, Report Assembly Options, Global Usage, Global Usage
 @section System Assessment Options
 @findex assess
 Most of the documented material is extracted automatically by @declt{},
@@ -587,12 +587,16 @@ is considered raw text and will be properly escaped for Texinfo.
 
 
 @c -------------------
-@c Documentation Shape
+@c Report Assembly Options
 @c -------------------
-@node Documentation Shape, File Management, System Assessment Options, Global Usage
-@section Documentation Shape
-After the documentation material has been extracted, @declt{} provides
-some level of control over how exactly it is used.
+@node Report Assembly Options, File Management, System Assessment Options, Global Usage
+@section Report Assembly Options
+@findex assemble
+Based on the report created by the first stage of the @declt{} pipeline,
+the exact contents of the upcoming reference manual can be further
+adjusted thanks to the following options. They are passed along to the
+@code{assemble} function (@pxref{Report Assembly}).
+
 @table @code
 @item :declt-notice
 @fkindex{declt,declt-notice}
@@ -622,9 +626,10 @@ method combination, an @t{:instance} slot allocation, @etc{}
 @fkindex{declt,foreign-definitions}
 Whether to include foreign definitions in the documentation. It defaults
 to @nil{}, in which case foreign references are still advertised, but do
-not point to actual definitions (they are not ``clickable''). When
-included in the documentation, foreign definitions are partial rather
-than exhaustive: only the bits relevant to the library are included. For
+not point to actual definitions (they are not ``clickable''). Otherwise,
+only foreign definitions somehow related to the library are considered
+for inclusion, and they will most of the time be partial rather than
+exhaustive: only the bits relevant to the library are documented. For
 more information on foreign definitions, @xref{Introspection
 Heuristics}.
 @end table
@@ -633,7 +638,7 @@ Heuristics}.
 @c ---------------
 @c File Management
 @c ---------------
-@node File Management,  , Documentation Shape, Global Usage
+@node File Management,  , Report Assembly Options, Global Usage
 @section File Management
 Finally, the following options provide control over where exacty the
 documentation goes.
@@ -892,15 +897,17 @@ Lisp image): only the information relevant to the library is kept
 around.
 
 @fkindex{declt,foreign-definitions}
+@fkindex{assemble,foreign-definitions}
 As said before, it is possible to include those (partial) foreign
 definitions in the documentation by using the
-@code{:foreign-definitions} option to @code{declt}. Continuing with the
-previous example, local methods on @code{make-instance} normally appear
-as toplevel, standalone definitions in the documentation, as they belong
-to a foreign generic function. If, however, foreign definitions are
-included in the documentation, there will be a toplevel (partial) entry
-for @code{make-instance}, and the domestic methods will appear inside it
-(truly foreign methods will @emph{never} be documented).
+@code{:foreign-definitions} option to @code{declt} or @code{assemble}.
+Continuing with the previous example, local methods on
+@code{make-instance} normally appear as toplevel, standalone definitions
+in the documentation, as they belong to a foreign generic function. If,
+however, foreign definitions are included in the documentation, there
+will be a toplevel (partial) entry for @code{make-instance}, and the
+domestic methods will appear inside it (truly foreign methods will
+@emph{never} be documented).
 
 
 @c --------
