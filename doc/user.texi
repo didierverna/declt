@@ -447,8 +447,8 @@ format. The specific organization scheme to use is called a
 @cindex Script typesetting
 @cindex Typesetting
 Finally, the third stage of the pipeline performs a @dfn{script
-typesetting}. At this stage, @declt{} renders a script into an output
-file by typesetting its contents in a specific output format. This may
+typesetting}. At this stage, @declt{} renders a script to a file by
+typesetting its contents in a specific documentation format. This may
 directly result in a human-readable reference manual, although in the
 case of Texinfo, the resulting file needs additional post-processing.
 This, however, is not done by @declt{} itself, but by
@@ -462,7 +462,7 @@ for more information.
 @findex typeset
 Again, when you call @code{(declt system)}, the 3 stages of the pipeline
 are chained automatically, which is more or less equivalent to calling
-@code{(typeset (assemble (assess system)))}.
+@code{(typeset (assemble (assess system)))} (@pxref{Global Usage}).
 
 
 
