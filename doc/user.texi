@@ -146,6 +146,12 @@ Common Lisp
 @tpindex @r{System, }\name\
 @end macro
 
+@c Classes
+@macro clsindex{name}
+@tpindex \name\
+@tpindex @r{Class, }\name\
+@end macro
+
 
 
 @c ====================================================================
@@ -223,14 +229,11 @@ This is the @declt{} User Manual for @declt{} version @value{VERSION}.
 * Installation::                Library and documentation
 * Quick Start::                 For the brave and the impatient
 * Overview::                    The Declt pipeline
-* Global Usage::                Documenting your library
-* System Assessment::           Extracting information
-* Report Assembly::             Organizing the documentation
-* Script Typesetting::          Creating a human-readable file
+* Global Usage::                Documenting your library in one shot
+* Pipeline Usage::              Documenting your library in three steps
 * Other Considerations::        Miscellaneous information
 * Conclusion::                  That's all folks
-* Introspection Heuristics::    More details on information retrieval
-* Documentation Tuning::
+* Documentation Tuning::        Adjusting your own coding style
 * Supported Platforms::         Portability, dependencies, etc.
 * Indexes::                     Concepts, functions, variables and data types
 * Acknowledgments::             Hall of Pride
@@ -426,6 +429,7 @@ usage, each stage of the pipeline can be accessed separately.
 @cindex System assessment
 @cindex Assessment
 @cindex Report
+@clsindex{report}
 The first stage of the pipeline performs a @dfn{system assessment}. At
 this stage, @declt{} loads the ASDF system into the Lisp image, and then
 introspects the environment in order to extract the pertinent
@@ -469,7 +473,7 @@ are chained automatically, which is more or less equivalent to calling
 @c ====================================================================
 @c Global Usage
 @c ====================================================================
-@node Global Usage, System Assessment, Overview, Top
+@node Global Usage, Pipeline Usage, Overview, Top
 @chapter Global Usage
 This chapter explains how to use @declt{} to trigger the whole pipeline
 (@pxref{Overview}), that is, to go directly from an ASDF system to a
@@ -495,7 +499,8 @@ manual. This file may in turn be compiled into a variety of
 human-readable formats with the @command{makeinfo} program.
 @defun declt system-name :key value@dots{}
 Generate a reference manual in Texinfo format for ASDF
-@var{SYSTEM-NAME} (a system designator).
+@var{SYSTEM-NAME}.@*
+@var{SYSTEM-NAME} is an ASDF system designator.
 @end defun
 
 The @code{declt} function accepts a number of keyword arguments which
@@ -504,7 +509,7 @@ passed along to the corresponding functions, which see). The following
 sections describe these keyword arguments.
 
 @menu
-* System Assessment Options::	Controlling the extracted material
+* System Assessment Options::   Controlling the extracted material
 * Report Assembly Options::     Controlling how it is documented
 * Script Typesetting Options::  Controlling the generated files
 @end menu
@@ -524,14 +529,15 @@ result. They are passed along to the @code{assess} function
 (@pxref{System Assessment}), along with the system designator.
 
 @table @code
-@item :all-symbols
-@fkindex{declt,all-symbols}
-@fkindex{assess,all-symbols}
-Whether to scan all symbols in the Lisp environment rather than just the
-ones from domestic packages. It defaults to @nil{}. The default
-heuristic may occasionally miss some definitions. Scanning all symbols
-provides a more complete documentation, although at the expense of a
-much greater computation time. @xref{Introspection Heuristics} for more
+@item :introspection-level
+@fkindex{declt,introspection-level}
+@fkindex{assess,introspection-level}
+How hard @declt{} introspects the Lisp environment in order to find
+information. Possible values currently are @code{1} (the default) or
+@code{2}. The @declt{} introspection heuristic establishes different
+compromises between completeness and performance. A higher introspection
+level will result in a more complete documentation, at the expense of a
+(much) greater computation time. @xref{Introspection Levels} for more
 information.
 @item :library-name
 @fkindex{declt,library-name}
@@ -643,8 +649,7 @@ not point to actual definitions (they are not ``clickable''). Otherwise,
 only foreign definitions somehow related to the library are considered
 for inclusion, and they will most of the time be partial rather than
 exhaustive: only the bits relevant to the library are documented. For
-more information on foreign definitions, @xref{Introspection
-Heuristics}.
+more information on foreign definitions, see @ref{Domesticity}.
 @end table
 
 
@@ -680,33 +685,208 @@ appears in the Texinfo source.
 
 
 @c ====================================================================
+@c Pipeline Usage
+@c ====================================================================
+@node Pipeline Usage, Other Considerations, Global Usage, Top
+@chapter Pipeline Usage
+This chapter provides additional information on how each stage of the
+@declt{} pipeline works, and how to use them separately.
+
+@menu
+* System Assessment::           Extracting information
+* Report Assembly::             Organizing the documentation
+* Script Typesetting::          Creating a human-readable reference manual
+@end menu
+
+@c -----------------
 @c System Assessment
-@c ====================================================================
-@node System Assessment, Report Assembly, Global Usage, Top
-@chapter System Assessment
+@c -----------------
+@node System Assessment, Report Assembly, Pipeline Usage, Pipeline Usage
+@section System Assessment
+As mentioned before (@pxref{Overview}), the first stage of the @declt{}
+pipeline, called the ``system assessment'' stage, loads the library into
+the Lisp image, and then introspects the environment in order to extract
+the pertinent information.
+
+@sysindex{net.didierverna.declt.assess}
+@pkgindex{net.didierverna.declt.assess}
+The system assessment part of @declt{} is provided as a separate system
+called @samp{net.didierverna.declt.assess}, which you may load
+individually (@declt{}'s main system depends on it). It also comes in a
+separate package called @samp{net.didierverna.declt.assess} (imported by
+@declt{}'s main package).
+
+In order to assess a library, use the @code{assess} function.
+@defun assess system-name :key value@dots{}
+Extract and return documentation information for ASDF
+@var{SYSTEM-NAME}.@*
+@var{SYSTEM-NAME} is an ASDF system designator.
+@end defun
+
+@findex declt
+@clsindex{report}
+The complete list of keyword arguments, also recognized by the global
+@declt{} function, is described in @ref{System Assessment Options}. This
+function returns an instance of the @code{report} class. The following
+sections provide additional information on the system assessment's
+operation, and some details on the @code{report} class.
+
+@menu
+* Domesticity::                 What belongs to the library
+* Introspection Levels::        Computing definitions
+@end menu
+
+@c Domesticity
+@c -----------
+@node Domesticity, Introspection Levels, System Assessment, System Assessment
+@subsection Domesticity
+@cindex Domesticity
+Domesticity is the concept defining what ``belongs'' to the library. It
+ultimately affects what can appear in the reference manual, and what
+cannot.
+
+@cindex Domestic definition
+@cindex Definition, domestic
+@cindex Foreign definition
+@cindex Definition, foreign
+The basic rule is that anything defined in one of the library's source
+files is @dfn{domestic}, and the rest is @dfn{foreign}. If for some
+reason, the source file is unknown, then, the definition will be
+considered domestic if the symbol naming it is from a domestic package.
+
+This view on domesticity has implications on what is documented, which
+are worth mentioning.
+@itemize
+@item
+Language extensions (for example, new methods on standard generic
+functions) and, in general, new local definitions on symbols from
+foreign packages are considered domestic, and hence will appear in the
+reference manual.
+@item
+Conversely, extensions to the library, but defined outside of it, will
+@emph{not} be part of the resulting reference manual, as they will be
+considered foreign.
+@end itemize
+
+Note that even though they are not normally meant to appear in the final
+reference manual, @declt{} may be led to create foreign definitions
+(sometimes a lot of them) as well as domestic ones. For example, if your
+library adds a method to @code{make-instance}, @declt{} @emph{will}
+internally create a (foreign) definition for the @code{make-instance}
+generic function. Foreign definitions are never complete however
+(otherwise, we would end up with a complete documentation for the whole
+Lisp image): only the information relevant to the library is kept
+around.
+
+@fkindex{declt,foreign-definitions}
+@fkindex{assemble,foreign-definitions}
+As said before, it is possible to include those (partial) foreign
+definitions in the documentation by using the
+@code{:foreign-definitions} option to @code{declt} or @code{assemble}.
+Continuing with the previous example, local methods on
+@code{make-instance} normally appear as toplevel, standalone definitions
+in the documentation, as they belong to a foreign generic function. If,
+however, foreign definitions are included in the documentation, there
+will be a toplevel (partial) entry for @code{make-instance}, and the
+domestic methods will appear inside it (truly foreign methods will
+@emph{never} be documented).
 
 
+@c Introspection Levels
+@c --------------------
+@node Introspection Levels,  , Domesticity, System Assessment
+@subsection Introspection Levels
+@cindex Introspection Levels
+@fkindex{declt,introspection-level}
+@fkindex{assess,introspection-level}
+In order to discover both domestic and relevant foreign definitions,
+@declt{} uses a heuristic which establishes different tradeoffs between
+performance and accuracy. Remember that this is controlled by the
+@code{:introspection-level} option to @code{declt} or @code{assess}.
+This heuristic is based on the assumption that most libraries out there
+are implemented within packages of their own.
 
-@c ====================================================================
+Consequently, this is what happens by default (that is, at introspection
+level 1). After the library has been loaded, @declt{} scans all live
+packages and selects the domestic ones. It then scans all symbols from
+these packages to find domestic definitions.
+
+@cindex Finalization
+Note that if we were to stop there, we would probably miss many domestic
+definitions, namely, those on foreign symbols such as methods on
+standard generic functions such as @code{make-instance}. Fortunately, a
+lot of these will be recovered later on anyway, when @declt{} computes
+cross-references between definitions in the so-called @dfn{finalization}
+phase.
+
+Suppose for instance that the library provides a new method on
+@code{make-instance}. This method is domestic because it is defined in
+one of the library's files, but at introspection level 1, @declt{} only
+scans domestic symbols, so it will miss it (@code{common-lisp}, the home
+package of the @code{make-instance} symbol, is foreign). On the other
+hand, it is very likely that this method exists because it specializes
+on a domestic class already known to @declt{}. When @declt{} finalizes a
+class definition, it looks up methods that specialize on it (among other
+things). These methods are in fact accessible through the class by
+introspection (they are called ``direct methods''). Consequently,
+@declt{} @emph{will} eventually discover the new @code{make-instance}
+method, figure out that it is a domestic one, and add it to the
+documentation.
+
+In the end, it is probable that most domestic definitions end up being
+discovered, either during the initial scanning phase, or later on,
+during the finalization phase when cross-references are computed. This
+is why the default introspection level is probably good enough most of
+the time.
+
+On the other hand, some (rare?) domestic definitions may still escape
+the discovery process at that level. For example, if you define a
+foreign global variable in one of your library's files, chances are that
+there won't be any domestic definition cross-referencing it. This is why
+@declt{} provides a second level of introspection, in which it initially
+scans @emph{all} symbols in the @cl{} image, rather than just the ones
+from domestic packages. The resulting documentation will then be more
+complete, although at the expense of a @emph{much} greater computation
+time.
+
+And yes, you have just noticed that I said ``more complete'' rather than
+``exhaustive'', and mind you, this is not because my vocabulary is
+limited. The thing is that even with an initial scan of all symbols, we
+may still miss some information. To be precise, we won't miss any
+domestic definition. It is the cross-referencing information that may
+remain incomplete, and that is because the finalization phase doesn't
+re-scan each and every symbol in the Lisp image again; only the
+definitions that have been created so far. Let's take an example
+(granted, a contrived one; but aren't they all?). You define a regular
+domestic function, and it is used as the update function in a foreign
+setf expander. Even with an initial scan of all symbols in the Lisp
+image, you'll get a definition for your domestic function, but that's
+it. Later on, during the finalization process, there's no way to go from
+the function to the setf expander, so that information remains unknown.
+In order to fix that, the finalization process would need to re-scan the
+whole Lisp world again, and that would become introspection level 3. Not
+sure it's actually worth it; maybe one day@enddots{}
+
+
+@c ---------------
 @c Report Assembly
-@c ====================================================================
-@node Report Assembly, Script Typesetting, System Assessment, Top
-@chapter Report Assembly
+@c ---------------
+@node Report Assembly, Script Typesetting, System Assessment, Pipeline Usage
+@section Report Assembly
 
 
-
-@c ====================================================================
+@c ------------------
 @c Script Typesetting
-@c ====================================================================
-@node Script Typesetting, Other Considerations, Report Assembly, Top
-@chapter Script Typesetting
+@c ------------------
+@node Script Typesetting,  , Report Assembly, Pipeline Usage
+@section Script Typesetting
 
 
 
 @c ====================================================================
 @c Other Considerations
 @c ====================================================================
-@node Other Considerations, Conclusion, Script Typesetting, Top
+@node Other Considerations, Conclusion, Pipeline Usage, Top
 @chapter Other Considerations
 This section contains marginal or meta-information, orthogonal to the
 library's main purpose.
@@ -845,7 +1025,7 @@ project.
 @c ====================================================================
 @c Conclusion
 @c ====================================================================
-@node Conclusion, Introspection Heuristics, Other Considerations, Top
+@node Conclusion, Documentation Tuning, Other Considerations, Top
 @chapter Conclusion
 So that's it I guess. You know all about @declt{} now. The next step is
 to polish your own libraries so that @declt{} can extract meaningful
@@ -859,153 +1039,9 @@ Now, go my friend. Go document the whole Lisp world!
 
 
 @c ====================================================================
-@c Introspection Heuristics
-@c ====================================================================
-@node Introspection Heuristics, Documentation Tuning, Conclusion, Top
-@appendix Introspection Heuristics
-As mentioned already, @declt{} works by introspection: it loads an ASDF
-system and tries to figure out what actually ``belongs'' to it by
-introspecting the Lisp environment.
-
-@menu
-* Domesticity::                 What belongs to the library
-* Coverage::                    Finding domestic definitions
-@end menu
-
-
-@c -----------
-@c Domesticity
-@c -----------
-@node Domesticity, Coverage, Introspection Heuristics, Introspection Heuristics
-@section Domesticity
-@cindex Domesticity
-Domesticity is the concept defining what ``belongs'' to the library
-being documented. It controls what should appear in the reference
-manual, and what should not.
-
-@cindex Domestic definition
-@cindex Definition, domestic
-@cindex Foreign definition
-@cindex Definition, foreign
-The basic rule is that anything defined in one of the library's source
-files is @dfn{domestic}, and the rest is @dfn{foreign}. If for some
-reason, the source file is unknown, then, the definition will be
-considered domestic if the symbol naming it is from a domestic package.
-
-This view on domesticity has implications on what is documented, which
-are worth mentioning.
-@itemize
-@item
-Language extensions (for example, new methods on standard generic
-functions) and, in general, new local definitions on symbols from
-foreign packages are considered domestic, and hence will appear in the
-reference manual.
-@item
-Conversely, extensions to the library, but defined outside of it, will
-@emph{not} be part of the resulting reference manual, as they will be
-considered foreign.
-@end itemize
-
-Note that even though they are not normally meant to appear in the
-documentation, @declt{} may be led to create foreign definitions
-(sometimes a lot of them) as well as domestic ones. For example, if your
-library adds a method to @code{make-instance}, @declt{} @emph{will}
-internally create a (foreign) definition for the @code{make-instance}
-generic function. Foreign definitions are never exhaustive however
-(otherwise, we would end up with a complete documentation for the whole
-Lisp image): only the information relevant to the library is kept
-around.
-
-@fkindex{declt,foreign-definitions}
-@fkindex{assemble,foreign-definitions}
-As said before, it is possible to include those (partial) foreign
-definitions in the documentation by using the
-@code{:foreign-definitions} option to @code{declt} or @code{assemble}.
-Continuing with the previous example, local methods on
-@code{make-instance} normally appear as toplevel, standalone definitions
-in the documentation, as they belong to a foreign generic function. If,
-however, foreign definitions are included in the documentation, there
-will be a toplevel (partial) entry for @code{make-instance}, and the
-domestic methods will appear inside it (truly foreign methods will
-@emph{never} be documented).
-
-
-@c --------
-@c Coverage
-@c --------
-@node Coverage,  , Domesticity, Introspection Heuristics
-@section Coverage
-@cindex Coverage
-In order to discover domestic definitions, @declt{} uses a default
-heuristic which establishes a tradeoff between performance and accuracy.
-This heuristic is based on the assumption that most libraries out there
-are implemented within packages of their own.
-
-Consequently, this is what happens by default. After the library has
-been loaded, @declt{} scans all live packages and selects the domestic
-ones. It then scans all symbols from these packages to find domestic
-definitions.
-
-@cindex Finalization
-Note that if we were to stop there, we would probably miss many domestic
-definitions, namely, those on foreign symbols such as methods on
-standard generic functions. Fortunately, a lot of these will be
-recovered later on, when @declt{} computes cross-references between
-definitions in the so-called @dfn{finalization} step.
-
-For example, suppose the library provides a new method on
-@code{make-instance}. This method is domestic because it is defined in
-one of the library's files, but the default heuristic will miss it
-because @code{common-lisp}, the home package of the @code{make-instance}
-symbol is foreign. On the other hand, it is very likely that this method
-exists because it specializes on a domestic class already known to
-@declt{}. When @declt{} finalizes a class definition, it looks up
-methods that specialize on it (among other things). These methods are in
-fact accessible through the class by introspection (they are called
-``direct methods''). Consequently, @declt{} @emph{will} eventually
-encounter the new @code{make-instance} method and add it to the list of
-domestic definitions.
-
-In the end, it is probable that most domestic definitions end up being
-discovered, either during the initial scanning phase, or later on,
-during the finalization phase when cross-references are computed. This
-is why the default heuristic is probably good enough most of the time.
-
-@fkindex{declt,all-symbols}
-On the other hand, some (rare?) domestic definitions may still escape
-the discovery process with the default heuristic. For example, if you
-define a foreign global variable in one of your library's files, chances
-are that there won't be any domestic definition cross-referencing it.
-This is why @declt{} provides a way to initially scan @emph{all} symbols
-in the @cl{} image, rather than just the ones from domestic packages
-(again, this is done by passing the @code{:all-symbols} option to the
-@declt{} function). The resulting documentation will then be more
-complete, although at the expense of a @emph{much} greater computation
-time.
-
-And yes, you have just noticed that I said ``more complete'' rather than
-``exhaustive'', and mind you, this is not because my vocabulary is
-limited. The thing is that even with a scan of all symbols, we may still
-miss some information. To be precise, we won't miss any domestic
-definition. It is the cross-referencing information that may remain
-incomplete, and that is because the finalization phase doesn't re-scan
-each and every symbol in the Lisp image again; only the definitions that
-have been created so far. Let's take an example (granted, a contrived
-one; but aren't they all?). You define a regular domestic function, and
-it is used as the update function in a foreign setf expander. Even with
-an initial scan of all symbols in the Lisp image, you'll get a
-definition for your domestic function, but that's it. Later on, during
-the finalization process, there's no way to go from the function to the
-setf expander, so that information remains unknown. In order to fix
-that, the finalization process would need to re-scan the whole Lisp
-world again. Not sure it's actually worth it; maybe one day@enddots{}
-
-
-
-@c ====================================================================
 @c Documentation Tuning
 @c ====================================================================
-@node Documentation Tuning, Supported Platforms, Introspection Heuristics, Top
+@node Documentation Tuning, Supported Platforms, Conclusion, Top
 @appendix Documentation Tuning
 
 @menu
