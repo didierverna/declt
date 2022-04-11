@@ -526,6 +526,7 @@ result. They are passed along to the @code{assess} function
 @table @code
 @item :all-symbols
 @fkindex{declt,all-symbols}
+@fkindex{assess,all-symbols}
 Whether to scan all symbols in the Lisp environment rather than just the
 ones from domestic packages. It defaults to @nil{}. The default
 heuristic may occasionally miss some definitions. Scanning all symbols
@@ -534,22 +535,26 @@ much greater computation time. @xref{Introspection Heuristics} for more
 information.
 @item :library-name
 @fkindex{declt,library-name}
+@fkindex{assess,library-name}
 The library name, used in the reference manual title and at some other
 places. It defaults to the system name, but you are encouraged to
 provide a more human-readable version (for example @t{Declt} rather than
 just @t{net.didierverna.declt}).
 @item :tagline
 @fkindex{declt,tagline}
+@fkindex{assess,tagline}
 A tagline for the library, used in the reference manual subtitle, or
 @nil{}. It defaults to the system's long name or description (one-liners
 only), but see @ref{Taglines}.
 @item :library-version
 @fkindex{declt,library-version}
+@fkindex{assess,library-version}
 The library version, used in the reference manual subtitle and at some
 other places, or @nil{}. It defaults to the system version (one-liner
 only).
 @item :contact
 @fkindex{declt,contact}
+@fkindex{assess,contact}
 The contact(s) for the library, or @nil{}. The default is extracted from
 the system definition (the @code{maintainer} and @code{author} slots,
 possibly also the @code{mailto} one; one-liners only). You may provide a
@@ -557,12 +562,14 @@ contact string, or a list of such. A contact string is of the form
 @code{"My Name <my@@address>"}, both name and address being optional.
 @item :copyright-years
 @fkindex{declt,copyright-years}
+@fkindex{assess,copyright-years}
 Copyright year(s) used to typeset copyright header lines, or @nil{} to
 disable those lines. It defaults to the current year. You may use any
 kind of string here, such as @code{"2013"}, @code{"2010, 2011"},
 @code{"2010--2013"} @etc{}
 @item :license
 @fkindex{declt,license}
+@fkindex{assess,license}
 @pvindex{*licenses*}
 The library's license type (@nil{} by default). This information is used
 to insert licensing information at several places in the manual. The
@@ -574,10 +581,12 @@ of licenses added to @declt{}. Note that this information is
 this slot is not well defined.
 @item :introduction
 @fkindex{declt,introduction}
+@fkindex{assess,introduction}
 A potential contents for an introductive chapter (none by default). In
 the future, this material may be extracted from a README file or such.
 @item :conclusion
 @fkindex{declt,conclusion}
+@fkindex{assess,conclusion}
 A potential contents for a conclusive chapter (none by default).
 @end table
 
@@ -600,6 +609,7 @@ adjusted thanks to the following options. They are passed along to the
 @table @code
 @item :declt-notice
 @fkindex{declt,declt-notice}
+@fkindex{assemble,declt-notice}
 Controls the output of a small paragraph about automatic manual
 generation by @declt{}. Possible values are @nil{} (meaning don't
 acknowledge @declt{}), @code{:short}, and @code{:long} (the
@@ -609,6 +619,7 @@ the generation time. I would be grateful if you kept at least the short
 version in your manuals, as an acknowledgment for using @declt{}.
 @item :locations
 @fkindex{declt,locations}
+@fkindex{assemble,locations}
 Whether to hyperlink definitions to their locations. It defaults to
 @nil{}. A value of @code{:file-system} means to create hyperlinks on the
 local machine, on which @declt{} is currently being run. These links
@@ -616,6 +627,7 @@ being completely specific to the current installation, it is better to
 avoid this option if the reference manual is meant to be put online.
 @item :default-values
 @fkindex{declt,default-values}
+@fkindex{assemble,default-values}
 Whether to document standard / default values. The default is @nil{}.
 Otherwise, @declt{} will explicitely mention properties that do not
 differ from their default or standard value, such as a @t{standard}
@@ -624,6 +636,7 @@ method combination, an @t{:instance} slot allocation, @etc{}
 @cindex Foreign definition
 @cindex Definition, foreign
 @fkindex{declt,foreign-definitions}
+@fkindex{assemble,foreign-definitions}
 Whether to include foreign definitions in the documentation. It defaults
 to @nil{}, in which case foreign references are still advertised, but do
 not point to actual definitions (they are not ``clickable''). Otherwise,
