@@ -506,7 +506,7 @@ sections describe these keyword arguments.
 @menu
 * System Assessment Options::	Controlling the extracted material
 * Report Assembly Options::     Controlling how it is documented
-* File Management::             Controlling the generated files
+* Script Typesetting Options::  Controlling the generated files
 @end menu
 
 
@@ -589,7 +589,7 @@ is considered raw text and will be properly escaped for Texinfo.
 @c -------------------
 @c Report Assembly Options
 @c -------------------
-@node Report Assembly Options, File Management, System Assessment Options, Global Usage
+@node Report Assembly Options, Script Typesetting Options, System Assessment Options, Global Usage
 @section Report Assembly Options
 @findex assemble
 Based on the report created by the first stage of the @declt{} pipeline,
@@ -635,23 +635,30 @@ Heuristics}.
 @end table
 
 
-@c ---------------
-@c File Management
-@c ---------------
-@node File Management,  , Report Assembly Options, Global Usage
-@section File Management
-Finally, the following options provide control over where exacty the
-documentation goes.
+@c --------------------------
+@c Script Typesetting Options
+@c --------------------------
+@node Script Typesetting Options,  , Report Assembly Options, Global Usage
+@section Script Typesetting Options
+@findex typeset
+Finally, the typesetting of the script produced by the second stage of
+the @declt{} pipelline may be adjusted with the following options. They
+are passed along to the @code{typeset} function (@pxref{Script
+Typesetting}).
+
 @table @code
 @item :output-directory
 @fkindex{declt,output-directory}
+@fkindex{typeset,output-directory}
 The generated file's directory. It defaults to the current directory.
 @item :file-name
 @fkindex{declt,file-name}
+@fkindex{typeset,file-name}
 The base name of the generated file, sans extension. It defaults to the
 system name.
 @item :info-name
 @fkindex{declt,info-name}
+@fkindex{typeset,info-name}
 The base name of the Info file, sans extension. It defaults to
 @var{FILE-NAME}. This option is provided because the Info file name
 appears in the Texinfo source.
