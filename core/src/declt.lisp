@@ -360,7 +360,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 
 (defun declt (system-name
 	      &rest keys
-	      &key all-symbols
+	      &key introspection-level
 		   library-name tagline library-version contact
 		   copyright-years license
 		   introduction conclusion
@@ -377,7 +377,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 	      &aux (current-time-string (current-time-string))
 		   (report (apply #'assess system-name
 				   (select-keys keys
-				     :all-symbols
+				     :introspection-level
 				     :library-name :tagline :library-version
 				     :contact :copyright-years :license
 				     :introduction :conclusion)))
@@ -388,7 +388,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
   "Generate a reference manual for ASDF SYSTEM-NAME.
 The reference manual is currently generated in Texinfo format.
 
-For a description of SYSTEM-NAME, ALL-SYMBOLS, LIBRARY-NAME, TAGLINE,
+For a description of SYSTEM-NAME, INTROSPECTION-LEVEL, LIBRARY-NAME, TAGLINE,
 LIBRARY-VERSION, CONTACT, COPYRIGHT-YEARS, LICENSE, INTRODUCTION, and
 CONCLUSION, see `assess'.
 
@@ -402,7 +402,7 @@ The following keyword parameters are also available.
   Defaults to the system name.
 - INFO-NAME: base name for the subsequent Info file, sans extension (this
   name appears in the Texinfo file). Defaults to FILE-NAME."
-  (declare (ignore all-symbols
+  (declare (ignore introspection-level
 		   library-name tagline library-version contact
 		   copyright-years license
 		   introduction conclusion

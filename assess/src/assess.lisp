@@ -429,7 +429,7 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
 (defun make-all-symbol-definitions
     (packages pathnames all-symbols-p &aux definitions processed)
   "Return a list of all domestic symbol definitions.
-If ALL-SYMBOLS, introspect all accessible symbols in the current Lisp
+If ALL-SYMBOLS-P, introspect all accessible symbols in the current Lisp
 environment. Otherwise (the default), limit introspection to the symbols from
 domestic PACKAGES.
 Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
@@ -517,7 +517,7 @@ SYSTEM-NAME is an ASDF system designator."
 
 (defun assess
     (system-name
-     &key all-symbols
+     &key (introspection-level 1)
 	  (library-name (if (stringp system-name)
 			  system-name
 			  (string-downcase system-name)))
@@ -536,10 +536,11 @@ The documentation information is returned in a REPORT structure, which see.
 
 SYSTEM-NAME is an ASDF system designator. The following keyword parameters
 allow to specify or override some bits of information.
-- ALL-SYMBOLS: scan all accessible symbols in the Lisp environment rather than
-  just the ones from our domestic packages. Some additional information may be
-  discovered in the process, at the expense of a much higher processing time.
-  Defaults to NIL.
+- INTROSPECTION-LEVEL: how hard to introspect the Lisp environment. At level 1
+  (the default), scan only the symbols from domestic packages. At level 2,
+  scan all accessible symbols in the Lisp environment. Some additional
+  information may be discovered in the process, at the expense of a much
+  higher computation time.
 - LIBRARY-NAME: name of the library being documented. Defaults to the system
   name.
 - TAGLINE: small text to be used as the manual's subtitle, or NIL.
@@ -558,6 +559,7 @@ allow to specify or override some bits of information.
 - CONCLUSION: conclusion chapter contents in Texinfo format.
   Defaults to NIL."
 
+  (check-type introspection-level (member 1 2))
   (check-type library-name non-empty-string)
   (setf (library-name report) library-name)
   (unless taglinep
@@ -618,7 +620,8 @@ allow to specify or override some bits of information.
 	   (make-all-package-definitions file-definitions system-definitions))
 	 (packages (mapcar #'definition-package package-definitions))
 	 (symbol-definitions
-	   (make-all-symbol-definitions packages pathnames all-symbols)))
+	   (make-all-symbol-definitions
+	    packages pathnames (> introspection-level 1))))
 
     (setf (definitions report)
 	  (append system-definitions module-definitions file-definitions
