@@ -901,6 +901,12 @@ is provided in the @declt{}
 Several aspects of reports and their contents deserve a special mention
 however. This is the purpose of this section.
 
+@menu
+* Contacts::                    Two lists in sync
+* Definitions::                 Hierarchy and organization
+@end menu
+
+@node Contacts, Definitions, Reports, Reports
 @subsubsection Contacts
 @fkindex{declt,contact}
 @fkindex{assess,contact}
@@ -922,6 +928,42 @@ n@sup{@i{th}} email. The important thing to keep in mind is that because
 those two lists are kept in sync, whenever a contact is missing a name
 (respectively an email), the corresponding list will contain @code{nil}
 instead.
+
+@node Definitions,  , Contacts, Reports
+@subsubsection Definitions
+@cindex Definition
+@clssindex{report,definitions}
+The most important slot in a @code{report} instance is the
+@code{definitions} one. This is the slot which contains the whole list
+of definitions (again, a @dfn{definition} is the abstract description of
+something that needs to be documented). Because reports do not make any
+assumption on the final organization of the reference manual (that is
+the job of the assembly stage of the @declt{} pipeline; see
+@ref{Assembly}), the list of definitions is completely flat and mostly
+unorganized.
+
+In terms of organization, the only guarantee you have is that the
+library's main system definition comes first, and that does not even
+mean first in the list (although it currently does), but first among all
+system definitions. Apart from that, you shouldn't count on any kind of
+ordering within that list.
+
+Also, the list being flat means that every single definition appears as
+a toplevel element. In other words, it really is a list of definitions,
+as opposed to a tree of definitions. For instance, things that are
+normally nested, such as ASDF modules or files (being part of a
+super-component), slot definitions (being part of a class, structure, or
+condition), methods (being part of a generic function), @etc{}, are
+directly accessible in that list. You need to remember this if you ever
+need to filter out the definitions you're not interested in.
+
+On the other hand, this list being mostly unorganized and flat doesn't
+mean that the programmatic order of things is completely lost. Many, if
+not all definitions, contain cross-references to other definitions. For
+example, ASDF system definitions point back to their dependencies,
+classes to their slots, generic functions to their methods, @etc{} In
+all these cases, the original definitions order is preserved.
+
 
 
 @c --------
