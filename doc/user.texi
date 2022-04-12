@@ -874,7 +874,23 @@ sure it's actually worth it; maybe one day@enddots{}
 @c -------
 @node Reports,  , Introspection Levels, Assessment
 @subsection Reports
+@cindex Report
 @clsindex{report}
+As mentioned before, the @code{assess} function returns an instance of
+the @code{report} class. In case you want to manipulate reports
+directly, a complete description of this class, its slots and accessors
+is provided in
+@ifinfo
+@ref{Top, , The Declt Reference Manual, declt-reference}.
+@end ifinfo
+@ifhtml
+@ref{Top, , The Declt Reference Manual, reference}.
+@end ifhtml
+@ifnotinfo
+@ifnothtml
+@ref{Top, , , reference, The Declt Reference Manual}.
+@end ifnothtml
+@end ifnotinfo
 
 
 @c --------
