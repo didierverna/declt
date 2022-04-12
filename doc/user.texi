@@ -152,6 +152,12 @@ Common Lisp
 @tpindex @r{Class, }\name\
 @end macro
 
+@c Class slots
+@macro clssindex{cls,slot}
+@tpindex \cls\@r{, slot, }\slot\
+@tpindex @r{Class, }\cls\@r{, slot, }\slot\
+@end macro
+
 
 
 @c ====================================================================
@@ -892,6 +898,30 @@ is provided in the @declt{}
 @ref{Top, , , reference, Reference Manual}.
 @end ifnothtml
 @end ifnotinfo
+Several aspects of reports and their contents deserve a special mention
+however. This is the purpose of this section.
+
+@subsubsection Contacts
+@fkindex{declt,contact}
+@fkindex{assess,contact}
+@clssindex{report,contact-names}
+@clssindex{report,contact-emails}
+@clssindex{system,maintainer}
+@clssindex{system,author}
+@clssindex{system,mailto}
+The report class provides two slots named @code{contact-names} and
+@code{contact-emails}, which are filled in from different sources of
+information, namely, the ASDF system's @code{maintainer}, @code{author},
+and @code{mailto} slots, or from the @code{contact} argument to the
+@code{declt} and @code{assess} functions.
+
+These two slots contain lists of names (respectively emails) that are
+meant to be in sync: they are of the same length and the n@sup{@i{th}}
+contact for the library is represented by the n@sup{@i{th}} name and the
+n@sup{@i{th}} email. The important thing to keep in mind is that because
+those two lists are kept in sync, whenever a contact is missing a name
+(respectively an email), the corresponding list will contain @code{nil}
+instead.
 
 
 @c --------
