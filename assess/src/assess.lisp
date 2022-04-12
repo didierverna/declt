@@ -460,9 +460,13 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
 	    :accessor tagline)
    (library-version :documentation "The library's version."
 		    :accessor library-version)
-   (contact-names :documentation "The list of contact names for the library."
+   (contact-names :documentation "The list of contact names for the library.
+This list is coupled with that of contact emails, and hence may contain null
+elements (in case a contact was provided with an email but no name)."
 		  :accessor contact-names)
-   (contact-emails :documentation "The list of contact emails for the library."
+   (contact-emails :documentation "The list of contact emails for the library.
+This list is coupled with that of contact names, and hence may contain null
+elements (in case a contact was provided with a name but no email)."
 		   :accessor contact-emails)
    (copyright-years :documentation "A copyright years string."
 		    :accessor copyright-years)
