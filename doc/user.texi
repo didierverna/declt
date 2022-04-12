@@ -417,47 +417,49 @@ my.asdf.system.texi}, and enjoy reading the resulting
 @node Overview, Global Usage, Quick Start, Top
 @chapter Overview
 @findex declt
+@findex assess
+@findex assemble
+@findex typeset
 @declt{} is implemented as a 3 stages pipeline, as depicted in the
 figure below. The @code{declt} function, already mentionned in
 @ref{Quick Start} triggers the whole pipeline, but for more advanced
-usage, each stage of the pipeline can be accessed separately.
+usage, each stage of the pipeline can be accessed separately and
+directly via their respective entry point functions: @code{assess},
+@code{assemble}, and @code{typeset}.
 
-@image{pipeline,15cm}
+@center@image{pipeline,15cm}
 
 @enumerate
 @item
-@cindex System assessment
 @cindex Assessment
 @cindex Report
 @clsindex{report}
-The first stage of the pipeline performs a @dfn{system assessment}. At
-this stage, @declt{} loads the ASDF system into the Lisp image, and then
-introspects the environment in order to extract the pertinent
-information. This information is stored in a so-called @dfn{report}.
-@xref{System Assessment} for more information.
+The first stage of the pipeline is called the @dfn{assessment} stage. At
+this stage, @declt{} loads the library, and then introspects the Lisp
+environment in order to extract the pertinent information. This
+information is stored in a so-called @dfn{report}.
+@xref{Assessment} for more information.
 @item
-@cindex Report assembly
 @cindex Assembly
 @cindex Script
 @cindex Layout
-The second stage of the pipeline performs a @dfn{report assembly}. At
+The second stage of the pipeline is called the @dfn{assembly} stage. At
 this stage, @declt{} organizes the (completely flat) information
 provided by a report in a specific way. The result is called a
 @dfn{script}. A script begins to look like a properly organized
 reference manual, but it is still independent from the final output
 format. The specific organization scheme to use is called a
-@dfn{layout}. @xref{Report Assembly} for more information.
+@dfn{layout}. @xref{Assembly} for more information.
 @item
-@cindex Script typesetting
 @cindex Typesetting
-Finally, the third stage of the pipeline performs a @dfn{script
-typesetting}. At this stage, @declt{} renders a script to a file by
+Finally, the third stage of the pipeline is called the @dfn{typesetting}
+stage. At this stage, @declt{} renders a script to a file by
 typesetting its contents in a specific documentation format. This may
 directly result in a human-readable reference manual, although in the
 case of Texinfo, the resulting file needs additional post-processing.
 This, however, is not done by @declt{} itself, but by
-@command{makeinfo}, which is an external tool. @xref{Script Typesetting}
-for more information.
+@command{makeinfo}, which is an external tool. @xref{Typesetting} for
+more information.
 @end enumerate
 
 @findex declt
@@ -476,7 +478,7 @@ are chained automatically, which is more or less equivalent to calling
 @node Global Usage, Pipeline Usage, Overview, Top
 @chapter Global Usage
 This chapter explains how to use @declt{} to trigger the whole pipeline
-(@pxref{Overview}), that is, to go directly from an ASDF system to a
+(@pxref{Overview}), that is, to go directly from a library to a
 reference manual.
 
 @sysindex{net.didierverna.declt}
@@ -509,24 +511,24 @@ passed along to the corresponding functions, which see). The following
 sections describe these keyword arguments.
 
 @menu
-* System Assessment Options::   Controlling the extracted material
-* Report Assembly Options::     Controlling how it is documented
-* Script Typesetting Options::  Controlling the generated files
+* Assessment Options::          Controlling the extracted material
+* Assembly Options::            Controlling how it is documented
+* Typesetting Options::         Controlling the generated files
 @end menu
 
 
-@c -------------------------
-@c System Assessment Options
-@c -------------------------
-@node System Assessment Options, Report Assembly Options, Global Usage, Global Usage
-@section System Assessment Options
+@c ------------------
+@c Assessment Options
+@c ------------------
+@node Assessment Options, Assembly Options, Global Usage, Global Usage
+@section Assessment Options
 @findex assess
 Most of the documented material is extracted automatically by @declt{},
 although sometimes it is difficult to get it right, if at all. From time
 to time, you may also want to override @declt{}'s default choices. The
 following options provide control over the extraction mechanism and
 result. They are passed along to the @code{assess} function
-(@pxref{System Assessment}), along with the system designator.
+(@pxref{Assessment}), along with the library's system designator.
 
 @table @code
 @item :introspection-level
@@ -601,16 +603,17 @@ directives (no post-processing will occur). All other textual material
 is considered raw text and will be properly escaped for Texinfo.
 
 
-@c -----------------------
-@c Report Assembly Options
-@c -----------------------
-@node Report Assembly Options, Script Typesetting Options, System Assessment Options, Global Usage
-@section Report Assembly Options
+@c ----------------
+@c Assembly Options
+@c ----------------
+@node Assembly Options, Typesetting Options, Assessment Options, Global Usage
+@section Assembly Options
 @findex assemble
 Based on the report created by the first stage of the @declt{} pipeline,
 the exact contents of the upcoming reference manual can be further
 adjusted thanks to the following options. They are passed along to the
-@code{assemble} function (@pxref{Report Assembly}).
+@code{assemble} function (@pxref{Assembly}), along with the library's
+report.
 
 @table @code
 @item :declt-notice
@@ -653,16 +656,16 @@ more information on foreign definitions, see @ref{Domesticity}.
 @end table
 
 
-@c --------------------------
-@c Script Typesetting Options
-@c --------------------------
-@node Script Typesetting Options,  , Report Assembly Options, Global Usage
-@section Script Typesetting Options
+@c -------------------
+@c Typesetting Options
+@c -------------------
+@node Typesetting Options,  , Assembly Options, Global Usage
+@section Typesetting Options
 @findex typeset
 Finally, the typesetting of the script produced by the second stage of
 the @declt{} pipelline may be adjusted with the following options. They
-are passed along to the @code{typeset} function (@pxref{Script
-Typesetting}).
+are passed along to the @code{typeset} function (@pxref{Typesetting}),
+along with the library's script.
 
 @table @code
 @item :output-directory
@@ -693,27 +696,27 @@ This chapter provides additional information on how each stage of the
 @declt{} pipeline works, and how to use them separately.
 
 @menu
-* System Assessment::           Extracting information
-* Report Assembly::             Organizing the documentation
-* Script Typesetting::          Creating a human-readable reference manual
+* Assessment::                  Extracting information
+* Assembly::                    Organizing the documentation
+* Typesetting::                 Creating a human-readable reference manual
 @end menu
 
-@c -----------------
-@c System Assessment
-@c -----------------
-@node System Assessment, Report Assembly, Pipeline Usage, Pipeline Usage
-@section System Assessment
+@c ----------
+@c Assessment
+@c ----------
+@node Assessment, Assembly, Pipeline Usage, Pipeline Usage
+@section Assessment
 As mentioned before (@pxref{Overview}), the first stage of the @declt{}
-pipeline, called the ``system assessment'' stage, loads the library into
-the Lisp image, and then introspects the environment in order to extract
-the pertinent information.
+pipeline, called the ``assessment'' stage, loads the library, and then
+introspects the Lisp environment in order to extract the pertinent
+information.
 
 @sysindex{net.didierverna.declt.assess}
 @pkgindex{net.didierverna.declt.assess}
-The system assessment part of @declt{} is provided as a separate system
-called @samp{net.didierverna.declt.assess}, which you may load
-individually (@declt{}'s main system depends on it). It also comes in a
-separate package called @samp{net.didierverna.declt.assess} (imported by
+The assessment part of @declt{} is provided as a separate system called
+@samp{net.didierverna.declt.assess}, which you may load individually
+(@declt{}'s main system depends on it). It also comes in a separate
+package called @samp{net.didierverna.declt.assess} (imported by
 @declt{}'s main package).
 
 In order to assess a library, use the @code{assess} function.
@@ -726,19 +729,20 @@ Extract and return documentation information for ASDF
 @findex declt
 @clsindex{report}
 The complete list of keyword arguments, also recognized by the global
-@declt{} function, is described in @ref{System Assessment Options}. This
+@declt{} function, is described in @ref{Assessment Options}. This
 function returns an instance of the @code{report} class. The following
-sections provide additional information on the system assessment's
+sections provide additional information on the assessment's
 operation, and some details on the @code{report} class.
 
 @menu
 * Domesticity::                 What belongs to the library
 * Introspection Levels::        Computing definitions
+* Reports::                     Notes on the report class
 @end menu
 
 @c Domesticity
 @c -----------
-@node Domesticity, Introspection Levels, System Assessment, System Assessment
+@node Domesticity, Introspection Levels, Assessment, Assessment
 @subsection Domesticity
 @cindex Domesticity
 Domesticity is the concept defining what ``belongs'' to the library. It
@@ -791,10 +795,9 @@ will be a toplevel (partial) entry for @code{make-instance}, and the
 domestic methods will appear inside it (truly foreign methods will
 @emph{never} be documented).
 
-
 @c Introspection Levels
 @c --------------------
-@node Introspection Levels,  , Domesticity, System Assessment
+@node Introspection Levels, Reports, Domesticity, Assessment
 @subsection Introspection Levels
 @cindex Introspection Levels
 @fkindex{declt,introspection-level}
@@ -867,19 +870,25 @@ In order to fix that, the finalization process would need to re-scan the
 whole Lisp world again, and that would become introspection level 3. Not
 sure it's actually worth it; maybe one day@enddots{}
 
+@c Reports
+@c -------
+@node Reports,  , Introspection Levels, Assessment
+@subsection Reports
+@clsindex{report}
 
-@c ---------------
-@c Report Assembly
-@c ---------------
-@node Report Assembly, Script Typesetting, System Assessment, Pipeline Usage
-@section Report Assembly
+
+@c --------
+@c Assembly
+@c --------
+@node Assembly, Typesetting, Assessment, Pipeline Usage
+@section Assembly
 
 
-@c ------------------
-@c Script Typesetting
-@c ------------------
-@node Script Typesetting,  , Report Assembly, Pipeline Usage
-@section Script Typesetting
+@c -----------
+@c Typesetting
+@c -----------
+@node Typesetting,  , Assembly, Pipeline Usage
+@section Typesetting
 
 
 
