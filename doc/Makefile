@@ -88,16 +88,20 @@ html: $(HTML_DIRS)
 dvi: $(DVI_FILES)
 ps: $(PS_FILES)
 
+$(PROJECT)-$(USR_MAN).info: definitions.png
 $(PROJECT)-%.info: %.texi
 	$(MAKEINFO) $<
 
+$(USR_MAN).pdf: definitions.pdf
 %.pdf: %.texi
 	$(TEXI2DVI) -p $<
 
+$(USR_MAN): definitions.png
 $(HTML_DIRS): %: %.texi
 	$(MAKEINFO) --css-include=$(CSS).css --html -o $@ $<
 	touch $@
 
+$(USR_MAN).dvi: definitions.eps
 %.dvi: %.texi
 	$(TEXI2DVI) $<
 
@@ -106,6 +110,15 @@ $(HTML_DIRS): %: %.texi
 
 %.eps: %.jpg
 	$(CONVERT) $< $@
+
+%.pdf: %.dot
+	dot -Tpdf -o $@ $<
+
+%.png: %.dot
+	dot -Tpng -o $@ $<
+
+%.eps: %.dot
+	dot -Teps -o $@ $<
 
 clean:
 	-rm *.tmp *.fn* *.vr* *.ky* *.tp* *.cp* *.pg *.toc *.aux *.log *~

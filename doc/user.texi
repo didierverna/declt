@@ -903,10 +903,11 @@ however. This is the purpose of this section.
 
 @menu
 * Contacts::                    Two lists in sync
-* Definitions::                 Hierarchy and organization
+* Definitions List::            Unorganized and flat
+* Definitions::                 Hierarchy overview
 @end menu
 
-@node Contacts, Definitions, Reports, Reports
+@node Contacts, Definitions List, Reports, Reports
 @subsubsection Contacts
 @fkindex{declt,contact}
 @fkindex{assess,contact}
@@ -929,8 +930,9 @@ those two lists are kept in sync, whenever a contact is missing a name
 (respectively an email), the corresponding list will contain @code{nil}
 instead.
 
-@node Definitions,  , Contacts, Reports
-@subsubsection Definitions
+@node Definitions List, Definitions, Contacts, Reports
+@subsubsection Definitions List
+@cindex Definitions List
 @cindex Definition
 @clssindex{report,definitions}
 The most important slot in a @code{report} instance is the
@@ -963,6 +965,47 @@ not all definitions, contain cross-references to other definitions. For
 example, ASDF system definitions point back to their dependencies,
 classes to their slots, generic functions to their methods, @etc{} In
 all these cases, the original definitions order is preserved.
+
+@node Definitions,  , Definitions List, Reports
+@subsubsection Definitions
+@cindex Definition
+@clsindex{definition}
+Definitions are implemented as an object-oriented hierarchy rooted in
+the @code{definition} class. The complete description of this hierarchy
+is provided in the @declt{}
+@ifinfo
+@ref{Top, , Reference Manual, declt-reference}.
+@end ifinfo
+@ifhtml
+@ref{Top, , Reference Manual, reference}.
+@end ifhtml
+@ifnotinfo
+@ifnothtml
+@ref{Top, , , reference, Reference Manual}.
+@end ifnothtml
+@end ifnotinfo
+This section provides an overview of the hierarchy in question, along
+with the most important remarks about it. Every definition class in the
+hierarchy has a name of the form @code{foo-definition}. For concision,
+and except for the @code{definition} class itself, all class names in
+the figures below are abbreviated: a @code{foo-definition} class is
+simply denoted as @code{foo}.
+
+@float Figure,fig:definitions
+@center@image{definitions,10cm}
+@caption{Main definition categories}
+@end float
+@clsindex{component-definition}
+@clsindex{package-definition}
+@clsindex{symbol-definition}
+As depicted in Figure @ref{fig:definitions}, there are three main
+categories of definitions: @code{component-definition} is the root class
+for ASDF components, @code{package-definition} is the class for Lisp
+packages, and @code{symbol-definition} is the root class of all
+programmatic definitions named by symbols. The @code{definition} root
+class provides common properties, such as a reference to the
+corresponding Lisp object (when applicable), source information, and
+foreign status.
 
 
 
