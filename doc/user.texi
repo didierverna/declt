@@ -1007,6 +1007,11 @@ class provides common properties, such as a reference to the
 corresponding Lisp object (when applicable), source information, and
 foreign status.
 
+@float Figure,fig:components
+@center@image{components,15cm}
+@caption{ASDF component definitions}
+@end float
+
 
 
 @c --------

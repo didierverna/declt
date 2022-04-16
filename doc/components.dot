@@ -1,0 +1,21 @@
+strict digraph
+{
+  margin = 0;
+  rankdir = TD;
+  node [ shape = box color = blue ]
+
+  { rank = same "lisp-file" "c-file" "java-file" "static-file" }
+
+  "compoment" -> "file";
+  "file" -> "source-file";
+  "source-file" -> "lisp-file";
+  "lisp-file" -> "system-file";
+  "source-file" -> "c-file";
+  "source-file" -> "java-file";
+  "source-file" -> "static-file";
+  "static-file" -> "doc-file";
+  "doc-file" -> "html-file";
+
+  "compoment" -> "module";
+  "module" -> "system";
+}

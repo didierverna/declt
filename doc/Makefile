@@ -88,20 +88,20 @@ html: $(HTML_DIRS)
 dvi: $(DVI_FILES)
 ps: $(PS_FILES)
 
-$(PROJECT)-$(USR_MAN).info: definitions.png
+$(PROJECT)-$(USR_MAN).info: definitions.png components.png
 $(PROJECT)-%.info: %.texi
 	$(MAKEINFO) $<
 
-$(USR_MAN).pdf: definitions.pdf
+$(USR_MAN).pdf: definitions.pdf components.pdf
 %.pdf: %.texi
 	$(TEXI2DVI) -p $<
 
-$(USR_MAN): definitions.png
+$(USR_MAN): definitions.png components.png
 $(HTML_DIRS): %: %.texi
 	$(MAKEINFO) --css-include=$(CSS).css --html -o $@ $<
 	touch $@
 
-$(USR_MAN).dvi: definitions.eps
+$(USR_MAN).dvi: definitions.eps components.eps
 %.dvi: %.texi
 	$(TEXI2DVI) $<
 
