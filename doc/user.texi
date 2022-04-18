@@ -995,23 +995,56 @@ simply denoted as @code{foo}.
 @center@image{definitions,10cm}
 @caption{Main definition categories}
 @end float
+@clsindex{definition}
 @clsindex{component-definition}
 @clsindex{package-definition}
 @clsindex{symbol-definition}
-As depicted in Figure @ref{fig:definitions}, there are three main
-categories of definitions: @code{component-definition} is the root class
-for ASDF components, @code{package-definition} is the class for Lisp
-packages, and @code{symbol-definition} is the root class of all
-programmatic definitions named by symbols. The @code{definition} root
-class provides common properties, such as a reference to the
-corresponding Lisp object (when applicable), source information, and
-foreign status.
+As depicted in @ref{fig:definitions}, there are three main categories of
+definitions: @code{component-definition} is the root class for ASDF
+components, @code{package-definition} is the class for Lisp packages,
+and @code{symbol-definition} is the root class of all programmatic
+definitions named by symbols. The @code{definition} root class provides
+common properties, such as a reference to the corresponding Lisp object
+(when applicable), source information, and foreign status.
 
 @float Figure,fig:components
 @center@image{components,15cm}
 @caption{ASDF component definitions}
 @end float
+@clsindex{component-definition}
+@clsindex{module-definition}
+@clsindex{system-definition}
+@clsindex{file-definition}
+@clsindex{source-file-definition}
+@clsindex{lisp-file-definition}
+@clsindex{system-file-definition}
+@clsindex{c-file-definition}
+@clsindex{java-file-definition}
+@clsindex{static-file-definition}
+@clsindex{doc-file-definition}
+@clsindex{html-file-definition}
+@ref{fig:components} depicts the hierarchy of ASDF definitions.
+Unsurprisingly, this hierarchy closely follows that of actual ASDF
+components, although some peculiarities are worth mentionning here.
 
+@itemize
+@item
+@clsindex{cl-source-file}
+The @code{lisp-file-definition} class corresponds to the ASDF
+@code{cl-source-file} one. Note that ASDF provides two additional
+subclasses for Lisp files, with extensions @samp{.cl} and @samp{.lsp}.
+We don't do that, however. Instead, there is a protocol for retreiving a
+file component's extension.
+@item
+Notice the existence of a @code{system-file-definition}, which is a
+subclass of @code{lisp-file-definition}. In ASDF, system files are
+@emph{not} represented as components, but @declt{} pretends they are by
+faking a particular class of Lisp files for them. This allows us to
+document @code{.asd} files as particular Lisp files, without too much
+specific code. Note also that some (few) libraries list their system
+files (for example as static files) in the system definition. @declt{}
+is aware of this and removes such definitions, so as to avoid dupication.
+@end itemize
 
 
 @c --------
