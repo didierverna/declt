@@ -991,10 +991,6 @@ and except for the @code{definition} class itself, all class names in
 the figures below are abbreviated: a @code{foo-definition} class is
 simply denoted as @code{foo}.
 
-@float Figure,fig:definitions
-@center@image{definitions,10cm}
-@caption{Main definition categories}
-@end float
 @clsindex{definition}
 @clsindex{component-definition}
 @clsindex{package-definition}
@@ -1006,11 +1002,11 @@ and @code{symbol-definition} is the root class of all programmatic
 definitions named by symbols. The @code{definition} root class provides
 common properties, such as a reference to the corresponding Lisp object
 (when applicable), source information, and foreign status.
-
-@float Figure,fig:components
-@center@image{components,15cm}
-@caption{ASDF component definitions}
+@float Figure,fig:definitions
+@center@image{definitions,7cm}
+@caption{Main definition categories}
 @end float
+
 @clsindex{component-definition}
 @clsindex{module-definition}
 @clsindex{system-definition}
@@ -1026,6 +1022,10 @@ common properties, such as a reference to the corresponding Lisp object
 @ref{fig:components} depicts the hierarchy of ASDF definitions.
 Unsurprisingly, this hierarchy closely follows that of actual ASDF
 components, although some peculiarities are worth mentionning here.
+@float Figure,fig:components
+@center@image{components,9cm}
+@caption{ASDF component definitions}
+@end float
 
 @itemize
 @item

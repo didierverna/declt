@@ -6,7 +6,7 @@ strict digraph
 
   { rank = same "lisp-file" "c-file" "java-file" "static-file" }
 
-  "compoment" -> "file";
+  "component" -> "file";
   "file" -> "source-file";
   "source-file" -> "lisp-file";
   "lisp-file" -> "system-file";
@@ -16,6 +16,6 @@ strict digraph
   "static-file" -> "doc-file";
   "doc-file" -> "html-file";
 
-  "compoment" -> "module";
+  "component" -> "module";
   "module" -> "system";
 }
