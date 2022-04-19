@@ -1026,7 +1026,6 @@ components, although some peculiarities are worth mentionning here.
 @center@image{components,9cm}
 @caption{ASDF component definitions}
 @end float
-
 @itemize
 @item
 @clsindex{cl-source-file}
