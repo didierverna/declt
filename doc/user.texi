@@ -1045,6 +1045,26 @@ files (for example as static files) in the system definition. @declt{}
 is aware of this and removes such definitions, so as to avoid dupication.
 @end itemize
 
+@float Figure,fig:varoids
+@center@image{varoids,13cm}
+@caption{Varoid definitions}
+@end float
+
+@float Figure,fig:funcoids
+@center@image{funcoids,16cm}
+@caption{Funcoid definitions}
+@end float
+
+@float Figure,fig:classoids
+@center@image{classoids,12cm}
+@caption{Classoid definitions}
+@end float
+
+@float Figure,fig:aliases
+@center@image{aliases,12cm}
+@caption{Alias definitions}
+@end float
+
 
 @c --------
 @c Assembly

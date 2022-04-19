@@ -40,7 +40,7 @@ USR_MAN := user
 REF_MAN := reference
 MANUALS := $(USR_MAN) $(REF_MAN)
 
-DOT_FILES := definitions components
+DOT_FILES := definitions components varoids funcoids classoids aliases
 
 TEXI_FILES     := $(MANUALS:%=%.texi)
 INFO_FILES     := $(MANUALS:%=$(PROJECT)-%.info)

@@ -1,0 +1,23 @@
+strict digraph
+{
+  rankdir = TD;
+  node [ shape = box color = blue ]
+
+  { rank = same "condition" "class" "structure" }
+  { rank = same "clos-structure" "typed-structure" }
+
+  "clos-classoid-mixin" [ shape = ellipse color = green ]
+
+  "symbol" -> "classoid";
+
+  "classoid" -> "condition";
+  "classoid" -> "class";
+
+  "classoid" -> "structure";
+  "structure" -> "clos-structure";
+  "structure" -> "typed-structure";
+
+  "clos-classoid-mixin" -> "condition";
+  "clos-classoid-mixin" -> "class";
+  "clos-classoid-mixin" -> "clos-structure";
+}

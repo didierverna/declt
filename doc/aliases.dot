@@ -1,0 +1,13 @@
+strict digraph
+{
+  rankdir = TD;
+  node [ shape = box color = blue ]
+
+  { rank = same "macro-alias" "compiler-macro-alias" "function-alias" }
+
+  "symbol" -> "alias";
+
+  "alias" -> "macro-alias";
+  "alias" -> "compiler-macro-alias";
+  "alias" -> "function-alias";
+}

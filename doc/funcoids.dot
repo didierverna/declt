@@ -1,0 +1,62 @@
+strict digraph
+{
+  rankdir = TD;
+  node [ shape = box color = blue ]
+
+  {
+    rank = same
+    "compiler-macro" "type" "expander" "combination" "method"
+    "setfable-funcoid"
+  }
+  {
+    rank = same
+    "short-expander" "long-expander"
+    "short-combination" "long-combination"
+  }
+  { rank = same "macro" "function" }
+  { rank = same "ordinary-function" "generic-function" }
+  { rank = same "ordinary-accessor" "generic-accessor" "accessor-method" }
+  {
+    rank = same
+    "ordinary-reader" "ordinary-writer"
+    "generic-reader" "generic-writer"
+    "reader-method" "writer-method"
+  }
+
+  "accessor-mixin" [ shape = ellipse color = green ]
+
+  "symbol" -> "funcoid";
+
+  "funcoid" -> "compiler-macro";
+
+  "funcoid" -> "type";
+
+  "funcoid" -> "expander";
+  "expander" -> "short-expander";
+  "expander" -> "long-expander";
+
+  "funcoid" -> "combination";
+  "combination" -> "short-combination";
+  "combination" -> "long-combination";
+
+  "funcoid" -> "method" -> "accessor-method";
+  "accessor-method" -> "reader-method";
+  "accessor-method" -> "writer-method";
+
+  "funcoid" -> "setfable-funcoid";
+
+  "setfable-funcoid" -> "macro";
+
+  "setfable-funcoid" -> "function";
+
+  "function" -> "ordinary-function" -> "ordinary-accessor";
+  "ordinary-accessor" -> "ordinary-reader";
+  "ordinary-accessor" -> "ordinary-writer";
+
+  "function" -> "generic-function" -> "generic-accessor";
+  "generic-accessor" -> "generic-reader";
+  "generic-accessor" -> "generic-writer";
+
+  "accessor-mixin" -> "accessor-method";
+  "accessor-mixin" -> "ordinary-accessor";
+}

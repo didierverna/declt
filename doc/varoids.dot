@@ -1,0 +1,20 @@
+strict digraph
+{
+  rankdir = TD;
+  node [ shape = box color = blue ]
+
+  { rank = same "variable" "symbol-macro" "slot" }
+  { rank = same "constant" "special" "clos-slot" "typed-structure-slot" }
+
+  "symbol" -> "varoid";
+
+  "varoid" -> "variable";
+  "variable" -> "constant";
+  "variable" -> "special";
+
+  "varoid" -> "symbol-macro";
+
+  "varoid" -> "slot"
+  "slot" -> "clos-slot";
+  "slot" -> "typed-structure-slot";
+}
