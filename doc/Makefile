@@ -40,6 +40,8 @@ USR_MAN := user
 REF_MAN := reference
 MANUALS := $(USR_MAN) $(REF_MAN)
 
+DOT_FILES := definitions components
+
 TEXI_FILES     := $(MANUALS:%=%.texi)
 INFO_FILES     := $(MANUALS:%=$(PROJECT)-%.info)
 ALL_INFO_FILES := $(INFO_FILES:%.info=%.info*)
@@ -88,20 +90,20 @@ html: $(HTML_DIRS)
 dvi: $(DVI_FILES)
 ps: $(PS_FILES)
 
-$(PROJECT)-$(USR_MAN).info: definitions.png components.png
+$(PROJECT)-$(USR_MAN).info: $(DOT_FILES:%=%.png)
 $(PROJECT)-%.info: %.texi
 	$(MAKEINFO) $<
 
-$(USR_MAN).pdf: definitions.pdf components.pdf
+$(USR_MAN).pdf: $(DOT_FILES:%=%.pdf)
 %.pdf: %.texi
 	$(TEXI2DVI) -p $<
 
-$(USR_MAN): definitions.png components.png
+$(USR_MAN): $(DOT_FILES:%=%.png)
 $(HTML_DIRS): %: %.texi
 	$(MAKEINFO) --css-include=$(CSS).css --html -o $@ $<
 	touch $@
 
-$(USR_MAN).dvi: definitions.eps components.eps
+$(USR_MAN).dvi: $(DOT_FILES:%=%.eps)
 %.dvi: %.texi
 	$(TEXI2DVI) $<
 
