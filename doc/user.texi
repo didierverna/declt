@@ -1045,15 +1045,53 @@ files (for example as static files) in the system definition. @declt{}
 is aware of this and removes such definitions, so as to avoid dupication.
 @end itemize
 
+@clsindex{symbol-definition}
+@cindex Varoid
 @float Figure,fig:varoids
 @center@image{varoids,13cm}
 @caption{Varoid definitions}
 @end float
+The hierarchy of definitions named by symbols (under the
+@code{symbol-definition} class) is quite large, so it is split into four
+figures. The @dfn{varoid} ones (@ref{fig:varoids}) represent simple
+values having symbolic names. This boils down to variables, symbol
+macros, and slots.
 
+@cindex Funcoid
+@cindex Setfable funcoid
+@cindex Funcoid, setfable
 @float Figure,fig:funcoids
 @center@image{funcoids,16cm}
 @caption{Funcoid definitions}
 @end float
+The @dfn{funcoid} ones (@ref{fig:funcoids}) covers ``parametric
+values'', that is, values having a lambda-list of some sort. This
+includes all variations on functions, macros, methods, types, setf
+expanders, and method combinations. All funcoids have a slot indicating
+whether the definition is a setf one (@eg{} a function named @code{(setf
+foo)}). The ``setfable'' branch represents definitions that may be
+related to a setf expander (that is, which could be either an
+@dfn{access-fn} or an @dfn{update-fn}). As a matter of fact, this
+hierarchy is not 100% correct: some funcoids can never be setf ones, and
+some setfable ones can never be related to a setf expander. On the other
+hand, doing it like this keeps said hierarchy relatively simple.
+
+@cindex Accessor mixin
+@cindex Mixin, accessor
+@cindex Generic reader
+@cindex Redaer, generic
+@cindex Generic writer
+@cindex Writer, generic
+The ``accessor'' sub-branches represent definitions for methods,
+ordinary, or generic functions, which have been identified as reading or
+writing slots. The accessor mixin (by the way, the class name is just
+that, @code{accessor-mixin}; not @code{accessor-mixin-definition}),
+provides a back reference to the slot definition in question. Note that
+generic functions do not access slots; only their methods do (which is
+why the generic accessor branch does not use the accessor mixin. A
+generic function will be qualified as a @dfn{generic reader}
+(respectively a @dfn{generic writer}) if all its methods have been
+identified as reader (respectively writer) methods.
 
 @float Figure,fig:classoids
 @center@image{classoids,12cm}
