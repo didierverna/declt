@@ -1082,6 +1082,7 @@ hand, doing it like this keeps said hierarchy relatively simple.
 @cindex Redaer, generic
 @cindex Generic writer
 @cindex Writer, generic
+@clsindex{accessor-mixin}
 The ``accessor'' sub-branches represent definitions for methods,
 ordinary, or generic functions, which have been identified as reading or
 writing slots. The accessor mixin (by the way, the class name is just
@@ -1093,11 +1094,27 @@ generic function will be qualified as a @dfn{generic reader}
 (respectively a @dfn{generic writer}) if all its methods have been
 identified as reader (respectively writer) methods.
 
+@cindex Classoid
+@cindex CLOS classoid mixin
+@cindex Mixin, CLOS classoid
+@clsindex{clos-classoid-mixin}
+The @dfn{classoid} branch (@ref{fig:classoids}) represents (typed)
+structures, classes, and conditions. This part of the definitions
+hierarchy is probably not portable, as it relies on how SBCL implements
+a number of things, in particular, which classoids are in fact CLOS
+classes, which is represented by the CLOS classoid mixin (by the way,
+the class name is just that, @code{clos-classoid-mixin}; not
+@code{clos-classoid-mixin-definition}).
 @float Figure,fig:classoids
 @center@image{classoids,12cm}
 @caption{Classoid definitions}
 @end float
 
+@cindex Alias
+Finally, the last group of symbol definitions is for @dfn{aliases}, that
+is, globally defined (compiler) macros or functions that are also
+manually attached to other symbols. Aliases are known to @declt{} so as
+to avoid duplicating documentation.
 @float Figure,fig:aliases
 @center@image{aliases,12cm}
 @caption{Alias definitions}
