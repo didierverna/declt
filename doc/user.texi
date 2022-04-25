@@ -987,9 +987,11 @@ is provided in the @declt{}
 This section provides an overview of the hierarchy in question, along
 with the most important remarks about it. Every definition class in the
 hierarchy has a name of the form @code{foo-definition}. For concision,
-and except for the @code{definition} class itself, all class names in
-the figures below are abbreviated: a @code{foo-definition} class is
-simply denoted as @code{foo}.
+and except for the @code{definition} and mixin classes, all class names
+in the figures below are abbreviated: a @code{foo-definition} class is
+simply denoted as @code{foo}. Abstract classes are drawn in red with
+bold text, regular classes in blue with normal font, and mixins (also
+abstract) in green.
 
 @clsindex{definition}
 @clsindex{component-definition}
