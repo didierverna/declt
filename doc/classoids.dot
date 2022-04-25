@@ -3,21 +3,15 @@ strict digraph
   rankdir = TD;
   node [ shape = box color = blue ]
 
-  { rank = same "condition" "class" "structure" }
-  { rank = same "clos-structure" "typed-structure" }
+  symbol    [ color = red fontname = "times bold" ]
+  classoid  [ color = red fontname = "times bold" ]
+  structure [ color = red fontname = "times bold" ]
 
-  "clos-classoid-mixin" [ shape = ellipse color = green ]
+  symbol -> classoid -> { structure condition class }
 
-  "symbol" -> "classoid";
+  structure -> { "typed-structure" "clos-structure" }
 
-  "classoid" -> "condition";
-  "classoid" -> "class";
-
-  "classoid" -> "structure";
-  "structure" -> "clos-structure";
-  "structure" -> "typed-structure";
-
-  "clos-classoid-mixin" -> "condition";
-  "clos-classoid-mixin" -> "class";
-  "clos-classoid-mixin" -> "clos-structure";
+  "clos-classoid-mixin"
+  [ shape = ellipse color = green fontname = "times bold" ]
+  "clos-classoid-mixin" -> { condition class "clos-structure" }
 }

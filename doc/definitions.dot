@@ -4,12 +4,10 @@ strict digraph
   rankdir = TD;
   node [ shape = box color = blue ]
 
-  "definition" [ color = red fontname = "times bold" ]
-  { rank = same
-    "component" [ color = red fontname = "times bold" ]
-    "package"
-    "symbol"  [ color = red fontname = "times bold" ]
-  }
+  definition [ color = red fontname = "times bold" ]
+  component  [ color = red fontname = "times bold" ]
+  package
+  symbol     [ color = red fontname = "times bold" ]
 
-  "definition" -> { "component" "package" "symbol"}
+  definition -> { component package symbol }
 }

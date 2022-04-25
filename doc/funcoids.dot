@@ -3,60 +3,47 @@ strict digraph
   rankdir = TD;
   node [ shape = box color = blue ]
 
-  {
-    rank = same
-    "compiler-macro" "type" "expander" "combination" "method"
-    "setfable-funcoid"
-  }
-  {
-    rank = same
+  symbol  [ color = red fontname = "times bold" ]
+  funcoid [ color = red fontname = "times bold" ]
+  symbol -> funcoid
+
+  funcoid -> { "compiler-macro" type }
+
+  expander [ color = red fontname = "times bold" ]
+  funcoid -> expander -> { "short-expander" "long-expander" }
+
+  funcoid -> combination -> { "short-combination" "long-combination" }
+
+  funcoid -> method
+
+  "setfable-funcoid" [ color = red fontname = "times bold" ]
+  funcoid -> "setfable-funcoid" -> macro
+
+  function [ color = red fontname = "times bold" ]
+  "setfable-funcoid" -> function -> { "ordinary-function" "generic-function" }
+
+  "accessor-mixin" [ shape = ellipse color = green fontname = "times bold" ]
+
+  "accessor-method" [ color = red fontname = "times bold" ]
+  { method "accessor-mixin" } -> "accessor-method"
+  -> { "reader-method" "writer-method" }
+
+  "ordinary-accessor" [ color = red fontname = "times bold" ]
+  { "ordinary-function" "accessor-mixin" } -> "ordinary-accessor"
+  -> { "ordinary-reader" "ordinary-writer" }
+
+  "generic-accessor" [ color = red fontname = "times bold" ]
+  "generic-function" -> "generic-accessor"
+  -> { "generic-reader" "generic-writer" }
+
+  { rank = same
     "short-expander" "long-expander"
     "short-combination" "long-combination"
+    method macro function
   }
-  { rank = same "macro" "function" }
-  { rank = same "ordinary-function" "generic-function" }
-  { rank = same "ordinary-accessor" "generic-accessor" "accessor-method" }
-  {
-    rank = same
+  { rank = same
+    "reader-method" "writer-method"
     "ordinary-reader" "ordinary-writer"
     "generic-reader" "generic-writer"
-    "reader-method" "writer-method"
   }
-
-  "accessor-mixin" [ shape = ellipse color = green ]
-
-  "symbol" -> "funcoid";
-
-  "funcoid" -> "compiler-macro";
-
-  "funcoid" -> "type";
-
-  "funcoid" -> "expander";
-  "expander" -> "short-expander";
-  "expander" -> "long-expander";
-
-  "funcoid" -> "combination";
-  "combination" -> "short-combination";
-  "combination" -> "long-combination";
-
-  "funcoid" -> "method" -> "accessor-method";
-  "accessor-method" -> "reader-method";
-  "accessor-method" -> "writer-method";
-
-  "funcoid" -> "setfable-funcoid";
-
-  "setfable-funcoid" -> "macro";
-
-  "setfable-funcoid" -> "function";
-
-  "function" -> "ordinary-function" -> "ordinary-accessor";
-  "ordinary-accessor" -> "ordinary-reader";
-  "ordinary-accessor" -> "ordinary-writer";
-
-  "function" -> "generic-function" -> "generic-accessor";
-  "generic-accessor" -> "generic-reader";
-  "generic-accessor" -> "generic-writer";
-
-  "accessor-mixin" -> "accessor-method";
-  "accessor-mixin" -> "ordinary-accessor";
 }

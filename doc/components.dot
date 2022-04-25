@@ -4,18 +4,12 @@ strict digraph
   rankdir = TD;
   node [ shape = box color = blue ]
 
-  { rank = same "lisp-file" "c-file" "java-file" "static-file" }
+  component [ color = red fontname = "times bold" ]
+  component -> { file module }
 
-  "component" -> "file";
-  "file" -> "source-file";
-  "source-file" -> "lisp-file";
-  "lisp-file" -> "system-file";
-  "source-file" -> "c-file";
-  "source-file" -> "java-file";
-  "source-file" -> "static-file";
-  "static-file" -> "doc-file";
-  "doc-file" -> "html-file";
+  file -> "source-file" -> { "lisp-file" "c-file" "java-file" "static-file" }
+  "lisp-file" -> "system-file"
+  "static-file" -> "doc-file" -> "html-file"
 
-  "component" -> "module";
-  "module" -> "system";
+  module -> system
 }

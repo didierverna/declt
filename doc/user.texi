@@ -1066,14 +1066,19 @@ macros, and slots.
 @center@image{funcoids,16cm}
 @caption{Funcoid definitions}
 @end float
+@clsindex{combination-definition}
+@cindex Method combination, @t{standard}
+@cindex Standard method combination
 The @dfn{funcoid} ones (@ref{fig:funcoids}) covers ``parametric
 values'', that is, values having a lambda-list of some sort. This
 includes all variations on functions, macros, methods, types, setf
-expanders, and method combinations. All funcoids have a slot indicating
-whether the definition is a setf one (@eg{} a function named @code{(setf
-foo)}). The ``setfable'' branch represents definitions that may be
-related to a setf expander (that is, which could be either an
-@dfn{access-fn} or an @dfn{update-fn}). As a matter of fact, this
+expanders, and method combinations. You may wonder why the
+@code{combination-definition} class is not abstract. That is because the
+standard method combination is an instance of it. All funcoids have a
+slot indicating whether the definition is a setf one (@eg{} a function
+named @code{(setf foo)}). The ``setfable'' branch represents definitions
+that may be related to a setf expander (that is, which could be either
+an @dfn{access-fn} or an @dfn{update-fn}). As a matter of fact, this
 hierarchy is not 100% correct: some funcoids can never be setf ones, and
 some setfable ones can never be related to a setf expander. On the other
 hand, doing it like this keeps said hierarchy relatively simple.
