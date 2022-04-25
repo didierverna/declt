@@ -1104,7 +1104,10 @@ hierarchy is probably not portable, as it relies on how SBCL implements
 a number of things, in particular, which classoids are in fact CLOS
 classes, which is represented by the CLOS classoid mixin (by the way,
 the class name is just that, @code{clos-classoid-mixin}; not
-@code{clos-classoid-mixin-definition}).
+@code{clos-classoid-mixin-definition}). The CLOS classoid mixin provides
+super- and sub-classoid information, but this may change in the future.
+Indeed, it is perhaps possible to trace back @code{:include} information
+for typed structures as well, but this is not currently implemented.
 @float Figure,fig:classoids
 @center@image{classoids,12cm}
 @caption{Classoid definitions}
