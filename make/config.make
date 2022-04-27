@@ -1,6 +1,6 @@
 ### config.make --- Configuration part
 
-## Copyright (C) 2010-2012, 2015, 2021 Didier Verna
+## Copyright (C) 2010-2012, 2015, 2021, 2022 Didier Verna
 
 ## Author: Didier Verna <didier@didierverna.net>
 
@@ -42,9 +42,10 @@ BINLOC_CACHE := ${HOME}/.cache/common-lisp
 SBCL_PATH  := sbcl
 
 ## Programs for generating the documentation:
-MAKEINFO = makeinfo
-TEXI2DVI = texi2dvi
-DVIPS    = dvips
-CONVERT  = convert
+MAKEINFO     = makeinfo
+INSTALL_INFO = install-info
+CONVERT      = convert
+DOT          = dot
+GRAPH_EASY   = graph-easy
 
 ### config.make ends here

@@ -40,7 +40,13 @@ USR_MAN := user
 REF_MAN := reference
 MANUALS := $(USR_MAN) $(REF_MAN)
 
-DOT_FILES := definitions components varoids funcoids classoids aliases
+TXT_FIGURES := pipeline
+PNG_FIGURES := pipeline
+DOT_FIGURES := definitions components varoids funcoids classoids aliases
+
+TXT_USR_MAN_DEPS := $(TXT_FIGURES:%=%.txt) $(DOT_FIGURES:%=%.txt)
+PNG_USR_MAN_DEPS := $(PNG_FIGURES:%=%.png) $(DOT_FIGURES:%=%.png)
+EPS_USR_MAN_DEPS := $(PNG_FIGURES:%=%.eps) $(DOT_FIGURES:%=%.eps)
 
 TEXI_FILES     := $(MANUALS:%=%.texi)
 INFO_FILES     := $(MANUALS:%=$(PROJECT)-%.info)
@@ -70,8 +76,9 @@ install: $(INFO_FILES) $(PDF_FILES) $(HTML_DIRS)
 	install -d "$(INFO_DIR)"
 	install -m 644 $(ALL_INFO_FILES) "$(INFO_DIR)"/
 	for i in $(INFO_FILES); do					\
-	  install-info --info-dir="$(INFO_DIR)" $$i;			\
+	  $(INSTALL_INFO) --info-dir="$(INFO_DIR)" $$i;		\
 	done
+	cp -RL $(PROJECT)-$(USR_MAN)-data "$(INFO_DIR)/"
 	$(MAKE) install-at LOCATION="$(PROJECT_DOC_DIR)"
 	for i in $(DVI_FILES) $(PS_FILES); do				\
 	  test -f $$i && install -m 644 $$i "$(PROJECT_DOC_DIR)"/;	\
@@ -80,9 +87,9 @@ install: $(INFO_FILES) $(PDF_FILES) $(HTML_DIRS)
 uninstall:
 	rm -fr "$(PROJECT_DOC_DIR)"
 	for i in $(INFO_FILES); do					\
-	  install-info --remove --info-dir="$(INFO_DIR)" $$i;		\
+	  $(INSTALL_INFO) --remove --info-dir="$(INFO_DIR)" $$i;	\
 	done
-	cd "$(INFO_DIR)" && rm -f $(ALL_INFO_FILES)
+	cd "$(INFO_DIR)" && rm -rf $(ALL_INFO_FILES) $(PROJECT)-$(USR_MAN)-data
 
 info: $(INFO_FILES)
 pdf: $(PDF_FILES)
@@ -90,44 +97,53 @@ html: $(HTML_DIRS)
 dvi: $(DVI_FILES)
 ps: $(PS_FILES)
 
-$(PROJECT)-$(USR_MAN).info: $(DOT_FILES:%=%.png)
+$(PROJECT)-$(USR_MAN).info: $(TXT_USR_MAN_DEPS:%=$(PROJECT)-$(USR_MAN)-data/%) \
+			    $(PNG_USR_MAN_DEPS:%=$(PROJECT)-$(USR_MAN)-data/%)
 $(PROJECT)-%.info: %.texi
 	$(MAKEINFO) $<
 
-$(USR_MAN).pdf: $(DOT_FILES:%=%.pdf)
+$(USR_MAN).pdf: $(PNG_USR_MAN_DEPS)
 %.pdf: %.texi
-	$(TEXI2DVI) -p $<
+	$(MAKEINFO) --pdf $<
 
-$(USR_MAN): $(DOT_FILES:%=%.png)
+$(USR_MAN): $(PNG_USR_MAN_DEPS)
 $(HTML_DIRS): %: %.texi
 	$(MAKEINFO) --css-include=$(CSS).css --html -o $@ $<
+	-test "$@" = "$(USR_MAN)" && cp $(PNG_USR_MAN_DEPS) $@/
 	touch $@
 
-$(USR_MAN).dvi: $(DOT_FILES:%=%.eps)
+$(USR_MAN).dvi: $(EPS_USR_MAN_DEPS)
 %.dvi: %.texi
-	$(TEXI2DVI) $<
+	$(MAKEINFO) --dvi $<
 
-%.ps: %.dvi
-	$(DVIPS) -o $@ $<
-
-%.eps: %.jpg
-	$(CONVERT) $< $@
-
-%.pdf: %.dot
-	dot -Tpdf -o $@ $<
+$(USR_MAN).ps: $(EPS_USR_MAN_DEPS)
+%.ps: %.texi
+	$(MAKEINFO) --ps $<
 
 %.png: %.dot
-	dot -Tpng -o $@ $<
+	$(DOT) -Tpng -o $@ $<
+
+$(PROJECT)-$(USR_MAN)-data/%.png: %.dot
+	$(DOT) -Tpng -o $@ $<
+
+$(PROJECT)-$(USR_MAN)-data/%.txt: %.dot
+	$(GRAPH_EASY) $< $@
 
 %.eps: %.dot
-	dot -Teps -o $@ $<
+	$(DOT) -Teps -o $@ $<
+
+%.eps: %.png
+	$(CONVERT) $< $@
 
 clean:
 	-rm *.tmp *.fn* *.vr* *.ky* *.tp* *.cp* *.pg *.toc *.aux *.log *~
 
 distclean: clean
 	-rm -fr $(HTML_DIRS)						\
-		$(ALL_INFO_FILES) $(PDF_FILES) $(DVI_FILES) $(PS_FILES)
+		$(ALL_INFO_FILES) $(PDF_FILES) $(DVI_FILES) $(PS_FILES) \
+		*.eps $(DOT_FIGURES:%=%.txt) $(DOT_FIGURES:%=%.png)	\
+		$(DOT_FIGURES:%=$(PROJECT)-$(USR_MAN)-data/%.png)	\
+		$(DOT_FIGURES:%=$(PROJECT)-$(USR_MAN)-data/%.txt)
 
 $(USR_MAN:%=%.texi): $(TOP_DIR)/make/version.make
 	$(PERL) -pi -e 's/@set VERSION .*/@set VERSION $(LONG_VERSION)/' $@
