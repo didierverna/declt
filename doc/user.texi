@@ -165,7 +165,7 @@ Common Lisp
 @c ====================================================================
 @dircategory Common Lisp
 @direntry
-* Declt User: (declt-user).             The Declt User Manual.
+* Declt User Manual: (declt-user).      The Declt User Manual.
 @end direntry
 
 
