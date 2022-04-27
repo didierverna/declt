@@ -996,9 +996,9 @@ with the most important remarks about it. Every definition class in the
 hierarchy has a name of the form @code{foo-definition}. For concision,
 and except for the @code{definition} and mixin classes, all class names
 in the figures below are abbreviated: a @code{foo-definition} class is
-simply denoted as @code{foo}. Abstract classes are drawn in red with
-bold text, regular classes in blue with normal font, and mixins (also
-abstract) in green.
+simply denoted as @code{foo}. Abstract classes are drawn in red boxes
+with bold text, regular classes in blue boxes with normal font, and
+mixins (also abstract) in green ellipses with bold text.
 
 @clsindex{definition}
 @clsindex{component-definition}
@@ -1054,14 +1054,15 @@ subclasses for Lisp files, with extensions @samp{.cl} and @samp{.lsp}.
 We don't do that, however. Instead, there is a protocol for retrieving a
 file component's extension.
 @item
-Notice the existence of a @code{system-file-definition}, which is a
-subclass of @code{lisp-file-definition}. In ASDF, system files are
+Notice the existence of a @code{system-file-definition} class, which is
+a subclass of @code{lisp-file-definition}. In ASDF, system files are
 @emph{not} represented as components, but @declt{} pretends they are by
 faking a particular class of Lisp files for them. This allows us to
 document @code{.asd} files as particular Lisp files, without too much
 specific code. Note also that some (few) libraries list their system
 files (for example as static files) in the system definition. @declt{}
-is aware of this and removes such definitions, so as to avoid duplication.
+is aware of this and removes such definitions, so as to avoid
+duplication.
 @end itemize
 
 @clsindex{symbol-definition}
@@ -1119,14 +1120,12 @@ hand, doing it like this keeps said hierarchy relatively simple.
 @clsindex{accessor-mixin}
 The ``accessor'' sub-branches represent definitions for methods,
 ordinary, or generic functions, which have been identified as reading or
-writing slots. The accessor mixin (by the way, the class name is just
-that, @code{accessor-mixin}; not @code{accessor-mixin-definition}),
-provides a back reference to the slot definition in question. Note that
-generic functions do not access slots; only their methods do (which is
-why the generic accessor branch does not use the accessor mixin. A
-generic function will be qualified as a @dfn{generic reader}
-(respectively a @dfn{generic writer}) if all its methods have been
-identified as reader (respectively writer) methods.
+writing slots. The accessor mixin provides a back reference to the slot
+definition in question. Note that generic functions do not access slots;
+only their methods do (which is why the generic accessor branch does not
+use the accessor mixin). A generic function will be qualified as a
+@dfn{generic reader} (respectively a @dfn{generic writer}) if all its
+methods have been identified as reader (respectively writer) methods.
 
 @cindex Classoid
 @cindex CLOS classoid mixin
@@ -1136,12 +1135,11 @@ The @dfn{classoid} branch (@ref{fig:classoids}) represents (typed)
 structures, classes, and conditions. This part of the definitions
 hierarchy is probably not portable, as it relies on how SBCL implements
 a number of things, in particular, which classoids are in fact CLOS
-classes, which is represented by the CLOS classoid mixin (by the way,
-the class name is just that, @code{clos-classoid-mixin}; not
-@code{clos-classoid-mixin-definition}). The CLOS classoid mixin provides
-super- and sub-classoid information, but this may change in the future.
-Indeed, it is perhaps possible to trace back @code{:include} information
-for typed structures as well, but this is not currently implemented.
+classes, which is represented by the CLOS classoid mixin. The CLOS
+classoid mixin provides super- and sub-classoid information, but this
+may change in the future. Indeed, it is perhaps possible to trace back
+@code{:include} information for typed structures as well, but this is
+not currently implemented.
 @float Figure,fig:classoids
 @ifinfo
 @center@image{declt-user-data/classoids,12cm}
