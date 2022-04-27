@@ -1,6 +1,6 @@
 							     -*- outline -*-
 
-* Copyright (C) 2010-2013, 2015-2017 Didier Verna
+* Copyright (C) 2010-2013, 2015-2017, 2022 Didier Verna
 
 This file is part of Declt.
 
@@ -70,11 +70,10 @@ break. We need to work on canonical pathnames.
 Even with the latest improvements in foreign definitions handling, there are
 still some cases that could escape us. For example, a short form foreign setf
 expander for which the update-fn is ours. The only general solution for that
-kind of problem is to work in all-symbols mode, and process /all/ symbols
-again in the finalization phase, checking for such cross-references in both
-directions. To be provided as a user-option (or maybe part of the already
-existing all-symbols mode) because the performance cost is very high for
-probably very little gain.
+kind of problem is for the finalization phase to scan /all/ symbols in the
+Lisp image again, instead of only traversing definitions. That would be
+introspection-level #3 (performance cost very high for probably very little
+gain).
 
 ** Anchors
 This is a note to myself rather than a TODO entry.
