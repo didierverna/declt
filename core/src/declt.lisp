@@ -269,7 +269,7 @@ The ~A Reference Manual~@[, version ~A~].
 @c ====================================================================
 @dircategory Common Lisp
 @direntry
-* ~A Reference: (~A). The ~A Reference Manual.
+* ~A Reference Manual: (~A). The ~A Reference Manual.
 @end direntry~4%"
     (escape (library-name report))
     (escape info-name)
