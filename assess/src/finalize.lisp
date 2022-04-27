@@ -599,44 +599,46 @@ This function is used for regular class and condition slots."
 	  (slot-definition-writers slot))))
 
 ;; #### PORTME: SBCL defines writers as setf functions, but the standard
-;; explicitly allows the use of setf expanders instead. Also, beware of this
-;; trap! When a slot is read-only, SBCL still has an internal writer (for
-;; initialization, I suppose), but it's not a setf function; it's an internal
-;; closure. As a consequence, we /will/ find a writer below, but not a
-;; definition for it.
+;; explicitly allows the use of setf expanders instead.
+;; #### FIXME: in the code below, we assume that the initial structure code
+;; has not been tampered with, for example by fmakunbound'ing some readers
+;; afterwards. That would be really nasty, but it's theoretically possible.
+;; #### NOTE: SBCL has back pointers to slot accessors via
+;; SB-PCL::SLOT-DEFINITION-INTERNAL-[READER|WRITER]-FUNCTION, but these are
+;; not the user-level functions, so we can't use them. We need to go through
+;; the accessor name.
 (defun stabilize-clos-structure-slot
     (definition definitions packages pathnames &aux (slot (slot definition)))
   "Compute CLOS structure slot DEFINITION's reader and writer definitions."
   ;; #### NOTE: in the case of structures, there is only one reader / writer
-  ;; per slot, so if it's already there, we can save some time because the
+  ;; per slot, so if it's already here, we can save some time because the
   ;; list of it as a single element doesn't risk being out of date. Also,
   ;; remember that readers and writers share the same status, so we only need
   ;; to perform one test each time.
   (unless (readers definition)
-    (let* ((accessor-name
+    (let* ((reader-name
 	     (sb-pcl::slot-definition-defstruct-accessor-symbol slot))
-	   (reader (sb-pcl::slot-definition-internal-reader-function slot))
-	   (writer (sb-pcl::slot-definition-internal-writer-function slot))
+	   (writer-name `(setf ,reader-name))
+	   (reader (fdefinition reader-name))
+	   (writer (when (fboundp writer-name) (fdefinition writer-name)))
 	   (reader-definition (find-definition reader definitions))
-	   (writer-definition (find-definition writer definitions)))
-      ;; See comment above the function about this.
-      (when (and reader-definition (not writer-definition))
-	(setq writer nil))
+	   (writer-definition
+	     (when writer (find-definition writer definitions))))
       (unless (or reader-definition (foreignp definition))
 	(setq reader-definition
 	      (destabilize definitions
 		(make-ordinary-function-definition
-		 accessor-name reader
-		 :foreign (not (domesticp accessor-name
+		 reader-name reader
+		 :foreign (not (domesticp reader-name
 				   (object-source-pathname reader)
 				 packages pathnames)))))
 	(when writer
 	  (setq writer-definition
 		(destabilize definitions
 		  (make-ordinary-function-definition
-		   accessor-name writer
+		   reader-name writer
 		   :setf t
-		   :foreign (not (domesticp accessor-name
+		   :foreign (not (domesticp reader-name
 				     (object-source-pathname writer)
 				   packages pathnames)))))))
       (when reader-definition
@@ -666,6 +668,9 @@ This function is used for regular class and condition slots."
 
 ;; #### PORTME: SBCL defines writers as setf functions, but the standard
 ;; explicitly allows the use of setf expanders instead.
+;; #### FIXME: in the code below, we assume that the initial structure code
+;; has not been tampered with, for example by fmakunbound'ing some readers
+;; afterwards. That would be really nasty, but it's theoretically possible.
 (defmethod stabilize progn
     ((definition typed-structure-slot-definition) definitions
      packages pathnames
