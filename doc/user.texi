@@ -697,6 +697,12 @@ system name.
 The base name of the Info file, sans extension. It defaults to
 @var{FILE-NAME}. This option is provided because the Info file name
 appears in the Texinfo source.
+@item :info-category
+@fkindex{declt,info-category}
+@fkindex{typeset,info-category}
+The category under which the documentation will be listed in Info
+browsers. This corresponds to the @code{@@dircategory} command in
+Texinfo, and defaults to @code{"Common Lisp"}.
 @end table
 
 

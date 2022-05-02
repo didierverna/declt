@@ -38,7 +38,7 @@
 	  :nconc (list key val)))
 
 (defun render-header
-    (report file-name info-name declt-notice current-time-string)
+    (report file-name info-name info-category declt-notice current-time-string)
   "Render the header of the Texinfo file."
   (format t "\\input texinfo~2%@c ~A.texi --- Reference manual~2%" file-name)
 
@@ -267,10 +267,11 @@ The ~A Reference Manual~@[, version ~A~].
 @c ====================================================================
 @c Info Category and Directory
 @c ====================================================================
-@dircategory Common Lisp
+@dircategory ~A
 @direntry
 * ~A Reference Manual: (~A). The ~A Reference Manual.
 @end direntry~4%"
+    info-category
     (escape (library-name report))
     (escape info-name)
     (escape (library-name report)))
@@ -373,6 +374,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 				system-name
 				(string-downcase system-name)))
 		   (info-name file-name)
+		   (info-category "Common Lisp")
 
 	      &aux (current-time-string (current-time-string))
 		   (report (apply #'assess system-name
@@ -401,7 +403,10 @@ The following keyword parameters are also available.
 - FILE-NAME: base name for the generated reference manual, sans extension.
   Defaults to the system name.
 - INFO-NAME: base name for the subsequent Info file, sans extension (this
-  name appears in the Texinfo file). Defaults to FILE-NAME."
+  name appears in the Texinfo file). Defaults to FILE-NAME.
+- INFO-CATEGORY: category under which to install the Info file (technically,
+  this provides the value for Texinfo's @dircategory command).
+  Defaults to \"Common Lisp\"."
   (declare (ignore introspection-level
 		   library-name tagline library-version contact
 		   copyright-years license
@@ -494,8 +499,8 @@ Concepts, functions, variables and data types")
 		       :if-exists :supersede
 		       :if-does-not-exist :create
 		       :external-format :utf8)
-	(render-header report file-name info-name (declt-notice context)
-		       current-time-string)
+	(render-header report file-name info-name info-category
+		       (declt-notice context) current-time-string)
 	(render-top-node top-node)
 	(format t "~%@bye~%~%@c ~A.texi ends here~%" file-name))))
   (values))
