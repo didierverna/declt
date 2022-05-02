@@ -359,60 +359,23 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 @c ====================================================================
 @contents~%"))
 
-(defun declt (system-name
-	      &rest keys
-	      &key introspection-level
-		   library-name tagline library-version contact
-		   copyright-years license
-		   introduction conclusion
+;; #### FIXME: this is only a temporary hack until stages 2 and 3 of the
+;; pipeline are implemented.
+(defun declt-1 (report
+		&rest keys
+		&key locations default-values foreign-definitions
+		     (declt-notice :long)
 
-		   locations default-values foreign-definitions
-		   (declt-notice :long)
-
-		   (output-directory #p"./")
-		   (file-name (if (stringp system-name)
-				system-name
-				(string-downcase system-name)))
-		   (info-name file-name)
-		   (info-category "Common Lisp")
-
-	      &aux (current-time-string (current-time-string))
-		   (report (apply #'assess system-name
-				   (select-keys keys
-				     :introspection-level
-				     :library-name :tagline :library-version
-				     :contact :copyright-years :license
-				     :introduction :conclusion)))
-		   (context (apply #'make-context
-			      (select-keys keys
-				:locations :default-values
-				:foreign-definitions :declt-notice))))
-  "Generate a reference manual for ASDF SYSTEM-NAME.
-The reference manual is currently generated in Texinfo format.
-
-For a description of SYSTEM-NAME, INTROSPECTION-LEVEL, LIBRARY-NAME, TAGLINE,
-LIBRARY-VERSION, CONTACT, COPYRIGHT-YEARS, LICENSE, INTRODUCTION, and
-CONCLUSION, see `assess'.
-
-For a description of LOCATIONS, DEFAULT-VALUES, FOREIGN-DEFINITIONS, and
-DECLT-NOTICE, see `make-context'.
-
-The following keyword parameters are also available.
-- OUTPUT-DIRECTORY: output directory for the generated reference manual.
-  Defaults to the current directory.
-- FILE-NAME: base name for the generated reference manual, sans extension.
-  Defaults to the system name.
-- INFO-NAME: base name for the subsequent Info file, sans extension (this
-  name appears in the Texinfo file). Defaults to FILE-NAME.
-- INFO-CATEGORY: category under which to install the Info file (technically,
-  this provides the value for Texinfo's @dircategory command).
-  Defaults to \"Common Lisp\"."
-  (declare (ignore introspection-level
-		   library-name tagline library-version contact
-		   copyright-years license
-		   introduction conclusion
-
-		   locations default-values foreign-definitions declt-notice))
+		     (output-directory #p"./")
+		     (file-name (library-name report))
+		     (info-name file-name)
+		     (info-category "Common Lisp")
+		&aux (current-time-string (current-time-string))
+		     (context (apply #'make-context
+				(select-keys keys
+				  :locations :default-values
+				  :foreign-definitions :declt-notice))))
+  (declare (ignore locations default-values foreign-definitions declt-notice))
 
   ;; Construct the nodes hierarchy.
   (with-standard-io-syntax
@@ -502,7 +465,56 @@ Concepts, functions, variables and data types")
 	(render-header report file-name info-name info-category
 		       (declt-notice context) current-time-string)
 	(render-top-node top-node)
-	(format t "~%@bye~%~%@c ~A.texi ends here~%" file-name))))
+	(format t "~%@bye~%~%@c ~A.texi ends here~%" file-name)))))
+
+(defun declt (system-name
+	      &rest keys
+	      &key introspection-level
+		   library-name tagline library-version contact
+		   copyright-years license
+		   introduction conclusion
+
+		   locations default-values foreign-definitions declt-notice
+
+		   output-directory file-name info-name info-category)
+  "Generate a reference manual for ASDF SYSTEM-NAME.
+The reference manual is currently generated in Texinfo format.
+
+For a description of SYSTEM-NAME, INTROSPECTION-LEVEL, LIBRARY-NAME, TAGLINE,
+LIBRARY-VERSION, CONTACT, COPYRIGHT-YEARS, LICENSE, INTRODUCTION, and
+CONCLUSION, see `assess'.
+
+For a description of LOCATIONS, DEFAULT-VALUES, FOREIGN-DEFINITIONS, and
+DECLT-NOTICE, see `make-context'.
+
+The following keyword parameters are also available.
+- OUTPUT-DIRECTORY: output directory for the generated reference manual.
+  Defaults to the current directory.
+- FILE-NAME: base name for the generated reference manual, sans extension.
+  Defaults to the system name.
+- INFO-NAME: base name for the subsequent Info file, sans extension (this
+  name appears in the Texinfo file). Defaults to FILE-NAME.
+- INFO-CATEGORY: category under which to install the Info file (technically,
+  this provides the value for Texinfo's @dircategory command).
+  Defaults to \"Common Lisp\"."
+  (declare (ignore introspection-level
+		   library-name tagline library-version contact
+		   copyright-years license
+		   introduction conclusion
+
+		   locations default-values foreign-definitions declt-notice
+
+		   output-directory file-name info-name info-category))
+  (apply #'declt-1
+    (apply #'assess system-name
+	   (select-keys keys
+	     :introspection-level
+	     :library-name :tagline :library-version :contact
+	     :copyright-years :license
+	     :introduction :conclusion))
+    (select-keys keys
+      :locations :default-values :foreign-definitions :declt-notice
+      :output-directory :file-name :info-name :info-category))
   (values))
 
 ;;; declt.lisp ends here
