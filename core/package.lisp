@@ -33,6 +33,7 @@
   (:use :cl :net.didierverna.declt.setup :net.didierverna.declt.assess)
   (:export
     ;; From the :net.didierverna.declt.setup package:
+    ;; - setup/src/version.lisp:
     :*copyright-years*
     :*release-major-level*
     :*release-minor-level*
@@ -40,6 +41,81 @@
     :*release-status-level*
     :*release-name*
     :version
+
+    ;; From the :net.didierverna.declt.assess package:
+    ;; - assess/src/definition.lisp:
+    :definition :uid :source-file :foreignp
+    :name :docstring :public-definitions :private-definitions
+    ;; - assess/src/symbol.lisp:
+    :symbol-definition :definition-symbol :home-package :publicp
+    :varoid-definition
+    :variable-definition :constant-definition :special-definition
+    :symbol-macro-definition
+    :funcoid-definition :setfp :lambda-list
+    :setfable-funcoid-definition :expander-for :expanders-to
+    :accessor-mixin :target-slot
+    :macro-definition
+    :compiler-macro-definition
+    :type-definition
+    :expander-definition :standalone-reader
+    :short-expander-definition :standalone-writer
+    :long-expander-definition
+    :function-definition
+    :ordinary-function-definition
+    :ordinary-accessor-definition
+    :ordinary-reader-definition :ordinary-writer-definition
+    :generic-function-definition :methods :combination :combination-options
+    :generic-accessor-definition
+    :generic-reader-definition :generic-writer-definition
+    :combination-definition :clients
+    :short-combination-definition :standalone-combinator
+    :identity-with-one-argument
+    :long-combination-definition
+    :method-definition :owner :specializers :qualifiers
+    :accessor-method-definition
+    :reader-method-definition :writer-method-definition
+    :classoid-definition :direct-slots
+    :clos-classoid-mixin :direct-default-initargs
+    :direct-superclassoids :direct-subclassoids :direct-methods
+    :condition-definition :direct-superconditions :direct-subconditions
+    :class-definition :direct-superclasses :direct-subclasses
+    :structure-definition
+    :clos-structure-definition :direct-superstructures :direct-substructures
+    :typed-structure-definition :structure-type :element-type
+    :slot-definition :owner :readers :writers :value-type
+    :clos-slot-definition :allocation :initform :initargs
+    :typed-structure-slot-definition
+    :alias-definition :referee
+    :macro-alias-definition
+    :compiler-macro-alias-definition
+    :function-alias-definition
+    ;; - assess/src/package.lisp:
+    :package-definition :use-list :used-by-list :definitions :nicknames
+    :package-definition-p
+    ;; - assess/src/asdf.lisp:
+    :component-definition :location :parent :dependencies
+    :description :long-description :definition-version :if-feature
+    :file-definition :file-definition-p :extension
+    :source-file-definition
+    :lisp-file-definition :definitions
+    :c-file-definition
+    :java-file-definition
+    :static-file-definition
+    :doc-file-definition
+    :html-file-definition
+    :cl-source-file.asd
+    :system-file-definition
+    :module-definition :children :module-definition-p
+    :system-definition :system-definition-p
+    :maintainer-names :maintainer-emails :author-names :author-emails
+    :defsystem-dependencies
+    :long-name :mailto :homepage :source-control :bug-tracker :license-name
+    ;; - assess/src/assess.lisp:
+    :report :assess :library-name :tagline :library-version
+    :contact-names :contact-emails :copyright-years :license
+    :introduction :conclusion
+    :definitions
+
    ;; From package.lisp (this file):
    :nickname-package
    ;; From src/declt.lisp:
