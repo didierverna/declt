@@ -557,7 +557,7 @@ allow to specify or override some bits of information.
 - COPYRIGHT-YEARS: copyright years information or NIL. Defaults to the current
   year.
 - LICENSE: license information. Defaults to NIL. Also accepts :mit, :boost,
-  :bsd, :gpl, and :lgpl.
+  :bsd, :gpl, :lgpl, and :ms-pl.
 - INTRODUCTION: introduction chapter contents in Texinfo format.
   Defaults to NIL.
 - CONCLUSION: conclusion chapter contents in Texinfo format.

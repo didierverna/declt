@@ -111,6 +111,11 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")))
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.")
+    ;; #### NOTE: there is no standard file header for this license.
+    (:ms-pl
+     "The Microsoft Public License"
+     "This program is distributed under the terms of the Microsoft Public
+License.")))
 
 ;;; license.lisp ends here
