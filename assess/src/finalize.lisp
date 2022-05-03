@@ -95,7 +95,7 @@ PACKAGES and PATHNAMES are used to determine domesticity."
     (make-generic-function-definition
      symbol generic
      :setf setf
-     :foreign (not (domesticp symbol (object-source-pathname generic)
+     :foreign (not (domesticp symbol (source-by-object generic)
 		     packages pathnames)))))
 
 (defun new-funcoid-definition
@@ -105,19 +105,19 @@ PACKAGES and PATHNAMES are used to determine domesticity."
   (if macro
     (make-macro-definition
      name macro
-     (not (domesticp name (object-source-pathname macro) packages pathnames)))
+     (not (domesticp name (source-by-object macro) packages pathnames)))
     (let ((function (when (fboundp name) (fdefinition name))))
       (typecase function
 	(generic-function
 	 ;; No need to go through the above here. We have more information.
 	 (make-generic-function-definition
 	  name function
-	  :foreign (not (domesticp name (object-source-pathname function)
+	  :foreign (not (domesticp name (source-by-object function)
 			  packages pathnames))))
 	(otherwise
 	 (make-ordinary-function-definition
 	  name function
-	  :foreign (not (domesticp name (object-source-pathname function)
+	  :foreign (not (domesticp name (source-by-object function)
 			  packages pathnames))))))))
 
 
@@ -247,7 +247,7 @@ DEFINITIONS in the process."
 		(destabilize definitions
 		  (make-macro-definition
 		   name macro
-		   (not (domesticp name (object-source-pathname macro)
+		   (not (domesticp name (source-by-object macro)
 			  packages pathnames)))))))
       (unless (or standalone-reader (foreignp definition))
 	;; #### TODO: perhaps we should check for aliasing here. On the other
@@ -260,14 +260,12 @@ DEFINITIONS in the process."
 		    (generic-function
 		     (make-generic-function-definition
 		      name function
-		      :foreign (not (domesticp name
-					(object-source-pathname function)
+		      :foreign (not (domesticp name (source-by-object function)
 				      packages pathnames))))
 		    (otherwise
 		     (make-ordinary-function-definition
 		      name function
-		      :foreign (not (domesticp name
-					(object-source-pathname function)
+		      :foreign (not (domesticp name (source-by-object function)
 				      packages pathnames)))))))))
       (setf (standalone-reader definition) standalone-reader))))
 
@@ -493,7 +491,7 @@ DEFINITIONS in the process."
 			    (make-method-definition
 			     method
 			     (not (domesticp (method-name method)
-				      (object-source-pathname method)
+				      (source-by-object method)
 				    packages pathnames)))))
 		    (list method-definition)))))
 	  (specializer-direct-methods (classoid definition)))))
@@ -545,13 +543,12 @@ This function is used for regular class and condition slots."
 			  (if method
 			    (make-method-definition
 			     method
-			     (not (domesticp name
-				      (object-source-pathname method)
+			     (not (domesticp name (source-by-object method)
 				    packages pathnames)))
 			    (make-ordinary-function-definition
 			     name funcoid
 			     :foreign (not (domesticp name
-					       (object-source-pathname funcoid)
+					       (source-by-object funcoid)
 					     packages pathnames)))))))
 		(when reader-definition
 		  (change-class reader-definition
@@ -582,13 +579,12 @@ This function is used for regular class and condition slots."
 			  (if method
 			    (make-method-definition
 			     method
-			     (not (domesticp name
-				      (object-source-pathname method)
+			     (not (domesticp name (source-by-object method)
 				    packages pathnames)))
 			    (make-ordinary-function-definition
 			     name funcoid
 			     :foreign (not (domesticp name
-					       (object-source-pathname funcoid)
+					       (source-by-object funcoid)
 					     packages pathnames)))))))
 		(when writer-definition
 		  (change-class writer-definition
@@ -630,8 +626,7 @@ This function is used for regular class and condition slots."
 	      (destabilize definitions
 		(make-ordinary-function-definition
 		 reader-name reader
-		 :foreign (not (domesticp reader-name
-				   (object-source-pathname reader)
+		 :foreign (not (domesticp reader-name (source-by-object reader)
 				 packages pathnames)))))
 	(when writer
 	  (setq writer-definition
@@ -640,7 +635,7 @@ This function is used for regular class and condition slots."
 		   reader-name writer
 		   :setf t
 		   :foreign (not (domesticp reader-name
-				     (object-source-pathname writer)
+				     (source-by-object writer)
 				   packages pathnames)))))))
       (when reader-definition
 	(unless (typep reader-definition 'ordinary-reader-definition)
@@ -696,8 +691,7 @@ This function is used for regular class and condition slots."
 	      (destabilize definitions
 		(make-ordinary-function-definition
 		 reader-name reader
-		 :foreign (not (domesticp reader-name
-				   (object-source-pathname reader)
+		 :foreign (not (domesticp reader-name (source-by-object reader)
 				 packages pathnames)))))
 	(when writer
 	  (setq writer-definition
@@ -706,7 +700,7 @@ This function is used for regular class and condition slots."
 		   reader-name writer
 		   :setf t
 		   :foreign (not (domesticp reader-name
-				     (object-source-pathname writer)
+				     (source-by-object writer)
 				   packages pathnames)))))))
       (when reader-definition
 	(unless (typep reader-definition 'ordinary-reader-definition)
@@ -741,8 +735,7 @@ This function is used for regular class and condition slots."
 	    (destabilize definitions
 	      (make-macro-definition
 	       (funcoid-name macro) macro
-	       (not (domesticp (funcoid-name macro)
-			(object-source-pathname macro)
+	       (not (domesticp (funcoid-name macro) (source-by-object macro)
 		      packages pathnames)))))))
 
 (defmethod stabilize progn
@@ -761,7 +754,7 @@ This function is used for regular class and condition slots."
 		 original-symbol compiler-macro
 		 :setf setfp
 		 :foreign (not (domesticp original-symbol
-				   (object-source-pathname compiler-macro)
+				   (source-by-object compiler-macro)
 				 packages pathnames))))))))
 
 (defmethod stabilize progn
@@ -781,13 +774,13 @@ This function is used for regular class and condition slots."
 		   original-symbol function
 		   :setf setfp
 		   :foreign (not (domesticp original-symbol
-				     (object-source-pathname function)
+				     (source-by-object function)
 				   packages pathnames)))
 		  (make-ordinary-function-definition
 		   original-symbol function
 		   :setf setfp
 		   :foreign (not (domesticp original-symbol
-				     (object-source-pathname function)
+				     (source-by-object function)
 				   packages pathnames)))))))))
 
 

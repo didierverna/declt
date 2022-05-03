@@ -529,7 +529,7 @@ These are generic functions using this combination."
     :accessor clients))
   (:documentation "Root class for method combination definitions."))
 
-;; #### NOTE: we need this because the OBJECT-SOURCE-PATHNAME protocol on a
+;; #### NOTE: we need this because the SOURCE-BY-OBJECT protocol on a
 ;; method-combination-info structure returns an SBCL specific internal file.
 (defmethod source-pathname ((definition combination-definition))
   "Return method combination DEFINITION's source pathname."
@@ -717,7 +717,7 @@ These are conditions, structures, and classes."))
   "Compute classoid DEFINITION's foreign status."
   (setf (foreignp definition)
 	(not
-	 (domesticp (class-name classoid) (object-source-pathname classoid)
+	 (domesticp (class-name classoid) (source-by-object classoid)
 	   packages pathnames))))
 
 ;; #### PORTME.
@@ -766,7 +766,7 @@ which see:
     ((definition clos-classoid-mixin)
      &key packages pathnames
      &aux (classoid (classoid definition))
-	  (source (object-source-pathname classoid)))
+	  (source (source-by-object classoid)))
   "Compute CLOS classoid DEFINITION's slot definitions."
   (dolist (slot (class-direct-slots classoid))
     (let ((slot-definition
@@ -827,7 +827,7 @@ It is T for list structures, but may be something else for vector ones."
     ((definition typed-structure-definition)
      &key packages pathnames
      &aux (structure (definition-structure definition))
-	  (source (object-source-pathname structure)))
+	  (source (source-by-object structure)))
   "Compute typed structure DEFINITION's type, element type, and slots."
   (setf (structure-type definition) (sb-kernel:dd-type structure))
   (setf (element-type definition) (sb-kernel::dd-element-type structure))

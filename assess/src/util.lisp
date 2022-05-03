@@ -40,12 +40,12 @@
 
 ;; #### PORTME.
 (defun source-by-name (name type)
-  "Return NAME's source for TYPE."
+  "Return source pathname for NAMEd object of TYPE."
   (when-let (sources (sb-introspect:find-definition-sources-by-name name type))
     (sb-introspect:definition-source-pathname (first sources))))
 
 ;; #### PORTME.
-(defun object-source-pathname (object)
+(defun source-by-object (object)
   "Return OBJECT's source pathname."
   (when-let (source (sb-introspect:find-definition-source object))
     (sb-introspect:definition-source-pathname source)))

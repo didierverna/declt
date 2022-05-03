@@ -142,6 +142,6 @@ source file is considered foreign."
   ;; #### PORTME.
   (:method (definition)
     "Return DEFINITION's object source pathname (this is the default method)."
-    (object-source-pathname (object definition))))
+    (source-by-object (object definition))))
 
 ;;; definition.lisp ends here

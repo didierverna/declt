@@ -199,7 +199,7 @@ This list contains definitions for packages defined in the corresponding
 files, or for which the source is not found, but the name is of the form
 SYSTEM/... (case insensitive) for one of the corresponding systems."
   (dolist (package packages)
-    (let ((pathname (object-source-pathname package))
+    (let ((pathname (source-by-object package))
 	  (name (package-name package)))
       (when (or (member pathname pathnames :test #'equal)
 		;; #### FIXME: remind me why we need that stuff?
@@ -261,7 +261,7 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
   (when-let (macro (macro-function symbol))
     (let ((original-name (funcoid-name macro)))
       (if (or (not original-name) (eq symbol original-name))
-	(when (domesticp symbol (object-source-pathname macro)
+	(when (domesticp symbol (source-by-object macro)
 		packages pathnames)
 	  (endpush (make-macro-definition symbol macro) definitions))
 	(when (domesticp symbol nil packages pathnames)
@@ -270,7 +270,7 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
   (when-let (compiler-macro (compiler-macro-function symbol))
     (let ((original-name (funcoid-name compiler-macro)))
       (if (or (not original-name) (eq symbol original-name))
-	(when (domesticp symbol (object-source-pathname compiler-macro)
+	(when (domesticp symbol (source-by-object compiler-macro)
 			 packages pathnames)
 	  (endpush (make-compiler-macro-definition symbol compiler-macro)
 		   definitions))
@@ -281,7 +281,7 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
   (when-let (compiler-macro (compiler-macro-function setf-symbol))
     (let ((original-name (funcoid-name compiler-macro)))
       (if (or (not original-name) (equal setf-symbol original-name))
-	(when (domesticp symbol (object-source-pathname compiler-macro)
+	(when (domesticp symbol (source-by-object compiler-macro)
 			 packages pathnames)
 	  (endpush
 	   (make-compiler-macro-definition symbol compiler-macro :setf t)
@@ -308,16 +308,16 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
 	       ;; since the finalization process may add new method
 	       ;; definitions, there may be cases where a computation done
 	       ;; here would end up being invalidated.
-	       (when (domesticp symbol (object-source-pathname function)
+	       (when (domesticp symbol (source-by-object function)
 				packages pathnames)
 		 (endpush (make-generic-function-definition symbol function)
 			  definitions))
 	       (dolist (method (generic-function-methods function))
-		 (when (domesticp symbol (object-source-pathname method)
+		 (when (domesticp symbol (source-by-object method)
 				  packages pathnames)
 		   (endpush (make-method-definition method) definitions))))
 	      (t
-	       (when (domesticp symbol (object-source-pathname function)
+	       (when (domesticp symbol (source-by-object function)
 				packages pathnames)
 		 (endpush (make-ordinary-function-definition symbol function)
 			  definitions))))
@@ -328,17 +328,17 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
     (let ((original-name (funcoid-name function)))
       (if (or (not original-name) (equal setf-symbol original-name))
 	(cond ((typep function 'generic-function)
-	       (when (domesticp symbol (object-source-pathname function)
+	       (when (domesticp symbol (source-by-object function)
 				packages pathnames)
 		 (endpush (make-generic-function-definition symbol function
 							    :setf t)
 			  definitions))
 	       (dolist (method (generic-function-methods function))
-		 (when (domesticp symbol (object-source-pathname method)
+		 (when (domesticp symbol (source-by-object method)
 				  packages pathnames)
 		   (endpush (make-method-definition method) definitions))))
 	      (t
-	       (when (domesticp symbol (object-source-pathname function)
+	       (when (domesticp symbol (source-by-object function)
 				packages pathnames)
 		 (endpush (make-ordinary-function-definition symbol function
 							     :setf t)
@@ -369,7 +369,7 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
   ;; uniquely represented by the entry in SB-PCL::**METHOD-COMBINATIONS**. See
   ;; also the comment about generic function stabilization in finalize.lisp.
   ;; Finally, note that the source information must be retrieved with the
-  ;; SOURCE-BY-NAME protocol, NOT by the OBJECT-SOURCE-PATHNAME one. Indeed,
+  ;; SOURCE-BY-NAME protocol, NOT by the SOURCE-BY-OBJECT one. Indeed,
   ;; the later would return the method-combination-info structure's source
   ;; information, which is an internal SBCL file.
   (when-let (combination (gethash symbol sb-pcl::**method-combinations**))
@@ -398,7 +398,7 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
   ;;    process).
   ;; Structures, classes, and conditions.
   (when-let (classoid (find-class symbol nil))
-    (let ((source (object-source-pathname classoid)))
+    (let ((source (source-by-object classoid)))
       (when (domesticp symbol source packages pathnames)
 	(let ((classoid-definition
 		(make-classoid-definition symbol classoid packages pathnames)))
@@ -407,7 +407,7 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
 	    (endpush slot-definition definitions))))))
   ;; Typed structures.
   (when-let (structure (sb-int:info :typed-structure :info symbol))
-    (let ((source (object-source-pathname structure)))
+    (let ((source (source-by-object structure)))
       (when (domesticp symbol source packages pathnames)
 	(let ((structure-definition
 		(make-classoid-definition symbol structure packages pathnames)))
