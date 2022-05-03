@@ -205,10 +205,13 @@ More specifically:
        (equal (docstring definition) (docstring expander))))
 
 ;; #### TODO: there's the question of offering the option to qualify symbols.
-(defun safe-lambda-list (lambda-list)
+(defun safe-lambda-list (lambda-list &optional safe-specializers)
   "Return a safe LAMBDA-LIST, suitable to pass to Texinfo.
 The original lambda-list's structure is preserved, but all symbols are
-converted to revealed strings, and initform / supplied-p data is removed."
+converted to revealed strings, and initform / supplied-p data is removed.
+SAFE-SPECIALIZERS is provided for method LAMBDA-LISTs. See `safe-specializers'
+for more information. Mandatory arguments associated with a non-nil safe
+specializer are listed together."
   (loop :with post-mandatory
 	:for rest :on lambda-list
 	:for element := (if (and (listp (car rest)) post-mandatory)
@@ -217,7 +220,15 @@ converted to revealed strings, and initform / supplied-p data is removed."
 			    (first (first (car rest)))
 			    (first (car rest)))
 			  (car rest))
-	:if (listp element)
+	:if safe-specializers
+	  ;; #### WARNING: casing policy.
+	  :collect (let ((safe-element (reveal (string-downcase element)))
+			 (safe-specializer (pop safe-specializers)))
+		     (if safe-specializer
+		       (list safe-element safe-specializer)
+		       safe-element))
+	    :into safe-lambda-list
+	:else :if (listp element)
 	  :collect (safe-lambda-list element) :into safe-lambda-list
 	:else :if (member element '(&optional &rest &key &allow-other-keys
 				    &aux &environment &whole &body))
@@ -699,21 +710,26 @@ permitted."
     (definition context &aux (specializers (specializers definition)))
   "Return a list of safe specializers for method DEFINITION in CONTEXT.
 A safe specializer is the printed form of either a reference to a class
-definition, or an EQL specializer's type name. For setf and writer
-definitions, only the specializers rest is used, as these methods get the new
-value as their first argument."
+definition, or an EQL specializer's type name.
+
+Unless the CONTEXT specifies otherwise, T specializers are replaced by NIL to
+indicate that they are not to be advertized.
+
+For setf and writer definitions, only the specializers rest is used, as these
+methods get the new value as their first argument."
   (when (or (setfp definition) (typep definition 'writer-method-definition))
     (setq specializers (cdr specializers)))
-  (loop :for rest :on specializers
-	:for specializer := (car rest)
+  (loop :for specializer :in specializers
 	:collect (typecase specializer
 		   (definition
-		    (with-output-to-string (*standard-output*)
-		      (reference specializer context t (when (cdr rest) #\,))))
+		    (unless (and (not (default-values context))
+				 (eq (object specializer) (find-class t)))
+		      (with-output-to-string (*standard-output*)
+			(reference specializer context t nil))))
 		   ;; #### WARNING: casing policy.
-		   (otherwise (format nil "~(~S~)~:[~;, ~]"
-				(sb-pcl::specializer-type specializer)
-				(cdr rest))))))
+		   (otherwise
+		    (format nil "~(~S~)"
+		      (sb-pcl::specializer-type specializer))))))
 
 (defmethod document :open
     ((definition method-definition) context &key inline writer)
@@ -731,7 +747,8 @@ from that of the owner's."
   (@deffn (string-capitalize (category-name definition))
     ;; #### WARNING: casing policy.
     (string-downcase (safe-name definition))
-    (safe-specializers definition context)
+    (safe-lambda-list (lambda-list definition)
+		      (safe-specializers definition context))
     (when-let (qualifiers (qualifiers definition))
       (format nil "~(~{~S~^ ~}~)" qualifiers)))
   (anchor-and-index definition)
@@ -739,7 +756,8 @@ from that of the owner's."
     (@deffnx (string-capitalize (category-name writer))
 	;; #### WARNING: casing policy.
 	(string-downcase (safe-name writer))
-      (safe-specializers writer context)
+      (safe-lambda-list (lambda-list definition)
+			(safe-specializers writer context))
       (when-let (qualifiers (qualifiers writer))
 	(format nil "~(~{~S~^ ~}~)" qualifiers)))
     (anchor-and-index writer))

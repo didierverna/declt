@@ -8,11 +8,6 @@ Copying and distribution of this file, with or without modification,
 are permitted in any medium without royalty provided the copyright
 notice and this notice are preserved.
 
-** Methods lambda lists
-Right now, we only document method specializers but I think this is a
-regression, although the specializers are rendered in a way nicer than before.
-Methods lambda-lists may vary with keywords, or even mandatory argument names.
-
 ** Merging
 See about standalone methods merging.
 

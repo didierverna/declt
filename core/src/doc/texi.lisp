@@ -109,10 +109,9 @@ characters."
 
 (defun escape-lambda-list (lambda-list)
   "Escape safe LAMBDA-LIST for Texinfo.
-This function expects a value from `safe-lambda-list', or
-`safe-specializers', which see. It returns a string properly escaped for
-Texinfo, apart from &-constructs which retain their original form, and @ref's
-and @t's which are already properly set."
+This function expects a value from `safe-lambda-list', which see. It returns a
+string properly escaped for Texinfo, apart from &-constructs which retain
+their original form, and @ref's and @t's which are already properly set."
   (if lambda-list
     (loop :for rest :on lambda-list
 	  :for element := (car rest)
