@@ -40,17 +40,6 @@
 ;; Local Utilities
 ;; ==========================================================================
 
-;; #### NOTE: SB-INTROSPECT:FIND-DEFINITION-SOURCES-BY-NAME may return
-;; multiple sources (e.g. if we were to ask it for methods) so we take the
-;; first one. This is okay because we actually use it only when there can be
-;; only one definition source.
-
-;; #### PORTME.
-(defun source-by-name (name type)
-  "Return NAME's source for TYPE."
-  (when-let (sources (sb-introspect:find-definition-sources-by-name name type))
-    (sb-introspect:definition-source-pathname (first sources))))
-
 (defun definition-source-by-name (definition type)
   "Return DEFINITION's source for TYPE."
   (source-by-name (name definition) type))
@@ -539,6 +528,12 @@ are writer methods."))
 These are generic functions using this combination."
     :accessor clients))
   (:documentation "Root class for method combination definitions."))
+
+;; #### NOTE: we need this because the OBJECT-SOURCE-PATHNAME protocol on a
+;; method-combination-info structure returns an SBCL specific internal file.
+(defmethod source-pathname ((definition combination-definition))
+  "Return method combination DEFINITION's source pathname."
+  (definition-source-by-name definition :method-combination))
 
 ;; #### PORTME.
 (defmethod docstring ((definition combination-definition))

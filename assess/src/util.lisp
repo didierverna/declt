@@ -33,6 +33,17 @@
 ;; Introspection
 ;; ==========================================================================
 
+;; #### NOTE: SB-INTROSPECT:FIND-DEFINITION-SOURCES-BY-NAME may return
+;; multiple sources (e.g. if we were to ask it for methods) so we take the
+;; first one. This is okay because we actually use it only when there can be
+;; only one definition source.
+
+;; #### PORTME.
+(defun source-by-name (name type)
+  "Return NAME's source for TYPE."
+  (when-let (sources (sb-introspect:find-definition-sources-by-name name type))
+    (sb-introspect:definition-source-pathname (first sources))))
+
 ;; #### PORTME.
 (defun object-source-pathname (object)
   "Return OBJECT's source pathname."

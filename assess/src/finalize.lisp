@@ -335,7 +335,8 @@ DEFINITIONS in the process."
 	    (make-combination-definition
 	     combination-type-name combination
 	     (not (domesticp combination-type-name
-		      (object-source-pathname combination)
+		      (source-by-name combination-type-name
+				      :method-combination)
 		    packages pathnames)))))))
 
 

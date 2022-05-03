@@ -368,8 +368,12 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
   ;; as opposed to every single instantiation of it, is adequately and
   ;; uniquely represented by the entry in SB-PCL::**METHOD-COMBINATIONS**. See
   ;; also the comment about generic function stabilization in finalize.lisp.
+  ;; Finally, note that the source information must be retrieved with the
+  ;; SOURCE-BY-NAME protocol, NOT by the OBJECT-SOURCE-PATHNAME one. Indeed,
+  ;; the later would return the method-combination-info structure's source
+  ;; information, which is an internal SBCL file.
   (when-let (combination (gethash symbol sb-pcl::**method-combinations**))
-    (when (domesticp symbol (object-source-pathname combination)
+    (when (domesticp symbol (source-by-name symbol :method-combination)
 		     packages pathnames)
       (endpush (make-combination-definition symbol combination) definitions)))
   ;; #### WARNING: classoids and their slots are treated differently from

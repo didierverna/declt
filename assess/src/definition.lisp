@@ -133,6 +133,10 @@ source file is considered foreign."
 ;; FIND-DEFINITION-SOURCES-BY-NAME when possible, because it performs some
 ;; checks that we know we don't need. I'm not sure it's worth the trouble
 ;; anymore.
+;; #### UPDATE: in fact, not only is it not worth it, it's dangerous. I've
+;; just been bitten by this on method combinations, for which this default
+;; method returns the wrong information (it works on method-combination-info
+;; structures for which the definition file is an SBCL specific one).
 (defgeneric source-pathname (definition)
   (:documentation "Return DEFINITION's source pathname.")
   ;; #### PORTME.
