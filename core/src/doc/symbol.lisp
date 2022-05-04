@@ -209,10 +209,12 @@ More specifically:
   "Return a safe LAMBDA-LIST, suitable to pass to Texinfo.
 The original lambda-list's structure is preserved, but all symbols are
 converted to revealed strings, and initform / supplied-p data is removed.
-SAFE-SPECIALIZERS is provided for method LAMBDA-LISTs. See `safe-specializers'
-for more information. Mandatory arguments associated with a non-nil safe
-specializer are listed together."
+&whole, &environment, and &aux parts are removed as they don't provide any
+information on the funcoid's usage. SAFE-SPECIALIZERS is provided for method
+LAMBDA-LISTs. See `safe-specializers' for more information. Mandatory
+arguments associated with a non-nil safe specializer are listed together."
   (loop :with post-mandatory
+	:with skip
 	:for rest :on lambda-list
 	:for element := (if (and (listp (car rest)) post-mandatory)
 			  (if (listp (first (car rest)))
@@ -220,6 +222,7 @@ specializer are listed together."
 			    (first (first (car rest)))
 			    (first (car rest)))
 			  (car rest))
+	:until (eq element '&aux) ;; &aux vars will always be at the end
 	:if safe-specializers
 	  ;; #### WARNING: casing policy.
 	  :collect (let ((safe-element (reveal (string-downcase element)))
@@ -228,17 +231,22 @@ specializer are listed together."
 		       (list safe-element safe-specializer)
 		       safe-element))
 	    :into safe-lambda-list
+	:else :if skip
+	  :do (setq skip nil)
+	:else :if (member element '(&whole &environment))
+	  :do (setq skip t)
 	:else :if (listp element)
 	  :collect (safe-lambda-list element) :into safe-lambda-list
-	:else :if (member element '(&optional &rest &key &allow-other-keys
-				    &aux &environment &whole &body))
+	:else :if (member element
+			  '(&optional &rest &key &allow-other-keys &body))
 		;; #### WARNING: casing policy.
 		:collect (string-downcase element) :into safe-lambda-list
 		:and :do (setq post-mandatory t)
 			 ;; #### WARNING: casing policy.
 	:else :collect (reveal (string-downcase element))
 		:into safe-lambda-list
-	:finally (progn (when rest ;; dotted list
+	:finally (progn (when (and rest (not (eq element '&aux)))
+			  ;; dotted list
 			  (setf (cdr (last safe-lambda-list))
 				;; #### WARNING: casing policy.
 				(reveal (string-downcase rest))))
