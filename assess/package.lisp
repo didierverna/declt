@@ -81,57 +81,64 @@
     :definition :object :uid :source-file :foreignp
     :name :docstring :public-definitions :private-definitions
     ;; From src/symbol.lisp:
-    :symbol-definition :definition-symbol :home-package :publicp
+    :symbol-definition :definition-symbol :home-package
+    :symbol-definition-p :publicp
     :varoid-definition
     :variable-definition :constant-definition :special-definition
     :symbol-macro-definition
-    :funcoid-definition :setfp :lambda-list
+    :funcoid-definition :funcoid :setfp :lambda-list
     :setfable-funcoid-definition :expander-for :expanders-to
     :accessor-mixin :target-slot
-    :macro-definition
-    :compiler-macro-definition
-    :type-definition
-    :expander-definition :standalone-reader
-    :short-expander-definition :standalone-writer
+    :macro-definition :macro
+    :compiler-macro-definition :definition-compiler-macro
+    :type-definition :expander
+    :expander-definition :expander :standalone-reader
+    :short-expander-definition :standalone-writer :short-expander-definition-p
     :long-expander-definition
-    :function-definition
+    :function-definition :definition-function
     :ordinary-function-definition
     :ordinary-accessor-definition
     :ordinary-reader-definition :ordinary-writer-definition
-    :generic-function-definition :methods :combination :combination-options
+    :generic-function-definition :generic :methods
+    :combination :combination-options
     :generic-accessor-definition
     :generic-reader-definition :generic-writer-definition
-    :combination-definition :clients
+    :combination-definition :combination :clients
     :short-combination-definition :standalone-combinator
     :identity-with-one-argument
     :long-combination-definition
-    :method-definition :owner :specializers :qualifiers
+    :method-definition :definition-method :owner :specializers
+    :method-definition-p :qualifiers
     :accessor-method-definition
-    :reader-method-definition :writer-method-definition
-    :classoid-definition :direct-slots
-    :clos-classoid-mixin :direct-default-initargs
-    :direct-superclassoids :direct-subclassoids :direct-methods
-    :condition-definition :direct-superconditions :direct-subconditions
-    :class-definition :direct-superclasses :direct-subclasses
-    :structure-definition
+    :reader-method-definition :reader-method-definition-p
+    :writer-method-definition :writer-method-definition-p
+    :classoid-definition :classoid :direct-slots
+    :clos-classoid-mixin :direct-superclassoids :direct-subclassoids
+    :direct-methods :direct-default-initargs
+    :condition-definition :definition-condition
+    :direct-superconditions :direct-subconditions
+    :class-definition :definition-class :direct-superclasses :direct-subclasses
+    :structure-definition :definition-structure
     :clos-structure-definition :direct-superstructures :direct-substructures
     :typed-structure-definition :structure-type :element-type
-    :slot-definition :owner :readers :writers :value-type
+    :slot-definition :slot :owner :readers :writers :value-type
     :clos-slot-definition :allocation :initform :initargs
     :typed-structure-slot-definition
-    :alias-definition :referee
+    :alias-definition :setfp :referee
     :macro-alias-definition
     :compiler-macro-alias-definition
     :function-alias-definition
     ;; From src/package.lisp:
-    :package-definition :use-list :used-by-list :definitions :nicknames
+    :package-definition :definition-package
+    :use-list :used-by-list :definitions :nicknames
     :package-definition-p
     ;; From src/asdf.lisp:
-    :component-definition :location :parent :dependencies
+    :component-definition :component :location :parent :dependencies
+    :component-definition-p
     :description :long-description :definition-version :if-feature
-    :file-definition :file-definition-p :extension
+    :file-definition :file :file-definition-p :extension
     :source-file-definition
-    :lisp-file-definition :definitions
+    :lisp-file-definition :definitions :lisp-file-definition-p
     :c-file-definition
     :java-file-definition
     :static-file-definition
@@ -139,15 +146,17 @@
     :html-file-definition
     :cl-source-file.asd
     :system-file-definition
-    :module-definition :children :module-definition-p
-    :system-definition :system-definition-p
+    :module-definition :module :children :module-definition-p
+    :system-definition :system
     :maintainer-names :maintainer-emails :author-names :author-emails
     :defsystem-dependencies
+    :system-definition-p
     :long-name :mailto :homepage :source-control :bug-tracker :license-name
     ;; From src/assess.lisp:
-    :report :assess :library-name :tagline :library-version
+    :report :library-name :tagline :library-version
     :contact-names :contact-emails :copyright-years :license
     :introduction :conclusion
-    :definitions))
+    :definitions
+    :assess))
 
 ;;; package.lisp ends here

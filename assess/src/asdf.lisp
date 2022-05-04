@@ -56,7 +56,13 @@
     :documentation
     "The list of dependency definitions for this definition's component."
     :accessor dependencies))
-  (:documentation "Abstract root class for ASDF components."))
+  (:documentation "Abstract root class for ASDF components.
+All component definitions respond to the following public protocols, which
+see:
+- `description'
+- `long-description'
+- `definition-version'
+- `if-feature'."))
 
 (defmethod initialize-instance :after
     ((definition component-definition)
@@ -302,7 +308,14 @@ definition for each file."
    (defsystem-dependencies
      :documentation "The list of defsystem dependency definitions."
      :accessor defsystem-dependencies))
-  (:documentation "The class of ASDF system definitions."))
+  (:documentation "The class of ASDF system definitions.
+All system definitions respond to the following public protocols, which see:
+- `long-name',
+- `mailto',
+- `homepage',
+- `source-control',
+- `bug-tracker',
+- `license-name'."))
 
 (defun system-definition-p (definition)
   "Return T if DEFINITION is a system definition."

@@ -477,7 +477,10 @@ structure."))
     :documentation
     "The method combination definition for this definition's generic function."
     :initform nil :accessor combination))
-  (:documentation "The class of generic function definitions."))
+  (:documentation "The class of generic function definitions.
+All generic function definitions respond to the following public protocols,
+which see:
+- `combination-options'."))
 
 ;; #### PORTME.
 (defun combination-options (definition)
@@ -866,7 +869,9 @@ It is T for list structures, but may be something else for vector ones."
    (writers
     :documentation "The list of definitions for this definition's slot writers."
     :initform nil :accessor writers))
-  (:documentation "Abstract root class for slots."))
+  (:documentation "Abstract root class for slots.
+All slot definitions respond to the following public protocols, which see:
+- `value-type'."))
 
 ;; #### WARNING: we need this because apparently, the source slot in slot
 ;; objects in SBCL is unbound. It's ok to access the owner because slots are
@@ -882,7 +887,12 @@ It is T for list structures, but may be something else for vector ones."
 
 (defclass clos-slot-definition (slot-definition)
   ()
-  (:documentation "The class of CLOS slot definitions."))
+  (:documentation "The class of CLOS slot definitions.
+All CLOS slot definitions respond to the following public protocols, which
+see:
+- `allocation',
+- `initform',
+- `initargs'."))
 
 (defun make-clos-slot-definition (slot &optional foreign)
   "Make a new CLOS SLOT definition, possibly FOREIGN."

@@ -51,7 +51,10 @@
    (definitions
     :documentation "The list of corresponding definitions."
     :accessor definitions))
-  (:documentation "The class of package definitions."))
+  (:documentation "The class of package definitions.
+All package definitions respond to the following public protocols, which
+see:
+- `nicknames'."))
 
 (defun package-definition-p (definition)
   "Return T if DEFINITION is a package definition."
