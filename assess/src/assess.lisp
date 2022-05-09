@@ -464,14 +464,10 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
 	    :accessor tagline)
    (library-version :documentation "The library's version."
 		    :accessor library-version)
-   (contact-names :documentation "The list of contact names for the library.
-This list is coupled with that of contact emails, and hence may contain null
-elements (in case a contact was provided with an email but no name)."
-		  :accessor contact-names)
-   (contact-emails :documentation "The list of contact emails for the library.
-This list is coupled with that of contact names, and hence may contain null
-elements (in case a contact was provided with a name but no email)."
-		   :accessor contact-emails)
+   (contacts :documentation "The list of contacts for the library.
+Each element is of the form (NAME . EMAIL) where both NAME and EMAIL are
+strings or NIL, and cannot be null at the same time."
+	     :accessor contacts)
    (copyright-years :documentation "A copyright years string."
 		    :accessor copyright-years)
    (license :documentation "The library's license."
@@ -537,7 +533,6 @@ SYSTEM-NAME is an ASDF system designator."
 	  introduction
 	  conclusion
      &aux (system (load-system system-name))
-	  contact-names contact-emails
 	  (report (make-report)))
   "Extract and return documentation information for ASDF SYSTEM-NAME.
 The documentation information is returned in a REPORT structure, which see.
@@ -555,9 +550,9 @@ allow to specify or override some bits of information.
   Defaults to the system long name or description.
 - LIBRARY-VERSION: version information, or NIL.
   Defaults to the system version.
-- CONTACT: contact information, or NIL. Defaults to the system maintainer(s)
-  and author(s). Accepts a contact string, or a list of such. See
-  `parse-contact-string' for more information.
+- CONTACT: contact information, or NIL. The default value is computed from the
+  system maintainer(s), author(s), and mailto information. Accepts a contact
+  string, or a list of such. See `parse-contact-string' for more information.
 - COPYRIGHT-YEARS: copyright years information or NIL. Defaults to the current
   year.
 - LICENSE: license information. Defaults to NIL. Also accepts :mit, :boost,
@@ -583,23 +578,25 @@ allow to specify or override some bits of information.
   (unless (one-liner-p library-version)
     (setq library-version nil))
   (setf (library-version report) library-version)
-  (unless contactp
-    (setq contact (system-author system))
-    (when (stringp contact) (setq contact (list contact)))
-    (cond ((stringp (system-maintainer system))
-	   (push (system-maintainer system) contact))
-	  ((consp (system-maintainer system))
-	   (setq contact (append (system-maintainer system) contact)))))
-  (multiple-value-bind (names emails) (|parse-contact(s)| contact)
-    (setq contact-names names
-	  contact-emails emails))
-  (when (and (= (length contact-names) 1)
-	     (not contactp)
-	     (null (car contact-emails))
-	     (one-liner-p (system-mailto system)))
-    (setq contact-emails (list (system-mailto system))))
-  (setf (contact-names report) contact-names)
-  (setf (contact-emails report) contact-emails)
+  (cond (contactp
+	 (setf (contacts report) (|parse-contact(s)| contact)))
+	(t
+	 (setq contact (system-author system))
+	 (when (stringp contact) (setq contact (list contact)))
+	 (typecase (system-maintainer system)
+	   (string (push (system-maintainer system) contact))
+	   (cons (setq contact (append (system-maintainer system) contact))))
+	 (let ((contacts (|parse-contact(s)| contact))
+	       (mailto (when (one-liner-p (system-mailto system))
+			 (validate-email (system-mailto system)))))
+	   (cond ((and (= (length contacts) 1)
+		       (null (cdr (car contacts)))
+		       mailto)
+		  (setf (cdr (car contacts)) mailto))
+		 (t
+		  (unless (find mailto contacts :key #'cdr :test #'string=)
+		    (endpush (cons nil mailto) contacts))))
+	   (setf (contacts report) contacts))))
   (setq copyright-years
 	(or copyright-years
 	    (multiple-value-bind (second minute hour date month year)

@@ -313,25 +313,26 @@ Modules are listed depth-first from the system components tree.")))))
   (when-let (long-name (long-name definition))
     (item ("Long Name") (format t "~A~%" (escape long-name))))
   #i(render-contacts 1)
-  (flet ((render-contacts (category names emails)
-	   "Render a CATEGORY contact list of NAMES and EMAILS."
-	   ;; Both names and emails are null or not at the same time.
-	   (when names
+  (flet ((render-contacts (category contacts)
+	   "Render a CATEGORY CONTACTS list."
+	   (when contacts
 	     (item ((format nil
-			(concatenate 'string category "~P") (length names)))
+			(concatenate 'string category "~P") (length contacts)))
 	       ;; #### FIXME: @* and map ugliness. I'm sure FORMAT can do all
 	       ;; #### this.
 	       (format t "~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
-		 (escape (car names)) (car emails) (escape (car emails)))
-	       (mapc (lambda (name email)
+		 (escape (caar contacts))
+		 (cdar contacts)
+		 (escape (cdar contacts)))
+	       (mapc (lambda (contact)
 		       (format t "@*~%~@[~A~]~:[~; ~]~@[<@email{~A}>~]"
-			 (escape name) email (escape email)))
-		 (cdr names) (cdr emails)))
+			 (escape (car contact))
+			 (cdr contact)
+			 (escape (cdr contact))))
+		 (cdr contacts)))
 	     (terpri))))
-    (render-contacts "Maintainer"
-      (maintainer-names definition) (maintainer-emails definition))
-    (render-contacts "Author"
-      (author-names definition) (author-emails definition)))
+    (render-contacts "Maintainer" (maintainers definition))
+    (render-contacts "Author" (authors definition)))
   (when-let (mailto (mailto definition))
     (item ("Contact") (format t "@email{~A}~%" (escape mailto))))
   (when-let (homepage (homepage definition))

@@ -113,46 +113,36 @@ Return that string, or issue a warning and return NIL."
     (warn "Invalid email address: ~A." string)))
 
 (defun parse-contact-string
-    (string &aux (pos-< (position #\< string))
-		 (pos-> (position #\> string)))
-  "Parse STRING as \"My Name <my@address>\".
+    (string &aux (pos-< (position #\< string)) (pos-> (position #\> string)))
+  "Parse STRING of the form \"My Name <my@address>\".
 Both name and address are optional. If only an address is provided, the angle
-brackets may be omitted. Return name and address, as two potentially NIL
-values."
+brackets may be omitted.
+If neither a name nor an address can be extracted, return NIL. Otherwise,
+return the list (\"My Name\" . \"my@address\"). In such a case, either the CAR
+or the CDR may be null, but not both."
   (when (one-liner-p string)
     (cond ((and pos-< pos-> (< pos-< pos->))
 	   (let ((name (if (zerop pos-<)
 			 ""
 			 (string-trim '(#\Space #\Tab)
-				      (subseq string 0 (1- pos-<))))))
-	     (when (zerop (length name))
-	       (setq name nil))
-	     (values name (validate-email (subseq string (1+ pos-<) pos->)))))
+				      (subseq string 0 (1- pos-<)))))
+		 (email (validate-email (subseq string (1+ pos-<) pos->))))
+	     (when (zerop (length name)) (setq name nil))
+	     (when (or name email) (cons name email))))
 	  ((position #\@ string)
-	   (values nil (validate-email string)))
+	   (let ((email (validate-email string) ))
+	     (when email (cons nil email))))
 	  (t
-	   (setq string (string-trim '(#\Space #\Tab) string))
-	   (values (unless (zerop (length string)) string) nil)))))
+	   (let ((name (string-trim '(#\Space #\Tab) string)))
+	     (unless (zerop (length name)) (list name)))))))
 
 (defun |parse-contact(s)| (|contact(s)|)
   "Parse CONTACT(S) as either a contact string, or a list of such.
-A contact string is of the form \"My Name <my@address>\", both name and
-address being optional.
-
-Return two values: a list of name(s) and a list of address(es). The two lists
-maintain correspondence between names and addresses: they are of the same
-length and may contain null elements, for contact strings lacking either
-one."
-  (if (stringp |contact(s)|)
-    (multiple-value-bind (name email) (parse-contact-string |contact(s)|)
-      (when (or name email)
-	(values (list name) (list email))))
-    (loop :for contact-string
-	    :in (remove-duplicates |contact(s)| :from-end t :test #'string=)
-	  :for (name email)
-	    := (multiple-value-list (parse-contact-string contact-string))
-	  :when (or name email)
-	    :collect name :into names :and :collect email :into emails
-	  :finally (return (values names emails)))))
+Return a list of parsed contacts. See `parse-contact-string' for more
+information."
+  (when (stringp |contact(s)|) (setq |contact(s)| (list |contact(s)|)))
+  (remove nil
+	  (mapcar #'parse-contact-string
+	    (remove-duplicates |contact(s)| :from-end t :test #'string=))))
 
 ;;; util.lisp ends here

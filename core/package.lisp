@@ -113,14 +113,12 @@
     :cl-source-file.asd
     :system-file-definition
     :module-definition :module :children :module-definition-p
-    :system-definition :system
-    :maintainer-names :maintainer-emails :author-names :author-emails
-    :defsystem-dependencies
+    :system-definition :system :maintainers :authors :defsystem-dependencies
     :system-definition-p
     :long-name :mailto :homepage :source-control :bug-tracker :license-name
     ;; - assess/src/assess.lisp:
-    :report :library-name :tagline :library-version
-    :contact-names :contact-emails :copyright-years :license
+    :report :library-name :tagline :library-version :contacts
+    :copyright-years :license
     :introduction :conclusion
     :definitions
     :assess

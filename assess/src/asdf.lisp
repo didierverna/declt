@@ -293,18 +293,14 @@ definition for each file."
 (defclass system-definition (module-definition)
   ((object :initarg :system :reader system) ;; slot overload
    (parent :initform nil) ;; slot -overload
-   (maintainer-names
-    :documentation "The list of maintainer names."
-    :initform nil :accessor maintainer-names)
-   (maintainer-emails
-    :documentation "The list of maintainer emails."
-    :initform nil :accessor maintainer-emails)
-   (author-names
-    :documentation "The list of author names."
-    :initform nil :accessor author-names)
-   (author-emails
-    :documentation "The list of maintainer emails."
-    :initform nil :accessor author-emails)
+   (maintainers
+    :documentation "The list of parsed maintainer contacts.
+See `parse-contact-string' for more information."
+    :initform nil :accessor maintainers)
+   (authors
+    :documentation "The list of parsed author contacts.
+See `parse-contact-string' for more information."
+    :initform nil :accessor authors)
    (defsystem-dependencies
      :documentation "The list of defsystem dependency definitions."
      :accessor defsystem-dependencies))
@@ -323,17 +319,11 @@ All system definitions respond to the following public protocols, which see:
 
 (defmethod initialize-instance :after
     ((definition system-definition) &key &aux (system (system definition)))
-  "Extract names and emails for authors and maintainers."
-  (multiple-value-bind (maintainers emails)
-      (|parse-contact(s)| (system-maintainer system))
-    (when maintainers
-      (setf (maintainer-names definition) maintainers)
-      (setf (maintainer-emails definition) emails)))
-  (multiple-value-bind (authors emails)
-      (|parse-contact(s)| (system-author system))
-    (when authors
-      (setf (author-names definition) authors)
-      (setf (author-emails definition) emails))))
+  "Extract author and maintainer contacts."
+  (setf (maintainers definition)
+	(|parse-contact(s)| (system-maintainer system)))
+  (setf (authors definition)
+	(|parse-contact(s)| (system-author system))))
 
 (defun make-system-definition (system &optional foreign)
   "Make a new SYSTEM definition."

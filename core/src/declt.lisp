@@ -38,20 +38,24 @@
 	  :nconc (list key val)))
 
 (defun render-header
-    (report file-name info-name info-category declt-notice current-time-string)
+    (report file-name info-name info-category declt-notice current-time-string
+     &aux (contact-names
+	   ;; #### NOTE: we already removed the duplicates in the original
+	   ;; contact list, but there may still be duplicates in the names,
+	   ;; for instance if somebody used his name several times, with a
+	   ;; different email address.
+	   (remove-duplicates
+	       (remove-if #'null (mapcar #'car (contacts report)))
+	     :from-end t :test #'string=)))
   "Render the header of the Texinfo file."
   (format t "\\input texinfo~2%@c ~A.texi --- Reference manual~2%" file-name)
 
   (when (copyright-years report)
     (mapc (lambda (name)
 	    (format t "@c Copyright (C) ~A ~A~%"
-	      (copyright-years report) name))
-      ;; #### NOTE: we already removed the duplicates in the original contact
-      ;; list, but there may still be duplicates in the names, for instance if
-      ;; somebody used his name several times, with a different email
-      ;; address.
-      (remove-duplicates (remove-if #'null (contact-names report))
-	:from-end t :test #'string=))
+	      (copyright-years report)
+	      name))
+      contact-names)
     (terpri))
 
   (format t "@c This file is part of ~A.~2%" (library-name report))
@@ -289,12 +293,7 @@ The ~A Reference Manual~@[, version ~A~].
 	      (format t "Copyright @copyright{} ~A ~A~%"
 		(escape (copyright-years report))
 		(escape name)))
-	;; #### NOTE: we already removed the duplicates in the original
-	;; contact list, but there may still be duplicates in the names, for
-	;; instance if somebody used his name several times, with a different
-	;; email address.
-	(remove-duplicates (remove-if #'null (contact-names report))
-	  :from-end t :test #'string=))
+	contact-names)
       (terpri))
     (format t "~
 Permission is granted to make and distribute verbatim copies of this
@@ -332,10 +331,12 @@ except that this permission notice may be translated as well.
 	  (and (tagline report) (library-version report))
 	  (escape (library-version report)))
 	""))
-  (mapc (lambda (name email)
+  (mapc (lambda (contact)
 	  (format t "@author ~@[~A~]~:[~; ~]~@[<@email{~A}>~]~%"
-	    (escape name) email (escape email)))
-    (contact-names report) (contact-emails report))
+	    (escape (car contact))
+	    (cdr contact)
+	    (escape (cdr contact))))
+    (contacts report))
   (terpri)
   (when (or declt-notice (license report))
     (format t "@page~%"))
