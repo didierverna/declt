@@ -915,35 +915,11 @@ Several aspects of reports and their contents deserve a special mention
 however. This is the purpose of this section.
 
 @menu
-* Contacts::                    Two lists in sync
 * Definitions List::            Unorganized and flat
 * Definitions::                 Hierarchy overview
 @end menu
 
-@node Contacts, Definitions List, Reports, Reports
-@subsubsection Contacts
-@fkindex{declt,contact}
-@fkindex{assess,contact}
-@clssindex{report,contact-names}
-@clssindex{report,contact-emails}
-@clssindex{system,maintainer}
-@clssindex{system,author}
-@clssindex{system,mailto}
-The report class provides two slots named @code{contact-names} and
-@code{contact-emails}, which are filled in from different sources of
-information, namely, the ASDF system's @code{maintainer}, @code{author},
-and @code{mailto} slots, or from the @code{contact} argument to the
-@code{declt} and @code{assess} functions.
-
-These two slots contain lists of names (respectively emails) that are
-meant to be in sync: they are of the same length and the n@sup{@i{th}}
-contact for the library is represented by the n@sup{@i{th}} name and the
-n@sup{@i{th}} email. The important thing to keep in mind is that because
-those two lists are kept in sync, whenever a contact is missing a name
-(respectively an email), the corresponding list will contain @code{nil}
-instead.
-
-@node Definitions List, Definitions, Contacts, Reports
+@node Definitions List, Definitions, Reports, Reports
 @subsubsection Definitions List
 @cindex Definitions List
 @cindex Definition
@@ -1006,6 +982,15 @@ simply denoted as @code{foo}. Abstract classes are drawn in red boxes
 with bold text, regular classes in blue boxes with normal font, and
 mixins (also abstract) in green ellipses with bold text.
 
+@float Figure,fig:definitions
+@ifinfo
+@center@image{declt-user-data/definitions,7cm}
+@end ifinfo
+@ifnotinfo
+@center@image{definitions,7cm}
+@end ifnotinfo
+@caption{Main definition categories}
+@end float
 @clsindex{definition}
 @clsindex{component-definition}
 @clsindex{package-definition}
@@ -1017,16 +1002,16 @@ and @code{symbol-definition} is the root class of all programmatic
 definitions named by symbols. The @code{definition} root class provides
 common properties, such as a reference to the corresponding Lisp object
 (when applicable), source information, and foreign status.
-@float Figure,fig:definitions
+
+@float Figure,fig:components
 @ifinfo
-@center@image{declt-user-data/definitions,7cm}
+@center@image{declt-user-data/components,9cm}
 @end ifinfo
 @ifnotinfo
-@center@image{definitions,7cm}
+@center@image{components,9cm}
 @end ifnotinfo
-@caption{Main definition categories}
+@caption{ASDF component definitions}
 @end float
-
 @clsindex{component-definition}
 @clsindex{module-definition}
 @clsindex{system-definition}
@@ -1042,15 +1027,6 @@ common properties, such as a reference to the corresponding Lisp object
 @ref{fig:components} depicts the hierarchy of ASDF definitions.
 Unsurprisingly, this hierarchy closely follows that of actual ASDF
 components, although some peculiarities are worth mentioning here.
-@float Figure,fig:components
-@ifinfo
-@center@image{declt-user-data/components,9cm}
-@end ifinfo
-@ifnotinfo
-@center@image{components,9cm}
-@end ifnotinfo
-@caption{ASDF component definitions}
-@end float
 @itemize
 @item
 @clsindex{cl-source-file}
@@ -1071,6 +1047,10 @@ is aware of this and removes such definitions, so as to avoid
 duplication.
 @end itemize
 
+The hierarchy of definitions named by symbols (under the
+@code{symbol-definition} class) is quite large, so it is split into four
+figures.
+
 @clsindex{symbol-definition}
 @cindex Varoid
 @float Figure,fig:varoids
@@ -1082,11 +1062,8 @@ duplication.
 @end ifnotinfo
 @caption{Varoid definitions}
 @end float
-The hierarchy of definitions named by symbols (under the
-@code{symbol-definition} class) is quite large, so it is split into four
-figures. The @dfn{varoid} ones (@ref{fig:varoids}) represent simple
-values having symbolic names. This boils down to variables, symbol
-macros, and slots.
+The @dfn{varoid} ones (@ref{fig:varoids}) represent simple values having
+symbolic names. This boils down to variables, symbol macros, and slots.
 
 @cindex Funcoid
 @cindex Setfable funcoid
@@ -1133,6 +1110,15 @@ use the accessor mixin). A generic function will be qualified as a
 @dfn{generic reader} (respectively a @dfn{generic writer}) if all its
 methods have been identified as reader (respectively writer) methods.
 
+@float Figure,fig:classoids
+@ifinfo
+@center@image{declt-user-data/classoids,12cm}
+@end ifinfo
+@ifnotinfo
+@center@image{classoids,12cm}
+@end ifnotinfo
+@caption{Classoid definitions}
+@end float
 @cindex Classoid
 @cindex CLOS classoid mixin
 @cindex Mixin, CLOS classoid
@@ -1146,21 +1132,7 @@ classoid mixin provides super- and sub-classoid information, but this
 may change in the future. Indeed, it is perhaps possible to trace back
 @code{:include} information for typed structures as well, but this is
 not currently implemented.
-@float Figure,fig:classoids
-@ifinfo
-@center@image{declt-user-data/classoids,12cm}
-@end ifinfo
-@ifnotinfo
-@center@image{classoids,12cm}
-@end ifnotinfo
-@caption{Classoid definitions}
-@end float
 
-@cindex Alias
-Finally, the last group of symbol definitions is for @dfn{aliases}, that
-is, globally defined (compiler) macros or functions that are also
-manually attached to other symbols. Aliases are known to @declt{} so as
-to avoid duplicating documentation.
 @float Figure,fig:aliases
 @ifinfo
 @center@image{declt-user-data/aliases,12cm}
@@ -1170,6 +1142,11 @@ to avoid duplicating documentation.
 @end ifnotinfo
 @caption{Alias definitions}
 @end float
+@cindex Alias
+Finally, the last group of symbol definitions is for @dfn{aliases}, that
+is, globally defined (compiler) macros or functions that are also
+manually attached to other symbols. Aliases are known to @declt{} so as
+to avoid duplicating documentation.
 
 
 @c --------
