@@ -589,11 +589,10 @@ allow to specify or override some bits of information.
 	 (let ((contacts (|parse-contact(s)| contact)))
 	   (when-let (mailto (when (one-liner-p (system-mailto system))
 			       (validate-email (system-mailto system))))
-	     (cond ((and (= (length contacts) 1) (null (cdr (car contacts))))
-		    (setf (cdr (car contacts)) mailto))
-		   (t
-		    (unless (find mailto contacts :key #'cdr :test #'string=)
-		      (endpush (cons nil mailto) contacts)))))
+	     (if (and (= (length contacts) 1) (null (cdr (car contacts))))
+	       (setf (cdr (car contacts)) mailto)
+	       (unless (find mailto contacts :key #'cdr :test #'string=)
+		 (endpush (cons nil mailto) contacts))))
 	   (setf (contacts report) contacts))))
   (setq copyright-years
 	(or copyright-years
