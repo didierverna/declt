@@ -1,4 +1,4 @@
-;;; net.didierverna.setup.setup.asd --- ASDF system definition
+;;; net.didierverna.setup.setup.asd --- Declt setup ASDF system definition
 
 ;; Copyright (C) 2015, 2021, 2022 Didier Verna
 
@@ -28,7 +28,7 @@
 (defsystem :net.didierverna.declt.setup
   :long-name
   "Documentation Extractor from Common Lisp to Texinfo, setup library"
-  :description "Declt's preload setup library"
+  :description "Declt's preload setup"
   :long-description "\
 The Declt setup library provides support for various preload configuration
 parameters and meta-utilities. For a more complete description of Declt,

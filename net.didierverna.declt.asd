@@ -1,4 +1,4 @@
-;;; net.didierverna.declt.asd --- ASDF system definition
+;;; net.didierverna.declt.asd --- Declt ASDF system definition
 
 ;; Copyright (C) 2010-2013, 2015, 2022 Didier Verna
 
@@ -28,6 +28,7 @@
 
 (asdf:load-system :net.didierverna.declt.setup)
 
+;; #### PORTME.
 (asdf:defsystem :net.didierverna.declt
   :long-name "Documentation Extractor from Common Lisp to Texinfo"
   :description "A reference manual generator for Common Lisp libraries"

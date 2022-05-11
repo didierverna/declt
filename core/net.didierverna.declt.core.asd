@@ -1,4 +1,4 @@
-;;; net.didierverna.declt.core.asd --- ASDF system definition, core library
+;;; net.didierverna.declt.core.asd --- Declt core ASDF system definition
 
 ;; Copyright (C) 2015, 2021, 2022 Didier Verna
 
@@ -29,10 +29,10 @@
 (defsystem :net.didierverna.declt.core
   :long-name
   "Documentation Extractor from Common Lisp to Texinfo, core library"
-  :description "A reference manual generator for Common Lisp libraries"
+  :description "Declt's core functionality"
   :long-description "\
-Declt's core functionality. For a more complete description of Declt, see the
-net.didierverna.declt system."
+The Declt core library provides the main functionality of Declt. For a more
+complete description of Declt, see the `net.didierverna.declt' system."
   :author "Didier Verna"
   :mailto "didier@didierverna.net"
   :homepage

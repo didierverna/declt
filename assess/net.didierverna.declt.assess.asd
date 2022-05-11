@@ -1,4 +1,4 @@
-;;; net.didierverna.declt.assess.asd --- Declt assessment library, ASDF system
+;;; net.didierverna.declt.assess.asd --- Declt assessment ASDF system definition
 
 ;; Copyright (C) 2021, 2022 Didier Verna
 
@@ -29,10 +29,9 @@
 (defsystem :net.didierverna.declt.assess
   :long-name
   "Documentation Extractor from Common Lisp to Texinfo, assessment library"
-  :description
-  "Declt library for extracting information from ASDF systems"
+  :description "Declt's information gathering pipeline stage"
   :long-description
-  "The Declt library that collects information from ASDF systems by
+  "The Declt assessment library collects information from ASDF systems by
 introspection, and produces an abstract representation, independent from both
 the final manual's organization and the output format. For a more complete
 description of Declt, see the `net.didierverna.declt' system."
