@@ -38,7 +38,8 @@ the final manual's organization and the output format. For a more complete
 description of Declt, see the `net.didierverna.declt' system."
   :author "Didier Verna"
   :mailto "didier@didierverna.net"
-  :homepage "http://www.lrde.epita.fr/~didier/software/lisp/misc.php#declt"
+  :homepage
+  "http://www.lrde.epita.fr/~didier/software/lisp/typesetting.php#declt"
   :source-control "https://github.com/didierverna/declt"
   :license "BSD"
    :version (:read-file-line #p"../make/version.make"

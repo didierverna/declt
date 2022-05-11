@@ -1,6 +1,6 @@
 ;;; net.didierverna.declt.asd --- ASDF system definition
 
-;; Copyright (C) 2010-2013, 2015 Didier Verna
+;; Copyright (C) 2010-2013, 2015, 2022 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -42,7 +42,8 @@ Reference manuals are generated in Texinfo format which can subsequently be
 converted into info, HTML, DVI, PostScript or PDF."
   :author "Didier Verna"
   :mailto "didier@didierverna.net"
-  :homepage "http://www.lrde.epita.fr/~didier/software/lisp/misc.php#declt"
+  :homepage
+  "http://www.lrde.epita.fr/~didier/software/lisp/typesetting.php#declt"
   :source-control "https://github.com/didierverna/declt"
   :license "BSD"
   :version #.(net.didierverna.declt.setup:version :short)
