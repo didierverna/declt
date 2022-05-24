@@ -106,7 +106,7 @@ PACKAGES and PATHNAMES are used to determine domesticity."
     (make-macro-definition
      name macro
      (not (domesticp name (source-by-object macro) packages pathnames)))
-    (let ((function (when (fboundp name) (fdefinition name))))
+    (when-let (function (when (fboundp name) (fdefinition name)))
       (typecase function
 	(generic-function
 	 ;; No need to go through the above here. We have more information.
