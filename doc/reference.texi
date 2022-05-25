@@ -21,8 +21,8 @@
 
 @c Commentary:
 
-@c Generated automatically by Declt version 4.0 beta 1 "William Riker"
-@c on Mon May 09 15:01:54 2022 GMT+1.
+@c Generated automatically by Declt version 4.0 beta 2 "William Riker"
+@c on Wed May 25 10:19:08 2022 GMT+1.
 
 
 @c ====================================================================
@@ -102,7 +102,7 @@
 @c ====================================================================
 @setchapternewpage odd
 @documentdescription
-The Declt Reference Manual, version 4.0 beta 1 "William Riker".
+The Declt Reference Manual, version 4.0 beta 2 "William Riker".
 @end documentdescription
 
 
@@ -264,13 +264,13 @@ except that this permission notice may be translated as well.
 @c ====================================================================
 @titlepage
 @title The Declt Reference Manual
-@subtitle Documentation Extractor from Common Lisp to Texinfo, version 4.0 beta 1 "William Riker"
+@subtitle Documentation Extractor from Common Lisp to Texinfo, version 4.0 beta 2 "William Riker"
 
 @author Didier Verna <@email{didier@atchar{}didierverna.net}>
 
 @page
 @quotation
-This manual was generated automatically by Declt 4.0 beta 1 "William Riker" on Mon May 09 15:01:54 2022 GMT+1.
+This manual was generated automatically by Declt 4.0 beta 2 "William Riker" on Wed May 25 10:19:08 2022 GMT+1.
 @end quotation
 @vskip 0pt plus 1filll
 @insertcopying
@@ -291,9 +291,9 @@ This manual was generated automatically by Declt 4.0 beta 1 "William Riker" on M
 @ifnottex
 @node Top, Copying, (dir), (dir)
 @top The Declt Reference Manual
-This is the Declt Reference Manual, version 4.0 beta 1 "William Riker",
-generated automatically by Declt version 4.0 beta 1 "William Riker"
-on Mon May 09 15:01:54 2022 GMT+1.
+This is the Declt Reference Manual, version 4.0 beta 2 "William Riker",
+generated automatically by Declt version 4.0 beta 2 "William Riker"
+on Wed May 25 10:19:08 2022 GMT+1.
 
 @menu
 * Copying:: The BSD License
@@ -441,7 +441,7 @@ Didier Verna
 @item Contact
 @email{didier@atchar{}didierverna.net}
 @item Home Page
-@uref{http://www.lrde.epita.fr/~didier/software/lisp/misc.php@hashchar{}declt}
+@uref{http://www.lrde.epita.fr/~didier/software/lisp/typesetting.php@hashchar{}declt}
 @item Source Control
 @uref{https://github.com/didierverna/declt}
 @item License
@@ -477,7 +477,7 @@ converted into info@comma{} HTML@comma{} DVI@comma{} PostScript or PDF.
 @section @t{net.didierverna.declt.setup}
 @anchor{❨2❩}@c
 @systemindex{net.didierverna.declt.setup}@c
-Declt's preload setup library
+Declt's preload setup
 @table @strong
 @item Long Name
 Documentation Extractor from Common Lisp to Texinfo@comma{} setup library
@@ -486,7 +486,7 @@ Didier Verna
 @item Contact
 @email{didier@atchar{}didierverna.net}
 @item Home Page
-@uref{http://www.lrde.epita.fr/~didier/software/lisp/misc.php@hashchar{}declt}
+@uref{http://www.lrde.epita.fr/~didier/software/lisp/typesetting.php@hashchar{}declt}
 @item Source Control
 @uref{https://github.com/didierverna/declt}
 @item License
@@ -517,7 +517,7 @@ see the `net.didierverna.declt' system.
 @section @t{net.didierverna.declt.core}
 @anchor{❨3❩}@c
 @systemindex{net.didierverna.declt.core}@c
-A reference manual generator for Common Lisp libraries
+Declt's core functionality
 @table @strong
 @item Long Name
 Documentation Extractor from Common Lisp to Texinfo@comma{} core library
@@ -526,15 +526,15 @@ Didier Verna
 @item Contact
 @email{didier@atchar{}didierverna.net}
 @item Home Page
-@uref{http://www.lrde.epita.fr/~didier/software/lisp/misc.php@hashchar{}declt}
+@uref{http://www.lrde.epita.fr/~didier/software/lisp/typesetting.php@hashchar{}declt}
 @item Source Control
 @uref{https://github.com/didierverna/declt}
 @item License
 BSD
 @item Long Description
 
-Declt's core functionality. For a more complete description of Declt@comma{} see the
-net.didierverna.declt system.
+The Declt core library provides the main functionality of Declt. For a more
+complete description of Declt@comma{} see the `net.didierverna.declt' system.
 @item If Feature
 @t{:sbcl}
 @item Dependencies
@@ -565,7 +565,7 @@ net.didierverna.declt system.
 @section @t{net.didierverna.declt.assess}
 @anchor{❨4❩}@c
 @systemindex{net.didierverna.declt.assess}@c
-Declt library for extracting information from ASDF systems
+Declt's information gathering pipeline stage
 @table @strong
 @item Long Name
 Documentation Extractor from Common Lisp to Texinfo@comma{} assessment library
@@ -574,13 +574,13 @@ Didier Verna
 @item Contact
 @email{didier@atchar{}didierverna.net}
 @item Home Page
-@uref{http://www.lrde.epita.fr/~didier/software/lisp/misc.php@hashchar{}declt}
+@uref{http://www.lrde.epita.fr/~didier/software/lisp/typesetting.php@hashchar{}declt}
 @item Source Control
 @uref{https://github.com/didierverna/declt}
 @item License
 BSD
 @item Long Description
-The Declt library that collects information from ASDF systems by
+The Declt assessment library collects information from ASDF systems by
 introspection@comma{} and produces an abstract representation@comma{} independent from both
 the final manual's organization and the output format. For a more complete
 description of Declt@comma{} see the `net.didierverna.declt' system.
@@ -1022,7 +1022,7 @@ components trees.
 @item Parent Component
 @ref{❨7❩, , @t{util}}@: (module).
 @item Internals
-@ref{❨632❩, , @t{current-time-string}}@: (function).
+@ref{❨631❩, , @t{current-time-string}}@: (function).
 @end table
 
 @node The net․didierverna․declt․core/src/doc/texi․lisp file, The net․didierverna․declt․core/src/doc/doc․lisp file, The net․didierverna․declt․core/src/util/misc․lisp file, Lisp files
@@ -1037,9 +1037,9 @@ components trees.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨641❩, , @t{%deffn}}@: (function).
+@ref{❨642❩, , @t{%deffn}}@: (function).
 @item
-@ref{❨636❩, , @t{*fragile-characters*}}@: (special variable).
+@ref{❨638❩, , @t{*fragile-characters*}}@: (special variable).
 @item
 @ref{❨746❩, , @t{*section-names*}}@: (special variable).
 @item
@@ -1049,7 +1049,7 @@ components trees.
 @item
 @ref{❨673❩, , @t{@atchar{}deffn}}@: (function).
 @item
-@ref{❨638❩, , @t{@atchar{}deffnx}}@: (function).
+@ref{❨639❩, , @t{@atchar{}deffnx}}@: (function).
 @item
 @ref{❨830❩, , @t{@atchar{}deftp}}@: (function).
 @item
@@ -1063,7 +1063,7 @@ components trees.
 @item
 @ref{❨689❩, , @t{@atchar{}multitable}}@: (function).
 @item
-@ref{❨629❩, , @t{@atchar{}ref}}@: (function).
+@ref{❨717❩, , @t{@atchar{}ref}}@: (function).
 @item
 @ref{❨827❩, , @t{@atchar{}table}}@: (function).
 @item
@@ -1071,21 +1071,21 @@ components trees.
 @item
 @ref{❨754❩, , @t{copy-node}}@: (function).
 @item
-@ref{❨781❩, , @t{deffn}}@: (macro).
+@ref{❨783❩, , @t{deffn}}@: (macro).
 @item
 @ref{❨719❩, , @t{deftp}}@: (macro).
 @item
-@ref{❨637❩, , @t{defvr}}@: (macro).
+@ref{❨636❩, , @t{defvr}}@: (macro).
 @item
-@ref{❨630❩, , @t{escape}}@: (function).
+@ref{❨629❩, , @t{escape}}@: (function).
 @item
 @ref{❨693❩, , @t{escape-anchor}}@: (function).
 @item
-@ref{❨642❩, , @t{escape-label}}@: (function).
+@ref{❨643❩, , @t{escape-label}}@: (function).
 @item
-@ref{❨631❩, , @t{escape-lambda-list}}@: (function).
+@ref{❨630❩, , @t{escape-lambda-list}}@: (function).
 @item
-@ref{❨769❩, , @t{first-word-length}}@: (function).
+@ref{❨771❩, , @t{first-word-length}}@: (function).
 @item
 @ref{❨763❩, , @t{item}}@: (macro).
 @item
@@ -1095,21 +1095,21 @@ components trees.
 @item
 @ref{❨745❩, , @t{make-node}}@: (function).
 @item
-@ref{❨635❩, , @t{multitable}}@: (macro).
+@ref{❨637❩, , @t{multitable}}@: (macro).
 @item
 @ref{❨696❩, , @t{node}}@: (structure).
 @item
-@ref{❨633❩, , @t{node-after-menu-contents}}@: (reader).
+@ref{❨623❩, , @t{node-after-menu-contents}}@: (reader).
 @item
-@ref{❨634❩, , @t{(setf node-after-menu-contents)}}@: (writer).
+@ref{❨624❩, , @t{(setf node-after-menu-contents)}}@: (writer).
 @item
 @ref{❨757❩, , @t{node-before-menu-contents}}@: (reader).
 @item
 @ref{❨758❩, , @t{(setf node-before-menu-contents)}}@: (writer).
 @item
-@ref{❨772❩, , @t{node-children}}@: (reader).
+@ref{❨774❩, , @t{node-children}}@: (reader).
 @item
-@ref{❨773❩, , @t{(setf node-children)}}@: (writer).
+@ref{❨775❩, , @t{(setf node-children)}}@: (writer).
 @item
 @ref{❨755❩, , @t{node-name}}@: (reader).
 @item
@@ -1119,7 +1119,7 @@ components trees.
 @item
 @ref{❨753❩, , @t{(setf node-next)}}@: (writer).
 @item
-@ref{❨767❩, , @t{node-p}}@: (function).
+@ref{❨709❩, , @t{node-p}}@: (function).
 @item
 @ref{❨625❩, , @t{node-previous}}@: (reader).
 @item
@@ -1133,21 +1133,21 @@ components trees.
 @item
 @ref{❨722❩, , @t{(setf node-section-type)}}@: (writer).
 @item
-@ref{❨685❩, , @t{node-synopsis}}@: (reader).
+@ref{❨684❩, , @t{node-synopsis}}@: (reader).
 @item
-@ref{❨686❩, , @t{(setf node-synopsis)}}@: (writer).
+@ref{❨685❩, , @t{(setf node-synopsis)}}@: (writer).
 @item
-@ref{❨825❩, , @t{node-up}}@: (reader).
+@ref{❨768❩, , @t{node-up}}@: (reader).
 @item
-@ref{❨826❩, , @t{(setf node-up)}}@: (writer).
+@ref{❨769❩, , @t{(setf node-up)}}@: (writer).
 @item
-@ref{❨771❩, , @t{read-next-line}}@: (function).
+@ref{❨773❩, , @t{read-next-line}}@: (function).
 @item
 @ref{❨694❩, , @t{render-node}}@: (function).
 @item
 @ref{❨711❩, , @t{render-text}}@: (function).
 @item
-@ref{❨639❩, , @t{render-to-string}}@: (macro).
+@ref{❨640❩, , @t{render-to-string}}@: (macro).
 @item
 @ref{❨831❩, , @t{render-top-node}}@: (function).
 @item
@@ -1169,33 +1169,33 @@ components trees.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨766❩, , @t{*blanks*}}@: (special variable).
+@ref{❨767❩, , @t{*blanks*}}@: (special variable).
 @item
 @ref{❨833❩, , @t{anchor}}@: (function).
 @item
 @ref{❨695❩, , @t{anchor-and-index}}@: (function).
 @item
-@ref{❨770❩, , @t{anchor-name}}@: (function).
+@ref{❨772❩, , @t{anchor-name}}@: (function).
 @item
-@ref{❨645❩, , @t{category-name}}@: (generic function).
+@ref{❨646❩, , @t{category-name}}@: (generic function).
 @item
-@ref{❨680❩, , @t{context}}@: (class).
+@ref{❨679❩, , @t{context}}@: (class).
 @item
 @ref{❨750❩, , @t{declt-notice}}@: (reader method).
 @item
-@ref{❨624❩, , @t{default-values}}@: (reader method).
+@ref{❨634❩, , @t{default-values}}@: (reader method).
 @item
-@ref{❨784❩, , @t{document}}@: (generic function).
+@ref{❨786❩, , @t{document}}@: (generic function).
 @item
-@ref{❨824❩, , @t{document}}@: (method combination).
+@ref{❨826❩, , @t{document}}@: (method combination).
 @item
-@ref{❨679❩, , @t{foreign-definitions}}@: (reader method).
+@ref{❨678❩, , @t{foreign-definitions}}@: (reader method).
 @item
-@ref{❨717❩, , @t{index}}@: (function).
+@ref{❨686❩, , @t{index}}@: (function).
 @item
 @ref{❨723❩, , @t{index-command-name}}@: (generic function).
 @item
-@ref{❨783❩, , @t{locations}}@: (reader method).
+@ref{❨785❩, , @t{locations}}@: (reader method).
 @item
 @ref{❨751❩, , @t{long-title}}@: (function).
 @item
@@ -1209,7 +1209,7 @@ components trees.
 @item
 @ref{❨761❩, , @t{reveal}}@: (function).
 @item
-@ref{❨774❩, , @t{safe-name}}@: (generic function).
+@ref{❨776❩, , @t{safe-name}}@: (generic function).
 @end itemize
 @end table
 
@@ -1227,15 +1227,13 @@ components trees.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨675❩, , @t{*categories*}}@: (special variable).
+@ref{❨674❩, , @t{*categories*}}@: (special variable).
 @item
 @ref{❨832❩, , @t{add-categories-node}}@: (function).
 @item
-@ref{❨677❩, , @t{add-category-node}}@: (function).
+@ref{❨676❩, , @t{add-category-node}}@: (function).
 @item
-@ref{❨672❩, , @t{add-definitions-node}}@: (function).
-@item
-@ref{❨650❩, , @t{category-name}}@: (method).
+@ref{❨632❩, , @t{add-definitions-node}}@: (function).
 @item
 @ref{❨651❩, , @t{category-name}}@: (method).
 @item
@@ -1279,9 +1277,7 @@ components trees.
 @item
 @ref{❨671❩, , @t{category-name}}@: (method).
 @item
-@ref{❨791❩, , @t{document}}@: (method).
-@item
-@ref{❨792❩, , @t{document}}@: (method).
+@ref{❨672❩, , @t{category-name}}@: (method).
 @item
 @ref{❨793❩, , @t{document}}@: (method).
 @item
@@ -1343,6 +1339,10 @@ components trees.
 @item
 @ref{❨822❩, , @t{document}}@: (method).
 @item
+@ref{❨823❩, , @t{document}}@: (method).
+@item
+@ref{❨824❩, , @t{document}}@: (method).
+@item
 @ref{❨728❩, , @t{index-command-name}}@: (method).
 @item
 @ref{❨729❩, , @t{index-command-name}}@: (method).
@@ -1377,27 +1377,27 @@ components trees.
 @item
 @ref{❨627❩, , @t{merge-expander-p}}@: (function).
 @item
-@ref{❨674❩, , @t{merge-generic-writer}}@: (function).
+@ref{❨764❩, , @t{merge-generic-writer}}@: (function).
 @item
 @ref{❨628❩, , @t{merge-methods}}@: (function).
 @item
-@ref{❨709❩, , @t{merge-ordinary-writer}}@: (function).
+@ref{❨710❩, , @t{merge-ordinary-writer}}@: (function).
 @item
-@ref{❨764❩, , @t{render-definition-core}}@: (function).
+@ref{❨765❩, , @t{render-definition-core}}@: (function).
 @item
 @ref{❨716❩, , @t{render-headline}}@: (function).
 @item
 @ref{❨622❩, , @t{render-package-reference}}@: (function).
 @item
-@ref{❨768❩, , @t{safe-lambda-list}}@: (function).
-@item
-@ref{❨777❩, , @t{safe-name}}@: (method).
-@item
-@ref{❨778❩, , @t{safe-name}}@: (method).
+@ref{❨770❩, , @t{safe-lambda-list}}@: (function).
 @item
 @ref{❨779❩, , @t{safe-name}}@: (method).
 @item
-@ref{❨644❩, , @t{safe-specializers}}@: (function).
+@ref{❨780❩, , @t{safe-name}}@: (method).
+@item
+@ref{❨781❩, , @t{safe-name}}@: (method).
+@item
+@ref{❨645❩, , @t{safe-specializers}}@: (function).
 @end itemize
 @end table
 
@@ -1415,11 +1415,11 @@ components trees.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨676❩, , @t{add-packages-node}}@: (function).
+@ref{❨675❩, , @t{add-packages-node}}@: (function).
 @item
-@ref{❨649❩, , @t{category-name}}@: (method).
+@ref{❨650❩, , @t{category-name}}@: (method).
 @item
-@ref{❨790❩, , @t{document}}@: (method).
+@ref{❨792❩, , @t{document}}@: (method).
 @item
 @ref{❨727❩, , @t{index-command-name}}@: (method).
 @end itemize
@@ -1439,21 +1439,17 @@ components trees.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨710❩, , @t{add-files-node}}@: (function).
+@ref{❨635❩, , @t{add-files-node}}@: (function).
 @item
 @ref{❨718❩, , @t{add-modules-node}}@: (function).
 @item
-@ref{❨640❩, , @t{add-systems-node}}@: (function).
-@item
-@ref{❨646❩, , @t{category-name}}@: (method).
+@ref{❨641❩, , @t{add-systems-node}}@: (function).
 @item
 @ref{❨647❩, , @t{category-name}}@: (method).
 @item
 @ref{❨648❩, , @t{category-name}}@: (method).
 @item
-@ref{❨785❩, , @t{document}}@: (method).
-@item
-@ref{❨786❩, , @t{document}}@: (method).
+@ref{❨649❩, , @t{category-name}}@: (method).
 @item
 @ref{❨787❩, , @t{document}}@: (method).
 @item
@@ -1461,7 +1457,11 @@ components trees.
 @item
 @ref{❨789❩, , @t{document}}@: (method).
 @item
-@ref{❨643❩, , @t{file-node}}@: (function).
+@ref{❨790❩, , @t{document}}@: (method).
+@item
+@ref{❨791❩, , @t{document}}@: (method).
+@item
+@ref{❨644❩, , @t{file-node}}@: (function).
 @item
 @ref{❨724❩, , @t{index-command-name}}@: (method).
 @item
@@ -1473,9 +1473,9 @@ components trees.
 @item
 @ref{❨687❩, , @t{render-dependency}}@: (function).
 @item
-@ref{❨775❩, , @t{safe-name}}@: (method).
+@ref{❨777❩, , @t{safe-name}}@: (method).
 @item
-@ref{❨776❩, , @t{safe-name}}@: (method).
+@ref{❨778❩, , @t{safe-name}}@: (method).
 @end itemize
 @end table
 
@@ -1495,7 +1495,7 @@ components trees.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨765❩, , @t{declt-1}}@: (function).
+@ref{❨766❩, , @t{declt-1}}@: (function).
 @item
 @ref{❨828❩, , @t{render-header}}@: (function).
 @item
@@ -1528,21 +1528,21 @@ components trees.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨539❩, , @t{one-liner-p}}@: (function).
+@ref{❨566❩, , @t{one-liner-p}}@: (function).
 @item
-@ref{❨535❩, , @t{parse-contact(s)}}@: (function).
+@ref{❨569❩, , @t{parse-contact(s)}}@: (function).
 @item
-@ref{❨575❩, , @t{parse-contact-string}}@: (function).
+@ref{❨501❩, , @t{parse-contact-string}}@: (function).
 @item
-@ref{❨582❩, , @t{reorder-dependency-def}}@: (function).
+@ref{❨509❩, , @t{reorder-dependency-def}}@: (function).
 @item
-@ref{❨524❩, , @t{reordered-dependency-def-system}}@: (function).
+@ref{❨533❩, , @t{reordered-dependency-def-system}}@: (function).
 @item
-@ref{❨558❩, , @t{source-by-name}}@: (function).
+@ref{❨492❩, , @t{source-by-name}}@: (function).
 @item
-@ref{❨585❩, , @t{source-by-object}}@: (function).
+@ref{❨512❩, , @t{source-by-object}}@: (function).
 @item
-@ref{❨543❩, , @t{validate-email}}@: (function).
+@ref{❨506❩, , @t{validate-email}}@: (function).
 @end itemize
 @end table
 
@@ -1589,11 +1589,11 @@ components trees.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨566❩, , @t{domesticp}}@: (function).
+@ref{❨524❩, , @t{domesticp}}@: (function).
 @item
-@ref{❨526❩, , @t{find-definition}}@: (function).
+@ref{❨515❩, , @t{find-definition}}@: (function).
 @item
-@ref{❨547❩, , @t{source-pathname}}@: (generic function).
+@ref{❨576❩, , @t{source-pathname}}@: (generic function).
 @end itemize
 @end table
 
@@ -1609,7 +1609,7 @@ components trees.
 @item Parent Component
 @ref{❨9❩, , @t{src}}@: (module).
 @item Internals
-@ref{❨496❩, , @t{*licenses*}}@: (special variable).
+@ref{❨508❩, , @t{*licenses*}}@: (special variable).
 @end table
 
 @node The net․didierverna․declt․assess/src/symbol․lisp file, The net․didierverna․declt․assess/src/package․lisp file, The net․didierverna․declt․assess/src/license․lisp file, Lisp files
@@ -1927,59 +1927,59 @@ components trees.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨541❩, , @t{definition-source-by-name}}@: (function).
+@ref{❨571❩, , @t{definition-source-by-name}}@: (function).
 @item
-@ref{❨536❩, , @t{make-classoid-definition}}@: (function).
+@ref{❨521❩, , @t{make-classoid-definition}}@: (function).
 @item
-@ref{❨491❩, , @t{make-clos-slot-definition}}@: (function).
+@ref{❨507❩, , @t{make-clos-slot-definition}}@: (function).
 @item
-@ref{❨574❩, , @t{make-combination-definition}}@: (function).
+@ref{❨590❩, , @t{make-combination-definition}}@: (function).
 @item
-@ref{❨525❩, , @t{make-compiler-macro-alias-definition}}@: (function).
+@ref{❨528❩, , @t{make-compiler-macro-alias-definition}}@: (function).
 @item
-@ref{❨559❩, , @t{make-compiler-macro-definition}}@: (function).
+@ref{❨541❩, , @t{make-compiler-macro-definition}}@: (function).
 @item
-@ref{❨561❩, , @t{make-constant-definition}}@: (function).
+@ref{❨502❩, , @t{make-constant-definition}}@: (function).
 @item
-@ref{❨573❩, , @t{make-expander-definition}}@: (function).
+@ref{❨540❩, , @t{make-expander-definition}}@: (function).
 @item
-@ref{❨497❩, , @t{make-function-alias-definition}}@: (function).
+@ref{❨568❩, , @t{make-function-alias-definition}}@: (function).
 @item
-@ref{❨546❩, , @t{make-generic-function-definition}}@: (function).
+@ref{❨491❩, , @t{make-generic-function-definition}}@: (function).
 @item
-@ref{❨545❩, , @t{make-macro-alias-definition}}@: (function).
+@ref{❨532❩, , @t{make-macro-alias-definition}}@: (function).
 @item
-@ref{❨577❩, , @t{make-macro-definition}}@: (function).
+@ref{❨516❩, , @t{make-macro-definition}}@: (function).
 @item
-@ref{❨502❩, , @t{make-method-definition}}@: (function).
+@ref{❨592❩, , @t{make-method-definition}}@: (function).
 @item
-@ref{❨489❩, , @t{make-ordinary-function-definition}}@: (function).
+@ref{❨499❩, , @t{make-ordinary-function-definition}}@: (function).
 @item
-@ref{❨499❩, , @t{make-special-definition}}@: (function).
+@ref{❨523❩, , @t{make-special-definition}}@: (function).
 @item
-@ref{❨500❩, , @t{make-symbol-macro-definition}}@: (function).
+@ref{❨589❩, , @t{make-symbol-macro-definition}}@: (function).
 @item
-@ref{❨592❩, , @t{make-type-definition}}@: (function).
+@ref{❨500❩, , @t{make-type-definition}}@: (function).
 @item
-@ref{❨529❩, , @t{make-typed-structure-slot-definition}}@: (function).
+@ref{❨493❩, , @t{make-typed-structure-slot-definition}}@: (function).
 @item
-@ref{❨534❩, , @t{method-name}}@: (function).
+@ref{❨543❩, , @t{method-name}}@: (function).
 @item
-@ref{❨549❩, , @t{source-pathname}}@: (method).
+@ref{❨578❩, , @t{source-pathname}}@: (method).
 @item
-@ref{❨550❩, , @t{source-pathname}}@: (method).
+@ref{❨579❩, , @t{source-pathname}}@: (method).
 @item
-@ref{❨551❩, , @t{source-pathname}}@: (method).
+@ref{❨580❩, , @t{source-pathname}}@: (method).
 @item
-@ref{❨552❩, , @t{source-pathname}}@: (method).
+@ref{❨581❩, , @t{source-pathname}}@: (method).
 @item
-@ref{❨553❩, , @t{source-pathname}}@: (method).
+@ref{❨582❩, , @t{source-pathname}}@: (method).
 @item
-@ref{❨554❩, , @t{source-pathname}}@: (method).
+@ref{❨583❩, , @t{source-pathname}}@: (method).
 @item
-@ref{❨555❩, , @t{source-pathname}}@: (method).
+@ref{❨584❩, , @t{source-pathname}}@: (method).
 @item
-@ref{❨556❩, , @t{source-pathname}}@: (method).
+@ref{❨585❩, , @t{source-pathname}}@: (method).
 @end itemize
 @end table
 
@@ -2028,19 +2028,19 @@ components trees.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨493❩, , @t{external-symbols}}@: (reader method).
+@ref{❨496❩, , @t{external-symbols}}@: (reader method).
 @item
-@ref{❨495❩, , @t{(setf external-symbols)}}@: (writer method).
+@ref{❨498❩, , @t{(setf external-symbols)}}@: (writer method).
 @item
-@ref{❨588❩, , @t{internal-symbols}}@: (reader method).
+@ref{❨535❩, , @t{internal-symbols}}@: (reader method).
 @item
-@ref{❨590❩, , @t{(setf internal-symbols)}}@: (writer method).
+@ref{❨537❩, , @t{(setf internal-symbols)}}@: (writer method).
 @item
-@ref{❨544❩, , @t{make-package-definition}}@: (function).
+@ref{❨518❩, , @t{make-package-definition}}@: (function).
 @item
-@ref{❨568❩, , @t{package-external-symbols}}@: (function).
+@ref{❨527❩, , @t{package-external-symbols}}@: (function).
 @item
-@ref{❨565❩, , @t{package-internal-symbols}}@: (function).
+@ref{❨511❩, , @t{package-internal-symbols}}@: (function).
 @end itemize
 @end table
 
@@ -2169,17 +2169,17 @@ components trees.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨572❩, , @t{make-file-definition}}@: (function).
+@ref{❨525❩, , @t{make-file-definition}}@: (function).
 @item
-@ref{❨576❩, , @t{make-module-definition}}@: (function).
+@ref{❨575❩, , @t{make-module-definition}}@: (function).
 @item
-@ref{❨581❩, , @t{make-system-definition}}@: (function).
+@ref{❨519❩, , @t{make-system-definition}}@: (function).
 @item
-@ref{❨532❩, , @t{make-system-file-definition}}@: (function).
+@ref{❨539❩, , @t{make-system-file-definition}}@: (function).
 @item
-@ref{❨533❩, , @t{make-system-file-definitions}}@: (function).
+@ref{❨591❩, , @t{make-system-file-definitions}}@: (function).
 @item
-@ref{❨548❩, , @t{source-pathname}}@: (method).
+@ref{❨577❩, , @t{source-pathname}}@: (method).
 @end itemize
 @end table
 
@@ -2197,25 +2197,25 @@ components trees.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨490❩, , @t{*stabilized*}}@: (special variable).
+@ref{❨517❩, , @t{*stabilized*}}@: (special variable).
 @item
-@ref{❨571❩, , @t{destabilize}}@: (macro).
+@ref{❨587❩, , @t{destabilize}}@: (macro).
 @item
-@ref{❨580❩, , @t{finalize}}@: (function).
+@ref{❨572❩, , @t{finalize}}@: (function).
 @item
-@ref{❨584❩, , @t{freeze}}@: (function).
+@ref{❨514❩, , @t{freeze}}@: (function).
 @item
-@ref{❨531❩, , @t{new-funcoid-definition}}@: (function).
+@ref{❨530❩, , @t{new-funcoid-definition}}@: (function).
 @item
-@ref{❨586❩, , @t{new-generic-definition}}@: (function).
+@ref{❨567❩, , @t{new-generic-definition}}@: (function).
 @item
-@ref{❨563❩, , @t{resolve-dependency-specification}}@: (function).
+@ref{❨505❩, , @t{resolve-dependency-specification}}@: (function).
 @item
-@ref{❨503❩, , @t{stabilize}}@: (generic function).
+@ref{❨545❩, , @t{stabilize}}@: (generic function).
 @item
-@ref{❨562❩, , @t{stabilize-clos-classoid-slot}}@: (function).
+@ref{❨531❩, , @t{stabilize-clos-classoid-slot}}@: (function).
 @item
-@ref{❨578❩, , @t{stabilize-clos-structure-slot}}@: (function).
+@ref{❨494❩, , @t{stabilize-clos-structure-slot}}@: (function).
 @end itemize
 @end table
 
@@ -2278,39 +2278,39 @@ components trees.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨530❩, , @t{components}}@: (function).
+@ref{❨574❩, , @t{components}}@: (function).
 @item
-@ref{❨540❩, , @t{file-components}}@: (function).
+@ref{❨526❩, , @t{file-components}}@: (function).
 @item
-@ref{❨527❩, , @t{funcoid-name}}@: (function).
+@ref{❨538❩, , @t{funcoid-name}}@: (function).
 @item
-@ref{❨538❩, , @t{load-system}}@: (function).
+@ref{❨510❩, , @t{load-system}}@: (function).
 @item
-@ref{❨570❩, , @t{make-all-file-definitions}}@: (function).
+@ref{❨490❩, , @t{make-all-file-definitions}}@: (function).
 @item
-@ref{❨564❩, , @t{make-all-module-definitions}}@: (function).
+@ref{❨588❩, , @t{make-all-module-definitions}}@: (function).
 @item
-@ref{❨542❩, , @t{make-all-package-definitions}}@: (function).
+@ref{❨544❩, , @t{make-all-package-definitions}}@: (function).
 @item
-@ref{❨501❩, , @t{make-all-symbol-definitions}}@: (function).
+@ref{❨520❩, , @t{make-all-symbol-definitions}}@: (function).
 @item
-@ref{❨498❩, , @t{make-all-system-definitions}}@: (function).
+@ref{❨529❩, , @t{make-all-system-definitions}}@: (function).
 @item
-@ref{❨560❩, , @t{make-report}}@: (function).
+@ref{❨513❩, , @t{make-report}}@: (function).
 @item
-@ref{❨591❩, , @t{make-symbol-definitions}}@: (function).
+@ref{❨573❩, , @t{make-symbol-definitions}}@: (function).
 @item
-@ref{❨569❩, , @t{module-components}}@: (function).
+@ref{❨503❩, , @t{module-components}}@: (function).
 @item
-@ref{❨537❩, , @t{package-symbols}}@: (function).
+@ref{❨504❩, , @t{package-symbols}}@: (function).
 @item
-@ref{❨583❩, , @t{sub-component-p}}@: (function).
+@ref{❨542❩, , @t{sub-component-p}}@: (function).
 @item
-@ref{❨567❩, , @t{subsystem}}@: (function).
+@ref{❨570❩, , @t{subsystem}}@: (function).
 @item
-@ref{❨579❩, , @t{subsystems}}@: (function).
+@ref{❨522❩, , @t{subsystems}}@: (function).
 @item
-@ref{❨528❩, , @t{system-dependencies}}@: (function).
+@ref{❨489❩, , @t{system-dependencies}}@: (function).
 @end itemize
 @end table
 
@@ -2788,145 +2788,145 @@ The Declt assessment library's package.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨496❩, , @t{*licenses*}}@: (special variable).
+@ref{❨508❩, , @t{*licenses*}}@: (special variable).
 @item
-@ref{❨490❩, , @t{*stabilized*}}@: (special variable).
+@ref{❨517❩, , @t{*stabilized*}}@: (special variable).
 @item
-@ref{❨530❩, , @t{components}}@: (function).
+@ref{❨574❩, , @t{components}}@: (function).
 @item
-@ref{❨541❩, , @t{definition-source-by-name}}@: (function).
+@ref{❨571❩, , @t{definition-source-by-name}}@: (function).
 @item
-@ref{❨571❩, , @t{destabilize}}@: (macro).
+@ref{❨587❩, , @t{destabilize}}@: (macro).
 @item
-@ref{❨566❩, , @t{domesticp}}@: (function).
+@ref{❨524❩, , @t{domesticp}}@: (function).
 @item
-@ref{❨492❩, , @t{external-symbols}}@: (generic reader).
+@ref{❨495❩, , @t{external-symbols}}@: (generic reader).
 @item
-@ref{❨494❩, , @t{(setf external-symbols)}}@: (generic writer).
+@ref{❨497❩, , @t{(setf external-symbols)}}@: (generic writer).
 @item
-@ref{❨540❩, , @t{file-components}}@: (function).
+@ref{❨526❩, , @t{file-components}}@: (function).
 @item
-@ref{❨580❩, , @t{finalize}}@: (function).
+@ref{❨572❩, , @t{finalize}}@: (function).
 @item
-@ref{❨526❩, , @t{find-definition}}@: (function).
+@ref{❨515❩, , @t{find-definition}}@: (function).
 @item
-@ref{❨584❩, , @t{freeze}}@: (function).
+@ref{❨514❩, , @t{freeze}}@: (function).
 @item
-@ref{❨527❩, , @t{funcoid-name}}@: (function).
+@ref{❨538❩, , @t{funcoid-name}}@: (function).
 @item
-@ref{❨587❩, , @t{internal-symbols}}@: (generic reader).
+@ref{❨534❩, , @t{internal-symbols}}@: (generic reader).
 @item
-@ref{❨589❩, , @t{(setf internal-symbols)}}@: (generic writer).
+@ref{❨536❩, , @t{(setf internal-symbols)}}@: (generic writer).
 @item
-@ref{❨538❩, , @t{load-system}}@: (function).
+@ref{❨510❩, , @t{load-system}}@: (function).
 @item
-@ref{❨570❩, , @t{make-all-file-definitions}}@: (function).
+@ref{❨490❩, , @t{make-all-file-definitions}}@: (function).
 @item
-@ref{❨564❩, , @t{make-all-module-definitions}}@: (function).
+@ref{❨588❩, , @t{make-all-module-definitions}}@: (function).
 @item
-@ref{❨542❩, , @t{make-all-package-definitions}}@: (function).
+@ref{❨544❩, , @t{make-all-package-definitions}}@: (function).
 @item
-@ref{❨501❩, , @t{make-all-symbol-definitions}}@: (function).
+@ref{❨520❩, , @t{make-all-symbol-definitions}}@: (function).
 @item
-@ref{❨498❩, , @t{make-all-system-definitions}}@: (function).
+@ref{❨529❩, , @t{make-all-system-definitions}}@: (function).
 @item
-@ref{❨536❩, , @t{make-classoid-definition}}@: (function).
+@ref{❨521❩, , @t{make-classoid-definition}}@: (function).
 @item
-@ref{❨491❩, , @t{make-clos-slot-definition}}@: (function).
+@ref{❨507❩, , @t{make-clos-slot-definition}}@: (function).
 @item
-@ref{❨574❩, , @t{make-combination-definition}}@: (function).
+@ref{❨590❩, , @t{make-combination-definition}}@: (function).
 @item
-@ref{❨525❩, , @t{make-compiler-macro-alias-definition}}@: (function).
+@ref{❨528❩, , @t{make-compiler-macro-alias-definition}}@: (function).
 @item
-@ref{❨559❩, , @t{make-compiler-macro-definition}}@: (function).
+@ref{❨541❩, , @t{make-compiler-macro-definition}}@: (function).
 @item
-@ref{❨561❩, , @t{make-constant-definition}}@: (function).
+@ref{❨502❩, , @t{make-constant-definition}}@: (function).
 @item
-@ref{❨573❩, , @t{make-expander-definition}}@: (function).
+@ref{❨540❩, , @t{make-expander-definition}}@: (function).
 @item
-@ref{❨572❩, , @t{make-file-definition}}@: (function).
+@ref{❨525❩, , @t{make-file-definition}}@: (function).
 @item
-@ref{❨497❩, , @t{make-function-alias-definition}}@: (function).
+@ref{❨568❩, , @t{make-function-alias-definition}}@: (function).
 @item
-@ref{❨546❩, , @t{make-generic-function-definition}}@: (function).
+@ref{❨491❩, , @t{make-generic-function-definition}}@: (function).
 @item
-@ref{❨545❩, , @t{make-macro-alias-definition}}@: (function).
+@ref{❨532❩, , @t{make-macro-alias-definition}}@: (function).
 @item
-@ref{❨577❩, , @t{make-macro-definition}}@: (function).
+@ref{❨516❩, , @t{make-macro-definition}}@: (function).
 @item
-@ref{❨502❩, , @t{make-method-definition}}@: (function).
+@ref{❨592❩, , @t{make-method-definition}}@: (function).
 @item
-@ref{❨576❩, , @t{make-module-definition}}@: (function).
+@ref{❨575❩, , @t{make-module-definition}}@: (function).
 @item
-@ref{❨489❩, , @t{make-ordinary-function-definition}}@: (function).
+@ref{❨499❩, , @t{make-ordinary-function-definition}}@: (function).
 @item
-@ref{❨544❩, , @t{make-package-definition}}@: (function).
+@ref{❨518❩, , @t{make-package-definition}}@: (function).
 @item
-@ref{❨560❩, , @t{make-report}}@: (function).
+@ref{❨513❩, , @t{make-report}}@: (function).
 @item
-@ref{❨499❩, , @t{make-special-definition}}@: (function).
+@ref{❨523❩, , @t{make-special-definition}}@: (function).
 @item
-@ref{❨591❩, , @t{make-symbol-definitions}}@: (function).
+@ref{❨573❩, , @t{make-symbol-definitions}}@: (function).
 @item
-@ref{❨500❩, , @t{make-symbol-macro-definition}}@: (function).
+@ref{❨589❩, , @t{make-symbol-macro-definition}}@: (function).
 @item
-@ref{❨581❩, , @t{make-system-definition}}@: (function).
+@ref{❨519❩, , @t{make-system-definition}}@: (function).
 @item
-@ref{❨532❩, , @t{make-system-file-definition}}@: (function).
+@ref{❨539❩, , @t{make-system-file-definition}}@: (function).
 @item
-@ref{❨533❩, , @t{make-system-file-definitions}}@: (function).
+@ref{❨591❩, , @t{make-system-file-definitions}}@: (function).
 @item
-@ref{❨592❩, , @t{make-type-definition}}@: (function).
+@ref{❨500❩, , @t{make-type-definition}}@: (function).
 @item
-@ref{❨529❩, , @t{make-typed-structure-slot-definition}}@: (function).
+@ref{❨493❩, , @t{make-typed-structure-slot-definition}}@: (function).
 @item
-@ref{❨534❩, , @t{method-name}}@: (function).
+@ref{❨543❩, , @t{method-name}}@: (function).
 @item
-@ref{❨569❩, , @t{module-components}}@: (function).
+@ref{❨503❩, , @t{module-components}}@: (function).
 @item
-@ref{❨531❩, , @t{new-funcoid-definition}}@: (function).
+@ref{❨530❩, , @t{new-funcoid-definition}}@: (function).
 @item
-@ref{❨586❩, , @t{new-generic-definition}}@: (function).
+@ref{❨567❩, , @t{new-generic-definition}}@: (function).
 @item
-@ref{❨539❩, , @t{one-liner-p}}@: (function).
+@ref{❨566❩, , @t{one-liner-p}}@: (function).
 @item
-@ref{❨568❩, , @t{package-external-symbols}}@: (function).
+@ref{❨527❩, , @t{package-external-symbols}}@: (function).
 @item
-@ref{❨565❩, , @t{package-internal-symbols}}@: (function).
+@ref{❨511❩, , @t{package-internal-symbols}}@: (function).
 @item
-@ref{❨537❩, , @t{package-symbols}}@: (function).
+@ref{❨504❩, , @t{package-symbols}}@: (function).
 @item
-@ref{❨535❩, , @t{parse-contact(s)}}@: (function).
+@ref{❨569❩, , @t{parse-contact(s)}}@: (function).
 @item
-@ref{❨575❩, , @t{parse-contact-string}}@: (function).
+@ref{❨501❩, , @t{parse-contact-string}}@: (function).
 @item
-@ref{❨582❩, , @t{reorder-dependency-def}}@: (function).
+@ref{❨509❩, , @t{reorder-dependency-def}}@: (function).
 @item
-@ref{❨524❩, , @t{reordered-dependency-def-system}}@: (function).
+@ref{❨533❩, , @t{reordered-dependency-def-system}}@: (function).
 @item
-@ref{❨563❩, , @t{resolve-dependency-specification}}@: (function).
+@ref{❨505❩, , @t{resolve-dependency-specification}}@: (function).
 @item
-@ref{❨558❩, , @t{source-by-name}}@: (function).
+@ref{❨492❩, , @t{source-by-name}}@: (function).
 @item
-@ref{❨585❩, , @t{source-by-object}}@: (function).
+@ref{❨512❩, , @t{source-by-object}}@: (function).
 @item
-@ref{❨547❩, , @t{source-pathname}}@: (generic function).
+@ref{❨576❩, , @t{source-pathname}}@: (generic function).
 @item
-@ref{❨503❩, , @t{stabilize}}@: (generic function).
+@ref{❨545❩, , @t{stabilize}}@: (generic function).
 @item
-@ref{❨562❩, , @t{stabilize-clos-classoid-slot}}@: (function).
+@ref{❨531❩, , @t{stabilize-clos-classoid-slot}}@: (function).
 @item
-@ref{❨578❩, , @t{stabilize-clos-structure-slot}}@: (function).
+@ref{❨494❩, , @t{stabilize-clos-structure-slot}}@: (function).
 @item
-@ref{❨583❩, , @t{sub-component-p}}@: (function).
+@ref{❨542❩, , @t{sub-component-p}}@: (function).
 @item
-@ref{❨567❩, , @t{subsystem}}@: (function).
+@ref{❨570❩, , @t{subsystem}}@: (function).
 @item
-@ref{❨579❩, , @t{subsystems}}@: (function).
+@ref{❨522❩, , @t{subsystems}}@: (function).
 @item
-@ref{❨528❩, , @t{system-dependencies}}@: (function).
+@ref{❨489❩, , @t{system-dependencies}}@: (function).
 @item
-@ref{❨543❩, , @t{validate-email}}@: (function).
+@ref{❨506❩, , @t{validate-email}}@: (function).
 @end itemize
 @end table
 
@@ -3046,13 +3046,13 @@ The Declt library's package.
 @item Internals
 @itemize @bullet
 @item
-@ref{❨641❩, , @t{%deffn}}@: (function).
+@ref{❨642❩, , @t{%deffn}}@: (function).
 @item
-@ref{❨766❩, , @t{*blanks*}}@: (special variable).
+@ref{❨767❩, , @t{*blanks*}}@: (special variable).
 @item
-@ref{❨675❩, , @t{*categories*}}@: (special variable).
+@ref{❨674❩, , @t{*categories*}}@: (special variable).
 @item
-@ref{❨636❩, , @t{*fragile-characters*}}@: (special variable).
+@ref{❨638❩, , @t{*fragile-characters*}}@: (special variable).
 @item
 @ref{❨746❩, , @t{*section-names*}}@: (special variable).
 @item
@@ -3062,7 +3062,7 @@ The Declt library's package.
 @item
 @ref{❨673❩, , @t{@atchar{}deffn}}@: (function).
 @item
-@ref{❨638❩, , @t{@atchar{}deffnx}}@: (function).
+@ref{❨639❩, , @t{@atchar{}deffnx}}@: (function).
 @item
 @ref{❨830❩, , @t{@atchar{}deftp}}@: (function).
 @item
@@ -3076,71 +3076,71 @@ The Declt library's package.
 @item
 @ref{❨689❩, , @t{@atchar{}multitable}}@: (function).
 @item
-@ref{❨629❩, , @t{@atchar{}ref}}@: (function).
+@ref{❨717❩, , @t{@atchar{}ref}}@: (function).
 @item
 @ref{❨827❩, , @t{@atchar{}table}}@: (function).
 @item
 @ref{❨832❩, , @t{add-categories-node}}@: (function).
 @item
-@ref{❨677❩, , @t{add-category-node}}@: (function).
+@ref{❨676❩, , @t{add-category-node}}@: (function).
 @item
 @ref{❨762❩, , @t{add-child}}@: (function).
 @item
-@ref{❨672❩, , @t{add-definitions-node}}@: (function).
+@ref{❨632❩, , @t{add-definitions-node}}@: (function).
 @item
-@ref{❨710❩, , @t{add-files-node}}@: (function).
+@ref{❨635❩, , @t{add-files-node}}@: (function).
 @item
 @ref{❨718❩, , @t{add-modules-node}}@: (function).
 @item
-@ref{❨676❩, , @t{add-packages-node}}@: (function).
+@ref{❨675❩, , @t{add-packages-node}}@: (function).
 @item
-@ref{❨640❩, , @t{add-systems-node}}@: (function).
+@ref{❨641❩, , @t{add-systems-node}}@: (function).
 @item
 @ref{❨833❩, , @t{anchor}}@: (function).
 @item
 @ref{❨695❩, , @t{anchor-and-index}}@: (function).
 @item
-@ref{❨770❩, , @t{anchor-name}}@: (function).
+@ref{❨772❩, , @t{anchor-name}}@: (function).
 @item
-@ref{❨645❩, , @t{category-name}}@: (generic function).
+@ref{❨646❩, , @t{category-name}}@: (generic function).
 @item
-@ref{❨680❩, , @t{context}}@: (class).
+@ref{❨679❩, , @t{context}}@: (class).
 @item
 @ref{❨754❩, , @t{copy-node}}@: (function).
 @item
-@ref{❨632❩, , @t{current-time-string}}@: (function).
+@ref{❨631❩, , @t{current-time-string}}@: (function).
 @item
-@ref{❨765❩, , @t{declt-1}}@: (function).
+@ref{❨766❩, , @t{declt-1}}@: (function).
 @item
 @ref{❨749❩, , @t{declt-notice}}@: (generic reader).
 @item
-@ref{❨623❩, , @t{default-values}}@: (generic reader).
+@ref{❨633❩, , @t{default-values}}@: (generic reader).
 @item
-@ref{❨781❩, , @t{deffn}}@: (macro).
+@ref{❨783❩, , @t{deffn}}@: (macro).
 @item
 @ref{❨719❩, , @t{deftp}}@: (macro).
 @item
-@ref{❨637❩, , @t{defvr}}@: (macro).
+@ref{❨636❩, , @t{defvr}}@: (macro).
 @item
-@ref{❨784❩, , @t{document}}@: (generic function).
+@ref{❨786❩, , @t{document}}@: (generic function).
 @item
-@ref{❨824❩, , @t{document}}@: (method combination).
+@ref{❨826❩, , @t{document}}@: (method combination).
 @item
-@ref{❨630❩, , @t{escape}}@: (function).
+@ref{❨629❩, , @t{escape}}@: (function).
 @item
 @ref{❨693❩, , @t{escape-anchor}}@: (function).
 @item
-@ref{❨642❩, , @t{escape-label}}@: (function).
+@ref{❨643❩, , @t{escape-label}}@: (function).
 @item
-@ref{❨631❩, , @t{escape-lambda-list}}@: (function).
+@ref{❨630❩, , @t{escape-lambda-list}}@: (function).
 @item
-@ref{❨643❩, , @t{file-node}}@: (function).
+@ref{❨644❩, , @t{file-node}}@: (function).
 @item
-@ref{❨769❩, , @t{first-word-length}}@: (function).
+@ref{❨771❩, , @t{first-word-length}}@: (function).
 @item
-@ref{❨678❩, , @t{foreign-definitions}}@: (generic reader).
+@ref{❨677❩, , @t{foreign-definitions}}@: (generic reader).
 @item
-@ref{❨717❩, , @t{index}}@: (function).
+@ref{❨686❩, , @t{index}}@: (function).
 @item
 @ref{❨723❩, , @t{index-command-name}}@: (generic function).
 @item
@@ -3150,7 +3150,7 @@ The Declt library's package.
 @item
 @ref{❨760❩, , @t{itemize-list}}@: (function).
 @item
-@ref{❨782❩, , @t{locations}}@: (generic reader).
+@ref{❨784❩, , @t{locations}}@: (generic reader).
 @item
 @ref{❨751❩, , @t{long-title}}@: (function).
 @item
@@ -3160,27 +3160,27 @@ The Declt library's package.
 @item
 @ref{❨627❩, , @t{merge-expander-p}}@: (function).
 @item
-@ref{❨674❩, , @t{merge-generic-writer}}@: (function).
+@ref{❨764❩, , @t{merge-generic-writer}}@: (function).
 @item
 @ref{❨628❩, , @t{merge-methods}}@: (function).
 @item
-@ref{❨709❩, , @t{merge-ordinary-writer}}@: (function).
+@ref{❨710❩, , @t{merge-ordinary-writer}}@: (function).
 @item
-@ref{❨635❩, , @t{multitable}}@: (macro).
+@ref{❨637❩, , @t{multitable}}@: (macro).
 @item
 @ref{❨696❩, , @t{node}}@: (structure).
 @item
-@ref{❨633❩, , @t{node-after-menu-contents}}@: (reader).
+@ref{❨623❩, , @t{node-after-menu-contents}}@: (reader).
 @item
-@ref{❨634❩, , @t{(setf node-after-menu-contents)}}@: (writer).
+@ref{❨624❩, , @t{(setf node-after-menu-contents)}}@: (writer).
 @item
 @ref{❨757❩, , @t{node-before-menu-contents}}@: (reader).
 @item
 @ref{❨758❩, , @t{(setf node-before-menu-contents)}}@: (writer).
 @item
-@ref{❨772❩, , @t{node-children}}@: (reader).
+@ref{❨774❩, , @t{node-children}}@: (reader).
 @item
-@ref{❨773❩, , @t{(setf node-children)}}@: (writer).
+@ref{❨775❩, , @t{(setf node-children)}}@: (writer).
 @item
 @ref{❨755❩, , @t{node-name}}@: (reader).
 @item
@@ -3190,7 +3190,7 @@ The Declt library's package.
 @item
 @ref{❨753❩, , @t{(setf node-next)}}@: (writer).
 @item
-@ref{❨767❩, , @t{node-p}}@: (function).
+@ref{❨709❩, , @t{node-p}}@: (function).
 @item
 @ref{❨625❩, , @t{node-previous}}@: (reader).
 @item
@@ -3204,19 +3204,19 @@ The Declt library's package.
 @item
 @ref{❨722❩, , @t{(setf node-section-type)}}@: (writer).
 @item
-@ref{❨685❩, , @t{node-synopsis}}@: (reader).
+@ref{❨684❩, , @t{node-synopsis}}@: (reader).
 @item
-@ref{❨686❩, , @t{(setf node-synopsis)}}@: (writer).
+@ref{❨685❩, , @t{(setf node-synopsis)}}@: (writer).
 @item
-@ref{❨825❩, , @t{node-up}}@: (reader).
+@ref{❨768❩, , @t{node-up}}@: (reader).
 @item
-@ref{❨826❩, , @t{(setf node-up)}}@: (writer).
+@ref{❨769❩, , @t{(setf node-up)}}@: (writer).
 @item
-@ref{❨771❩, , @t{read-next-line}}@: (function).
+@ref{❨773❩, , @t{read-next-line}}@: (function).
 @item
 @ref{❨748❩, , @t{reference}}@: (function).
 @item
-@ref{❨764❩, , @t{render-definition-core}}@: (function).
+@ref{❨765❩, , @t{render-definition-core}}@: (function).
 @item
 @ref{❨690❩, , @t{render-dependencies}}@: (function).
 @item
@@ -3236,17 +3236,17 @@ The Declt library's package.
 @item
 @ref{❨711❩, , @t{render-text}}@: (function).
 @item
-@ref{❨639❩, , @t{render-to-string}}@: (macro).
+@ref{❨640❩, , @t{render-to-string}}@: (macro).
 @item
 @ref{❨831❩, , @t{render-top-node}}@: (function).
 @item
 @ref{❨761❩, , @t{reveal}}@: (function).
 @item
-@ref{❨768❩, , @t{safe-lambda-list}}@: (function).
+@ref{❨770❩, , @t{safe-lambda-list}}@: (function).
 @item
-@ref{❨774❩, , @t{safe-name}}@: (generic function).
+@ref{❨776❩, , @t{safe-name}}@: (generic function).
 @item
-@ref{❨644❩, , @t{safe-specializers}}@: (function).
+@ref{❨645❩, , @t{safe-specializers}}@: (function).
 @item
 @ref{❨713❩, , @t{select-keys}}@: (function).
 @item
@@ -6327,7 +6327,7 @@ and methods for classes or conditions slots.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨814❩, , @t{document}}.
+@ref{❨816❩, , @t{document}}.
 @item
 @ref{❨248❩, , @t{target-slot}}.
 @end itemize
@@ -6370,9 +6370,9 @@ Abstract root class for alias definitions.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨650❩, , @t{category-name}}.
+@ref{❨651❩, , @t{category-name}}.
 @item
-@ref{❨791❩, , @t{document}}.
+@ref{❨793❩, , @t{document}}.
 @item
 @ref{❨728❩, , @t{index-command-name}}.
 @item
@@ -6386,7 +6386,7 @@ Abstract root class for alias definitions.
 @item
 @ref{❨366❩, , @t{setfp}}.
 @item
-@ref{❨549❩, , @t{source-pathname}}.
+@ref{❨578❩, , @t{source-pathname}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} {setf}
@@ -6473,7 +6473,7 @@ The class for class definitions.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨652❩, , @t{category-name}}.
+@ref{❨653❩, , @t{category-name}}.
 @item
 @ref{❨486❩, , @t{definition-class}}.
 @item
@@ -6550,11 +6550,11 @@ These are conditions@comma{} structures@comma{} and classes.
 @item
 @ref{❨169❩, , @t{direct-slots}}.
 @item
-@ref{❨797❩, , @t{document}}.
-@item
-@ref{❨798❩, , @t{document}}.
-@item
 @ref{❨799❩, , @t{document}}.
+@item
+@ref{❨800❩, , @t{document}}.
+@item
+@ref{❨801❩, , @t{document}}.
 @item
 @ref{❨846❩, , @t{initialize-instance}}.
 @end itemize
@@ -6621,11 +6621,11 @@ which see:@*
 @item
 @ref{❨343❩, , @t{direct-superclassoids}}.
 @item
-@ref{❨796❩, , @t{document}}.
+@ref{❨798❩, , @t{document}}.
 @item
 @ref{❨843❩, , @t{initialize-instance}}.
 @item
-@ref{❨514❩, , @t{stabilize}}.
+@ref{❨556❩, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} {direct-superclassoids}
@@ -6684,9 +6684,9 @@ see:@*
 @item
 @ref{❨399❩, , @t{docstring}}.
 @item
-@ref{❨793❩, , @t{document}}.
+@ref{❨795❩, , @t{document}}.
 @item
-@ref{❨513❩, , @t{stabilize}}.
+@ref{❨555❩, , @t{stabilize}}.
 @item
 @ref{❨336❩, , @t{value-type}}.
 @end itemize
@@ -6763,7 +6763,7 @@ Root class for method combination definitions.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨658❩, , @t{category-name}}.
+@ref{❨659❩, , @t{category-name}}.
 @item
 @ref{❨202❩, , @t{(setf clients)}}.
 @item
@@ -6773,15 +6773,15 @@ Root class for method combination definitions.
 @item
 @ref{❨401❩, , @t{docstring}}.
 @item
-@ref{❨802❩, , @t{document}}.
+@ref{❨804❩, , @t{document}}.
 @item
 @ref{❨734❩, , @t{index-command-name}}.
 @item
 @ref{❨469❩, , @t{lambda-list}}.
 @item
-@ref{❨551❩, , @t{source-pathname}}.
+@ref{❨580❩, , @t{source-pathname}}.
 @item
-@ref{❨517❩, , @t{stabilize}}.
+@ref{❨559❩, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} {object}
@@ -6826,7 +6826,7 @@ The class of compiler macro alias definitions.
 @item
 @ref{❨396❩, , @t{docstring}}.
 @item
-@ref{❨510❩, , @t{stabilize}}.
+@ref{❨552❩, , @t{stabilize}}.
 @end itemize
 @end table
 @end deftp
@@ -6844,7 +6844,7 @@ The class of compiler macro definitions.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨667❩, , @t{category-name}}.
+@ref{❨668❩, , @t{category-name}}.
 @item
 @ref{❨435❩, , @t{definition-compiler-macro}}.
 @item
@@ -6900,9 +6900,9 @@ see:@*
 @item
 @ref{❨394❩, , @t{docstring}}.
 @item
-@ref{❨788❩, , @t{document}}.
+@ref{❨790❩, , @t{document}}.
 @item
-@ref{❨789❩, , @t{document}}.
+@ref{❨791❩, , @t{document}}.
 @item
 @ref{❨840❩, , @t{initialize-instance}}.
 @item
@@ -6916,11 +6916,11 @@ see:@*
 @item
 @ref{❨153❩, , @t{parent}}.
 @item
-@ref{❨776❩, , @t{safe-name}}.
+@ref{❨778❩, , @t{safe-name}}.
 @item
-@ref{❨548❩, , @t{source-pathname}}.
+@ref{❨577❩, , @t{source-pathname}}.
 @item
-@ref{❨507❩, , @t{stabilize}}.
+@ref{❨549❩, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} {object}
@@ -6987,7 +6987,7 @@ The class of condition definitions.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨653❩, , @t{category-name}}.
+@ref{❨654❩, , @t{category-name}}.
 @item
 @ref{❨488❩, , @t{definition-condition}}.
 @item
@@ -7048,11 +7048,11 @@ The class of constant definitions.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨671❩, , @t{category-name}}.
+@ref{❨672❩, , @t{category-name}}.
 @item
 @ref{❨743❩, , @t{index-command-name}}.
 @item
-@ref{❨556❩, , @t{source-pathname}}.
+@ref{❨585❩, , @t{source-pathname}}.
 @end itemize
 @end table
 @end deftp
@@ -7088,13 +7088,13 @@ All definitions respond to the following public protocols@comma{} which see:
 @item
 @ref{❨847❩, , @t{print-object}}.
 @item
-@ref{❨780❩, , @t{safe-name}}.
+@ref{❨782❩, , @t{safe-name}}.
 @item
 @ref{❨452❩, , @t{(setf source-file)}}.
 @item
 @ref{❨450❩, , @t{source-file}}.
 @item
-@ref{❨523❩, , @t{stabilize}}.
+@ref{❨565❩, , @t{stabilize}}.
 @item
 @ref{❨175❩, , @t{(setf uid)}}.
 @item
@@ -7189,19 +7189,19 @@ Abstract root class for setf expander definitions.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨665❩, , @t{category-name}}.
+@ref{❨666❩, , @t{category-name}}.
 @item
 @ref{❨402❩, , @t{docstring}}.
 @item
-@ref{❨810❩, , @t{document}}.
+@ref{❨812❩, , @t{document}}.
 @item
 @ref{❨245❩, , @t{expander}}.
 @item
 @ref{❨737❩, , @t{index-command-name}}.
 @item
-@ref{❨552❩, , @t{source-pathname}}.
+@ref{❨581❩, , @t{source-pathname}}.
 @item
-@ref{❨520❩, , @t{stabilize}}.
+@ref{❨562❩, , @t{stabilize}}.
 @item
 @ref{❨360❩, , @t{(setf standalone-reader)}}.
 @item
@@ -7267,13 +7267,13 @@ All file definitions respond to the following public protocols@comma{} which see
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨648❩, , @t{category-name}}.
+@ref{❨649❩, , @t{category-name}}.
 @item
 @ref{❨415❩, , @t{file}}.
 @item
 @ref{❨726❩, , @t{index-command-name}}.
 @item
-@ref{❨775❩, , @t{safe-name}}.
+@ref{❨777❩, , @t{safe-name}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} {object}
@@ -7323,9 +7323,9 @@ All funcoid definitions respond to the following public protocols@comma{} which 
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨818❩, , @t{document}}.
+@ref{❨820❩, , @t{document}}.
 @item
-@ref{❨819❩, , @t{document}}.
+@ref{❨821❩, , @t{document}}.
 @item
 @ref{❨478❩, , @t{funcoid}}.
 @item
@@ -7381,7 +7381,7 @@ The class of non-setf function alias definitions.
 @item
 @ref{❨395❩, , @t{docstring}}.
 @item
-@ref{❨509❩, , @t{stabilize}}.
+@ref{❨551❩, , @t{stabilize}}.
 @end itemize
 @end table
 @end deftp
@@ -7459,15 +7459,15 @@ which see:@*
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨661❩, , @t{category-name}}.
+@ref{❨662❩, , @t{category-name}}.
 @item
 @ref{❨76❩, , @t{(setf combination)}}.
 @item
 @ref{❨74❩, , @t{combination}}.
 @item
-@ref{❨805❩, , @t{document}}.
+@ref{❨807❩, , @t{document}}.
 @item
-@ref{❨806❩, , @t{document}}.
+@ref{❨808❩, , @t{document}}.
 @item
 @ref{❨329❩, , @t{generic}}.
 @item
@@ -7477,7 +7477,7 @@ which see:@*
 @item
 @ref{❨81❩, , @t{methods}}.
 @item
-@ref{❨518❩, , @t{stabilize}}.
+@ref{❨560❩, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} {object}
@@ -7532,9 +7532,9 @@ are reader methods.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨660❩, , @t{category-name}}.
+@ref{❨661❩, , @t{category-name}}.
 @item
-@ref{❨804❩, , @t{document}}.
+@ref{❨806❩, , @t{document}}.
 @end itemize
 @end table
 @end deftp
@@ -7554,9 +7554,9 @@ are writer methods.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨659❩, , @t{category-name}}.
+@ref{❨660❩, , @t{category-name}}.
 @item
-@ref{❨803❩, , @t{document}}.
+@ref{❨805❩, , @t{document}}.
 @end itemize
 @end table
 @end deftp
@@ -7606,9 +7606,9 @@ The class of ASDF Lisp file definitions.
 @item
 @ref{❨351❩, , @t{definitions}}.
 @item
-@ref{❨787❩, , @t{document}}.
+@ref{❨789❩, , @t{document}}.
 @item
-@ref{❨506❩, , @t{stabilize}}.
+@ref{❨548❩, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} {definitions}
@@ -7653,7 +7653,7 @@ DEFSETF@comma{} or DEFINE-SETF-EXPANDER.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨811❩, , @t{document}}.
+@ref{❨813❩, , @t{document}}.
 @item
 @ref{❨470❩, , @t{lambda-list}}.
 @end itemize
@@ -7675,7 +7675,7 @@ The class of macro alias definitions.
 @item
 @ref{❨397❩, , @t{docstring}}.
 @item
-@ref{❨511❩, , @t{stabilize}}.
+@ref{❨553❩, , @t{stabilize}}.
 @end itemize
 @end table
 @end deftp
@@ -7693,7 +7693,7 @@ The class of macro definitions.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨668❩, , @t{category-name}}.
+@ref{❨669❩, , @t{category-name}}.
 @item
 @ref{❨740❩, , @t{index-command-name}}.
 @item
@@ -7732,11 +7732,11 @@ All method definitions respond to the following public protocols@comma{} which s
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨657❩, , @t{category-name}}.
+@ref{❨658❩, , @t{category-name}}.
 @item
 @ref{❨51❩, , @t{definition-method}}.
 @item
-@ref{❨800❩, , @t{document}}.
+@ref{❨802❩, , @t{document}}.
 @item
 @ref{❨733❩, , @t{index-command-name}}.
 @item
@@ -7746,13 +7746,13 @@ All method definitions respond to the following public protocols@comma{} which s
 @item
 @ref{❨378❩, , @t{owner}}.
 @item
-@ref{❨778❩, , @t{safe-name}}.
+@ref{❨780❩, , @t{safe-name}}.
 @item
 @ref{❨184❩, , @t{(setf specializers)}}.
 @item
 @ref{❨182❩, , @t{specializers}}.
 @item
-@ref{❨515❩, , @t{stabilize}}.
+@ref{❨557❩, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} {object}
@@ -7809,19 +7809,19 @@ The class of ASDF module definitions.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨647❩, , @t{category-name}}.
+@ref{❨648❩, , @t{category-name}}.
 @item
 @ref{❨484❩, , @t{(setf children)}}.
 @item
 @ref{❨482❩, , @t{children}}.
 @item
-@ref{❨786❩, , @t{document}}.
+@ref{❨788❩, , @t{document}}.
 @item
 @ref{❨725❩, , @t{index-command-name}}.
 @item
 @ref{❨158❩, , @t{module}}.
 @item
-@ref{❨505❩, , @t{stabilize}}.
+@ref{❨547❩, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} {object}
@@ -7890,7 +7890,7 @@ The class of ordinary functions.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨664❩, , @t{category-name}}.
+@ref{❨665❩, , @t{category-name}}.
 @item
 @ref{❨736❩, , @t{index-command-name}}.
 @end itemize
@@ -7912,9 +7912,9 @@ structure.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨663❩, , @t{category-name}}.
+@ref{❨664❩, , @t{category-name}}.
 @item
-@ref{❨808❩, , @t{document}}.
+@ref{❨810❩, , @t{document}}.
 @end itemize
 @end table
 @end deftp
@@ -7934,9 +7934,9 @@ structure.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨662❩, , @t{category-name}}.
+@ref{❨663❩, , @t{category-name}}.
 @item
-@ref{❨807❩, , @t{document}}.
+@ref{❨809❩, , @t{document}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} {setf}
@@ -7968,7 +7968,7 @@ see:@*
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨649❩, , @t{category-name}}.
+@ref{❨650❩, , @t{category-name}}.
 @item
 @ref{❨188❩, , @t{definition-package}}.
 @item
@@ -7976,19 +7976,19 @@ see:@*
 @item
 @ref{❨352❩, , @t{definitions}}.
 @item
-@ref{❨790❩, , @t{document}}.
+@ref{❨792❩, , @t{document}}.
 @item
-@ref{❨495❩, , @t{(setf external-symbols)}}.
+@ref{❨498❩, , @t{(setf external-symbols)}}.
 @item
-@ref{❨493❩, , @t{external-symbols}}.
+@ref{❨496❩, , @t{external-symbols}}.
 @item
 @ref{❨727❩, , @t{index-command-name}}.
 @item
 @ref{❨844❩, , @t{initialize-instance}}.
 @item
-@ref{❨590❩, , @t{(setf internal-symbols)}}.
+@ref{❨537❩, , @t{(setf internal-symbols)}}.
 @item
-@ref{❨588❩, , @t{internal-symbols}}.
+@ref{❨535❩, , @t{internal-symbols}}.
 @item
 @ref{❨259❩, , @t{name}}.
 @item
@@ -7996,7 +7996,7 @@ see:@*
 @item
 @ref{❨297❩, , @t{public-definitions}}.
 @item
-@ref{❨508❩, , @t{stabilize}}.
+@ref{❨550❩, , @t{stabilize}}.
 @item
 @ref{❨364❩, , @t{(setf use-list)}}.
 @item
@@ -8025,9 +8025,9 @@ see:@*
 The list of corresponding external symbols.
 @table @strong
 @item Readers
-@ref{❨493❩, , @t{external-symbols}}.
+@ref{❨496❩, , @t{external-symbols}}.
 @item Writers
-@ref{❨495❩, , @t{(setf external-symbols)}}.
+@ref{❨498❩, , @t{(setf external-symbols)}}.
 @end table
 @end defvr
 @defvr {Slot} {internal-symbols}
@@ -8036,9 +8036,9 @@ The list of corresponding external symbols.
 The list of corresponding internal symbols.
 @table @strong
 @item Readers
-@ref{❨588❩, , @t{internal-symbols}}.
+@ref{❨535❩, , @t{internal-symbols}}.
 @item Writers
-@ref{❨590❩, , @t{(setf internal-symbols)}}.
+@ref{❨537❩, , @t{(setf internal-symbols)}}.
 @end table
 @end defvr
 @defvr {Slot} {use-list}
@@ -8089,7 +8089,7 @@ A reader method is a method that reads a slot in a class or condition.
 @item Direct superclasses
 @ref{❨135❩, , @t{accessor-method-definition}}.
 @item Direct methods
-@ref{❨656❩, , @t{category-name}}.
+@ref{❨657❩, , @t{category-name}}.
 @end table
 @end deftp
 @deftp {Class} {report}
@@ -8273,11 +8273,11 @@ funcoid as its update-fn).
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨815❩, , @t{document}}.
-@item
-@ref{❨816❩, , @t{document}}.
-@item
 @ref{❨817❩, , @t{document}}.
+@item
+@ref{❨818❩, , @t{document}}.
+@item
+@ref{❨819❩, , @t{document}}.
 @item
 @ref{❨444❩, , @t{(setf expander-for)}}.
 @item
@@ -8287,7 +8287,7 @@ funcoid as its update-fn).
 @item
 @ref{❨463❩, , @t{expanders-to}}.
 @item
-@ref{❨521❩, , @t{stabilize}}.
+@ref{❨563❩, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} {expander-for}
@@ -8339,9 +8339,9 @@ protocols@comma{} which see:@*
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨801❩, , @t{document}}.
+@ref{❨803❩, , @t{document}}.
 @item
-@ref{❨516❩, , @t{stabilize}}.
+@ref{❨558❩, , @t{stabilize}}.
 @item
 @ref{❨192❩, , @t{(setf standalone-combinator)}}.
 @item
@@ -8380,11 +8380,11 @@ macro.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨809❩, , @t{document}}.
+@ref{❨811❩, , @t{document}}.
 @item
 @ref{❨471❩, , @t{lambda-list}}.
 @item
-@ref{❨519❩, , @t{stabilize}}.
+@ref{❨561❩, , @t{stabilize}}.
 @item
 @ref{❨65❩, , @t{(setf standalone-writer)}}.
 @item
@@ -8429,9 +8429,9 @@ All slot definitions respond to the following public protocols@comma{} which see
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨651❩, , @t{category-name}}.
+@ref{❨652❩, , @t{category-name}}.
 @item
-@ref{❨794❩, , @t{document}}.
+@ref{❨796❩, , @t{document}}.
 @item
 @ref{❨729❩, , @t{index-command-name}}.
 @item
@@ -8443,11 +8443,11 @@ All slot definitions respond to the following public protocols@comma{} which see
 @item
 @ref{❨234❩, , @t{readers}}.
 @item
-@ref{❨777❩, , @t{safe-name}}.
+@ref{❨779❩, , @t{safe-name}}.
 @item
 @ref{❨78❩, , @t{slot}}.
 @item
-@ref{❨550❩, , @t{source-pathname}}.
+@ref{❨579❩, , @t{source-pathname}}.
 @item
 @ref{❨448❩, , @t{(setf writers)}}.
 @item
@@ -8539,11 +8539,11 @@ The class of special variable definitions.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨670❩, , @t{category-name}}.
+@ref{❨671❩, , @t{category-name}}.
 @item
 @ref{❨742❩, , @t{index-command-name}}.
 @item
-@ref{❨555❩, , @t{source-pathname}}.
+@ref{❨584❩, , @t{source-pathname}}.
 @end itemize
 @end table
 @end deftp
@@ -8583,7 +8583,7 @@ Abstract root class for structures.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨654❩, , @t{category-name}}.
+@ref{❨655❩, , @t{category-name}}.
 @item
 @ref{❨313❩, , @t{definition-structure}}.
 @item
@@ -8637,9 +8637,9 @@ All symbol definitions respond to the following public protocols@comma{} which s
 @item
 @ref{❨262❩, , @t{name}}.
 @item
-@ref{❨779❩, , @t{safe-name}}.
+@ref{❨781❩, , @t{safe-name}}.
 @item
-@ref{❨522❩, , @t{stabilize}}.
+@ref{❨564❩, , @t{stabilize}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} {symbol}
@@ -8686,13 +8686,13 @@ The class of symbol macro definitions.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨669❩, , @t{category-name}}.
+@ref{❨670❩, , @t{category-name}}.
 @item
 @ref{❨404❩, , @t{docstring}}.
 @item
 @ref{❨741❩, , @t{index-command-name}}.
 @item
-@ref{❨554❩, , @t{source-pathname}}.
+@ref{❨583❩, , @t{source-pathname}}.
 @end itemize
 @end table
 @end deftp
@@ -8721,13 +8721,13 @@ All system definitions respond to the following public protocols@comma{} which s
 @item
 @ref{❨112❩, , @t{authors}}.
 @item
-@ref{❨646❩, , @t{category-name}}.
+@ref{❨647❩, , @t{category-name}}.
 @item
 @ref{❨302❩, , @t{(setf defsystem-dependencies)}}.
 @item
 @ref{❨300❩, , @t{defsystem-dependencies}}.
 @item
-@ref{❨785❩, , @t{document}}.
+@ref{❨787❩, , @t{document}}.
 @item
 @ref{❨724❩, , @t{index-command-name}}.
 @item
@@ -8737,7 +8737,7 @@ All system definitions respond to the following public protocols@comma{} which s
 @item
 @ref{❨102❩, , @t{maintainers}}.
 @item
-@ref{❨504❩, , @t{stabilize}}.
+@ref{❨546❩, , @t{stabilize}}.
 @item
 @ref{❨440❩, , @t{system}}.
 @end itemize
@@ -8829,13 +8829,13 @@ The class of type definitions.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨666❩, , @t{category-name}}.
+@ref{❨667❩, , @t{category-name}}.
 @item
 @ref{❨403❩, , @t{docstring}}.
 @item
-@ref{❨812❩, , @t{document}}.
+@ref{❨814❩, , @t{document}}.
 @item
-@ref{❨813❩, , @t{document}}.
+@ref{❨815❩, , @t{document}}.
 @item
 @ref{❨246❩, , @t{expander}}.
 @item
@@ -8843,7 +8843,7 @@ The class of type definitions.
 @item
 @ref{❨472❩, , @t{lambda-list}}.
 @item
-@ref{❨553❩, , @t{source-pathname}}.
+@ref{❨582❩, , @t{source-pathname}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} {object}
@@ -8876,7 +8876,7 @@ The class of typed structure definitions.
 @item
 @ref{❨400❩, , @t{docstring}}.
 @item
-@ref{❨795❩, , @t{document}}.
+@ref{❨797❩, , @t{document}}.
 @item
 @ref{❨55❩, , @t{(setf element-type)}}.
 @item
@@ -8936,9 +8936,9 @@ The class of typed structure slot definitions.
 @item
 @ref{❨398❩, , @t{docstring}}.
 @item
-@ref{❨792❩, , @t{document}}.
+@ref{❨794❩, , @t{document}}.
 @item
-@ref{❨512❩, , @t{stabilize}}.
+@ref{❨554❩, , @t{stabilize}}.
 @item
 @ref{❨335❩, , @t{value-type}}.
 @end itemize
@@ -8990,11 +8990,11 @@ These are constants@comma{} special variables@comma{} and symbol macros.
 @item Direct methods
 @itemize @bullet
 @item
-@ref{❨820❩, , @t{document}}.
-@item
-@ref{❨821❩, , @t{document}}.
-@item
 @ref{❨822❩, , @t{document}}.
+@item
+@ref{❨823❩, , @t{document}}.
+@item
+@ref{❨824❩, , @t{document}}.
 @end itemize
 @end table
 @end deftp
@@ -9011,7 +9011,7 @@ A writer method is a method that writes a slot in a class or condition.
 @item Direct superclasses
 @ref{❨135❩, , @t{accessor-method-definition}}.
 @item Direct methods
-@ref{❨655❩, , @t{category-name}}.
+@ref{❨656❩, , @t{category-name}}.
 @end table
 @end deftp
 
@@ -9047,7 +9047,7 @@ A writer method is a method that writes a slot in a class or condition.
 @node Private special variables, Private macros, Internals, Internals
 @subsection Special variables
 @defvr {Special Variable} {*blanks*}
-@anchor{❨766❩}@c
+@anchor{❨767❩}@c
 @specialsubindex{*blanks*}@c
 A list of blank characters and their associated revealed representation.
 Each element in this list is of the form (@hashchar{}BLANK . @hashchar{}REPLACEMENT).
@@ -9059,7 +9059,7 @@ Each element in this list is of the form (@hashchar{}BLANK . @hashchar{}REPLACEM
 @end table
 @end defvr
 @defvr {Special Variable} {*categories*}
-@anchor{❨675❩}@c
+@anchor{❨674❩}@c
 @specialsubindex{*categories*}@c
 The list of definition categories.@*
 Each category is of the form (TITLE FILTER).@*
@@ -9091,7 +9091,7 @@ See Section 4.1 of the user manual for more information.
 @end table
 @end defvr
 @defvr {Special Variable} {*fragile-characters*}
-@anchor{❨636❩}@c
+@anchor{❨638❩}@c
 @specialsubindex{*fragile-characters*}@c
 An association list of Texinfo fragile (anchor) characters.
 Elements are the form (CHAR . ALT) where CHAR is the fragile (anchor)
@@ -9104,7 +9104,7 @@ character and ALT is an alternative Unicode character.
 @end table
 @end defvr
 @defvr {Special Variable} {*licenses*}
-@anchor{❨496❩}@c
+@anchor{❨508❩}@c
 @specialsubindex{*licenses*}@c
 @table @strong
 @item Package
@@ -9138,7 +9138,7 @@ COMMAND is the name of the corresponding Texinfo alphabetic command.
 @end table
 @end defvr
 @defvr {Special Variable} {*stabilized*}
-@anchor{❨490❩}@c
+@anchor{❨517❩}@c
 @specialsubindex{*stabilized*}@c
 Whether the stabilization process is over.@*
 This variable is set to NIL whenever new definitions are created during the
@@ -9155,7 +9155,7 @@ anymore.
 @node Private macros, Private ordinary functions, Private special variables, Internals
 @subsection Macros
 @deffn {Macro} {deffn} ((category name lambda-list &optional qualifiers) &body body)
-@anchor{❨781❩}@c
+@anchor{❨783❩}@c
 @macrosubindex{deffn}@c
 Execute BODY as part of a @atchar{}deffn @lbracechar{}CATEGORY@rbracechar{} @lbracechar{}NAME@rbracechar{} [QUALIFIERS] LAMBDA-LIST.
 CATEGORY@comma{} NAME@comma{} QUALIFIERS@comma{} and LAMBDA-LIST are escaped for Texinfo prior to
@@ -9194,7 +9194,7 @@ BODY should render on *standard-output*.
 @end table
 @end deffn
 @deffn {Macro} {defvr} (category name &body body)
-@anchor{❨637❩}@c
+@anchor{❨636❩}@c
 @macrosubindex{defvr}@c
 Execute BODY as part of a @atchar{}defvr @lbracechar{}CATEGORY@rbracechar{} @lbracechar{}NAME@rbracechar{} environment.
 CATEGORY and NAME are escaped for Texinfo prior to rendering.
@@ -9207,7 +9207,7 @@ BODY should render on *standard-output*.
 @end table
 @end deffn
 @deffn {Macro} {destabilize} (definitions expression)
-@anchor{❨571❩}@c
+@anchor{❨587❩}@c
 @macrosubindex{destabilize}@c
 Invalidate the stabilization process by adding a new definition.
 EXPRESSION should evaluate to a new definition. ENDPUSH that definition to
@@ -9246,7 +9246,7 @@ BODY should render on *standard-output*.
 @end table
 @end deffn
 @deffn {Macro} {multitable} ((&rest fractions) &body body)
-@anchor{❨635❩}@c
+@anchor{❨637❩}@c
 @macrosubindex{multitable}@c
 Execute BODY as part of a @atchar{}multitable @atchar{}columnFRACTIONS environment.
 BODY should render on *standard-output*.
@@ -9258,7 +9258,7 @@ BODY should render on *standard-output*.
 @end table
 @end deffn
 @deffn {Macro} {render-to-string} (&body body)
-@anchor{❨639❩}@c
+@anchor{❨640❩}@c
 @macrosubindex{render-to-string}@c
 Execute BODY with *standard-output* redirected to a string.
 Return that string.
@@ -9286,7 +9286,7 @@ BODY should render on *standard-output*.
 @node Private ordinary functions, Private generic functions, Private macros, Internals
 @subsection Ordinary functions
 @deffn {Function} {%deffn} (x category name lambda-list &optional qualifiers)
-@anchor{❨641❩}@c
+@anchor{❨642❩}@c
 @functionsubindex{%deffn}@c
 Render a @atchar{}deffn[x] @lbracechar{}CATEGORY@rbracechar{} @lbracechar{}NAME@rbracechar{} [QUALIFIERS] LAMBDA-LIST line.
 Rendering is done on *standard-output*. CATEGORY@comma{} NAME@comma{} QUALIFIERS@comma{} and
@@ -9337,7 +9337,7 @@ provided by `safe-lambda-list' or `safe-specializers'@comma{} which see.
 @end table
 @end deffn
 @deffn {Function} {@atchar{}deffnx} (category name lambda-list &optional qualifiers)
-@anchor{❨638❩}@c
+@anchor{❨639❩}@c
 @functionsubindex{@atchar{}deffnx}@c
 Render a @atchar{}deffnx @lbracechar{}CATEGORY@rbracechar{} @lbracechar{}NAME@rbracechar{} [QUALIFIERS] LAMBDA-LIST line.
 Rendering is done on *standard-output*. CATEGORY@comma{} NAME@comma{} QUALIFIERS@comma{} and
@@ -9422,7 +9422,7 @@ Render a @atchar{}multitable @atchar{}columnFRACTIONS line on *standard-output*.
 @end table
 @end deffn
 @deffn {Function} {@atchar{}ref} (anchor label)
-@anchor{❨629❩}@c
+@anchor{❨717❩}@c
 @functionsubindex{@atchar{}ref}@c
 Render ANCHOR as an @atchar{}ref with online and printed LABEL.@*
 Both ANCHOR and LABEL are escaped for Texinfo prior to rendering.
@@ -9459,7 +9459,7 @@ Add the STATUS DEFINITIONS categories nodes to PARENT in CONTEXT.
 @end table
 @end deffn
 @deffn {Function} {add-category-node} (parent context status category definitions)
-@anchor{❨677❩}@c
+@anchor{❨676❩}@c
 @functionsubindex{add-category-node}@c
 Add the STATUS CATEGORY node to PARENT for DEFINITIONS in CONTEXT.
 @table @strong
@@ -9481,7 +9481,7 @@ Add CHILD node to PARENT node and return CHILD.
 @end table
 @end deffn
 @deffn {Function} {add-definitions-node} (parent report context)
-@anchor{❨672❩}@c
+@anchor{❨632❩}@c
 @functionsubindex{add-definitions-node}@c
 Add REPORT's definitions node to PARENT in CONTEXT.
 @table @strong
@@ -9492,7 +9492,7 @@ Add REPORT's definitions node to PARENT in CONTEXT.
 @end table
 @end deffn
 @deffn {Function} {add-files-node} (parent report context)
-@anchor{❨710❩}@c
+@anchor{❨635❩}@c
 @functionsubindex{add-files-node}@c
 Add REPORT's files node to PARENT in CONTEXT.
 @table @strong
@@ -9514,7 +9514,7 @@ Add REPORT's modules node to PARENT in CONTEXT.
 @end table
 @end deffn
 @deffn {Function} {add-packages-node} (parent report context)
-@anchor{❨676❩}@c
+@anchor{❨675❩}@c
 @functionsubindex{add-packages-node}@c
 Add REPORT's packages node to PARENT in CONTEXT.
 @table @strong
@@ -9525,7 +9525,7 @@ Add REPORT's packages node to PARENT in CONTEXT.
 @end table
 @end deffn
 @deffn {Function} {add-systems-node} (parent report context)
-@anchor{❨640❩}@c
+@anchor{❨641❩}@c
 @functionsubindex{add-systems-node}@c
 Add REPORT's systems node to PARENT in CONTEXT.
 @table @strong
@@ -9558,7 +9558,7 @@ Render DEFINITION's anchoring and indexing commands on *STANDARD-OUTPUT*.
 @end table
 @end deffn
 @deffn {Function} {anchor-name} (definition)
-@anchor{❨770❩}@c
+@anchor{❨772❩}@c
 @functionsubindex{anchor-name}@c
 Return DEFINITION's anchor name@comma{} that is@comma{} "(<UID>)".
 @table @strong
@@ -9583,7 +9583,7 @@ considered as an indentation definition.
 @end table
 @end deffn
 @deffn {Function} {components} (module type)
-@anchor{❨530❩}@c
+@anchor{❨574❩}@c
 @functionsubindex{components}@c
 Return the list of all (sub)TYPE components found in MODULE's tree.
 @table @strong
@@ -9604,7 +9604,7 @@ Return the list of all (sub)TYPE components found in MODULE's tree.
 @end table
 @end deffn
 @deffn {Function} {current-time-string} ()
-@anchor{❨632❩}@c
+@anchor{❨631❩}@c
 @functionsubindex{current-time-string}@c
 Return the current time as a string.
 @table @strong
@@ -9615,7 +9615,7 @@ Return the current time as a string.
 @end table
 @end deffn
 @deffn {Function} {declt-1} (report &rest keys &key locations default-values foreign-definitions declt-notice output-directory file-name info-name info-category)
-@anchor{❨765❩}@c
+@anchor{❨766❩}@c
 @functionsubindex{declt-1}@c
 @table @strong
 @item Package
@@ -9625,7 +9625,7 @@ Return the current time as a string.
 @end table
 @end deffn
 @deffn {Function} {definition-source-by-name} (definition type)
-@anchor{❨541❩}@c
+@anchor{❨571❩}@c
 @functionsubindex{definition-source-by-name}@c
 Return DEFINITION's source for TYPE.
 @table @strong
@@ -9636,7 +9636,7 @@ Return DEFINITION's source for TYPE.
 @end table
 @end deffn
 @deffn {Function} {domesticp} (symbol pathname packages pathnames)
-@anchor{❨566❩}@c
+@anchor{❨524❩}@c
 @functionsubindex{domesticp}@c
 Return T if a definition for SYMBOL originating in PATHNAME is domestic.@*
 A definition is considered domestic under the following conditions:@*
@@ -9653,7 +9653,7 @@ source file is considered foreign.
 @end table
 @end deffn
 @deffn {Function} {escape} (string)
-@anchor{❨630❩}@c
+@anchor{❨629❩}@c
 @functionsubindex{escape}@c
 When STRING@comma{} escape it for Texinfo.
 @table @strong
@@ -9677,7 +9677,7 @@ replaced with alternative Unicode characters.
 @end table
 @end deffn
 @deffn {Function} {escape-label} (string)
-@anchor{❨642❩}@c
+@anchor{❨643❩}@c
 @functionsubindex{escape-label}@c
 Escape STRING for use as a Texinfo anchor label.@*
 In addition to regular escaping@comma{} colons are replaced with alternative Unicode
@@ -9690,7 +9690,7 @@ characters.
 @end table
 @end deffn
 @deffn {Function} {escape-lambda-list} (lambda-list)
-@anchor{❨631❩}@c
+@anchor{❨630❩}@c
 @functionsubindex{escape-lambda-list}@c
 Escape safe LAMBDA-LIST for Texinfo.@*
 This function expects a value from `safe-lambda-list'@comma{} which see. It returns a
@@ -9704,7 +9704,7 @@ their original form@comma{} and @atchar{}ref's and @atchar{}t's which are alread
 @end table
 @end deffn
 @deffn {Function} {file-components} (module)
-@anchor{❨540❩}@c
+@anchor{❨526❩}@c
 @functionsubindex{file-components}@c
 Return the list of all file components found in MODULE's tree.
 @table @strong
@@ -9715,7 +9715,7 @@ Return the list of all file components found in MODULE's tree.
 @end table
 @end deffn
 @deffn {Function} {file-node} (definition context)
-@anchor{❨643❩}@c
+@anchor{❨644❩}@c
 @functionsubindex{file-node}@c
 Create and return a file DEFINITION node in CONTEXT.
 @table @strong
@@ -9726,7 +9726,7 @@ Create and return a file DEFINITION node in CONTEXT.
 @end table
 @end deffn
 @deffn {Function} {finalize} (definitions packages pathnames)
-@anchor{❨580❩}@c
+@anchor{❨572❩}@c
 @functionsubindex{finalize}@c
 Finalize DEFINITIONS in domestic PACKAGES and PATHNAMES.
 For more information@comma{} see `stabilize' and `freeze'.
@@ -9738,7 +9738,7 @@ For more information@comma{} see `stabilize' and `freeze'.
 @end table
 @end deffn
 @deffn {Function} {find-definition} (object definitions)
-@anchor{❨526❩}@c
+@anchor{❨515❩}@c
 @functionsubindex{find-definition}@c
 Find a definition for OBJECT in DEFINITIONS.
 @table @strong
@@ -9749,7 +9749,7 @@ Find a definition for OBJECT in DEFINITIONS.
 @end table
 @end deffn
 @deffn {Function} {first-word-length} (string)
-@anchor{❨769❩}@c
+@anchor{❨771❩}@c
 @functionsubindex{first-word-length}@c
 Return the length of the first word in STRING.
 Initial whitespace characters are skipped.
@@ -9761,7 +9761,7 @@ Initial whitespace characters are skipped.
 @end table
 @end deffn
 @deffn {Function} {freeze} (definitions)
-@anchor{❨584❩}@c
+@anchor{❨514❩}@c
 @functionsubindex{freeze}@c
 Freeze DEFINITIONS.@*
 Currently@comma{} this means:@*
@@ -9775,7 +9775,7 @@ Currently@comma{} this means:@*
 @end table
 @end deffn
 @deffn {Function} {funcoid-name} (funcoid)
-@anchor{❨527❩}@c
+@anchor{❨538❩}@c
 @functionsubindex{funcoid-name}@c
 Return FUNCOID's name@comma{} or NIL.@*
 FUNCOID may be a function@comma{} a macro function@comma{} or a compiler macro function.
@@ -9801,7 +9801,7 @@ NET.DIDIERVERNA.DECLT named readtable.
 @end table
 @end deffn
 @deffn {Function} {index} (definition)
-@anchor{❨717❩}@c
+@anchor{❨686❩}@c
 @functionsubindex{index}@c
 Render DEFINITION's indexing command on *STANDARD-OUTPUT*.
 @table @strong
@@ -9833,7 +9833,7 @@ Otherwise@comma{} the rendering is done by calling format@comma{} as explained b
 @end table
 @end deffn
 @deffn {Function} {load-system} (system-name)
-@anchor{❨538❩}@c
+@anchor{❨510❩}@c
 @functionsubindex{load-system}@c
 Load ASDF SYSTEM-NAME in a manner suitable to extract documentation.
 Return the corresponding ASDF system.@*
@@ -9858,7 +9858,7 @@ It is of the form "The <qualified safe name> <type name>".
 @end table
 @end deffn
 @deffn {Function} {make-all-file-definitions} (definitions)
-@anchor{❨570❩}@c
+@anchor{❨490❩}@c
 @functionsubindex{make-all-file-definitions}@c
 Return a list of all file definitions for system DEFINITIONS.
 @table @strong
@@ -9869,7 +9869,7 @@ Return a list of all file definitions for system DEFINITIONS.
 @end table
 @end deffn
 @deffn {Function} {make-all-module-definitions} (definitions)
-@anchor{❨564❩}@c
+@anchor{❨588❩}@c
 @functionsubindex{make-all-module-definitions}@c
 Return a list of all module definitions for system DEFINITIONS.
 @table @strong
@@ -9880,7 +9880,7 @@ Return a list of all module definitions for system DEFINITIONS.
 @end table
 @end deffn
 @deffn {Function} {make-all-package-definitions} (file-definitions system-definitions)
-@anchor{❨542❩}@c
+@anchor{❨544❩}@c
 @functionsubindex{make-all-package-definitions}@c
 Return a list of all package definitions for FILE- and SYSTEM-DEFINITIONS.
 This list contains definitions for packages defined in the corresponding
@@ -9894,7 +9894,7 @@ SYSTEM/... (case insensitive) for one of the corresponding systems.
 @end table
 @end deffn
 @deffn {Function} {make-all-symbol-definitions} (packages pathnames all-symbols-p)
-@anchor{❨501❩}@c
+@anchor{❨520❩}@c
 @functionsubindex{make-all-symbol-definitions}@c
 Return a list of all domestic symbol definitions.@*
 If ALL-SYMBOLS-P@comma{} introspect all accessible symbols in the current Lisp
@@ -9910,7 +9910,7 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
 @end table
 @end deffn
 @deffn {Function} {make-all-system-definitions} (system)
-@anchor{❨498❩}@c
+@anchor{❨529❩}@c
 @functionsubindex{make-all-system-definitions}@c
 Return a list of all system definitions for SYSTEM.@*
 The only guarantee is that the definition for SYSTEM comes first.
@@ -9925,7 +9925,7 @@ See `subsystems' for more information.
 @end table
 @end deffn
 @deffn {Function} {make-classoid-definition} (symbol classoid packages pathnames)
-@anchor{❨536❩}@c
+@anchor{❨521❩}@c
 @functionsubindex{make-classoid-definition}@c
 Make a new CLASSOID definition for SYMBOL.@*
 Also create all slots definitions. The foreign status of the new classoid and
@@ -9940,7 +9940,7 @@ depends on the kind of CLASSOID.
 @end table
 @end deffn
 @deffn {Function} {make-clos-slot-definition} (slot &optional foreign)
-@anchor{❨491❩}@c
+@anchor{❨507❩}@c
 @functionsubindex{make-clos-slot-definition}@c
 Make a new CLOS SLOT definition@comma{} possibly FOREIGN.
 @table @strong
@@ -9951,7 +9951,7 @@ Make a new CLOS SLOT definition@comma{} possibly FOREIGN.
 @end table
 @end deffn
 @deffn {Function} {make-combination-definition} (symbol combination &optional foreign)
-@anchor{❨574❩}@c
+@anchor{❨590❩}@c
 @functionsubindex{make-combination-definition}@c
 Make a new method COMBINATION definition for SYMBOL@comma{} possibly FOREIGN.
 The concrete class of the new definition depends on the COMBINATION type.
@@ -9963,7 +9963,7 @@ The concrete class of the new definition depends on the COMBINATION type.
 @end table
 @end deffn
 @deffn {Function} {make-compiler-macro-alias-definition} (symbol &optional setf)
-@anchor{❨525❩}@c
+@anchor{❨528❩}@c
 @functionsubindex{make-compiler-macro-alias-definition}@c
 Make a new compiler macro alias definition for (possibly SETF) SYMBOL.
 @table @strong
@@ -9974,7 +9974,7 @@ Make a new compiler macro alias definition for (possibly SETF) SYMBOL.
 @end table
 @end deffn
 @deffn {Function} {make-compiler-macro-definition} (symbol compiler-macro &rest keys &key setf foreign)
-@anchor{❨559❩}@c
+@anchor{❨541❩}@c
 @functionsubindex{make-compiler-macro-definition}@c
 Make a new COMPILER-MACRO definition for SYMBOL.
 @table @strong
@@ -9985,7 +9985,7 @@ Make a new COMPILER-MACRO definition for SYMBOL.
 @end table
 @end deffn
 @deffn {Function} {make-constant-definition} (symbol)
-@anchor{❨561❩}@c
+@anchor{❨502❩}@c
 @functionsubindex{make-constant-definition}@c
 Make a new constant definition for SYMBOL.
 @table @strong
@@ -10016,7 +10016,7 @@ Possible values are NIL@comma{} :short@comma{} or :long (the default).
 @end table
 @end deffn
 @deffn {Function} {make-expander-definition} (symbol expander &optional foreign)
-@anchor{❨573❩}@c
+@anchor{❨540❩}@c
 @functionsubindex{make-expander-definition}@c
 Make a new setf EXPANDER definition for SYMBOL@comma{} possibly foreign.
 @table @strong
@@ -10027,7 +10027,7 @@ Make a new setf EXPANDER definition for SYMBOL@comma{} possibly foreign.
 @end table
 @end deffn
 @deffn {Function} {make-file-definition} (file &optional foreign)
-@anchor{❨572❩}@c
+@anchor{❨525❩}@c
 @functionsubindex{make-file-definition}@c
 Make a new FILE definition.@*
 The concrete class of the new definition depends on the kind of FILE.
@@ -10039,7 +10039,7 @@ The concrete class of the new definition depends on the kind of FILE.
 @end table
 @end deffn
 @deffn {Function} {make-function-alias-definition} (symbol &optional setf)
-@anchor{❨497❩}@c
+@anchor{❨568❩}@c
 @functionsubindex{make-function-alias-definition}@c
 make a new function alias definition for (possibly SETF) SYMBOL.
 @table @strong
@@ -10050,7 +10050,7 @@ make a new function alias definition for (possibly SETF) SYMBOL.
 @end table
 @end deffn
 @deffn {Function} {make-generic-function-definition} (symbol generic &rest keys &key setf foreign)
-@anchor{❨546❩}@c
+@anchor{❨491❩}@c
 @functionsubindex{make-generic-function-definition}@c
 Make a new GENERIC function definition for (SETF) SYMBOL@comma{} possibly FOREIGN.
 @table @strong
@@ -10061,7 +10061,7 @@ Make a new GENERIC function definition for (SETF) SYMBOL@comma{} possibly FOREIG
 @end table
 @end deffn
 @deffn {Function} {make-macro-alias-definition} (symbol)
-@anchor{❨545❩}@c
+@anchor{❨532❩}@c
 @functionsubindex{make-macro-alias-definition}@c
 Make a new macro alias definition for SYMBOL.
 @table @strong
@@ -10072,7 +10072,7 @@ Make a new macro alias definition for SYMBOL.
 @end table
 @end deffn
 @deffn {Function} {make-macro-definition} (symbol macro &optional foreign)
-@anchor{❨577❩}@c
+@anchor{❨516❩}@c
 @functionsubindex{make-macro-definition}@c
 Make a new MACRO definition for SYMBOL.
 @table @strong
@@ -10083,7 +10083,7 @@ Make a new MACRO definition for SYMBOL.
 @end table
 @end deffn
 @deffn {Function} {make-method-definition} (method &optional foreign)
-@anchor{❨502❩}@c
+@anchor{❨592❩}@c
 @functionsubindex{make-method-definition}@c
 Make a new METHOD definition@comma{} possibly FOREIGN.
 @table @strong
@@ -10094,7 +10094,7 @@ Make a new METHOD definition@comma{} possibly FOREIGN.
 @end table
 @end deffn
 @deffn {Function} {make-module-definition} (module &optional foreign)
-@anchor{❨576❩}@c
+@anchor{❨575❩}@c
 @functionsubindex{make-module-definition}@c
 Make a new MODULE definition.
 @table @strong
@@ -10115,7 +10115,7 @@ Make a new MODULE definition.
 @end table
 @end deffn
 @deffn {Function} {make-ordinary-function-definition} (symbol function &rest keys &key setf foreign)
-@anchor{❨489❩}@c
+@anchor{❨499❩}@c
 @functionsubindex{make-ordinary-function-definition}@c
 Make a new ordinary FUNCTION definition for (SETF) SYMBOL@comma{} possibly FOREIGN.
 @table @strong
@@ -10126,7 +10126,7 @@ Make a new ordinary FUNCTION definition for (SETF) SYMBOL@comma{} possibly FOREI
 @end table
 @end deffn
 @deffn {Function} {make-package-definition} (package &optional foreign)
-@anchor{❨544❩}@c
+@anchor{❨518❩}@c
 @functionsubindex{make-package-definition}@c
 Make a new PACKAGE definition@comma{} possibly FOREIGN.
 @table @strong
@@ -10137,7 +10137,7 @@ Make a new PACKAGE definition@comma{} possibly FOREIGN.
 @end table
 @end deffn
 @deffn {Function} {make-report} ()
-@anchor{❨560❩}@c
+@anchor{❨513❩}@c
 @functionsubindex{make-report}@c
 Make a new report.
 @table @strong
@@ -10148,7 +10148,7 @@ Make a new report.
 @end table
 @end deffn
 @deffn {Function} {make-special-definition} (symbol)
-@anchor{❨499❩}@c
+@anchor{❨523❩}@c
 @functionsubindex{make-special-definition}@c
 Make a new special variable definition for SYMBOL.
 @table @strong
@@ -10159,7 +10159,7 @@ Make a new special variable definition for SYMBOL.
 @end table
 @end deffn
 @deffn {Function} {make-symbol-definitions} (symbol packages pathnames)
-@anchor{❨591❩}@c
+@anchor{❨573❩}@c
 @functionsubindex{make-symbol-definitions}@c
 Make and return a list of all existing domestic definitions for SYMBOL.
 Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
@@ -10172,7 +10172,7 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
 @end table
 @end deffn
 @deffn {Function} {make-symbol-macro-definition} (symbol)
-@anchor{❨500❩}@c
+@anchor{❨589❩}@c
 @functionsubindex{make-symbol-macro-definition}@c
 Make a new symbol macro definition for SYMBOL.
 @table @strong
@@ -10183,7 +10183,7 @@ Make a new symbol macro definition for SYMBOL.
 @end table
 @end deffn
 @deffn {Function} {make-system-definition} (system &optional foreign)
-@anchor{❨581❩}@c
+@anchor{❨519❩}@c
 @functionsubindex{make-system-definition}@c
 Make a new SYSTEM definition.
 @table @strong
@@ -10194,7 +10194,7 @@ Make a new SYSTEM definition.
 @end table
 @end deffn
 @deffn {Function} {make-system-file-definition} (system)
-@anchor{❨532❩}@c
+@anchor{❨539❩}@c
 @functionsubindex{make-system-file-definition}@c
 Make a new system file definition for SYSTEM.
 @table @strong
@@ -10205,7 +10205,7 @@ Make a new system file definition for SYSTEM.
 @end table
 @end deffn
 @deffn {Function} {make-system-file-definitions} (systems)
-@anchor{❨533❩}@c
+@anchor{❨591❩}@c
 @functionsubindex{make-system-file-definitions}@c
 Make a list of system file definitions for SYSTEMS.@*
 Multiple systems may be defined in the same file. There is however only one
@@ -10218,7 +10218,7 @@ definition for each file.
 @end table
 @end deffn
 @deffn {Function} {make-type-definition} (symbol expander)
-@anchor{❨592❩}@c
+@anchor{❨500❩}@c
 @functionsubindex{make-type-definition}@c
 Make a new type definition for SYMBOL.
 @table @strong
@@ -10229,7 +10229,7 @@ Make a new type definition for SYMBOL.
 @end table
 @end deffn
 @deffn {Function} {make-typed-structure-slot-definition} (slot &optional foreign)
-@anchor{❨529❩}@c
+@anchor{❨493❩}@c
 @functionsubindex{make-typed-structure-slot-definition}@c
 Make a new typed structure SLOT definition@comma{} possibly FOREIGN.
 @table @strong
@@ -10251,7 +10251,7 @@ Return T if function DEFINITION and setf EXPANDER can be documented jointly.
 @end table
 @end deffn
 @deffn {Function} {merge-generic-writer} (reader writer)
-@anchor{❨674❩}@c
+@anchor{❨764❩}@c
 @functionsubindex{merge-generic-writer}@c
 Check if WRITER generic definition can be documented jointly with READER.
 If so@comma{} return the generalized Boolean value of `merge-methods'@comma{} which see.
@@ -10291,7 +10291,7 @@ Otherwise@comma{} return NIL.
 @end table
 @end deffn
 @deffn {Function} {merge-ordinary-writer} (reader writer)
-@anchor{❨709❩}@c
+@anchor{❨710❩}@c
 @functionsubindex{merge-ordinary-writer}@c
 Return WRITER if it can be documented jointly with READER.
 @table @strong
@@ -10302,7 +10302,7 @@ Return WRITER if it can be documented jointly with READER.
 @end table
 @end deffn
 @deffn {Function} {method-name} (method)
-@anchor{❨534❩}@c
+@anchor{❨543❩}@c
 @functionsubindex{method-name}@c
 Return METHOD's canonical name.@*
 Return a second value of T if METHOD is in fact a SETF one.
@@ -10314,7 +10314,7 @@ Return a second value of T if METHOD is in fact a SETF one.
 @end table
 @end deffn
 @deffn {Function} {module-components} (module)
-@anchor{❨569❩}@c
+@anchor{❨503❩}@c
 @functionsubindex{module-components}@c
 Return the list of all module components found in MODULE's tree.
 @table @strong
@@ -10325,7 +10325,7 @@ Return the list of all module components found in MODULE's tree.
 @end table
 @end deffn
 @deffn {Function} {new-funcoid-definition} (name packages pathnames)
-@anchor{❨531❩}@c
+@anchor{❨530❩}@c
 @functionsubindex{new-funcoid-definition}@c
 Return a new macro or function definition for NAME@comma{} or NIL.
 PACKAGES and PATHNAMES are used to determine domesticity.
@@ -10337,7 +10337,7 @@ PACKAGES and PATHNAMES are used to determine domesticity.
 @end table
 @end deffn
 @deffn {Function} {new-generic-definition} (generic packages pathnames)
-@anchor{❨586❩}@c
+@anchor{❨567❩}@c
 @functionsubindex{new-generic-definition}@c
 Make a new foreign GENERIC function definition.
 PACKAGES and PATHNAMES are used to determine domesticity.
@@ -10349,10 +10349,10 @@ PACKAGES and PATHNAMES are used to determine domesticity.
 @end table
 @end deffn
 @deffn {Reader} {node-after-menu-contents} (instance)
-@anchor{❨633❩}@c
+@anchor{❨623❩}@c
 @functionsubindex{node-after-menu-contents}@c
 @deffnx {Writer} {(setf node-after-menu-contents)} (instance)
-@anchor{❨634❩}@c
+@anchor{❨624❩}@c
 @functionsubindex{(setf node-after-menu-contents)}@c
 @table @strong
 @item Package
@@ -10379,10 +10379,10 @@ PACKAGES and PATHNAMES are used to determine domesticity.
 @end table
 @end deffn
 @deffn {Reader} {node-children} (instance)
-@anchor{❨772❩}@c
+@anchor{❨774❩}@c
 @functionsubindex{node-children}@c
 @deffnx {Writer} {(setf node-children)} (instance)
-@anchor{❨773❩}@c
+@anchor{❨775❩}@c
 @functionsubindex{(setf node-children)}@c
 @table @strong
 @item Package
@@ -10424,7 +10424,7 @@ PACKAGES and PATHNAMES are used to determine domesticity.
 @end table
 @end deffn
 @deffn {Function} {node-p} (object)
-@anchor{❨767❩}@c
+@anchor{❨709❩}@c
 @functionsubindex{node-p}@c
 @table @strong
 @item Package
@@ -10479,10 +10479,10 @@ PACKAGES and PATHNAMES are used to determine domesticity.
 @end table
 @end deffn
 @deffn {Reader} {node-synopsis} (instance)
-@anchor{❨685❩}@c
+@anchor{❨684❩}@c
 @functionsubindex{node-synopsis}@c
 @deffnx {Writer} {(setf node-synopsis)} (instance)
-@anchor{❨686❩}@c
+@anchor{❨685❩}@c
 @functionsubindex{(setf node-synopsis)}@c
 @table @strong
 @item Package
@@ -10494,10 +10494,10 @@ PACKAGES and PATHNAMES are used to determine domesticity.
 @end table
 @end deffn
 @deffn {Reader} {node-up} (instance)
-@anchor{❨825❩}@c
+@anchor{❨768❩}@c
 @functionsubindex{node-up}@c
 @deffnx {Writer} {(setf node-up)} (instance)
-@anchor{❨826❩}@c
+@anchor{❨769❩}@c
 @functionsubindex{(setf node-up)}@c
 @table @strong
 @item Package
@@ -10509,7 +10509,7 @@ PACKAGES and PATHNAMES are used to determine domesticity.
 @end table
 @end deffn
 @deffn {Function} {one-liner-p} (string)
-@anchor{❨539❩}@c
+@anchor{❨566❩}@c
 @functionsubindex{one-liner-p}@c
 Return T if STRING is non empty and does not span multiple lines.
 @table @strong
@@ -10520,7 +10520,7 @@ Return T if STRING is non empty and does not span multiple lines.
 @end table
 @end deffn
 @deffn {Function} {package-external-symbols} (package)
-@anchor{❨568❩}@c
+@anchor{❨527❩}@c
 @functionsubindex{package-external-symbols}@c
 Return the list of PACKAGE's external symbols.
 @table @strong
@@ -10531,7 +10531,7 @@ Return the list of PACKAGE's external symbols.
 @end table
 @end deffn
 @deffn {Function} {package-internal-symbols} (package)
-@anchor{❨565❩}@c
+@anchor{❨511❩}@c
 @functionsubindex{package-internal-symbols}@c
 Return the lists of PACKAGE's internal and external symbols as two values.
 @table @strong
@@ -10542,7 +10542,7 @@ Return the lists of PACKAGE's internal and external symbols as two values.
 @end table
 @end deffn
 @deffn {Function} {package-symbols} (package)
-@anchor{❨537❩}@c
+@anchor{❨504❩}@c
 @functionsubindex{package-symbols}@c
 Return the list of symbols from home PACKAGE.
 @table @strong
@@ -10553,7 +10553,7 @@ Return the list of symbols from home PACKAGE.
 @end table
 @end deffn
 @deffn {Function} {parse-contact(s)} (contact(s))
-@anchor{❨535❩}@c
+@anchor{❨569❩}@c
 @functionsubindex{parse-contact(s)}@c
 Parse CONTACT(S) as either a contact string@comma{} or a list of such.
 Return a list of parsed contacts. See `parse-contact-string' for more
@@ -10566,7 +10566,7 @@ information.
 @end table
 @end deffn
 @deffn {Function} {parse-contact-string} (string)
-@anchor{❨575❩}@c
+@anchor{❨501❩}@c
 @functionsubindex{parse-contact-string}@c
 Parse STRING of the form "My Name <my@atchar{}address>".@*
 Both name and address are optional. If only an address is provided@comma{} the angle
@@ -10582,7 +10582,7 @@ or the CDR may be null@comma{} but not both.
 @end table
 @end deffn
 @deffn {Function} {read-next-line} (stream)
-@anchor{❨771❩}@c
+@anchor{❨773❩}@c
 @functionsubindex{read-next-line}@c
 Read one line from STREAM.@*
 Return a list of two values:@*
@@ -10623,7 +10623,7 @@ dot by default) or NIL.
 @end table
 @end deffn
 @deffn {Function} {render-definition-core} (definition context)
-@anchor{❨764❩}@c
+@anchor{❨765❩}@c
 @functionsubindex{render-definition-core}@c
 Render DEFINITION's documentation core in CONTEXT.@*
 More specifically@comma{} render DEFINITION's package and source file references.
@@ -10758,7 +10758,7 @@ Render the whole nodes hierarchy starting at toplevel NODE.
 @end table
 @end deffn
 @deffn {Function} {reorder-dependency-def} (dependency-def)
-@anchor{❨582❩}@c
+@anchor{❨509❩}@c
 @functionsubindex{reorder-dependency-def}@c
 Reorder information in DEPENDENCY-DEF so that the system is always first.
 More specifically:@*
@@ -10779,7 +10779,7 @@ in the deepest first position.
 @end table
 @end deffn
 @deffn {Function} {reordered-dependency-def-system} (reordered-dependency-def)
-@anchor{❨524❩}@c
+@anchor{❨533❩}@c
 @functionsubindex{reordered-dependency-def-system}@c
 Extract the system name from REORDERED-DEPENDENCY-DEF.
 See `reorder-dependency-def' for more information.
@@ -10791,7 +10791,7 @@ See `reorder-dependency-def' for more information.
 @end table
 @end deffn
 @deffn {Function} {resolve-dependency-specification} (specification component definitions foreign)
-@anchor{❨563❩}@c
+@anchor{❨505❩}@c
 @functionsubindex{resolve-dependency-specification}@c
 Resolve dependency SPECIFICATION for (FOREIGN) COMPONENT in DEFINITIONS.
 SPECIFICATION must already be reordered (see `reorder-dependency-def' for more
@@ -10822,7 +10822,7 @@ for more information.
 @end table
 @end deffn
 @deffn {Function} {safe-lambda-list} (lambda-list &optional safe-specializers)
-@anchor{❨768❩}@c
+@anchor{❨770❩}@c
 @functionsubindex{safe-lambda-list}@c
 Return a safe LAMBDA-LIST@comma{} suitable to pass to Texinfo.@*
 The original lambda-list's structure is preserved@comma{} but all symbols are
@@ -10839,7 +10839,7 @@ arguments associated with a non-nil safe specializer are listed together.
 @end table
 @end deffn
 @deffn {Function} {safe-specializers} (definition context)
-@anchor{❨644❩}@c
+@anchor{❨645❩}@c
 @functionsubindex{safe-specializers}@c
 Return a list of safe specializers for method DEFINITION in CONTEXT.@*
 A safe specializer is the printed form of either a reference to a class
@@ -10869,7 +10869,7 @@ Return a new property list from KEYS with only SELECTED ones.
 @end table
 @end deffn
 @deffn {Function} {source-by-name} (name type)
-@anchor{❨558❩}@c
+@anchor{❨492❩}@c
 @functionsubindex{source-by-name}@c
 Return source pathname for NAMEd object of TYPE.
 @table @strong
@@ -10880,7 +10880,7 @@ Return source pathname for NAMEd object of TYPE.
 @end table
 @end deffn
 @deffn {Function} {source-by-object} (object)
-@anchor{❨585❩}@c
+@anchor{❨512❩}@c
 @functionsubindex{source-by-object}@c
 Return OBJECT's source pathname.
 @table @strong
@@ -10891,7 +10891,7 @@ Return OBJECT's source pathname.
 @end table
 @end deffn
 @deffn {Function} {stabilize-clos-classoid-slot} (definition definitions packages pathnames)
-@anchor{❨562❩}@c
+@anchor{❨531❩}@c
 @functionsubindex{stabilize-clos-classoid-slot}@c
 Compute CLOS classoid slot DEFINITION's reader and writer definitions.
 This function is used for regular class and condition slots.
@@ -10903,7 +10903,7 @@ This function is used for regular class and condition slots.
 @end table
 @end deffn
 @deffn {Function} {stabilize-clos-structure-slot} (definition definitions packages pathnames)
-@anchor{❨578❩}@c
+@anchor{❨494❩}@c
 @functionsubindex{stabilize-clos-structure-slot}@c
 Compute CLOS structure slot DEFINITION's reader and writer definitions.
 @table @strong
@@ -10914,7 +10914,7 @@ Compute CLOS structure slot DEFINITION's reader and writer definitions.
 @end table
 @end deffn
 @deffn {Function} {sub-component-p} (component directory)
-@anchor{❨583❩}@c
+@anchor{❨542❩}@c
 @functionsubindex{sub-component-p}@c
 Return T if COMPONENT can be found under DIRECTORY.
 @table @strong
@@ -10925,7 +10925,7 @@ Return T if COMPONENT can be found under DIRECTORY.
 @end table
 @end deffn
 @deffn {Function} {subsystem} (name system directory)
-@anchor{❨567❩}@c
+@anchor{❨570❩}@c
 @functionsubindex{subsystem}@c
 Return NAME'd SYSTEM dependency if found under DIRECTORY@comma{} or nil.
 @table @strong
@@ -10936,7 +10936,7 @@ Return NAME'd SYSTEM dependency if found under DIRECTORY@comma{} or nil.
 @end table
 @end deffn
 @deffn {Function} {subsystems} (system directory)
-@anchor{❨579❩}@c
+@anchor{❨522❩}@c
 @functionsubindex{subsystems}@c
 Return the list of SYSTEM and all its dependencies found under DIRECTORY.
 All dependencies are descended recursively. Both :defsystem-depends-on and
@@ -10949,7 +10949,7 @@ All dependencies are descended recursively. Both :defsystem-depends-on and
 @end table
 @end deffn
 @deffn {Function} {system-dependencies} (system)
-@anchor{❨528❩}@c
+@anchor{❨489❩}@c
 @functionsubindex{system-dependencies}@c
 Return all system names from SYSTEM dependencies.
 This includes both :defsystem-depends-on and :depends-on.
@@ -10961,7 +10961,7 @@ This includes both :defsystem-depends-on and :depends-on.
 @end table
 @end deffn
 @deffn {Function} {validate-email} (string)
-@anchor{❨543❩}@c
+@anchor{❨506❩}@c
 @functionsubindex{validate-email}@c
 Check that STRING is of the form nonblank@atchar{}nonblank@comma{} after trimming.
 Return that string@comma{} or issue a warning and return NIL.
@@ -10976,7 +10976,7 @@ Return that string@comma{} or issue a warning and return NIL.
 @node Private generic functions, Private method combinations, Private ordinary functions, Internals
 @subsection Generic functions
 @deffn {Generic Function} {category-name} (definition)
-@anchor{❨645❩}@c
+@anchor{❨646❩}@c
 @genericsubindex{category-name}@c
 Return DEFINITION's category name.
 @table @strong
@@ -10986,7 +10986,7 @@ Return DEFINITION's category name.
 @ref{❨22❩, , @t{doc.lisp}}.
 @item Methods
 @deffn {Method} {category-name} ((definition @ref{❨146❩, , @t{system-definition}}))
-@anchor{❨646❩}@c
+@anchor{❨647❩}@c
 @methodsubindex{category-name}@c
 Return "system"
 @table @strong
@@ -10995,7 +10995,7 @@ Return "system"
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨98❩, , @t{module-definition}}))
-@anchor{❨647❩}@c
+@anchor{❨648❩}@c
 @methodsubindex{category-name}@c
 Return "module"
 @table @strong
@@ -11004,7 +11004,7 @@ Return "module"
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨347❩, , @t{file-definition}}))
-@anchor{❨648❩}@c
+@anchor{❨649❩}@c
 @methodsubindex{category-name}@c
 Return "file"
 @table @strong
@@ -11013,7 +11013,7 @@ Return "file"
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨208❩, , @t{package-definition}}))
-@anchor{❨649❩}@c
+@anchor{❨650❩}@c
 @methodsubindex{category-name}@c
 Return "package".
 @table @strong
@@ -11022,7 +11022,7 @@ Return "package".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨215❩, , @t{alias-definition}}))
-@anchor{❨650❩}@c
+@anchor{❨651❩}@c
 @methodsubindex{category-name}@c
 Return the category name of alias DEFINITION's referee.
 @table @strong
@@ -11031,7 +11031,7 @@ Return the category name of alias DEFINITION's referee.
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨159❩, , @t{slot-definition}}))
-@anchor{❨651❩}@c
+@anchor{❨652❩}@c
 @methodsubindex{category-name}@c
 Return "slot".
 @table @strong
@@ -11040,7 +11040,7 @@ Return "slot".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨417❩, , @t{class-definition}}))
-@anchor{❨652❩}@c
+@anchor{❨653❩}@c
 @methodsubindex{category-name}@c
 Return "class".
 @table @strong
@@ -11049,7 +11049,7 @@ Return "class".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨421❩, , @t{condition-definition}}))
-@anchor{❨653❩}@c
+@anchor{❨654❩}@c
 @methodsubindex{category-name}@c
 Return "condition".
 @table @strong
@@ -11058,7 +11058,7 @@ Return "condition".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨285❩, , @t{structure-definition}}))
-@anchor{❨654❩}@c
+@anchor{❨655❩}@c
 @methodsubindex{category-name}@c
 Return "structure".
 @table @strong
@@ -11067,7 +11067,7 @@ Return "structure".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨268❩, , @t{writer-method-definition}}))
-@anchor{❨655❩}@c
+@anchor{❨656❩}@c
 @methodsubindex{category-name}@c
 Return "writer method".
 @table @strong
@@ -11076,7 +11076,7 @@ Return "writer method".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨97❩, , @t{reader-method-definition}}))
-@anchor{❨656❩}@c
+@anchor{❨657❩}@c
 @methodsubindex{category-name}@c
 Return "reader method".
 @table @strong
@@ -11085,7 +11085,7 @@ Return "reader method".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨85❩, , @t{method-definition}}))
-@anchor{❨657❩}@c
+@anchor{❨658❩}@c
 @methodsubindex{category-name}@c
 Return "method".
 @table @strong
@@ -11094,7 +11094,7 @@ Return "method".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨203❩, , @t{combination-definition}}))
-@anchor{❨658❩}@c
+@anchor{❨659❩}@c
 @methodsubindex{category-name}@c
 Return "method combination".
 @table @strong
@@ -11103,7 +11103,7 @@ Return "method combination".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨346❩, , @t{generic-writer-definition}}))
-@anchor{❨659❩}@c
+@anchor{❨660❩}@c
 @methodsubindex{category-name}@c
 Return "generic writer".
 @table @strong
@@ -11112,7 +11112,7 @@ Return "generic writer".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨56❩, , @t{generic-reader-definition}}))
-@anchor{❨660❩}@c
+@anchor{❨661❩}@c
 @methodsubindex{category-name}@c
 Return "generic reader".
 @table @strong
@@ -11121,7 +11121,7 @@ Return "generic reader".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨45❩, , @t{generic-function-definition}}))
-@anchor{❨661❩}@c
+@anchor{❨662❩}@c
 @methodsubindex{category-name}@c
 Return "generic function".
 @table @strong
@@ -11130,7 +11130,7 @@ Return "generic function".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨193❩, , @t{ordinary-writer-definition}}))
-@anchor{❨662❩}@c
+@anchor{❨663❩}@c
 @methodsubindex{category-name}@c
 Return "writer".
 @table @strong
@@ -11139,7 +11139,7 @@ Return "writer".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨186❩, , @t{ordinary-reader-definition}}))
-@anchor{❨663❩}@c
+@anchor{❨664❩}@c
 @methodsubindex{category-name}@c
 Return "reader".
 @table @strong
@@ -11148,7 +11148,7 @@ Return "reader".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨436❩, , @t{ordinary-function-definition}}))
-@anchor{❨664❩}@c
+@anchor{❨665❩}@c
 @methodsubindex{category-name}@c
 Return "function".
 @table @strong
@@ -11157,7 +11157,7 @@ Return "function".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((expander @ref{❨123❩, , @t{expander-definition}}))
-@anchor{❨665❩}@c
+@anchor{❨666❩}@c
 @methodsubindex{category-name}@c
 Return "setf expander".
 @table @strong
@@ -11166,7 +11166,7 @@ Return "setf expander".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨322❩, , @t{type-definition}}))
-@anchor{❨666❩}@c
+@anchor{❨667❩}@c
 @methodsubindex{category-name}@c
 Return "type".
 @table @strong
@@ -11175,7 +11175,7 @@ Return "type".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨390❩, , @t{compiler-macro-definition}}))
-@anchor{❨667❩}@c
+@anchor{❨668❩}@c
 @methodsubindex{category-name}@c
 Return "compiler macro".
 @table @strong
@@ -11184,7 +11184,7 @@ Return "compiler macro".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨266❩, , @t{macro-definition}}))
-@anchor{❨668❩}@c
+@anchor{❨669❩}@c
 @methodsubindex{category-name}@c
 Return "macro".
 @table @strong
@@ -11193,7 +11193,7 @@ Return "macro".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨145❩, , @t{symbol-macro-definition}}))
-@anchor{❨669❩}@c
+@anchor{❨670❩}@c
 @methodsubindex{category-name}@c
 Return "symbol macro".
 @table @strong
@@ -11202,7 +11202,7 @@ Return "symbol macro".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨94❩, , @t{special-definition}}))
-@anchor{❨670❩}@c
+@anchor{❨671❩}@c
 @methodsubindex{category-name}@c
 Return "special variable".
 @table @strong
@@ -11211,7 +11211,7 @@ Return "special variable".
 @end table
 @end deffn
 @deffn {Method} {category-name} ((definition @ref{❨392❩, , @t{constant-definition}}))
-@anchor{❨671❩}@c
+@anchor{❨672❩}@c
 @methodsubindex{category-name}@c
 Return "constant".
 @table @strong
@@ -11228,7 +11228,7 @@ Return "constant".
 @item Package
 @ref{❨38❩, , @t{net.didierverna.declt}}.
 @item Methods
-@deffn {Reader Method} {declt-notice} ((context @ref{❨680❩, , @t{context}}))
+@deffn {Reader Method} {declt-notice} ((context @ref{❨679❩, , @t{context}}))
 @anchor{❨750❩}@c
 @methodsubindex{declt-notice}@c
 whether to add a small credit paragraph about Declt.
@@ -11237,33 +11237,33 @@ Possible values are NIL@comma{} :short@comma{} or :long (the default).
 @item Source
 @ref{❨22❩, , @t{doc.lisp}}.
 @item Target Slot
-@ref{❨684❩, , @t{declt-notice}}.
+@ref{❨683❩, , @t{declt-notice}}.
 @end table
 @end deffn
 @end table
 @end deffn
 @deffn {Generic Reader} {default-values} (object)
-@anchor{❨623❩}@c
+@anchor{❨633❩}@c
 @genericsubindex{default-values}@c
 @table @strong
 @item Package
 @ref{❨38❩, , @t{net.didierverna.declt}}.
 @item Methods
-@deffn {Reader Method} {default-values} ((context @ref{❨680❩, , @t{context}}))
-@anchor{❨624❩}@c
+@deffn {Reader Method} {default-values} ((context @ref{❨679❩, , @t{context}}))
+@anchor{❨634❩}@c
 @methodsubindex{default-values}@c
 Whether to render default / standard values.
 @table @strong
 @item Source
 @ref{❨22❩, , @t{doc.lisp}}.
 @item Target Slot
-@ref{❨682❩, , @t{default-values}}.
+@ref{❨681❩, , @t{default-values}}.
 @end table
 @end deffn
 @end table
 @end deffn
 @deffn {Generic Function} {document} (definition context &key inline writer merged-methods merge-expander &allow-other-keys)
-@anchor{❨784❩}@c
+@anchor{❨786❩}@c
 @genericsubindex{document}@c
 Render DEFINITION's documentation in CONTEXT.
 @table @strong
@@ -11272,10 +11272,10 @@ Render DEFINITION's documentation in CONTEXT.
 @item Source
 @ref{❨22❩, , @t{doc.lisp}}.
 @item Method Combination
-@ref{❨824❩, , @t{document}}.
+@ref{❨826❩, , @t{document}}.
 @item Methods
 @deffn {Method} {document} :open ((definition @ref{❨146❩, , @t{system-definition}}) context &key)
-@anchor{❨785❩}@c
+@anchor{❨787❩}@c
 @methodsubindex{document}@c
 Render DEFINITION's system-specific bits in CONTEXT.
 @table @strong
@@ -11284,7 +11284,7 @@ Render DEFINITION's system-specific bits in CONTEXT.
 @end table
 @end deffn
 @deffn {Method} {document} :close ((definition @ref{❨98❩, , @t{module-definition}}) context &key)
-@anchor{❨786❩}@c
+@anchor{❨788❩}@c
 @methodsubindex{document}@c
 Render module DEFINITION's references in CONTEXT.
 @table @strong
@@ -11293,7 +11293,7 @@ Render module DEFINITION's references in CONTEXT.
 @end table
 @end deffn
 @deffn {Method} {document} :close ((definition @ref{❨272❩, , @t{lisp-file-definition}}) context &key)
-@anchor{❨787❩}@c
+@anchor{❨789❩}@c
 @methodsubindex{document}@c
 Render lisp file DEFINITION's references in CONTEXT.
 @table @strong
@@ -11302,7 +11302,7 @@ Render lisp file DEFINITION's references in CONTEXT.
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨130❩, , @t{component-definition}}) context &key)
-@anchor{❨788❩}@c
+@anchor{❨790❩}@c
 @methodsubindex{document}@c
 Render ASDF component DEFINITION's documentation in CONTEXT.
 @table @strong
@@ -11311,7 +11311,7 @@ Render ASDF component DEFINITION's documentation in CONTEXT.
 @end table
 @end deffn
 @deffn {Method} {document} :around ((definition @ref{❨130❩, , @t{component-definition}}) context &key)
-@anchor{❨789❩}@c
+@anchor{❨791❩}@c
 @methodsubindex{document}@c
 Anchor@comma{} index and document component DEFINITION in CONTEXT.
 Documentation is done in a @atchar{}table environment.
@@ -11321,7 +11321,7 @@ Documentation is done in a @atchar{}table environment.
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨208❩, , @t{package-definition}}) context &key)
-@anchor{❨790❩}@c
+@anchor{❨792❩}@c
 @methodsubindex{document}@c
 Render package DEFINITION's documentation in context.
 @table @strong
@@ -11330,7 +11330,7 @@ Render package DEFINITION's documentation in context.
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨215❩, , @t{alias-definition}}) context &key)
-@anchor{❨791❩}@c
+@anchor{❨793❩}@c
 @methodsubindex{document}@c
 Render alias DEFINITION's documentation in CONTEXT.
 @table @strong
@@ -11339,7 +11339,7 @@ Render alias DEFINITION's documentation in CONTEXT.
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨127❩, , @t{typed-structure-slot-definition}}) context &key)
-@anchor{❨792❩}@c
+@anchor{❨794❩}@c
 @methodsubindex{document}@c
 Render typed structure slot DEFINITION's documentation in CONTEXT.
 More specifically@comma{} render DEFINITION's reader and writer references.
@@ -11349,7 +11349,7 @@ More specifically@comma{} render DEFINITION's reader and writer references.
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨128❩, , @t{clos-slot-definition}}) context &key)
-@anchor{❨793❩}@c
+@anchor{❨795❩}@c
 @methodsubindex{document}@c
 Render CLOS slot DEFINITION's documentation in CONTEXT.@*
 More specifically@comma{} render DEFINITION's reader and writer references.
@@ -11359,7 +11359,7 @@ More specifically@comma{} render DEFINITION's reader and writer references.
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨159❩, , @t{slot-definition}}) context &key)
-@anchor{❨794❩}@c
+@anchor{❨796❩}@c
 @methodsubindex{document}@c
 Render slot DEFINITION's documentation in context.@*
 More specifically@comma{} render DEFINITION's value type@comma{} and for CLOS slots render
@@ -11370,7 +11370,7 @@ allocation@comma{} initform@comma{} and initargs.
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨431❩, , @t{typed-structure-definition}}) context &key)
-@anchor{❨795❩}@c
+@anchor{❨797❩}@c
 @methodsubindex{document}@c
 Render typed structure DEFINITION's type documentation in CONTEXT.
 @table @strong
@@ -11379,7 +11379,7 @@ Render typed structure DEFINITION's type documentation in CONTEXT.
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨177❩, , @t{clos-classoid-mixin}}) context &key)
-@anchor{❨796❩}@c
+@anchor{❨798❩}@c
 @methodsubindex{document}@c
 Render CLOS classoid mixin DEFINITION's documentation in CONTEXT.
 More specifically@comma{} render DEFINITION's direct superclasses@comma{} subclasses@comma{}
@@ -11390,7 +11390,7 @@ methods@comma{} and initargs references.
 @end table
 @end deffn
 @deffn {Method} {document} :close ((definition @ref{❨337❩, , @t{classoid-definition}}) context &key)
-@anchor{❨797❩}@c
+@anchor{❨799❩}@c
 @methodsubindex{document}@c
 Close classoid DEFINITION's documentation environment in CONTEXT.
 More specifically:@*
@@ -11402,7 +11402,7 @@ More specifically:@*
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨337❩, , @t{classoid-definition}}) context &key)
-@anchor{❨798❩}@c
+@anchor{❨800❩}@c
 @methodsubindex{document}@c
 Render classoid DEFINITION's direct slots references in CONTEXT.
 @table @strong
@@ -11411,7 +11411,7 @@ Render classoid DEFINITION's direct slots references in CONTEXT.
 @end table
 @end deffn
 @deffn {Method} {document} :open ((definition @ref{❨337❩, , @t{classoid-definition}}) context &key)
-@anchor{❨799❩}@c
+@anchor{❨801❩}@c
 @methodsubindex{document}@c
 Open classoid DEFINITION's documentation environment in CONTEXT.
 More specifically:@*
@@ -11426,7 +11426,7 @@ More specifically:@*
 @end table
 @end deffn
 @deffn {Method} {document} :open ((definition @ref{❨85❩, , @t{method-definition}}) context &key inline writer)
-@anchor{❨800❩}@c
+@anchor{❨802❩}@c
 @methodsubindex{document}@c
 Open method DEFINITION's documentation in CONTEXT.@*
 More specifically:@*
@@ -11445,7 +11445,7 @@ from that of the owner's.
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨231❩, , @t{short-combination-definition}}) context &key)
-@anchor{❨801❩}@c
+@anchor{❨803❩}@c
 @methodsubindex{document}@c
 Render short method combination DEFINITION's documentation in CONTEXT.
 @table @strong
@@ -11454,7 +11454,7 @@ Render short method combination DEFINITION's documentation in CONTEXT.
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨203❩, , @t{combination-definition}}) context &key)
-@anchor{❨802❩}@c
+@anchor{❨804❩}@c
 @methodsubindex{document}@c
 Render method combination DEFINITION's client references in CONTEXT.
 @table @strong
@@ -11463,7 +11463,7 @@ Render method combination DEFINITION's client references in CONTEXT.
 @end table
 @end deffn
 @deffn {Method} {document} :around ((definition @ref{❨346❩, , @t{generic-writer-definition}}) context &key)
-@anchor{❨803❩}@c
+@anchor{❨805❩}@c
 @methodsubindex{document}@c
 Prevent generic writer DEFINITION from being documented when merging.
 @table @strong
@@ -11472,7 +11472,7 @@ Prevent generic writer DEFINITION from being documented when merging.
 @end table
 @end deffn
 @deffn {Method} {document} :around ((definition @ref{❨56❩, , @t{generic-reader-definition}}) context &rest args &key)
-@anchor{❨804❩}@c
+@anchor{❨806❩}@c
 @methodsubindex{document}@c
 Check for potential writer merging with generic reader DEFINITION.
 @table @strong
@@ -11481,7 +11481,7 @@ Check for potential writer merging with generic reader DEFINITION.
 @end table
 @end deffn
 @deffn {Method} {document} :close ((definition @ref{❨45❩, , @t{generic-function-definition}}) context &key merged-methods)
-@anchor{❨805❩}@c
+@anchor{❨807❩}@c
 @methodsubindex{document}@c
 Close generic function DEFINITION's documentation.@*
 More specifically:@*
@@ -11494,7 +11494,7 @@ More specifically:@*
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨45❩, , @t{generic-function-definition}}) context &key)
-@anchor{❨806❩}@c
+@anchor{❨808❩}@c
 @methodsubindex{document}@c
 Render generic function DEFINITION's combination reference in CONTEXT.
 @table @strong
@@ -11503,7 +11503,7 @@ Render generic function DEFINITION's combination reference in CONTEXT.
 @end table
 @end deffn
 @deffn {Method} {document} :around ((definition @ref{❨193❩, , @t{ordinary-writer-definition}}) context &key)
-@anchor{❨807❩}@c
+@anchor{❨809❩}@c
 @methodsubindex{document}@c
 Prevent ordinary writer DEFINITION from being documented when merging.
 @table @strong
@@ -11512,7 +11512,7 @@ Prevent ordinary writer DEFINITION from being documented when merging.
 @end table
 @end deffn
 @deffn {Method} {document} :around ((definition @ref{❨186❩, , @t{ordinary-reader-definition}}) context &rest args &key)
-@anchor{❨808❩}@c
+@anchor{❨810❩}@c
 @methodsubindex{document}@c
 Check for potential writer merging with ordinary reader DEFINITION.
 @table @strong
@@ -11521,7 +11521,7 @@ Check for potential writer merging with ordinary reader DEFINITION.
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨479❩, , @t{short-expander-definition}}) context &key)
-@anchor{❨809❩}@c
+@anchor{❨811❩}@c
 @methodsubindex{document}@c
 Render short expander DEFINITION's standalone writer reference in CONTEXT.
 @table @strong
@@ -11530,7 +11530,7 @@ Render short expander DEFINITION's standalone writer reference in CONTEXT.
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨123❩, , @t{expander-definition}}) context &key)
-@anchor{❨810❩}@c
+@anchor{❨812❩}@c
 @methodsubindex{document}@c
 Render setf expander DEFINITION's standalone reader reference in CONTEXT.
 @table @strong
@@ -11539,7 +11539,7 @@ Render setf expander DEFINITION's standalone reader reference in CONTEXT.
 @end table
 @end deffn
 @deffn {Method} {document} :around ((definition @ref{❨43❩, , @t{long-expander-definition}}) context &key)
-@anchor{❨811❩}@c
+@anchor{❨813❩}@c
 @methodsubindex{document}@c
 Prevent long expander DEFINITION from being documented when merging.
 @table @strong
@@ -11548,7 +11548,7 @@ Prevent long expander DEFINITION from being documented when merging.
 @end table
 @end deffn
 @deffn {Method} {document} :close ((definition @ref{❨322❩, , @t{type-definition}}) context &key)
-@anchor{❨812❩}@c
+@anchor{❨814❩}@c
 @methodsubindex{document}@c
 Close type DEFINITION's documentation environment in CONTEXT.
 More specifically:@*
@@ -11560,7 +11560,7 @@ More specifically:@*
 @end table
 @end deffn
 @deffn {Method} {document} :open ((definition @ref{❨322❩, , @t{type-definition}}) context &key)
-@anchor{❨813❩}@c
+@anchor{❨815❩}@c
 @methodsubindex{document}@c
 Open type DEFINITION's documentation environment in CONTEXT.
 More specifically:@*
@@ -11575,7 +11575,7 @@ More specifically:@*
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨229❩, , @t{accessor-mixin}}) context &key)
-@anchor{❨814❩}@c
+@anchor{❨816❩}@c
 @methodsubindex{document}@c
 Render accessor mixin DEFINITION's target slot reference in CONTEXT.
 @table @strong
@@ -11584,7 +11584,7 @@ Render accessor mixin DEFINITION's target slot reference in CONTEXT.
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨237❩, , @t{setfable-funcoid-definition}}) context &key merge-expander)
-@anchor{❨815❩}@c
+@anchor{❨817❩}@c
 @methodsubindex{document}@c
 Render setfable funcoid DEFINITION's expanders information in CONTEXT.
 More specifically:@*
@@ -11597,7 +11597,7 @@ More specifically:@*
 @end table
 @end deffn
 @deffn {Method} {document} :open ((definition @ref{❨237❩, , @t{setfable-funcoid-definition}}) context &key merge-expander writer)
-@anchor{❨816❩}@c
+@anchor{❨818❩}@c
 @methodsubindex{document}@c
 Open setfable funcoid DEFINITION's documentation environment in CONTEXT.
 More specifically:@*
@@ -11613,7 +11613,7 @@ More specifically:@*
 @end table
 @end deffn
 @deffn {Method} {document} :around ((definition @ref{❨237❩, , @t{setfable-funcoid-definition}}) context &rest args &key)
-@anchor{❨817❩}@c
+@anchor{❨819❩}@c
 @methodsubindex{document}@c
 Check for potential expander merging of setfable funcoid DEFINITION.
 @table @strong
@@ -11622,7 +11622,7 @@ Check for potential expander merging of setfable funcoid DEFINITION.
 @end table
 @end deffn
 @deffn {Method} {document} :close ((definition @ref{❨291❩, , @t{funcoid-definition}}) context &key)
-@anchor{❨818❩}@c
+@anchor{❨820❩}@c
 @methodsubindex{document}@c
 Close funcoid DEFINITION's documentation environment in CONTEXT.
 More specifically:@*
@@ -11634,7 +11634,7 @@ More specifically:@*
 @end table
 @end deffn
 @deffn {Method} {document} :open ((definition @ref{❨291❩, , @t{funcoid-definition}}) context &key)
-@anchor{❨819❩}@c
+@anchor{❨821❩}@c
 @methodsubindex{document}@c
 Open funcoid DEFINITION's documentation environment in CONTEXT.
 More specifically:@*
@@ -11650,7 +11650,7 @@ This is the default method.
 @end table
 @end deffn
 @deffn {Method} {document} :close ((definition @ref{❨44❩, , @t{varoid-definition}}) context &key)
-@anchor{❨820❩}@c
+@anchor{❨822❩}@c
 @methodsubindex{document}@c
 Close varoid DEFINITION's documentation environment in CONTEXT.
 More specifically:@*
@@ -11662,7 +11662,7 @@ More specifically:@*
 @end table
 @end deffn
 @deffn {Method} {document} ((definition @ref{❨44❩, , @t{varoid-definition}}) context &key)
-@anchor{❨821❩}@c
+@anchor{❨823❩}@c
 @methodsubindex{document}@c
 Render varoid DEFINITION's documentation in CONTEXT.@*
 More specifically@comma{} render DEFINITION's package and source file references.
@@ -11675,7 +11675,7 @@ the same as their owner.
 @end table
 @end deffn
 @deffn {Method} {document} :open ((definition @ref{❨44❩, , @t{varoid-definition}}) context &key)
-@anchor{❨822❩}@c
+@anchor{❨824❩}@c
 @methodsubindex{document}@c
 Open varoid DEFINITIONS's documentation environment in CONTEXT.
 More specifically:@*
@@ -11689,7 +11689,7 @@ More specifically:@*
 @end table
 @end deffn
 @deffn {Method} {document} :around (definition context &key)
-@anchor{❨823❩}@c
+@anchor{❨825❩}@c
 @methodsubindex{document}@c
 Check whether to render foreign DEFINITIONs.
 @table @strong
@@ -11698,20 +11698,20 @@ Check whether to render foreign DEFINITIONs.
 @end table
 @end deffn
 @deffn {Generic Reader} {external-symbols} (object)
-@anchor{❨492❩}@c
+@anchor{❨495❩}@c
 @genericsubindex{external-symbols}@c
 @deffnx {Generic Writer} {(setf external-symbols)} (object)
-@anchor{❨494❩}@c
+@anchor{❨497❩}@c
 @genericsubindex{(setf external-symbols)}@c
 @table @strong
 @item Package
 @ref{❨36❩, , @t{net.didierverna.declt.assess}}.
 @item Methods
 @deffn {Reader Method} {external-symbols} ((package-definition @ref{❨208❩, , @t{package-definition}}))
-@anchor{❨493❩}@c
+@anchor{❨496❩}@c
 @methodsubindex{external-symbols}@c
 @deffnx {Writer Method} {(setf external-symbols)} ((package-definition @ref{❨208❩, , @t{package-definition}}))
-@anchor{❨495❩}@c
+@anchor{❨498❩}@c
 @methodsubindex{(setf external-symbols)}@c
 The list of corresponding external symbols.
 @table @strong
@@ -11724,21 +11724,21 @@ The list of corresponding external symbols.
 @end table
 @end deffn
 @deffn {Generic Reader} {foreign-definitions} (object)
-@anchor{❨678❩}@c
+@anchor{❨677❩}@c
 @genericsubindex{foreign-definitions}@c
 @table @strong
 @item Package
 @ref{❨38❩, , @t{net.didierverna.declt}}.
 @item Methods
-@deffn {Reader Method} {foreign-definitions} ((context @ref{❨680❩, , @t{context}}))
-@anchor{❨679❩}@c
+@deffn {Reader Method} {foreign-definitions} ((context @ref{❨679❩, , @t{context}}))
+@anchor{❨678❩}@c
 @methodsubindex{foreign-definitions}@c
 Whether to render foreign definitions.
 @table @strong
 @item Source
 @ref{❨22❩, , @t{doc.lisp}}.
 @item Target Slot
-@ref{❨683❩, , @t{foreign-definitions}}.
+@ref{❨682❩, , @t{foreign-definitions}}.
 @end table
 @end deffn
 @end table
@@ -11936,20 +11936,20 @@ Return "constantsubindex".
 @end table
 @end deffn
 @deffn {Generic Reader} {internal-symbols} (object)
-@anchor{❨587❩}@c
+@anchor{❨534❩}@c
 @genericsubindex{internal-symbols}@c
 @deffnx {Generic Writer} {(setf internal-symbols)} (object)
-@anchor{❨589❩}@c
+@anchor{❨536❩}@c
 @genericsubindex{(setf internal-symbols)}@c
 @table @strong
 @item Package
 @ref{❨36❩, , @t{net.didierverna.declt.assess}}.
 @item Methods
 @deffn {Reader Method} {internal-symbols} ((package-definition @ref{❨208❩, , @t{package-definition}}))
-@anchor{❨588❩}@c
+@anchor{❨535❩}@c
 @methodsubindex{internal-symbols}@c
 @deffnx {Writer Method} {(setf internal-symbols)} ((package-definition @ref{❨208❩, , @t{package-definition}}))
-@anchor{❨590❩}@c
+@anchor{❨537❩}@c
 @methodsubindex{(setf internal-symbols)}@c
 The list of corresponding internal symbols.
 @table @strong
@@ -11962,14 +11962,14 @@ The list of corresponding internal symbols.
 @end table
 @end deffn
 @deffn {Generic Reader} {locations} (object)
-@anchor{❨782❩}@c
+@anchor{❨784❩}@c
 @genericsubindex{locations}@c
 @table @strong
 @item Package
 @ref{❨38❩, , @t{net.didierverna.declt}}.
 @item Methods
-@deffn {Reader Method} {locations} ((context @ref{❨680❩, , @t{context}}))
-@anchor{❨783❩}@c
+@deffn {Reader Method} {locations} ((context @ref{❨679❩, , @t{context}}))
+@anchor{❨785❩}@c
 @methodsubindex{locations}@c
 Whether to hyperlink definitions to their locations.@*
 Currently supported values are NIL (the default)@comma{} and :file-system.
@@ -11977,13 +11977,13 @@ Currently supported values are NIL (the default)@comma{} and :file-system.
 @item Source
 @ref{❨22❩, , @t{doc.lisp}}.
 @item Target Slot
-@ref{❨681❩, , @t{locations}}.
+@ref{❨680❩, , @t{locations}}.
 @end table
 @end deffn
 @end table
 @end deffn
 @deffn {Generic Function} {safe-name} (definition &optional qualified)
-@anchor{❨774❩}@c
+@anchor{❨776❩}@c
 @genericsubindex{safe-name}@c
 Return DEFINITION's safe name@comma{} possibly QUALIFIED.@*
 Safe names have blank characters replaced with visible Unicode symbols.
@@ -11995,7 +11995,7 @@ See `reveal' for more information.
 @ref{❨22❩, , @t{doc.lisp}}.
 @item Methods
 @deffn {Method} {safe-name} :around ((definition @ref{❨347❩, , @t{file-definition}}) &optional qualify)
-@anchor{❨775❩}@c
+@anchor{❨777❩}@c
 @methodsubindex{safe-name}@c
 Append DEFINITION's file extension at the end@comma{} when applicable.
 @table @strong
@@ -12004,7 +12004,7 @@ Append DEFINITION's file extension at the end@comma{} when applicable.
 @end table
 @end deffn
 @deffn {Method} {safe-name} ((definition @ref{❨130❩, , @t{component-definition}}) &optional qualified)
-@anchor{❨776❩}@c
+@anchor{❨778❩}@c
 @methodsubindex{safe-name}@c
 Reveal component DEFINITION's name@comma{} possibly QUALIFIED.@*
 A QUALIFIED component's name is of the form "path/to/component"@comma{} each
@@ -12015,7 +12015,7 @@ element being the name of a component's parent.
 @end table
 @end deffn
 @deffn {Method} {safe-name} :around ((definition @ref{❨159❩, , @t{slot-definition}}) &optional qualified)
-@anchor{❨777❩}@c
+@anchor{❨779❩}@c
 @methodsubindex{safe-name}@c
 When QUALIFIED@comma{} prepend slot DEFINITION's classoid safe name.
 @table @strong
@@ -12024,7 +12024,7 @@ When QUALIFIED@comma{} prepend slot DEFINITION's classoid safe name.
 @end table
 @end deffn
 @deffn {Method} {safe-name} :around ((definition @ref{❨85❩, , @t{method-definition}}) &optional qualified)
-@anchor{❨778❩}@c
+@anchor{❨780❩}@c
 @methodsubindex{safe-name}@c
 When QUALIFIED@comma{} append method DEFINITION's qualifiers and specializers.
 @table @strong
@@ -12033,7 +12033,7 @@ When QUALIFIED@comma{} append method DEFINITION's qualifiers and specializers.
 @end table
 @end deffn
 @deffn {Method} {safe-name} ((definition @ref{❨218❩, , @t{symbol-definition}}) &optional qualified)
-@anchor{❨779❩}@c
+@anchor{❨781❩}@c
 @methodsubindex{safe-name}@c
 Reveal symbol DEFINITION's name@comma{} possibly QUALIFIED.@*
 A QUALIFIED name is of the form "package:[:]symbol"@comma{} maybe in a setf list.
@@ -12044,7 +12044,7 @@ Uninterned symbols are denoted by the ∅ package.
 @end table
 @end deffn
 @deffn {Method} {safe-name} ((definition @ref{❨385❩, , @t{definition}}) &optional qualified)
-@anchor{❨780❩}@c
+@anchor{❨782❩}@c
 @methodsubindex{safe-name}@c
 Reveal unqualifiable DEFINITION's name. This is the default method.
 @table @strong
@@ -12053,7 +12053,7 @@ Reveal unqualifiable DEFINITION's name. This is the default method.
 @end table
 @end deffn
 @deffn {Generic Function} {source-pathname} (definition)
-@anchor{❨547❩}@c
+@anchor{❨576❩}@c
 @genericsubindex{source-pathname}@c
 Return DEFINITION's source pathname.
 @table @strong
@@ -12063,7 +12063,7 @@ Return DEFINITION's source pathname.
 @ref{❨29❩, , @t{definition.lisp}}.
 @item Methods
 @deffn {Method} {source-pathname} ((definition @ref{❨130❩, , @t{component-definition}}))
-@anchor{❨548❩}@c
+@anchor{❨577❩}@c
 @methodsubindex{source-pathname}@c
 Return component DEFINITION's source pathname.@*
 This actually is the corresponding system's source file.
@@ -12073,7 +12073,7 @@ This actually is the corresponding system's source file.
 @end table
 @end deffn
 @deffn {Method} {source-pathname} ((definition @ref{❨215❩, , @t{alias-definition}}))
-@anchor{❨549❩}@c
+@anchor{❨578❩}@c
 @methodsubindex{source-pathname}@c
 Return NIL.@*
 Aliases are defined dynamically so it's impossible to locate the code
@@ -12084,7 +12084,7 @@ being executed.
 @end table
 @end deffn
 @deffn {Method} {source-pathname} ((definition @ref{❨159❩, , @t{slot-definition}}))
-@anchor{❨550❩}@c
+@anchor{❨579❩}@c
 @methodsubindex{source-pathname}@c
 Return slot DEFINITION's owner source pathname.
 @table @strong
@@ -12093,7 +12093,7 @@ Return slot DEFINITION's owner source pathname.
 @end table
 @end deffn
 @deffn {Method} {source-pathname} ((definition @ref{❨203❩, , @t{combination-definition}}))
-@anchor{❨551❩}@c
+@anchor{❨580❩}@c
 @methodsubindex{source-pathname}@c
 Return method combination DEFINITION's source pathname.
 @table @strong
@@ -12102,7 +12102,7 @@ Return method combination DEFINITION's source pathname.
 @end table
 @end deffn
 @deffn {Method} {source-pathname} ((definition @ref{❨123❩, , @t{expander-definition}}))
-@anchor{❨552❩}@c
+@anchor{❨581❩}@c
 @methodsubindex{source-pathname}@c
 Return setf expander DEFINITION's source pathname.
 @table @strong
@@ -12111,7 +12111,7 @@ Return setf expander DEFINITION's source pathname.
 @end table
 @end deffn
 @deffn {Method} {source-pathname} ((definition @ref{❨322❩, , @t{type-definition}}))
-@anchor{❨553❩}@c
+@anchor{❨582❩}@c
 @methodsubindex{source-pathname}@c
 Return type DEFINITION's source pathname.
 @table @strong
@@ -12120,7 +12120,7 @@ Return type DEFINITION's source pathname.
 @end table
 @end deffn
 @deffn {Method} {source-pathname} ((definition @ref{❨145❩, , @t{symbol-macro-definition}}))
-@anchor{❨554❩}@c
+@anchor{❨583❩}@c
 @methodsubindex{source-pathname}@c
 Return symbol macro DEFINITION's source pathname.
 @table @strong
@@ -12129,7 +12129,7 @@ Return symbol macro DEFINITION's source pathname.
 @end table
 @end deffn
 @deffn {Method} {source-pathname} ((definition @ref{❨94❩, , @t{special-definition}}))
-@anchor{❨555❩}@c
+@anchor{❨584❩}@c
 @methodsubindex{source-pathname}@c
 Return special DEFINITION's source pathname.
 @table @strong
@@ -12138,7 +12138,7 @@ Return special DEFINITION's source pathname.
 @end table
 @end deffn
 @deffn {Method} {source-pathname} ((definition @ref{❨392❩, , @t{constant-definition}}))
-@anchor{❨556❩}@c
+@anchor{❨585❩}@c
 @methodsubindex{source-pathname}@c
 Return constant DEFINITION's source pathname.
 @table @strong
@@ -12147,7 +12147,7 @@ Return constant DEFINITION's source pathname.
 @end table
 @end deffn
 @deffn {Method} {source-pathname} (definition)
-@anchor{❨557❩}@c
+@anchor{❨586❩}@c
 @methodsubindex{source-pathname}@c
 Return DEFINITION's object source pathname (this is the default method).
 @table @strong
@@ -12156,7 +12156,7 @@ Return DEFINITION's object source pathname (this is the default method).
 @end table
 @end deffn
 @deffn {Generic Function} {stabilize} (definition definitions packages pathnames)
-@anchor{❨503❩}@c
+@anchor{❨545❩}@c
 @genericsubindex{stabilize}@c
 Stabilize DEFINITION in DEFINITIONS and domestic PACKAGES and PATHNAMES.
 @table @strong
@@ -12172,7 +12172,7 @@ Stabilize DEFINITION in DEFINITIONS and domestic PACKAGES and PATHNAMES.
 @end table
 @item Methods
 @deffn {Method} {stabilize} progn ((definition @ref{❨146❩, , @t{system-definition}}) definitions packages pathnames)
-@anchor{❨504❩}@c
+@anchor{❨546❩}@c
 @methodsubindex{stabilize}@c
 Compute system DEFINITION's defsystem dependency definitions.
 Those definitions are guaranteed to be in the original system's order.
@@ -12180,7 +12180,7 @@ Those definitions are guaranteed to be in the original system's order.
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨98❩, , @t{module-definition}}) definitions packages pathnames)
-@anchor{❨505❩}@c
+@anchor{❨547❩}@c
 @methodsubindex{stabilize}@c
 Compute module DEFINITION's child definitions.@*
 Those definitions are guaranteed to be in the module's original order.
@@ -12188,14 +12188,14 @@ Those definitions are guaranteed to be in the module's original order.
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨272❩, , @t{lisp-file-definition}}) definitions packages pathnames)
-@anchor{❨506❩}@c
+@anchor{❨548❩}@c
 @methodsubindex{stabilize}@c
 Compute Lisp file DEFINITION's definitions list.
 @table @strong
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨130❩, , @t{component-definition}}) definitions packages pathnames)
-@anchor{❨507❩}@c
+@anchor{❨549❩}@c
 @methodsubindex{stabilize}@c
 Compute component DEFINITION's parent and dependency definitions.
 Those definitions are guaranteed to be in the original component's order.
@@ -12203,7 +12203,7 @@ Those definitions are guaranteed to be in the original component's order.
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨208❩, , @t{package-definition}}) definitions packages pathnames)
-@anchor{❨508❩}@c
+@anchor{❨550❩}@c
 @methodsubindex{stabilize}@c
 Compute package DEFINITION's use@comma{} used-by@comma{} and definitions lists.
 New foreign package definitions may be created and added at the end of
@@ -12212,98 +12212,98 @@ DEFINITIONS in the process.
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨263❩, , @t{function-alias-definition}}) definitions packages pathnames)
-@anchor{❨509❩}@c
+@anchor{❨551❩}@c
 @methodsubindex{stabilize}@c
 Compute simple function alias DEFINITION's referee.
 @table @strong
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨95❩, , @t{compiler-macro-alias-definition}}) definitions packages pathnames)
-@anchor{❨510❩}@c
+@anchor{❨552❩}@c
 @methodsubindex{stabilize}@c
 Compute compiler macro alias DEFINITION's referee.
 @table @strong
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨416❩, , @t{macro-alias-definition}}) definitions packages pathnames)
-@anchor{❨511❩}@c
+@anchor{❨553❩}@c
 @methodsubindex{stabilize}@c
 Compute macro alias DEFINITION's referee.
 @table @strong
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨127❩, , @t{typed-structure-slot-definition}}) definitions packages pathnames)
-@anchor{❨512❩}@c
+@anchor{❨554❩}@c
 @methodsubindex{stabilize}@c
 Compute typed structure slot DEFINITION's reader and writer definitions.
 @table @strong
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨128❩, , @t{clos-slot-definition}}) definitions packages pathnames)
-@anchor{❨513❩}@c
+@anchor{❨555❩}@c
 @methodsubindex{stabilize}@c
 Compute CLOS slot DEFINITION's reader and writer definitions.
 @table @strong
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨177❩, , @t{clos-classoid-mixin}}) definitions packages pathnames)
-@anchor{❨514❩}@c
+@anchor{❨556❩}@c
 @methodsubindex{stabilize}@c
 Compute classoid DEFINITION's super/sub classoids@comma{} and method definitions.
 @table @strong
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨85❩, , @t{method-definition}}) definitions packages pathnames)
-@anchor{❨515❩}@c
+@anchor{❨557❩}@c
 @methodsubindex{stabilize}@c
 Compute method DEFINITION's owner@comma{} and specializer references.
 @table @strong
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨231❩, , @t{short-combination-definition}}) definitions packages pathnames)
-@anchor{❨516❩}@c
+@anchor{❨558❩}@c
 @methodsubindex{stabilize}@c
 Compute short combination DEFINITION's standalone combinator definition.
 @table @strong
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨203❩, , @t{combination-definition}}) definitions packages pathnames)
-@anchor{❨517❩}@c
+@anchor{❨559❩}@c
 @methodsubindex{stabilize}@c
 Compute method combination DEFINITION's users.
 @table @strong
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨45❩, , @t{generic-function-definition}}) definitions packages pathnames)
-@anchor{❨518❩}@c
+@anchor{❨560❩}@c
 @methodsubindex{stabilize}@c
 Compute generic function DEFINITION's methods@comma{} and combination definition.
 @table @strong
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨479❩, , @t{short-expander-definition}}) definitions packages pathnames)
-@anchor{❨519❩}@c
+@anchor{❨561❩}@c
 @methodsubindex{stabilize}@c
 Compute short setf expander DEFINITION's standalone writer definition.
 @table @strong
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨123❩, , @t{expander-definition}}) definitions packages pathnames)
-@anchor{❨520❩}@c
+@anchor{❨562❩}@c
 @methodsubindex{stabilize}@c
 Compute setf expander DEFINTIION's standalone reader definition.
 @table @strong
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨237❩, , @t{setfable-funcoid-definition}}) definitions packages pathnames)
-@anchor{❨521❩}@c
+@anchor{❨563❩}@c
 @methodsubindex{stabilize}@c
 Compute DEFINITION's expander-for and expanders-to references.
 @table @strong
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨218❩, , @t{symbol-definition}}) definitions packages pathnames)
-@anchor{❨522❩}@c
+@anchor{❨564❩}@c
 @methodsubindex{stabilize}@c
 Compute symbol DEFINITION's home package definition.@*
 New foreign package definitions may be created and added at the end of
@@ -12312,7 +12312,7 @@ DEFINITIONS in the process.
 @end table
 @end deffn
 @deffn {Method} {stabilize} progn ((definition @ref{❨385❩, , @t{definition}}) definitions packages pathnames)
-@anchor{❨523❩}@c
+@anchor{❨565❩}@c
 @methodsubindex{stabilize}@c
 Compute DEFINITION's source file definition.
 @table @strong
@@ -12324,7 +12324,7 @@ Compute DEFINITION's source file definition.
 @node Private method combinations, Private structures, Private generic functions, Internals
 @subsection Method combinations
 @deffn {Method Combination} {document} ()
-@anchor{❨824❩}@c
+@anchor{❨826❩}@c
 @combinationsubindex{document}@c
 The documentation protocol's method combination.@*
 This method combination provides the following four method groups:@*
@@ -12353,7 +12353,7 @@ regardless of the group.
 @item Source
 @ref{❨22❩, , @t{doc.lisp}}.
 @item Client Functions
-@ref{❨784❩, , @t{document}}.
+@ref{❨786❩, , @t{document}}.
 @end table
 @end deffn
 
@@ -12389,9 +12389,9 @@ This structure holds Texinfo nodes.
 @slotsubindex{synopsis}@c
 @table @strong
 @item Readers
-@ref{❨685❩, , @t{node-synopsis}}.
+@ref{❨684❩, , @t{node-synopsis}}.
 @item Writers
-@ref{❨686❩, , @t{(setf node-synopsis)}}.
+@ref{❨685❩, , @t{(setf node-synopsis)}}.
 @end table
 @end defvr
 @defvr {Slot} {section-type}
@@ -12441,9 +12441,9 @@ This structure holds Texinfo nodes.
 @slotsubindex{up}@c
 @table @strong
 @item Readers
-@ref{❨825❩, , @t{node-up}}.
+@ref{❨768❩, , @t{node-up}}.
 @item Writers
-@ref{❨826❩, , @t{(setf node-up)}}.
+@ref{❨769❩, , @t{(setf node-up)}}.
 @end table
 @end defvr
 @defvr {Slot} {children}
@@ -12453,9 +12453,9 @@ This structure holds Texinfo nodes.
 @item Package
 @ref{❨36❩, , @t{net.didierverna.declt.assess}}.
 @item Readers
-@ref{❨772❩, , @t{node-children}}.
+@ref{❨774❩, , @t{node-children}}.
 @item Writers
-@ref{❨773❩, , @t{(setf node-children)}}.
+@ref{❨775❩, , @t{(setf node-children)}}.
 @end table
 @end defvr
 @defvr {Slot} {before-menu-contents}
@@ -12473,9 +12473,9 @@ This structure holds Texinfo nodes.
 @slotsubindex{after-menu-contents}@c
 @table @strong
 @item Readers
-@ref{❨633❩, , @t{node-after-menu-contents}}.
+@ref{❨623❩, , @t{node-after-menu-contents}}.
 @item Writers
-@ref{❨634❩, , @t{(setf node-after-menu-contents)}}.
+@ref{❨624❩, , @t{(setf node-after-menu-contents)}}.
 @end table
 @end defvr
 @end table
@@ -12484,7 +12484,7 @@ This structure holds Texinfo nodes.
 @node Private classes, , Private structures, Internals
 @subsection Classes
 @deftp {Class} {context}
-@anchor{❨680❩}@c
+@anchor{❨679❩}@c
 @classsubindex{context}@c
 The class of rendering contexts.
 @table @strong
@@ -12497,15 +12497,15 @@ The class of rendering contexts.
 @item
 @ref{❨750❩, , @t{declt-notice}}.
 @item
-@ref{❨624❩, , @t{default-values}}.
+@ref{❨634❩, , @t{default-values}}.
 @item
-@ref{❨679❩, , @t{foreign-definitions}}.
+@ref{❨678❩, , @t{foreign-definitions}}.
 @item
-@ref{❨783❩, , @t{locations}}.
+@ref{❨785❩, , @t{locations}}.
 @end itemize
 @item Direct slots
 @defvr {Slot} {locations}
-@anchor{❨681❩}@c
+@anchor{❨680❩}@c
 @slotsubindex{locations}@c
 Whether to hyperlink definitions to their locations.@*
 Currently supported values are NIL (the default)@comma{} and :file-system.
@@ -12513,39 +12513,39 @@ Currently supported values are NIL (the default)@comma{} and :file-system.
 @item Initargs
 @t{:locations}
 @item Readers
-@ref{❨783❩, , @t{locations}}.
+@ref{❨785❩, , @t{locations}}.
 @item Writers
 @i{This slot is read-only.}
 @end table
 @end defvr
 @defvr {Slot} {default-values}
-@anchor{❨682❩}@c
+@anchor{❨681❩}@c
 @slotsubindex{default-values}@c
 Whether to render default / standard values.
 @table @strong
 @item Initargs
 @t{:default-values}
 @item Readers
-@ref{❨624❩, , @t{default-values}}.
+@ref{❨634❩, , @t{default-values}}.
 @item Writers
 @i{This slot is read-only.}
 @end table
 @end defvr
 @defvr {Slot} {foreign-definitions}
-@anchor{❨683❩}@c
+@anchor{❨682❩}@c
 @slotsubindex{foreign-definitions}@c
 Whether to render foreign definitions.
 @table @strong
 @item Initargs
 @t{:foreign-definitions}
 @item Readers
-@ref{❨679❩, , @t{foreign-definitions}}.
+@ref{❨678❩, , @t{foreign-definitions}}.
 @item Writers
 @i{This slot is read-only.}
 @end table
 @end defvr
 @defvr {Slot} {declt-notice}
-@anchor{❨684❩}@c
+@anchor{❨683❩}@c
 @slotsubindex{declt-notice}@c
 whether to add a small credit paragraph about Declt.
 Possible values are NIL@comma{} :short@comma{} or :long (the default).
