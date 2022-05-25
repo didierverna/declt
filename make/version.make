@@ -1,3 +1,3 @@
-LONG_VERSION    := 4.0 beta 1 "William Riker"
-SHORT_VERSION   := 4.0b1
+LONG_VERSION    := 4.0 beta 2 "William Riker"
+SHORT_VERSION   := 4.0b2
 COPYRIGHT_YEARS := 2010-2013, 2015-2022
