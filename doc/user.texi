@@ -1569,7 +1569,7 @@ compiler support or any other kind of help. You have my gratitude!
 @item BR. Fenn Pocock
 @item Sabra Crolleton
 @item Robert Goldman
-@item ``Symbolics''
+@item Steve Nunez
 @item Gavin Smith
 @end multitable
 
