@@ -458,7 +458,9 @@ Domesticity is defined in relation to domestic PACKAGES and PATHNAMES; see
 ;; ==========================================================================
 
 (defclass report ()
-  ((library-name :documentation "The library's name."
+  ((system-name :documentation "The main system's name, coerced to a string."
+		:initarg :system-name :reader system-name)
+   (library-name :documentation "The library's name."
 		 :accessor library-name)
    (tagline :documentation "The reference manual's tagline."
 	    :accessor tagline)
@@ -486,9 +488,9 @@ This is the class holding all extracted documentation information."))
   (print-unreadable-object (report stream :type t)
     (princ (library-name report) stream)))
 
-(defun make-report ()
-  "Make a new report."
-  (make-instance 'report))
+(defun make-report (system-name)
+  "Make a new report for SYSTEM-NAME (an ASDF system designator)."
+  (make-instance 'report :system-name (asdf:coerce-name system-name)))
 
 
 
@@ -522,9 +524,7 @@ SYSTEM-NAME is an ASDF system designator."
 (defun assess
     (system-name
      &key (introspection-level 1)
-	  (library-name (if (stringp system-name)
-			  system-name
-			  (string-downcase system-name)))
+	  (library-name (asdf:coerce-name system-name))
 	  (tagline nil taglinep)
 	  (library-version nil library-version-p)
 	  (contact nil contactp)
@@ -533,7 +533,7 @@ SYSTEM-NAME is an ASDF system designator."
 	  introduction
 	  conclusion
      &aux (system (load-system system-name))
-	  (report (make-report)))
+	  (report (make-report system-name)))
   "Extract and return documentation information for ASDF SYSTEM-NAME.
 The documentation information is returned in a REPORT structure, which see.
 

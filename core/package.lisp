@@ -117,7 +117,7 @@
     :system-definition-p
     :long-name :mailto :homepage :source-control :bug-tracker :license-name
     ;; - assess/src/assess.lisp:
-    :report :library-name :tagline :library-version :contacts
+    :report :system-name :library-name :tagline :library-version :contacts
     :copyright-years :license
     :introduction :conclusion
     :definitions

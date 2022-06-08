@@ -368,7 +368,7 @@ This manual was generated automatically by Declt ~A~@[ on ~A~].
 		     (declt-notice :long)
 
 		     (output-directory #p"./")
-		     (file-name (library-name report))
+		     (file-name (system-name report))
 		     (info-name file-name)
 		     (info-category "Common Lisp")
 		&aux (current-time-string (current-time-string))
