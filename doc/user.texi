@@ -1494,8 +1494,13 @@ upside down, so this one will be noticeable@dots{}
 @node Supported Platforms, Indexes, Documentation Tuning, Top
 @appendix Supported Platforms
 @sysindex{sb-introspect}
-@declt{} requires ASDF 3 and SBCL 2.1.2 or later. Other Lisp
+@declt{} requires ASDF 3 and SBCL 2.3.1 or later. Other Lisp
 implementations are not currently supported, but may be in the future.
+Besides, SBCL needs to be compiled with support for
+@t{:sb-xref-for-internals}. This can be achieved by passing the
+@option{--with-sb-xref-for-internals} option (or @option{--fancy}, which
+includes it) to the @file{make.sh} build script.
+
 The Texinfo code that @declt{} generates requires Makeinfo 6.7, and
 contains extended Unicode characters (so even for reading Info, Unicode
 support is necessary).
@@ -1571,6 +1576,7 @@ compiler support or any other kind of help. You have my gratitude!
 @item Robert Goldman
 @item Steve Nunez
 @item Gavin Smith
+@item Alexander Staudt
 @end multitable
 
 
