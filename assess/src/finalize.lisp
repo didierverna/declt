@@ -357,19 +357,19 @@ DEFINITIONS in the process."
   ;; and only add what's missing, but I don't think it's worth the trouble.
   (mapc
       (lambda (cache-entry)
-	(maphash (lambda (generic unused)
-		   (declare (ignore unused))
-		   (let ((client (find-definition generic definitions)))
-		     (cond (client
-			    (endpush client clients))
-			   ((not (foreignp definition))
-			    (endpush
-			     (destabilize definitions
-			       (new-generic-definition
-				generic packages pathnames))
-			     clients)))))
-		 (sb-pcl::method-combination-%generic-functions
-		  (cdr cache-entry))))
+	(sb-impl::map-hashset
+	 (lambda (generic)
+	   (let ((client (find-definition generic definitions)))
+	     (cond (client
+		    (endpush client clients))
+		   ((not (foreignp definition))
+		    (endpush
+		     (destabilize definitions
+		       (new-generic-definition
+			generic packages pathnames))
+		     clients)))))
+	 (sb-pcl::method-combination-%generic-functions
+	  (cdr cache-entry))))
     (sb-pcl::method-combination-info-cache (combination definition)))
   (setf (clients definition) clients))
 
