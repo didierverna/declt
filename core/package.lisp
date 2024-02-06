@@ -31,6 +31,7 @@
 (defpackage :net.didierverna.declt
   (:documentation "The Declt library's package.")
   (:use :cl :net.didierverna.declt.setup :net.didierverna.declt.assess)
+  (:shadow :nickname-package)
   (:export
     ;; From the :net.didierverna.declt.setup package:
     ;; - setup/src/version.lisp:
