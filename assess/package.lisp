@@ -155,6 +155,19 @@
     :copyright-years :license
     :introduction :conclusion
     :definitions
-    :assess))
+    :assess
+    ;; From package.lisp (this file):
+    :nickname-package))
+
+
+(in-package :net.didierverna.declt.assess)
+
+(defun nickname-package (&optional (nickname :assess))
+  "Add NICKNAME (:ASSESS by default) to the :NET.DIDIERVERNA.DECLT.ASSESS package."
+  (rename-package :net.didierverna.declt.assess
+		  (package-name :net.didierverna.declt.assess)
+		  (adjoin nickname
+			  (package-nicknames :net.didierverna.declt.assess)
+			  :test #'string-equal)))
 
 ;;; package.lisp ends here
