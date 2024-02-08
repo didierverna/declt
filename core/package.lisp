@@ -1,6 +1,6 @@
 ;;; package.lisp --- Declt package definition
 
-;; Copyright (C) 2010-2013, 2015, 2017, 2021, 2022 Didier Verna
+;; Copyright (C) 2010-2013, 2015, 2017, 2021, 2022, 2024 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -19,14 +19,14 @@
 ;; OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-;;; Commentary:
-
-
-
 ;;; Code:
 
 (in-package :cl-user)
 
+
+;; -------------------
+;; Package definition:
+;; -------------------
 
 (defpackage :net.didierverna.declt
   (:documentation "The Declt library's package.")
@@ -129,8 +129,12 @@
     ;; From src/declt.lisp:
     :declt))
 
-
 (in-package :net.didierverna.declt)
+
+
+;; ------------------
+;; External Utilities
+;; ------------------
 
 (defun nickname-package (&optional (nickname :declt))
   "Add NICKNAME (:DECLT by default) to the :NET.DIDIERVERNA.DECLT package."

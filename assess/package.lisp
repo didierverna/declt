@@ -1,6 +1,6 @@
 ;;; package.lisp --- Declt assessment package definition
 
-;; Copyright (C) 2021, 2022 Didier Verna
+;; Copyright (C) 2021, 2022,2024 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -19,13 +19,14 @@
 ;; OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-;;; Commentary:
-
-
-
 ;;; Code:
 
 (in-package :cl-user)
+
+
+;; -------------------
+;; Package definition:
+;; -------------------
 
 (defpackage :net.didierverna.declt.assess
   (:documentation "The Declt assessment library's package.")
@@ -159,8 +160,12 @@
     ;; From package.lisp (this file):
     :nickname-package))
 
-
 (in-package :net.didierverna.declt.assess)
+
+
+;; ------------------
+;; External Utilities
+;; ------------------
 
 (defun nickname-package (&optional (nickname :assess))
   "Add NICKNAME (:ASSESS by default) to the :NET.DIDIERVERNA.DECLT.ASSESS package."
