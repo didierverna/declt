@@ -1,6 +1,6 @@
 ;;; symbol.lisp --- Symbol definitions
 
-;; Copyright (C) 2010-2013, 2017, 2020-2022 Didier Verna
+;; Copyright (C) 2010-2013, 2017, 2020-2022, 2024 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -825,6 +825,24 @@ It is T for list structures, but may be something else for vector ones."
 		 :initarg :element-type :accessor element-type))
   (:documentation "The class of typed structure definitions."))
 
+;; #### NOTE: this macro is part of sb-kernel, but Stas made a change that
+;; removed access to it from the outside, even with xref-for-internals. So now
+;; I have to duplicate it. See https://sourceforge.net/p/sbcl/mailman/sbcl-devel/thread/m2frrzkwnt.fsf%40didierverna.net/#msg58798783
+;; #### PORTME.
+(defmacro dd-element-type (dd)
+  "Duplication of SBCL's macro."
+  `(case (sb-kernel::dd-type ,dd)
+     (vector
+      ;; %ELEMENT-TYPE might actually be * which is weird but seems to mostly
+      ;; work. I suspect that it should not.
+      (sb-kernel::dd-%element-type ,dd))
+     (t
+      ;; In theory we have the ability to represent that all slots of a
+      ;; classoid structure are of type SB-VM:WORD (for example), but in
+      ;; practice that is not useful. Just don't return * which is not a type
+      ;; specifier.
+      t)))
+
 ;; #### PORTME.
 (defmethod initialize-instance :after
     ((definition typed-structure-definition)
@@ -833,7 +851,7 @@ It is T for list structures, but may be something else for vector ones."
 	  (source (source-by-object structure)))
   "Compute typed structure DEFINITION's type, element type, and slots."
   (setf (structure-type definition) (sb-kernel:dd-type structure))
-  (setf (element-type definition) (sb-kernel::dd-element-type structure))
+  (setf (element-type definition) (dd-element-type structure))
   (dolist (slot (sb-kernel:dd-slots structure))
     (let ((slot-definition
 	    (make-typed-structure-slot-definition
