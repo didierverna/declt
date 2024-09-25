@@ -292,7 +292,7 @@ definition for each file."
 
 (defclass system-definition (module-definition)
   ((object :initarg :system :reader system) ;; slot overload
-   (parent :initform nil) ;; slot -overload
+   (parent :initform nil) ;; slot overload
    (maintainers
     :documentation "The list of parsed maintainer contacts.
 See `parse-contact-string' for more information."
