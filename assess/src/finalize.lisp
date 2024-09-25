@@ -955,7 +955,7 @@ Those definitions are guaranteed to be in the original system's order."
 ;; elegant) ways. One advantage of this approach is that it's already
 ;; thread-safe, if we ever go down that road in the future.
 
-(defun freeze (definitions &aux (next-uid 0))
+(defun freeze (definitions &aux (next-uid -1))
   "Freeze DEFINITIONS.
 Currently, this means:
 - computing the definitions UIDs,
