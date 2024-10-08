@@ -91,7 +91,8 @@ A definition is public when the symbol naming it has a home package,
 and is exported from it."
   (and home-package
        (member (definition-symbol definition)
-	       (external-symbols home-package))))
+	       (external-symbols home-package))
+       t))
 
 
 
