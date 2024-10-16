@@ -78,6 +78,10 @@ see:
 	       (not (member symbol external-symbols)))
       (push symbol internal-symbols))))
 
+;; #### NOTE: even foreign packages get their lists of external and internal
+;; symbols computed below. I'm not completely sure it's required right now,
+;; but it may turn out to be necessary one day for printing foreign symbols in
+;; the form <foreign package>:[:]<symbol-name>.
 (defmethod initialize-instance :after ((definition package-definition) &key)
   "Compute DEFINITION's package lists of external and internal symbols."
   (multiple-value-bind (internals externals)
