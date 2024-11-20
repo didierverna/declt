@@ -1,6 +1,7 @@
 ## Version
 - New function `nickname-package` in the assessment system.
 - Require SBCL 2.3.1, and follow changes related to method combinations.
+- Follow some other internal changes in SBCL.
 - Revert output file name's default value to the system name.
 
 ## Version 4.0b2
