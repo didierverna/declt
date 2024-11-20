@@ -1,6 +1,6 @@
 ;;; version.lisp --- Declt version management
 
-;; Copyright (C) 2015, 2017, 2019, 2021, 2022 Didier Verna
+;; Copyright (C) 2015, 2017, 2019, 2021, 2022, 2024 Didier Verna
 
 ;; Author: Didier Verna <didier@didierverna.net>
 
@@ -31,7 +31,7 @@
 
 
 ;; Copyright years
-(defvar *copyright-years* "2010-2013, 2015-2022"
+(defvar *copyright-years* "2010-2013, 2015-2022, 2024"
   "A string denoting the copyright years for the whole project.")
 
 
@@ -47,7 +47,7 @@
 (defparameter *release-status* :beta
   "The status of this release.")
 
-(defparameter *release-status-level* 2
+(defparameter *release-status-level* 3
   "The status level of this release.")
 
 (defparameter *release-name* "William Riker"

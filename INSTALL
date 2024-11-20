@@ -2,7 +2,7 @@
 2 Installation
 **************
 
-First of all, see Declt’s homepage
+First of all, see Declt's homepage
 (http://www.lrde.epita.fr/~didier/software/lisp/typesetting.php#declt)
 for tarballs, Git repository and online documentation.  Declt is an ASDF
 3 library, and currently works with SBCL only.  If you download a Declt
@@ -29,7 +29,7 @@ below.
      compiled the documentation in DVI and Postscript format, those will
      be installed as well.
 
-   The reference manual’s Texinfo source is included in the distribution
+   The reference manual's Texinfo source is included in the distribution
 (and in the repository), although, as mentioned before, it is generated
 by Declt itself.  Before compiling, it is possible to regenerate a local
 version of it with hyperlinks to your installation by typing ‘make
@@ -42,7 +42,7 @@ also type ‘make generate’.
 7.1 Configuration
 =================
 
-Some aspects of Declt’s behavior can be configured _before_ the library
+Some aspects of Declt's behavior can be configured _before_ the library
 system is actually loaded.  Declt stores its user-level configuration
 (along with some other setup parameters) in another ASDF system called
 ‘net.didierverna.declt.setup’ (and the eponym package).  In order to
@@ -58,7 +58,7 @@ typically do something like this:
    Out of curiosity, you can also inquire the current configuration for
 specific options with the following function.
  -- Function: configuration KEY
-     Return KEY’s value in the current Declt configuration.
+     Return KEY's value in the current Declt configuration.
 
    Currently, the following options are provided.
 :swank-eval-in-emacs
@@ -69,7 +69,7 @@ specific options with the following function.
      when the ASDF system is loaded if you set this option to ‘t’.
      However, note that for this to work, the Slime variable
      ‘slime-enable-evaluate-in-emacs’ must also be set to ‘t’ in your
-     Emacs session.  If you’re interested to know how this process
+     Emacs session.  If you're interested to know how this process
      works, I have described it in this blog entry
      (http://www.didierverna.net/blog/index.php?post/2011/07/20/One-more-indentation-hack).
 

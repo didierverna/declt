@@ -1,4 +1,4 @@
-## Version
+## Version 4.0b3
 - New function `nickname-package` in the assessment system.
 - Require SBCL 2.3.1, and follow changes related to method combinations.
 - Follow some other internal changes in SBCL.
