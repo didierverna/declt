@@ -92,10 +92,12 @@ uninstall:
 	cd "$(INFO_DIR)" && rm -rf $(ALL_INFO_FILES) $(PROJECT)-$(USR_MAN)-data
 
 info: $(INFO_FILES)
-pdf: $(PDF_FILES)
+pdf: logo.png $(PDF_FILES)
 html: $(HTML_DIRS)
-dvi: $(DVI_FILES)
-ps: $(PS_FILES)
+dvi: logo.eps $(DVI_FILES)
+ps: logo.eps $(PS_FILES)
+
+LOGO_INSERT := 's/^\@author/\@vskip 2cm\n\@image\{logo,16cm\}\n\@author/'
 
 $(PROJECT)-$(USR_MAN).info: $(TXT_USR_MAN_DEPS:%=$(PROJECT)-$(USR_MAN)-data/%) \
 			    $(PNG_USR_MAN_DEPS:%=$(PROJECT)-$(USR_MAN)-data/%)
@@ -139,7 +141,8 @@ clean:
 	-rm *.tmp *.fn* *.vr* *.ky* *.tp* *.cp* *.pg *.toc *.aux *.log *~
 
 distclean: clean
-	-rm -fr $(HTML_DIRS)						\
+	-rm -fr logo.eps						\
+		$(HTML_DIRS)						\
 		$(ALL_INFO_FILES) $(PDF_FILES) $(DVI_FILES) $(PS_FILES) \
 		*.eps $(DOT_FIGURES:%=%.txt) $(DOT_FIGURES:%=%.png)	\
 		$(DOT_FIGURES:%=$(PROJECT)-$(USR_MAN)-data/%.png)	\
@@ -154,6 +157,7 @@ localref:
 
 generate:
 	$(SBCL_PATH) $(EVAL_CONFIG) $(SBCL_LOAD) ./generate.cl $(GENERATE_FLAGS)
+	$(PERL) -pi -e $(LOGO_INSERT) $(REF_MAN:%=%.texi)
 
 install-www: $(PDF_FILES) $(HTML_DIRS)
 	$(MAKE) install-at LOCATION="$(W3DIR)"
