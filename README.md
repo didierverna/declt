@@ -1,4 +1,5 @@
 # Declt
+![Declt Logo](doc/logo.png "Generating Common Lisp documentation since 2010")
 Declt (pronounce "dec'let") is a reference manual generator for Common Lisp
 libraries. A Declt manual documents one specified ASDF system (considered as
 the "main" system), and all its local dependencies (subsystems found in the
