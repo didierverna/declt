@@ -2,7 +2,7 @@
 
 @c reference.texi --- Reference manual
 
-@c Copyright (C) 2010-2013, 2015-2022, 2024 Didier Verna
+@c Copyright (C) 2010-2013, 2015-2022, 2024, 2025 Didier Verna
 
 @c This file is part of Declt.
 
@@ -22,7 +22,7 @@
 @c Commentary:
 
 @c Generated automatically by Declt version 4.0 beta 3 "William Riker"
-@c on Mon Jun 09 22:22:37 2025 GMT+1.
+@c on Sun Jun 15 22:31:57 2025 GMT+1.
 
 
 @c ====================================================================
@@ -234,7 +234,7 @@ The Declt Reference Manual, version 4.0 beta 3 "William Riker".
 @c ====================================================================
 @copying
 @quotation
-Copyright @copyright{} 2010-2013@comma{} 2015-2022@comma{} 2024 Didier Verna
+Copyright @copyright{} 2010-2013@comma{} 2015-2022@comma{} 2024@comma{} 2025 Didier Verna
 
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -272,7 +272,7 @@ except that this permission notice may be translated as well.
 
 @page
 @quotation
-This manual was generated automatically by Declt 4.0 beta 3 "William Riker" on Mon Jun 09 22:22:37 2025 GMT+1.
+This manual was generated automatically by Declt 4.0 beta 3 "William Riker" on Sun Jun 15 22:31:57 2025 GMT+1.
 @end quotation
 @vskip 0pt plus 1filll
 @insertcopying
@@ -295,7 +295,7 @@ This manual was generated automatically by Declt 4.0 beta 3 "William Riker" on M
 @top The Declt Reference Manual
 This is the Declt Reference Manual, version 4.0 beta 3 "William Riker",
 generated automatically by Declt version 4.0 beta 3 "William Riker"
-on Mon Jun 09 22:22:37 2025 GMT+1.
+on Sun Jun 15 22:31:57 2025 GMT+1.
 
 @menu
 * Copying:: The BSD License

@@ -41,7 +41,7 @@
 @c Settings
 @c ====================================================================
 @set VERSION 4.0 beta 3 "William Riker"
-@set COPYRIGHT_YEARS 2010--2013, 2015--2022, 2024
+@set COPYRIGHT_YEARS 2010--2013, 2015--2022, 2024, 2025
 @setchapternewpage odd
 @documentdescription
 The Declt User Manual for version @value{VERSION}.

@@ -1,6 +1,6 @@
 ### prologue.make --- Prologue Makefile
 
-## Copyright (C) 2010-2012, 2015, 2021 Didier Verna
+## Copyright (C) 2010-2012, 2015, 2021, 2025 Didier Verna
 
 ## Author: Didier Verna <didier@didierverna.net>
 
@@ -36,6 +36,7 @@ PERL := perl
 SHARE := $(PREFIX)/share
 
 W3DIR := $(HOME)/www/software/lisp/$(PROJECT)
+NET_DIR := $(HOME)/Documents/Science/Sites/didierverna.net/content/projects/quickref
 
 SBCL_CACHE  := sbcl
 SBCL_BINLOC := sbcl

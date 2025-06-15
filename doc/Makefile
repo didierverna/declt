@@ -1,6 +1,6 @@
 ### Makefile --- Doc directory
 
-## Copyright (C) 2010, 2011, 2013, 2015, 2017, 2021 Didier Verna
+## Copyright (C) 2010, 2011, 2013, 2015, 2017, 2021, 2025 Didier Verna
 
 ## Author: Didier Verna <didier@didierverna.net>
 
@@ -162,6 +162,11 @@ generate:
 install-www: $(PDF_FILES) $(HTML_DIRS)
 	$(MAKE) install-at LOCATION="$(W3DIR)"
 
+install-net: $(PDF_FILES)
+	for i in $(PDF_FILES); do				\
+	  install -m 644 $$i $(NET_DIR)/$(PROJECT)-$$i;	\
+	done
+
 include $(TOP_DIR)/make/epilogue.make
 
 .PHONY: all all-formats		\
@@ -169,6 +174,6 @@ include $(TOP_DIR)/make/epilogue.make
 	info pdf html dvi ps		\
 	localref generate		\
 	clean distclean		\
-	install-www
+	install-www install-net
 
 ### Makefile ends here
